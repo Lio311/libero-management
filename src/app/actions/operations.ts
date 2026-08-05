@@ -7,16 +7,7 @@ import { revalidatePath } from "next/cache";
 
 export async function updateWholesaleCustomer(
   id: string,
-  data: {
-    storeName?: string;
-    city?: string;
-    address?: string;
-    phoneCall?: string;
-    visit?: string;
-    potential?: string;
-    interest?: string;
-    notes?: string;
-  }
+  data: Partial<typeof wholesaleCustomers.$inferInsert>
 ) {
   try {
     await db
@@ -29,5 +20,29 @@ export async function updateWholesaleCustomer(
   } catch (error) {
     console.error("Failed to update wholesale customer:", error);
     return { success: false, error: "Failed to update customer" };
+  }
+}
+
+export async function createWholesaleCustomer(
+  data: Partial<typeof wholesaleCustomers.$inferInsert>
+) {
+  try {
+    const [newCustomer] = await db.insert(wholesaleCustomers).values(data).returning();
+    revalidatePath("/operations");
+    return { success: true, customer: newCustomer };
+  } catch (error) {
+    console.error("Failed to create wholesale customer:", error);
+    return { success: false, error: "Failed to create customer" };
+  }
+}
+
+export async function deleteWholesaleCustomer(id: string) {
+  try {
+    await db.delete(wholesaleCustomers).where(eq(wholesaleCustomers.id, id));
+    revalidatePath("/operations");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete wholesale customer:", error);
+    return { success: false, error: "Failed to delete customer" };
   }
 }

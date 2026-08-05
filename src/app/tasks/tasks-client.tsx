@@ -258,7 +258,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                     </div>
                     {task.dueDate && <span className="opacity-70">{task.dueDate}</span>}
                   </div>
-                  <div className="mt-3 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity gap-1">
+                  <div className="mt-3 flex justify-end transition-opacity gap-1">
                     <button onClick={(e) => { e.stopPropagation(); handleMarkAsDone(task.id, task); }} title="סמן כבוצע" className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                     </button>
@@ -303,7 +303,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                     </div>
                     {task.dueDate && <span className="opacity-70">{task.dueDate}</span>}
                   </div>
-                  <div className="mt-3 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity gap-1">
+                  <div className="mt-3 flex justify-end transition-opacity gap-1">
                     <button onClick={(e) => { e.stopPropagation(); handleMarkAsDone(task.id, task); }} title="סמן כבוצע" className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                     </button>
@@ -348,7 +348,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                     </div>
                     {task.dueDate && <span className="opacity-70">{task.dueDate}</span>}
                   </div>
-                  <div className="mt-3 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity gap-1">
+                  <div className="mt-3 flex justify-end transition-opacity gap-1">
                     <button onClick={(e) => { e.stopPropagation(); startEditing(task); setViewMode('table'); }} title="ערוך" className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded">
                       <Edit2 className="h-3.5 w-3.5" />
                     </button>

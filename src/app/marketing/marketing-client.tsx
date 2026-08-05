@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Camera, TrendingUp, HandCoins } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { updateInfluencer, updateInfluencerPayment } from "@/app/actions/marketing";
-import { Check, X, Edit2, ChevronRight, ChevronLeft } from "lucide-react";
+import { updateInfluencer, updateInfluencerPayment, createInfluencer, deleteInfluencer, createInfluencerPayment, deleteInfluencerPayment } from "@/app/actions/marketing";
+import { Check, X, Edit2, ChevronRight, ChevronLeft, Trash2, Plus } from "lucide-react";
 
 interface MarketingClientProps {
   activeInfluencers: number;
@@ -33,23 +33,39 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
   });
 
   const handleSave = async () => {
-    await updateInfluencer(inf.id, data);
-    setIsEditing(false);
+    if (inf.isNew) {
+      await createInfluencer(data);
+      if (inf.onCancelNew) inf.onCancelNew();
+    } else {
+      await updateInfluencer(inf.id, data);
+      setIsEditing(false);
+    }
   };
 
   const handleCancel = () => {
-    setData({
-      influencerName: inf.influencerName || '',
-      brand: inf.brand || '',
-      isPaid: inf.isPaid || '',
-      videoCount: inf.videoCount || '',
-      postCount: inf.postCount || '',
-      productsGiven: inf.productsGiven || '',
-      videosUploaded: inf.videosUploaded || '',
-      activities: inf.activities || '',
-      notes: inf.notes || ''
-    });
-    setIsEditing(false);
+    if (inf.isNew && inf.onCancelNew) {
+      inf.onCancelNew();
+    } else {
+      setData({
+        influencerName: inf.influencerName || '',
+        brand: inf.brand || '',
+        isPaid: inf.isPaid || '',
+        videoCount: inf.videoCount || '',
+        postCount: inf.postCount || '',
+        productsGiven: inf.productsGiven || '',
+        videosUploaded: inf.videosUploaded || '',
+        activities: inf.activities || '',
+        notes: inf.notes || ''
+      });
+      setIsEditing(false);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('האם למחוק שורה זו?')) {
+      await deleteInfluencer(inf.id);
+    }
   };
 
   if (isEditing) {
@@ -86,9 +102,14 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
       <td className="py-3 px-4 whitespace-nowrap max-w-[200px] truncate" title={inf.activities}>{inf.activities || '-'}</td>
       <td className="py-3 px-4 text-muted-foreground whitespace-nowrap max-w-[200px] truncate" title={inf.notes}>{inf.notes || '-'}</td>
       <td className="py-3 px-4">
-        <button onClick={() => setIsEditing(true)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
-          <Edit2 className="h-4 w-4" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setIsEditing(true)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
+            <Edit2 className="h-4 w-4" />
+          </button>
+          <button onClick={handleDelete} className="p-1 text-red-600 hover:bg-red-50 rounded">
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       </td>
     </tr>
   );
@@ -105,22 +126,41 @@ function EditablePaymentRow({ payment }: { payment: any }) {
   });
 
   const handleSave = async () => {
-    await updateInfluencerPayment(payment.id, {
-      ...data,
-      amount: data.amount.toString()
-    });
-    setIsEditing(false);
+    if (payment.isNew) {
+      await createInfluencerPayment({
+        ...data,
+        amount: data.amount.toString()
+      });
+      if (payment.onCancelNew) payment.onCancelNew();
+    } else {
+      await updateInfluencerPayment(payment.id, {
+        ...data,
+        amount: data.amount.toString()
+      });
+      setIsEditing(false);
+    }
   };
 
   const handleCancel = () => {
-    setData({
-      influencerName: payment.influencerName || '',
-      amount: payment.amount || 0,
-      isDone: payment.isDone || '',
-      paymentMonth: payment.paymentMonth || '',
-      notes: payment.notes || ''
-    });
-    setIsEditing(false);
+    if (payment.isNew && payment.onCancelNew) {
+      payment.onCancelNew();
+    } else {
+      setData({
+        influencerName: payment.influencerName || '',
+        amount: payment.amount || 0,
+        isDone: payment.isDone || '',
+        paymentMonth: payment.paymentMonth || '',
+        notes: payment.notes || ''
+      });
+      setIsEditing(false);
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm('האם למחוק שורה זו?')) {
+      await deleteInfluencerPayment(payment.id);
+    }
   };
 
   if (isEditing) {
@@ -164,9 +204,14 @@ function EditablePaymentRow({ payment }: { payment: any }) {
       <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{payment.paymentMonth || '-'}</td>
       <td className="py-3 px-4 text-muted-foreground">{payment.notes || '-'}</td>
       <td className="py-3 px-4">
-        <button onClick={() => setIsEditing(true)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
-          <Edit2 className="h-4 w-4" />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setIsEditing(true)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
+            <Edit2 className="h-4 w-4" />
+          </button>
+          <button onClick={handleDelete} className="p-1 text-red-600 hover:bg-red-50 rounded">
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
       </td>
     </tr>
   );
@@ -187,6 +232,9 @@ export default function MarketingClient({
   // Month navigation logic
   const allMonths = Array.from(new Set(rawPayments.map(p => p.paymentMonth).filter(Boolean))).sort();
   const [currentMonthIndex, setCurrentMonthIndex] = useState(allMonths.length > 0 ? allMonths.length - 1 : -1);
+
+  const [isAddingInfluencer, setIsAddingInfluencer] = useState(false);
+  const [isAddingPayment, setIsAddingPayment] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -276,9 +324,14 @@ export default function MarketingClient({
 
       {/* Raw Influencers Table */}
       <Card className="bg-white border-none shadow-sm mt-8">
-        <CardHeader>
-          <CardTitle>נתוני משפיענים (גולמי)</CardTitle>
-          <CardDescription>פירוט פעילות משפיענים כפי שהוזנה במערכת</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div>
+            <CardTitle>נתוני משפיענים (גולמי)</CardTitle>
+            <CardDescription>פירוט פעילות משפיענים כפי שהוזנה במערכת</CardDescription>
+          </div>
+          <button onClick={() => setIsAddingInfluencer(true)} className="flex items-center gap-1 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90">
+            <Plus className="w-4 h-4" /> הוסף חדש
+          </button>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto pb-2">
@@ -298,6 +351,7 @@ export default function MarketingClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
+                {isAddingInfluencer && <EditableInfluencerRow inf={{ isNew: true, onCancelNew: () => setIsAddingInfluencer(false) }} />}
                 {rawInfluencers && rawInfluencers.length > 0 ? (
                   rawInfluencers.map((inf) => (
                     <EditableInfluencerRow key={inf.id} inf={inf} />
@@ -322,25 +376,30 @@ export default function MarketingClient({
             <CardTitle>תשלומי משפיענים (גולמי)</CardTitle>
             <CardDescription>פירוט התשלומים למשפיענים כפי שהוזנו במערכת</CardDescription>
           </div>
-          {allMonths.length > 0 && (
-            <div className="flex items-center gap-4 bg-gray-50 rounded-lg p-1 border">
-              <button 
-                onClick={handlePrevMonth} 
-                disabled={currentMonthIndex === 0}
-                className="p-2 hover:bg-white rounded-md disabled:opacity-30 transition-colors"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-              <span className="font-medium min-w-[80px] text-center text-sm">{currentMonth || 'הכל'}</span>
-              <button 
-                onClick={handleNextMonth} 
-                disabled={currentMonthIndex === allMonths.length - 1}
-                className="p-2 hover:bg-white rounded-md disabled:opacity-30 transition-colors"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-            </div>
-          )}
+          <div className="flex items-center gap-4">
+            <button onClick={() => setIsAddingPayment(true)} className="flex items-center gap-1 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90">
+              <Plus className="w-4 h-4" /> הוסף חדש
+            </button>
+            {allMonths.length > 0 && (
+              <div className="flex items-center gap-4 bg-gray-50 rounded-lg p-1 border">
+                <button 
+                  onClick={handlePrevMonth} 
+                  disabled={currentMonthIndex === 0}
+                  className="p-2 hover:bg-white rounded-md disabled:opacity-30 transition-colors"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                <span className="font-medium min-w-[80px] text-center text-sm">{currentMonth || 'הכל'}</span>
+                <button 
+                  onClick={handleNextMonth} 
+                  disabled={currentMonthIndex === allMonths.length - 1}
+                  className="p-2 hover:bg-white rounded-md disabled:opacity-30 transition-colors"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto pb-2">
@@ -356,6 +415,7 @@ export default function MarketingClient({
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
+                {isAddingPayment && <EditablePaymentRow payment={{ isNew: true, paymentMonth: currentMonth, onCancelNew: () => setIsAddingPayment(false) }} />}
                 {filteredPayments && filteredPayments.length > 0 ? (
                   filteredPayments.map((payment) => (
                     <EditablePaymentRow key={payment.id} payment={payment} />
