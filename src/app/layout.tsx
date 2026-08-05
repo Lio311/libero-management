@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Assistant } from 'next/font/google';
 import './globals.css';
 
+export const dynamic = 'force-dynamic';
 const assistant = Assistant({ subsets: ['latin', 'hebrew'] });
 
 export const metadata: Metadata = {

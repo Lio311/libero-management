@@ -51,7 +51,7 @@ function EditableRoleRow({ roleHolder, onDelete }: { roleHolder: any, onDelete: 
       <tr onClick={() => setIsEditing(true)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
         <td className="py-3 px-4 font-medium whitespace-nowrap">{formData.name || '-'}</td>
         <td className="py-3 px-4 text-muted-foreground whitespace-pre-wrap text-right">{formData.role || '-'}</td>
-        <td className="py-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity w-16">
+        <td className="py-3 px-4 w-16">
           <div className="flex gap-2 justify-end">
             <button
               onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
@@ -280,7 +280,7 @@ export default function TeamClient({
           </button>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto pb-2">
             <table className="w-full text-sm text-right">
               <thead className="bg-gray-50/80 text-muted-foreground">
                 <tr>

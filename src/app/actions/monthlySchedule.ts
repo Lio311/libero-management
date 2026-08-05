@@ -11,7 +11,7 @@ export async function updateMonthlyScheduleDay(id: string, newDay: number) {
       weekNumber: newDay
     }).where(eq(monthlySchedule.id, id));
     
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error) {
     console.error("Failed to update schedule day", error);
@@ -27,10 +27,22 @@ export async function toggleMonthlyScheduleStatus(id: string, isCompleted: boole
       lastCompletedDate: isCompleted ? todayStr : null
     }).where(eq(monthlySchedule.id, id));
     
-    revalidatePath("/");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error) {
     console.error("Failed to toggle schedule status", error);
     return { success: false, error: "Failed to toggle schedule status" };
+  }
+}
+
+export async function deleteMonthlyScheduleAction(id: string) {
+  try {
+    await db.delete(monthlySchedule).where(eq(monthlySchedule.id, id));
+    
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete schedule task", error);
+    return { success: false, error: "Failed to delete schedule task" };
   }
 }
