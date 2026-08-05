@@ -41,25 +41,25 @@ export default function CalendarPage() {
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white selection:bg-white/30 font-sans pb-20 md:pb-0">
+    <div className="min-h-screen bg-gray-50/50 text-gray-900 selection:bg-blue-500/30 font-sans pb-20 md:pb-0" dir="ltr">
       {/* Premium Header */}
-      <header className="sticky top-0 z-40 bg-zinc-950/80 backdrop-blur-xl border-b border-white/10 px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
-            <CalendarIcon className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200">
+            <CalendarIcon className="w-5 h-5 text-gray-700" />
           </div>
           <div>
             <h1 className="text-xl font-light tracking-wide">Monthly Schedule</h1>
-            <p className="text-xs text-zinc-400 uppercase tracking-widest">Libero Management</p>
+            <p className="text-xs text-gray-500 uppercase tracking-widest">Libero Management</p>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
-          <button className="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors relative">
-            <Bell className="w-5 h-5 text-zinc-300" />
+          <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors relative">
+            <Bell className="w-5 h-5 text-gray-600" />
             <span className="absolute top-2 right-2.5 w-2 h-2 bg-blue-500 rounded-full"></span>
           </button>
-          <button className="bg-white text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-200 transition-colors flex items-center gap-2">
+          <button className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2">
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">New Task</span>
           </button>
@@ -69,25 +69,25 @@ export default function CalendarPage() {
       <main className="max-w-7xl mx-auto p-4 md:p-8">
         {/* Month Navigation */}
         <div className="flex items-center justify-between mb-8 mt-4">
-          <h2 className="text-3xl md:text-5xl font-light flex gap-3 items-baseline">
-            {format(currentDate, 'MMMM')} <span className="text-zinc-500 font-serif italic text-2xl md:text-4xl">{format(currentDate, 'yyyy')}</span>
+          <h2 className="text-3xl md:text-5xl font-light flex gap-3 items-baseline text-gray-900">
+            {format(currentDate, 'MMMM')} <span className="text-gray-400 font-serif italic text-2xl md:text-4xl">{format(currentDate, 'yyyy')}</span>
           </h2>
           <div className="flex gap-2">
-            <button onClick={prevMonth} className="p-2 md:p-3 rounded-full hover:bg-white/10 transition-colors border border-white/5">
-              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+            <button onClick={prevMonth} className="p-2 md:p-3 rounded-full hover:bg-gray-200 transition-colors border border-gray-200 bg-white shadow-sm">
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
             </button>
-            <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-white/10 transition-colors border border-white/5">
-              <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+            <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-gray-200 transition-colors border border-gray-200 bg-white shadow-sm">
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
             </button>
           </div>
         </div>
 
         {/* Calendar Grid */}
-        <div className="bg-zinc-900/40 rounded-2xl md:rounded-3xl border border-white/10 overflow-hidden shadow-2xl backdrop-blur-sm">
+        <div className="bg-white rounded-2xl md:rounded-3xl border border-gray-200 overflow-hidden shadow-lg backdrop-blur-sm">
           {/* Days of week */}
-          <div className="grid grid-cols-7 border-b border-white/10 bg-zinc-950/50">
+          <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50/80">
             {weekDays.map(day => (
-              <div key={day} className="py-4 text-center text-xs md:text-sm font-medium text-zinc-500 uppercase tracking-wider">
+              <div key={day} className="py-4 text-center text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                 {day}
               </div>
             ))}
@@ -104,19 +104,19 @@ export default function CalendarPage() {
               return (
                 <div 
                   key={day.toString()} 
-                  className={`min-h-[120px] md:min-h-[160px] p-2 md:p-3 border-r border-b border-white/5 relative group transition-colors hover:bg-white/[0.02]
-                    ${!isCurrentMonth ? 'bg-zinc-950/30' : ''}
+                  className={`min-h-[120px] md:min-h-[160px] p-2 md:p-3 border-r border-b border-gray-100 relative group transition-colors hover:bg-gray-50/80
+                    ${!isCurrentMonth ? 'bg-gray-50/40' : 'bg-white'}
                     ${dayIdx % 7 === 6 ? 'border-r-0' : ''}
                   `}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <span className={`text-sm md:text-base font-medium flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full
-                      ${isTodayDate ? 'bg-white text-black' : (isCurrentMonth ? 'text-zinc-200' : 'text-zinc-700')}
+                      ${isTodayDate ? 'bg-gray-900 text-white shadow-md' : (isCurrentMonth ? 'text-gray-900' : 'text-gray-400')}
                     `}>
                       {format(day, dateFormat)}
                     </span>
                     
-                    <button className="opacity-0 group-hover:opacity-100 p-1 text-zinc-500 hover:text-white transition-all">
+                    <button className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-gray-900 transition-all bg-gray-100 rounded-full">
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
@@ -129,21 +129,21 @@ export default function CalendarPage() {
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
-                          className={`group/task flex items-start gap-2 p-1.5 md:p-2 rounded-lg text-xs cursor-pointer border
-                            ${task.isCompleted ? 'bg-zinc-900/50 border-white/5 opacity-50' : 'bg-zinc-800/50 border-white/10 hover:border-white/20 hover:bg-zinc-800'}
+                          className={`group/task flex items-start gap-2 p-1.5 md:p-2 rounded-lg text-xs cursor-pointer border shadow-sm
+                            ${task.isCompleted ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'}
                             transition-all
                           `}
                         >
-                          <button className="flex-shrink-0 mt-0.5 text-zinc-500 hover:text-white transition-colors">
-                            {task.isCompleted ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                          <button className="flex-shrink-0 mt-0.5 text-gray-400 hover:text-gray-900 transition-colors">
+                            {task.isCompleted ? <CheckCircle2 className="w-3.5 h-3.5 text-gray-600" /> : <Circle className="w-3.5 h-3.5" />}
                           </button>
                           <div className="flex flex-col gap-1 overflow-hidden">
-                            <span className={`truncate ${task.isCompleted ? 'line-through' : ''}`}>
+                            <span className={`truncate ${task.isCompleted ? 'line-through text-gray-500' : 'text-gray-800'}`}>
                               {task.title}
                             </span>
                             <span className="flex items-center gap-1.5">
                               <span className={`w-1.5 h-1.5 rounded-full ${task.category.color}`}></span>
-                              <span className="text-[10px] text-zinc-500 truncate">{task.category.name}</span>
+                              <span className="text-[10px] text-gray-500 truncate">{task.category.name}</span>
                             </span>
                           </div>
                         </motion.div>
