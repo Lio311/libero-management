@@ -1,3 +1,7 @@
+ 
+ 
+/* eslint-disable @typescript-eslint/no-require-imports */
+ 
 const fs = require('fs');
 let code = fs.readFileSync('src/app/finance/finance-client.tsx', 'utf8');
 

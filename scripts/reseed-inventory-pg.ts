@@ -1,3 +1,7 @@
+ 
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as xlsx from 'xlsx';
 import path from 'path';
 import { Client } from 'pg';

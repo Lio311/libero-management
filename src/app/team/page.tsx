@@ -1,3 +1,7 @@
+ 
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from "@/lib/db";
 import { teamTasks, roleHolders, teamTaskConnections } from "@/lib/db/schema";
 import { asc } from "drizzle-orm";

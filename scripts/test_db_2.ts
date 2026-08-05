@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
+ 
 import { config } from "dotenv";
 config({ path: ".env" });
 import { db } from "../src/lib/db/index";

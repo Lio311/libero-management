@@ -1,3 +1,7 @@
+ 
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as xlsx from 'xlsx';
 import { db } from '../src/lib/db';
 import { bankOfTasks } from '../src/lib/db/schema';

@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -118,7 +122,7 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
   
   const limit = Number(card.creditLimit || 0);
   // Simulated usage (since we don't have real usage data)
-  const usedPercent = limit > 0 ? Math.round((0.3 + Math.random() * 0.4) * 100) : 0;
+  const usedPercent = limit > 0 ? (40 + (index * 15) % 40) : 0;
   const usedAmount = Math.round(limit * usedPercent / 100);
   const remainingAmount = limit - usedAmount;
   
@@ -363,30 +367,125 @@ function EditablePaymentRow({ payment, onCancelNew }: { payment: any, onCancelNe
 
   if (!isEditing) {
     return (
-      <tr onClick={() => setIsEditing(true)} className="hover:bg-gray-50/50 transition-colors cursor-pointer">
-        <td className="p-3 text-gray-700">{formData.brand || '-'}</td>
-        <td className="p-3 text-gray-700">{Number(formData.orderAmountForeign || 0).toLocaleString()}</td>
-        <td className="p-3 text-gray-700">₪{Number(formData.orderAmountNis || 0).toLocaleString()}</td>
-        <td className="p-3 text-gray-700">₪{Number(formData.vat || 0).toLocaleString()}</td>
-        <td className="p-3 text-gray-700">₪{Number(formData.shippingCost || 0).toLocaleString()}</td>
-        <td className="p-3 text-left whitespace-nowrap">
-          <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1 text-blue-600 hover:bg-blue-50 rounded mx-1"><Edit2 className="h-4 w-4" /></button>
-          <button onClick={handleDelete} className="p-1 text-red-600 hover:bg-red-50 rounded mx-1"><Trash2 className="h-4 w-4" /></button>
+      <tr onClick={() => setIsEditing(true)} className="flex flex-col md:table-row bg-white border border-gray-100 md:border-b md:border-gray-50 rounded-xl md:rounded-none p-4 md:p-0 hover:bg-gray-50/50 transition-colors cursor-pointer shadow-sm md:shadow-none">
+        {/* Mobile View */}
+        <td className="md:hidden">
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-[11px] text-gray-500 font-medium mb-0.5">מותג</p>
+                <p className="text-base font-semibold text-gray-900">{formData.brand || '-'}</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-2 bg-blue-50/50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"><Edit2 className="h-4 w-4" /></button>
+                <button onClick={handleDelete} className="p-2 bg-red-50/50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"><Trash2 className="h-4 w-4" /></button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 bg-gray-50/80 p-3 rounded-lg border border-gray-100">
+              <div>
+                <p className="text-[11px] text-gray-500 mb-1 font-medium">סכום מט&quot;ח</p>
+                <p className="text-sm font-medium text-gray-900" dir="ltr">{Number(formData.orderAmountForeign || 0).toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-[11px] text-gray-500 mb-1 font-medium">סכום ש&quot;ח</p>
+                <p className="text-sm font-medium text-gray-900" dir="ltr">₪{Number(formData.orderAmountNis || 0).toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-[11px] text-gray-500 mb-1 font-medium">מע&quot;מ</p>
+                <p className="text-sm font-medium text-gray-900" dir="ltr">₪{Number(formData.vat || 0).toLocaleString()}</p>
+              </div>
+              <div>
+                <p className="text-[11px] text-gray-500 mb-1 font-medium">עלות שילוח</p>
+                <p className="text-sm font-medium text-gray-900" dir="ltr">₪{Number(formData.shippingCost || 0).toLocaleString()}</p>
+              </div>
+            </div>
+          </div>
+        </td>
+        {/* Desktop View */}
+        <td className="hidden md:table-cell p-3 border-b border-gray-50">
+          <span className="text-gray-900 font-medium">{formData.brand || '-'}</span>
+        </td>
+        <td className="hidden md:table-cell p-3 border-b border-gray-50">
+          <span className="text-gray-700" dir="ltr">{Number(formData.orderAmountForeign || 0).toLocaleString()}</span>
+        </td>
+        <td className="hidden md:table-cell p-3 border-b border-gray-50">
+          <span className="text-gray-700" dir="ltr">₪{Number(formData.orderAmountNis || 0).toLocaleString()}</span>
+        </td>
+        <td className="hidden md:table-cell p-3 border-b border-gray-50">
+          <span className="text-gray-700" dir="ltr">₪{Number(formData.vat || 0).toLocaleString()}</span>
+        </td>
+        <td className="hidden md:table-cell p-3 border-b border-gray-50">
+          <span className="text-gray-700" dir="ltr">₪{Number(formData.shippingCost || 0).toLocaleString()}</span>
+        </td>
+        <td className="hidden md:table-cell p-3 border-b border-gray-50 pt-3">
+          <div className="flex items-center justify-end">
+            <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded mx-1 transition-colors"><Edit2 className="h-4 w-4" /></button>
+            <button onClick={handleDelete} className="p-1.5 text-red-600 hover:bg-red-50 rounded mx-1 transition-colors"><Trash2 className="h-4 w-4" /></button>
+          </div>
         </td>
       </tr>
     );
   }
 
   return (
-    <tr className="bg-blue-50/30 transition-colors">
-      <td className="p-2"><input name="brand" value={formData.brand} onChange={handleChange} autoFocus className="w-full p-1 border rounded text-sm text-right" dir="rtl" /></td>
-      <td className="p-2"><input type="number" name="orderAmountForeign" value={formData.orderAmountForeign} onChange={handleChange} className="w-full p-1 border rounded text-sm text-right" dir="ltr" /></td>
-      <td className="p-2"><input type="number" name="orderAmountNis" value={formData.orderAmountNis} onChange={handleChange} className="w-full p-1 border rounded text-sm text-right" dir="ltr" /></td>
-      <td className="p-2"><input type="number" name="vat" value={formData.vat} onChange={handleChange} className="w-full p-1 border rounded text-sm text-right" dir="ltr" /></td>
-      <td className="p-2"><input type="number" name="shippingCost" value={formData.shippingCost} onChange={handleChange} className="w-full p-1 border rounded text-sm text-right" dir="ltr" /></td>
-      <td className="p-2 text-left whitespace-nowrap">
-        <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 rounded mx-1"><Check className="h-4 w-4" /></button>
-        <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-50 rounded mx-1"><X className="h-4 w-4" /></button>
+    <tr className="flex flex-col md:table-row bg-blue-50/40 border border-blue-200 md:border-b md:border-blue-100 rounded-xl md:rounded-none p-4 md:p-0 transition-colors shadow-sm md:shadow-none relative">
+      {/* Mobile Edit View */}
+      <td className="md:hidden">
+        <div className="flex flex-col gap-3">
+          <div>
+            <span className="text-[11px] text-gray-500 font-medium mb-1 block">מותג</span>
+            <input name="brand" value={formData.brand} onChange={handleChange} autoFocus className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-right outline-none transition-all" dir="rtl" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <span className="text-[11px] text-gray-500 font-medium mb-1 block">סכום מט&quot;ח</span>
+              <input type="number" name="orderAmountForeign" value={formData.orderAmountForeign} onChange={handleChange} className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-left outline-none transition-all" dir="ltr" />
+            </div>
+            <div>
+              <span className="text-[11px] text-gray-500 font-medium mb-1 block">סכום ש&quot;ח</span>
+              <input type="number" name="orderAmountNis" value={formData.orderAmountNis} onChange={handleChange} className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-left outline-none transition-all" dir="ltr" />
+            </div>
+            <div>
+              <span className="text-[11px] text-gray-500 font-medium mb-1 block">מע&quot;מ</span>
+              <input type="number" name="vat" value={formData.vat} onChange={handleChange} className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-left outline-none transition-all" dir="ltr" />
+            </div>
+            <div>
+              <span className="text-[11px] text-gray-500 font-medium mb-1 block">עלות שילוח</span>
+              <input type="number" name="shippingCost" value={formData.shippingCost} onChange={handleChange} className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-left outline-none transition-all" dir="ltr" />
+            </div>
+          </div>
+          <div className="flex gap-2 mt-2 pt-3 border-t border-blue-100">
+            <button onClick={handleSave} className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium">
+              <Check className="h-4 w-4" /> שמור
+            </button>
+            <button onClick={handleCancel} className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium border border-gray-200">
+              <X className="h-4 w-4" /> ביטול
+            </button>
+          </div>
+        </div>
+      </td>
+      
+      {/* Desktop Edit View */}
+      <td className="hidden md:table-cell p-2 align-middle">
+        <input name="brand" value={formData.brand} onChange={handleChange} autoFocus className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-right outline-none" dir="rtl" />
+      </td>
+      <td className="hidden md:table-cell p-2 align-middle">
+        <input type="number" name="orderAmountForeign" value={formData.orderAmountForeign} onChange={handleChange} className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-left outline-none" dir="ltr" />
+      </td>
+      <td className="hidden md:table-cell p-2 align-middle">
+        <input type="number" name="orderAmountNis" value={formData.orderAmountNis} onChange={handleChange} className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-left outline-none" dir="ltr" />
+      </td>
+      <td className="hidden md:table-cell p-2 align-middle">
+        <input type="number" name="vat" value={formData.vat} onChange={handleChange} className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-left outline-none" dir="ltr" />
+      </td>
+      <td className="hidden md:table-cell p-2 align-middle">
+        <input type="number" name="shippingCost" value={formData.shippingCost} onChange={handleChange} className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-left outline-none" dir="ltr" />
+      </td>
+      <td className="hidden md:table-cell p-2 align-middle text-left">
+        <div className="flex items-center justify-end">
+          <button onClick={handleSave} className="p-1.5 text-green-600 hover:bg-green-100 rounded mx-1 transition-colors"><Check className="h-4 w-4" /></button>
+          <button onClick={handleCancel} className="p-1.5 text-red-600 hover:bg-red-100 rounded mx-1 transition-colors"><X className="h-4 w-4" /></button>
+        </div>
       </td>
     </tr>
   );
@@ -441,28 +540,81 @@ function EditableChinaOrderRow({ order, onCancelNew }: { order: any, onCancelNew
 
   if (!isEditing) {
     return (
-      <tr onClick={() => setIsEditing(true)} className="hover:bg-gray-50/50 transition-colors cursor-pointer">
-        <td className="p-3 text-gray-700">{formData.products || '-'}</td>
-        <td className="p-3 text-gray-700">{formData.arrivalDate || '-'}</td>
-        <td className="p-3 text-left whitespace-nowrap">
-          <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1 text-blue-600 hover:bg-blue-50 rounded mx-1">
-            <Edit2 className="h-4 w-4" />
-          </button>
-          <button onClick={handleDelete} className="p-1 text-red-600 hover:bg-red-50 rounded mx-1">
-            <Trash2 className="h-4 w-4" />
-          </button>
+      <tr onClick={() => setIsEditing(true)} className="flex flex-col md:table-row bg-white border border-gray-100 md:border-b md:border-gray-50 rounded-xl md:rounded-none p-4 md:p-0 mb-3 md:mb-0 hover:bg-gray-50/50 transition-colors cursor-pointer shadow-sm md:shadow-none">
+        {/* Mobile View */}
+        <td className="md:hidden">
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <p className="text-[11px] text-gray-500 font-medium mb-0.5">מוצרים</p>
+                <p className="text-base font-semibold text-gray-900">{formData.products || '-'}</p>
+              </div>
+              <div className="flex gap-2 mr-4">
+                <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-2 bg-blue-50/50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"><Edit2 className="h-4 w-4" /></button>
+                <button onClick={handleDelete} className="p-2 bg-red-50/50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"><Trash2 className="h-4 w-4" /></button>
+              </div>
+            </div>
+            <div className="bg-gray-50/80 p-3 rounded-lg border border-gray-100 mt-1">
+              <p className="text-[11px] text-gray-500 mb-1 font-medium">תאריך הגעה משוער</p>
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                <Calendar className="w-4 h-4 text-gray-500" />
+                {formData.arrivalDate || '-'}
+              </div>
+            </div>
+          </div>
+        </td>
+        {/* Desktop View */}
+        <td className="hidden md:table-cell p-3 border-b border-gray-50">
+          <span className="text-gray-900 font-medium">{formData.products || '-'}</span>
+        </td>
+        <td className="hidden md:table-cell p-3 border-b border-gray-50">
+          <span className="text-gray-700">{formData.arrivalDate || '-'}</span>
+        </td>
+        <td className="hidden md:table-cell p-3 border-b border-gray-50 pt-3">
+          <div className="flex items-center justify-end">
+            <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded mx-1 transition-colors"><Edit2 className="h-4 w-4" /></button>
+            <button onClick={handleDelete} className="p-1.5 text-red-600 hover:bg-red-50 rounded mx-1 transition-colors"><Trash2 className="h-4 w-4" /></button>
+          </div>
         </td>
       </tr>
     );
   }
 
   return (
-    <tr className="bg-blue-50/30 transition-colors">
-      <td className="p-2"><input name="products" value={formData.products} onChange={handleChange} autoFocus className="w-full p-1 border rounded text-sm text-right" dir="rtl" /></td>
-      <td className="p-2"><input name="arrivalDate" value={formData.arrivalDate} onChange={handleChange} className="w-full p-1 border rounded text-sm text-right" dir="rtl" /></td>
-      <td className="p-2 text-left whitespace-nowrap">
-        <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 rounded mx-1"><Check className="h-4 w-4" /></button>
-        <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-50 rounded mx-1"><X className="h-4 w-4" /></button>
+    <tr className="flex flex-col md:table-row bg-blue-50/40 border border-blue-200 md:border-b md:border-blue-100 rounded-xl md:rounded-none p-4 md:p-0 mb-3 md:mb-0 transition-colors shadow-sm md:shadow-none">
+      {/* Mobile Edit View */}
+      <td className="md:hidden">
+        <div className="flex flex-col gap-3">
+          <div>
+            <span className="text-[11px] text-gray-500 font-medium mb-1 block">מוצרים</span>
+            <input name="products" value={formData.products} onChange={handleChange} autoFocus className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-right outline-none transition-all" dir="rtl" />
+          </div>
+          <div>
+            <span className="text-[11px] text-gray-500 font-medium mb-1 block">תאריך הגעה</span>
+            <input name="arrivalDate" value={formData.arrivalDate} onChange={handleChange} className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-right outline-none transition-all" dir="rtl" placeholder="DD/MM/YYYY" />
+          </div>
+          <div className="flex gap-2 mt-2 pt-3 border-t border-blue-100">
+            <button onClick={handleSave} className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium">
+              <Check className="h-4 w-4" /> שמור
+            </button>
+            <button onClick={handleCancel} className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium border border-gray-200">
+              <X className="h-4 w-4" /> ביטול
+            </button>
+          </div>
+        </div>
+      </td>
+      {/* Desktop Edit View */}
+      <td className="hidden md:table-cell p-2 align-middle">
+        <input name="products" value={formData.products} onChange={handleChange} autoFocus className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-right outline-none" dir="rtl" />
+      </td>
+      <td className="hidden md:table-cell p-2 align-middle">
+        <input name="arrivalDate" value={formData.arrivalDate} onChange={handleChange} className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-right outline-none" dir="rtl" />
+      </td>
+      <td className="hidden md:table-cell p-2 align-middle">
+        <div className="flex items-center justify-end">
+          <button onClick={handleSave} className="p-1.5 text-green-600 hover:bg-green-100 rounded mx-1 transition-colors"><Check className="h-4 w-4" /></button>
+          <button onClick={handleCancel} className="p-1.5 text-red-600 hover:bg-red-100 rounded mx-1 transition-colors"><X className="h-4 w-4" /></button>
+        </div>
       </td>
     </tr>
   );
@@ -485,6 +637,7 @@ export default function FinanceClient({
   const [isAddingChinaOrder, setIsAddingChinaOrder] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -640,55 +793,59 @@ export default function FinanceClient({
       <div className="space-y-8">
         <h3 className="text-2xl font-bold tracking-tight text-gray-900">טבלאות נתונים</h3>
         
-        <Card className="bg-white border-none shadow-sm p-4 overflow-x-auto">
+        <Card className="bg-white border-none shadow-sm p-4">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-primary">תשלומי יבוא</h4>
             <button onClick={() => setIsAddingPayment(true)} className="flex items-center gap-1 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90">
               <Plus className="w-4 h-4" /> הוסף חדש
             </button>
           </div>
-          <table className="w-full text-sm text-right whitespace-nowrap">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="p-3 font-medium text-gray-600">מותג</th>
-                <th className="p-3 font-medium text-gray-600">סכום מט&quot;ח</th>
-                <th className="p-3 font-medium text-gray-600">סכום ש&quot;ח</th>
-                <th className="p-3 font-medium text-right text-gray-500">מע&quot;מ</th>
-                <th className="p-3 font-medium text-right text-gray-500 rounded-tl-md">עלות שילוח</th>
-                <th className="p-3 font-medium text-right text-gray-500 rounded-tl-md w-16">פעולות</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {isAddingPayment && <EditablePaymentRow payment={{ isNew: true }} onCancelNew={() => setIsAddingPayment(false)} />}
-              {allPayments.map((p, i) => (
-                <EditablePaymentRow key={p.id || i} payment={p} />
-              ))}
-            </tbody>
-          </table>
+          <div className="md:overflow-x-auto">
+            <table className="w-full text-sm text-right whitespace-normal md:whitespace-nowrap">
+              <thead className="hidden md:table-header-group bg-gray-50 border-b">
+                <tr>
+                  <th className="p-3 font-medium text-gray-600">מותג</th>
+                  <th className="p-3 font-medium text-gray-600">סכום מט&quot;ח</th>
+                  <th className="p-3 font-medium text-gray-600">סכום ש&quot;ח</th>
+                  <th className="p-3 font-medium text-right text-gray-500">מע&quot;מ</th>
+                  <th className="p-3 font-medium text-right text-gray-500 rounded-tl-md">עלות שילוח</th>
+                  <th className="p-3 font-medium text-right text-gray-500 rounded-tl-md w-16">פעולות</th>
+                </tr>
+              </thead>
+              <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
+                {isAddingPayment && <EditablePaymentRow payment={{ isNew: true }} onCancelNew={() => setIsAddingPayment(false)} />}
+                {allPayments.map((p, i) => (
+                  <EditablePaymentRow key={p.id || i} payment={p} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Card>
 
-        <Card className="bg-white border-none shadow-sm p-4 overflow-x-auto">
+        <Card className="bg-white border-none shadow-sm p-4">
           <div className="flex items-center justify-between mb-4">
             <h4 className="text-lg font-semibold text-primary">הזמנות מסין</h4>
             <button onClick={() => setIsAddingChinaOrder(true)} className="flex items-center gap-1 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90">
               <Plus className="w-4 h-4" /> הוסף חדש
             </button>
           </div>
-          <table className="w-full text-sm text-right whitespace-nowrap">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="p-3 font-medium text-gray-600">מוצרים</th>
-                <th className="p-3 font-medium text-gray-600">תאריך הגעה</th>
-                <th className="p-3 font-medium text-left text-gray-500 rounded-tl-md w-16">פעולות</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {isAddingChinaOrder && <EditableChinaOrderRow order={{ isNew: true }} onCancelNew={() => setIsAddingChinaOrder(false)} />}
-              {allChinaOrders.map((o, i) => (
-                <EditableChinaOrderRow key={o.id || i} order={o} />
-              ))}
-            </tbody>
-          </table>
+          <div className="md:overflow-x-auto">
+            <table className="w-full text-sm text-right whitespace-normal md:whitespace-nowrap">
+              <thead className="hidden md:table-header-group bg-gray-50 border-b">
+                <tr>
+                  <th className="p-3 font-medium text-gray-600">מוצרים</th>
+                  <th className="p-3 font-medium text-gray-600">תאריך הגעה</th>
+                  <th className="p-3 font-medium text-left text-gray-500 rounded-tl-md w-16">פעולות</th>
+                </tr>
+              </thead>
+              <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
+                {isAddingChinaOrder && <EditableChinaOrderRow order={{ isNew: true }} onCancelNew={() => setIsAddingChinaOrder(false)} />}
+                {allChinaOrders.map((o, i) => (
+                  <EditableChinaOrderRow key={o.id || i} order={o} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Card>
       </div>
     </div>

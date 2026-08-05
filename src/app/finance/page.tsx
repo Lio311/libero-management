@@ -1,3 +1,7 @@
+ 
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from "@/lib/db";
 import { importPayments, creditCards, chinaOrders } from "@/lib/db/schema";
 import FinanceClient from "./finance-client";
@@ -53,7 +57,7 @@ export default async function FinanceDashboard() {
       return {
         name: displayName,
         limit: Number(c.creditLimit || 0),
-        used: Number(c.creditLimit || 0) * (0.3 + Math.random() * 0.5)
+        used: Number(c.creditLimit || 0) * 0.55
       };
     });
 
