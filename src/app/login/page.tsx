@@ -8,7 +8,9 @@ import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(false);
+  const [token, setToken] = useState('');
+  const [showTotpInput, setShowTotpInput] = useState(false);
+  const [error, setError] = useState<string | false>(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -18,13 +20,17 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const res = await login(password);
+      const res = await login(password, showTotpInput ? token : undefined);
       if (res.success) {
         router.push('/');
         router.refresh();
+      } else if (res.requireTotp) {
+        setShowTotpInput(true);
+        setError(false);
       } else {
-        setError(true);
-        setPassword('');
+        setError(res.error || 'שגיאה בהתחברות');
+        if (!showTotpInput) setPassword('');
+        if (showTotpInput) setToken('');
       }
     } finally {
       setIsLoading(false);
@@ -60,29 +66,48 @@ export default function LoginPage() {
             <p className="text-zinc-400 text-sm mb-10 tracking-widest uppercase">Management</p>
 
             <form onSubmit={handleSubmit} className="w-full">
-              <div className="relative mb-6">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-zinc-500" />
+              {!showTotpInput ? (
+                <div className="relative mb-6">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-zinc-500" />
+                  </div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setError(false);
+                    }}
+                    className={`w-full bg-zinc-900/50 border ${error ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-white/30'} rounded-xl py-4 pl-12 pr-4 text-white placeholder-zinc-500 focus:outline-none focus:ring-4 ${error ? 'focus:ring-red-500/10' : 'focus:ring-white/5'} transition-all duration-300 backdrop-blur-md`}
+                    placeholder="Enter passcode"
+                    disabled={isLoading}
+                    autoFocus
+                  />
                 </div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setError(false);
-                  }}
-                  className={`w-full bg-zinc-900/50 border ${error ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-white/30'} rounded-xl py-4 pl-12 pr-4 text-white placeholder-zinc-500 focus:outline-none focus:ring-4 ${error ? 'focus:ring-red-500/10' : 'focus:ring-white/5'} transition-all duration-300 backdrop-blur-md`}
-                  placeholder="Enter passcode"
-                  disabled={isLoading}
-                  autoFocus
-                />
-              </div>
+              ) : (
+                <div className="relative mb-6">
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={token}
+                    onChange={(e) => {
+                      setToken(e.target.value.replace(/[^0-9]/g, ''));
+                      setError(false);
+                    }}
+                    className={`w-full bg-zinc-900/50 border text-center text-xl tracking-[0.5em] font-mono ${error ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-white/30'} rounded-xl py-4 text-white placeholder-zinc-500 focus:outline-none focus:ring-4 ${error ? 'focus:ring-red-500/10' : 'focus:ring-white/5'} transition-all duration-300 backdrop-blur-md`}
+                    placeholder="000000"
+                    disabled={isLoading}
+                    autoFocus
+                  />
+                  {error && <p className="text-red-400 text-sm mt-2 text-center">{error}</p>}
+                </div>
+              )}
 
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                disabled={isLoading || password.length === 0}
+                disabled={isLoading || (!showTotpInput && password.length === 0) || (showTotpInput && token.length < 6)}
                 className="w-full bg-white text-black font-medium py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed group"
               >
                 {isLoading ? (
