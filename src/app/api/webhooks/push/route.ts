@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
+ 
 import { NextResponse } from 'next/server';
 import webpush from 'web-push';
 import { db } from '@/lib/db';

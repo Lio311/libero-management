@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl">
-      <body className={`${assistant.className} antialiased h-screen overflow-hidden flex`}>
+      <body className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row`}>
         <LayoutWrapper sidebar={
           <Sidebar>
             <GlobalNotifications />

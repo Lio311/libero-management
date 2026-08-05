@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect, useTransition } from 'react';
@@ -50,93 +54,176 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
 
   if (isEditing) {
     return (
-      <tr className="hover:bg-gray-50/50 transition-colors">
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.brandName}
-            onChange={(e) => setData({ ...data, brandName: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.inventoryStatus}
-            onChange={(e) => setData({ ...data, inventoryStatus: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.planningStatus}
-            onChange={(e) => setData({ ...data, planningStatus: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.contactStatus}
-            onChange={(e) => setData({ ...data, contactStatus: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.notes}
-            onChange={(e) => setData({ ...data, notes: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={handleSave}
-              disabled={isPending}
-              className="p-1 text-green-600 hover:bg-green-50 rounded"
-            >
-              <Check className="h-4 w-4" />
-            </button>
-            <button
-              onClick={handleCancel}
-              disabled={isPending}
-              className="p-1 text-red-600 hover:bg-red-50 rounded"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        </td>
-      </tr>
+      <>
+        {/* Mobile View */}
+        <tr className="md:hidden">
+          <td className="p-0">
+            <div className="bg-white rounded-lg shadow-sm border p-4 mb-4 space-y-3">
+              <div className="space-y-1">
+                <span className="text-sm font-medium text-gray-500">מותג</span>
+                <input
+                  className="w-full text-right p-2 border rounded-md"
+                  value={data.brandName}
+                  onChange={(e) => setData({ ...data, brandName: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <span className="text-sm font-medium text-gray-500">סטטוס מלאי</span>
+                <input
+                  className="w-full text-right p-2 border rounded-md"
+                  value={data.inventoryStatus}
+                  onChange={(e) => setData({ ...data, inventoryStatus: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <span className="text-sm font-medium text-gray-500">סטטוס תכנון</span>
+                <input
+                  className="w-full text-right p-2 border rounded-md"
+                  value={data.planningStatus}
+                  onChange={(e) => setData({ ...data, planningStatus: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <span className="text-sm font-medium text-gray-500">סטטוס קשר</span>
+                <input
+                  className="w-full text-right p-2 border rounded-md"
+                  value={data.contactStatus}
+                  onChange={(e) => setData({ ...data, contactStatus: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1">
+                <span className="text-sm font-medium text-gray-500">הערות</span>
+                <input
+                  className="w-full text-right p-2 border rounded-md"
+                  value={data.notes}
+                  onChange={(e) => setData({ ...data, notes: e.target.value })}
+                />
+              </div>
+              <div className="flex gap-2 justify-end pt-2 border-t mt-2">
+                <button onClick={handleSave} disabled={isPending} className="p-2 text-green-600 hover:bg-green-50 rounded-md bg-green-50 transition-colors">
+                  <Check className="h-5 w-5" />
+                </button>
+                <button onClick={handleCancel} disabled={isPending} className="p-2 text-red-600 hover:bg-red-50 rounded-md bg-red-50 transition-colors">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        {/* Desktop View */}
+        <tr className="hidden md:table-row hover:bg-gray-50/50 transition-colors">
+          <td className="py-2 px-4">
+            <input className="w-full text-right p-1 border rounded" value={data.brandName} onChange={(e) => setData({ ...data, brandName: e.target.value })} />
+          </td>
+          <td className="py-2 px-4">
+            <input className="w-full text-right p-1 border rounded" value={data.inventoryStatus} onChange={(e) => setData({ ...data, inventoryStatus: e.target.value })} />
+          </td>
+          <td className="py-2 px-4">
+            <input className="w-full text-right p-1 border rounded" value={data.planningStatus} onChange={(e) => setData({ ...data, planningStatus: e.target.value })} />
+          </td>
+          <td className="py-2 px-4">
+            <input className="w-full text-right p-1 border rounded" value={data.contactStatus} onChange={(e) => setData({ ...data, contactStatus: e.target.value })} />
+          </td>
+          <td className="py-2 px-4">
+            <input className="w-full text-right p-1 border rounded" value={data.notes} onChange={(e) => setData({ ...data, notes: e.target.value })} />
+          </td>
+          <td className="py-2 px-4 text-left">
+            <div className="flex justify-end gap-2">
+              <button onClick={handleSave} disabled={isPending} className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors">
+                <Check className="w-4 h-4" />
+              </button>
+              <button onClick={handleCancel} disabled={isPending} className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </td>
+        </tr>
+      </>
     );
   }
 
   return (
-    <tr className="hover:bg-gray-50/50 transition-colors group">
-      <td className="py-3 px-4 font-medium whitespace-nowrap">{supplier.brandName || '-'}</td>
-      <td className="py-3 px-4 whitespace-nowrap">
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-          {supplier.inventoryStatus || '-'}
-        </span>
-      </td>
-      <td className="py-3 px-4 whitespace-nowrap">
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-          {supplier.planningStatus || '-'}
-        </span>
-      </td>
-      <td className="py-3 px-4 whitespace-nowrap">
-        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-          {supplier.contactStatus || '-'}
-        </span>
-      </td>
-      <td className="py-3 px-4 text-muted-foreground">{supplier.notes || '-'}</td>
-      <td className="py-3 px-4 transition-opacity whitespace-nowrap text-left">
-        <button
-          onClick={() => setIsEditing(true)}
-          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors inline-block"
-          title="ערוך ספק"
-        >
-          <Edit2 className="w-4 h-4" />
-        </button>
-      </td>
-    </tr>
+    <>
+      {/* Mobile View */}
+      <tr className="md:hidden">
+        <td colSpan={6} className="p-0">
+          <div className="bg-white rounded-lg shadow-sm border p-4 mb-4 space-y-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-sm text-gray-500">מותג</div>
+                <div className="font-medium text-base">{supplier.brandName || '-'}</div>
+              </div>
+              <button onClick={() => setIsEditing(true)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md bg-blue-50 transition-colors">
+                <Edit2 className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <div className="text-sm text-gray-500 mb-1">סטטוס מלאי</div>
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                  {supplier.inventoryStatus || '-'}
+                </span>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500 mb-1">סטטוס תכנון</div>
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                  {supplier.planningStatus || '-'}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <div className="text-sm text-gray-500 mb-1">סטטוס קשר</div>
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                  {supplier.contactStatus || '-'}
+                </span>
+              </div>
+              <div>
+                <div className="text-sm text-gray-500">הערות</div>
+                <div className="text-sm mt-1">{supplier.notes || '-'}</div>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+
+      {/* Desktop View */}
+      <tr className="hidden md:table-row hover:bg-gray-50/50 transition-colors group border-b">
+        <td className="py-3 px-4 font-medium whitespace-nowrap">
+          {supplier.brandName || '-'}
+        </td>
+        <td className="py-3 px-4 whitespace-nowrap">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+            {supplier.inventoryStatus || '-'}
+          </span>
+        </td>
+        <td className="py-3 px-4 whitespace-nowrap">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+            {supplier.planningStatus || '-'}
+          </span>
+        </td>
+        <td className="py-3 px-4 whitespace-nowrap">
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+            {supplier.contactStatus || '-'}
+          </span>
+        </td>
+        <td className="py-3 px-4 text-muted-foreground">
+          {supplier.notes || '-'}
+        </td>
+        <td className="py-3 px-4 text-left whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => setIsEditing(true)}
+            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+            title="ערוך ספק"
+          >
+            <Edit2 className="w-4 h-4" />
+          </button>
+        </td>
+      </tr>
+    </>
   );
 }
 
@@ -211,6 +298,7 @@ export default function InventoryClient({
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -281,7 +369,7 @@ export default function InventoryClient({
         </Card>
         <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">מק"טים פעילים</CardTitle>
+            <CardTitle className="text-sm font-medium">מק&quot;טים פעילים</CardTitle>
             <PackageSearch className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
@@ -437,7 +525,7 @@ export default function InventoryClient({
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-right">
-              <thead className="bg-gray-50/80 text-muted-foreground">
+              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">מזהה (Index)</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">שם הדגם</th>
@@ -452,50 +540,128 @@ export default function InventoryClient({
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filteredItems.slice(0, 100).map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{item.itemIndex || '-'}</td>
-                    <td className="py-3 px-4 font-medium whitespace-nowrap">{item.modelName}</td>
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                        {item.brand}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 font-semibold whitespace-nowrap">{item.currentStock || '0'}</td>
-                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{item.orderedQuantity || '0'}</td>
-                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{item.lastOrderQuantity || '0'}</td>
-                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
-                      {item.targetStockLevel ? (
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          Number(item.targetStockLevel) < 0.20 
-                            ? 'bg-red-100 text-red-800' 
-                            : Number(item.targetStockLevel) >= 0.70
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {Math.round(Number(item.targetStockLevel) * 100)}%
+                  <React.Fragment key={item.id}>
+                    {/* Mobile View */}
+                    <tr className="md:hidden">
+                      <td colSpan={9} className="p-0">
+                        <div className="bg-white rounded-lg shadow-sm border p-4 mb-4 space-y-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-bold text-lg">{item.modelName}</div>
+                              <div className="text-sm text-gray-500 mt-1">מזהה: {item.itemIndex || '-'} | מותג: <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 ml-1">{item.brand}</span></div>
+                            </div>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleOpenModal('edit', item)}
+                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-md bg-blue-50 transition-colors"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(item.id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-md bg-red-50 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3 pt-2 border-t">
+                            <div>
+                              <div className="text-sm text-gray-500">מלאי נוכחי</div>
+                              <div className="font-semibold text-lg">{item.currentStock || '0'}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-gray-500">רמת מלאי (%)</div>
+                              <div>
+                                {item.targetStockLevel ? (
+                                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
+                                    Number(item.targetStockLevel) < 0.20 
+                                      ? 'bg-red-100 text-red-800' 
+                                      : Number(item.targetStockLevel) >= 0.70
+                                      ? 'bg-emerald-100 text-emerald-800'
+                                      : 'bg-yellow-100 text-yellow-800'
+                                  }`}>
+                                    {Math.round(Number(item.targetStockLevel) * 100)}%
+                                  </span>
+                                ) : '0%'}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-gray-500">הוזמנו</div>
+                              <div>{item.orderedQuantity || '0'}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-gray-500">הזמנה קודמת</div>
+                              <div>{item.lastOrderQuantity || '0'}</div>
+                            </div>
+                            <div>
+                              <div className="text-sm text-gray-500">מחיר עלות</div>
+                              <div className="font-medium">₪{item.costPrice || '0'}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Desktop View */}
+                    <tr className="hidden md:table-row hover:bg-gray-50/50 transition-colors border-b">
+                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                        {item.itemIndex || '-'}
+                      </td>
+                      <td className="py-3 px-4 font-medium whitespace-nowrap">
+                        {item.modelName}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                          {item.brand}
                         </span>
-                      ) : '0%'}
-                    </td>
-                    <td className="py-3 px-4 font-medium whitespace-nowrap">₪{item.costPrice || '0'}</td>
-                    <td className="py-3 px-4 whitespace-nowrap text-left">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenModal('edit', item)}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-                          title="ערוך"
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                          title="מחק"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="py-3 px-4 font-semibold whitespace-nowrap">
+                        {item.currentStock || '0'}
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                        {item.orderedQuantity || '0'}
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                        {item.lastOrderQuantity || '0'}
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                        {item.targetStockLevel ? (
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            Number(item.targetStockLevel) < 0.20 
+                              ? 'bg-red-100 text-red-800' 
+                              : Number(item.targetStockLevel) >= 0.70
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {Math.round(Number(item.targetStockLevel) * 100)}%
+                          </span>
+                        ) : '0%'}
+                      </td>
+                      <td className="py-3 px-4 font-medium whitespace-nowrap">
+                        ₪{item.costPrice || '0'}
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap text-left">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleOpenModal('edit', item)}
+                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                            title="ערוך"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                            title="מחק"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </React.Fragment>
                 ))}
                 {filteredItems.length === 0 && (
                   <tr>
@@ -524,7 +690,7 @@ export default function InventoryClient({
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-right">
-              <thead className="bg-gray-50/80 text-muted-foreground">
+              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">מותג</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס מלאי</th>

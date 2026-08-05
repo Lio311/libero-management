@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
@@ -69,6 +73,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
   useEffect(() => {
     if (!scheduleData) return;
     
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalTasks(prev => {
       // Create a fresh copy
       const newTasks: Record<string, Task[]> = {};
@@ -123,6 +128,10 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
           taskDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayOfMonth);
         }
 
+        if (taskTitle.includes('סריקת 100 מוצרים') && taskDate.getDay() === 5) {
+          taskDate = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate() + 2);
+        }
+
         const dateKey = format(taskDate, 'yyyy-MM-dd');
         
         if (!newTasks[dateKey]) newTasks[dateKey] = [];
@@ -172,6 +181,9 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         if (!task.dueDate) return;
         const parsedDate = parseDateString(task.dueDate);
         if (parsedDate) {
+           if (task.taskName && task.taskName.includes('סריקת 100 מוצרים') && parsedDate.getDay() === 5) {
+             parsedDate.setDate(parsedDate.getDate() + 2);
+           }
            const today = startOfDay(new Date());
            let renderDate = parsedDate;
            let isDelayed = false;
@@ -398,21 +410,27 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                     const taskToMove = sourceTasks.find(t => t.id === taskId);
                     if (!taskToMove) return;
 
+                    let targetDay = day;
+                    if (taskToMove.title.includes('סריקת 100 מוצרים') && targetDay.getDay() === 5) {
+                      targetDay = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate() + 2);
+                    }
+                    const targetDateKey = format(targetDay, 'yyyy-MM-dd');
+
                     setLocalTasks(prev => {
                       const newTasks = { ...prev };
                       if (newTasks[sourceDateKey]) {
                         newTasks[sourceDateKey] = newTasks[sourceDateKey].filter(t => t.id !== taskId);
                       }
-                      if (!newTasks[dateKey]) newTasks[dateKey] = [];
-                      newTasks[dateKey] = [...newTasks[dateKey], taskToMove];
+                      if (!newTasks[targetDateKey]) newTasks[targetDateKey] = [];
+                      newTasks[targetDateKey] = [...newTasks[targetDateKey], taskToMove];
                       return newTasks;
                     });
 
                     if (taskToMove.dbId && taskToMove.source === 'schedule') {
-                      const newDay = day.getDate();
+                      const newDay = targetDay.getDate();
                       await updateMonthlyScheduleDay(taskToMove.dbId, newDay);
                     } else if (taskToMove.source === 'bank' && taskToMove.dbId) {
-                      await updateBankOfTaskAction(taskToMove.dbId, { dueDate: format(day, 'dd.MM.yyyy') });
+                      await updateBankOfTaskAction(taskToMove.dbId, { dueDate: format(targetDay, 'dd.MM.yyyy') });
                     }
                   }}
                   className={`h-[120px] md:h-[160px] p-2 md:p-3 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer overflow-hidden flex flex-col

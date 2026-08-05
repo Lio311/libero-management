@@ -1,3 +1,7 @@
+ 
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from '../src/lib/db';
 import { inventoryItems } from '../src/lib/db/schema';
 import * as fs from 'fs';

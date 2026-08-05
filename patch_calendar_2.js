@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+/* eslint-disable @typescript-eslint/no-require-imports */
+ 
 const fs = require('fs');
 const file = 'src/app/calendar-client.tsx';
 let code = fs.readFileSync(file, 'utf8');

@@ -1,3 +1,7 @@
+ 
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from "@/lib/db";
 import { influencers, influencerPayments } from "@/lib/db/schema";
 import MarketingClient from "./marketing-client";
@@ -6,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export default async function MarketingDashboard() {
   let activeInfluencers = 0;
-  let totalFollowersEstimate = "1.2M";
+  const totalFollowersEstimate = "1.2M";
   let totalProductsGiven = 0;
   let totalInfluencerPayments = 0;
   

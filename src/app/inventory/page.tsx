@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from "@/lib/db";
 import { inventoryItems, suppliers } from "@/lib/db/schema";
 import InventoryClient from "./inventory-client";

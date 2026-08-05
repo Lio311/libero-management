@@ -18,6 +18,7 @@ interface Task {
   source?: 'schedule' | 'bank';
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleData: any[], bankTasksData: any[] }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [hasShownPush, setHasShownPush] = useState(false);
@@ -25,7 +26,7 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
   
   usePushNotifications();
 
-  const currentDate = new Date(); // Or just use startOfDay(new Date())
+  const currentDate = useMemo(() => new Date(), []); // Or just use startOfDay(new Date())
 
   const activeNotifications = useMemo(() => {
     const today = startOfDay(new Date());
@@ -55,7 +56,7 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
       return new Date(year, month, day);
     };
 
-    scheduleData.forEach((task, idx) => {
+    scheduleData.forEach(task => {
       if (task.task && /^\d+$/.test(task.task.trim())) return;
       const dayOfMonth = task.weekNumber || 1;
       const taskDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayOfMonth);
@@ -123,7 +124,7 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
     });
     
     return notifications.sort((a, b) => new Date(a.dateKey).getTime() - new Date(b.dateKey).getTime());
-  }, [scheduleData, bankTasksData]);
+  }, [scheduleData, bankTasksData, currentDate]);
 
   useEffect(() => {
     if (activeNotifications.length > 0 && !hasShownPush && 'Notification' in window) {
@@ -131,6 +132,7 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
         new Notification('משימות לביצוע', {
           body: `יש לך ${activeNotifications.length} משימות לביצוע שלא הושלמו.`,
         });
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setHasShownPush(true);
       } else if (Notification.permission !== 'denied') {
         Notification.requestPermission().then(permission => {

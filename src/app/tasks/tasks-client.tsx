@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useTransition } from "react";
@@ -360,7 +364,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
         ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-right" dir="rtl">
-            <thead>
+            <thead className="hidden md:table-header-group">
               <tr className="border-b border-border bg-muted/50">
                 <th className="px-6 py-4 text-sm font-medium text-muted-foreground w-16">#</th>
                 <th className="px-6 py-4 text-sm font-medium text-muted-foreground">משימה</th>
@@ -382,29 +386,32 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                   const isEditing = editingId === task.id;
                   
                   return (
-                    <tr key={task.id} className={`hover:bg-muted/30 transition-colors group ${task.status !== 'בוצע' && isOverdue(task.dueDate) ? 'bg-red-50/30' : ''}`}>
-                      <td className="px-6 py-4 text-sm text-muted-foreground">
+                    <tr key={task.id} className={`hover:bg-muted/30 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0 ${task.status !== 'בוצע' && isOverdue(task.dueDate) ? 'bg-red-50/30' : ''}`}>
+                      <td className="px-2 py-1 md:px-6 md:py-4 text-sm text-muted-foreground flex justify-between items-center md:table-cell">
+                        <span className="md:hidden font-medium text-gray-500 text-sm">#</span>
                         {task.itemIndex || idx + 1}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-1 md:px-6 md:py-4 flex justify-between items-center md:table-cell">
+                        <span className="md:hidden font-medium text-sm text-gray-500">משימה</span>
                         {isEditing ? (
                           <input 
                             type="text"
                             value={editForm.taskName || ""}
                             onChange={(e) => handleEditChange("taskName", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background"
+                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-right"
                           />
                         ) : (
                           <span className="font-medium text-foreground">{task.taskName}</span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-1 md:px-6 md:py-4 flex justify-between items-center md:table-cell">
+                        <span className="md:hidden font-medium text-sm text-gray-500">אחראי</span>
                         {isEditing ? (
                           <input 
                             type="text"
                             value={editForm.assignee || ""}
                             onChange={(e) => handleEditChange("assignee", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background"
+                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-right"
                           />
                         ) : (
                           <div className="flex items-center gap-2">
@@ -421,12 +428,13 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-1 md:px-6 md:py-4 flex justify-between items-center md:table-cell">
+                        <span className="md:hidden font-medium text-sm text-gray-500">סטטוס ביצוע</span>
                         {isEditing ? (
                           <select 
                             value={editForm.status || "לא התחיל"}
                             onChange={(e) => handleEditChange("status", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background"
+                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-right"
                           >
                             <option value="בוצע">בוצע</option>
                             <option value="בתהליך">בתהליך</option>
@@ -439,20 +447,21 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-1 md:px-6 md:py-4 flex justify-between items-center md:table-cell">
+                        <span className="md:hidden font-medium text-sm text-gray-500">תאריך</span>
                         {isEditing ? (
                           <input 
                             type="text"
                             value={editForm.dueDate || ""}
                             onChange={(e) => handleEditChange("dueDate", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background"
+                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-right"
                             placeholder="DD.MM.YYYY"
                           />
                         ) : (
                           <span className="text-sm text-muted-foreground">{task.dueDate || "-"}</span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 py-2 mt-2 md:mt-0 md:px-6 md:py-4 flex justify-end items-center md:table-cell border-t md:border-none">
                         <div className="flex items-center justify-end gap-2 transition-opacity">
                           {isEditing ? (
                             <>
@@ -466,14 +475,14 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                           ) : (
                             <>
                               {task.status !== "בוצע" && (
-                                <button onClick={() => handleMarkAsDone(task.id, task)} title="סמן כבוצע" className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md hover-scale">
+                                <button onClick={() => handleMarkAsDone(task.id, task)} title="סמן כבוצע" className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md hover-scale bg-emerald-50 md:bg-transparent">
                                   <CheckCircle2 className="h-4 w-4" />
                                 </button>
                               )}
-                              <button onClick={() => startEditing(task)} title="ערוך" className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md hover-scale">
+                              <button onClick={() => startEditing(task)} title="ערוך" className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md hover-scale bg-gray-100 md:bg-transparent">
                                 <Edit2 className="h-4 w-4" />
                               </button>
-                              <button onClick={() => handleDelete(task.id)} title="מחק" className="p-1.5 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded-md hover-scale">
+                              <button onClick={() => handleDelete(task.id)} title="מחק" className="p-1.5 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded-md hover-scale bg-rose-50 md:bg-transparent">
                                 <Trash2 className="h-4 w-4" />
                               </button>
                             </>

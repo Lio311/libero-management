@@ -6,28 +6,6 @@ export function usePushNotifications() {
   const [isSupported, setIsSupported] = useState(false);
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
 
-  useEffect(() => {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-      setIsSupported(true);
-      registerServiceWorker();
-    }
-  }, []);
-
-  const registerServiceWorker = async () => {
-    try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      const sub = await registration.pushManager.getSubscription();
-      setSubscription(sub);
-      
-      if (!sub && Notification.permission === 'default') {
-        // Automatically ask for permission if not already granted/denied
-        subscribeToPush(registration);
-      }
-    } catch (error) {
-      console.error('Service Worker registration failed:', error);
-    }
-  };
-
   const subscribeToPush = async (registration?: ServiceWorkerRegistration) => {
     try {
       const reg = registration || await navigator.serviceWorker.ready;
@@ -41,14 +19,34 @@ export function usePushNotifications() {
       });
       
       setSubscription(sub);
-      
-      // Here you would send the subscription to your server to save in the DB
-      // await fetch('/api/webhooks/push', { method: 'POST', body: JSON.stringify(sub) });
-      
     } catch (error) {
       console.error('Push subscription failed:', error);
     }
   };
+
+  useEffect(() => {
+    const registerServiceWorker = async () => {
+      try {
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        const sub = await registration.pushManager.getSubscription();
+        setSubscription(sub);
+        
+        if (!sub && Notification.permission === 'default') {
+          // Automatically ask for permission if not already granted/denied
+          subscribeToPush(registration);
+        }
+      } catch (error) {
+        console.error('Service Worker registration failed:', error);
+      }
+    };
+
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setIsSupported(true);
+      registerServiceWorker();
+    }
+   
+  }, []);
 
   return { isSupported, subscription, subscribeToPush };
 }

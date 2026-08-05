@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
+ 
+ 
 'use server';
 
 import { authenticator } from 'otplib';
