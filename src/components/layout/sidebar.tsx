@@ -1,12 +1,15 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Package, Users } from "lucide-react";
+import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "לוז חודשי", href: "/", icon: Calendar },
-  { name: "מלאי", href: "/inventory", icon: Package },
+  { name: "כספים", href: "/finance", icon: DollarSign },
+  { name: "שיווק ומשפיענים", href: "/marketing", icon: Megaphone },
+  { name: "מלאי וספקים", href: "/inventory", icon: Package },
+  { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
   { name: "בעלי תפקידים", href: "/team", icon: Users },
 ];
 
