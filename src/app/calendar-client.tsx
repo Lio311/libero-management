@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Plus, Bell, Calendar as CalendarIcon, CheckCircle2, Circle } from 'lucide-react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, isBefore, startOfDay } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { updateMonthlyScheduleDay } from '@/app/actions/monthlySchedule';
@@ -45,6 +45,60 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
   const [newTaskDate, setNewTaskDate] = useState<Date | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedTask, setSelectedTask] = useState<{ dateKey: string, task: Task } | null>(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [hasShownPush, setHasShownPush] = useState(false);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  // Compute active notifications
+  const activeNotifications = useMemo(() => {
+    const today = startOfDay(new Date());
+    const notifications: { dateKey: string; task: Task }[] = [];
+    
+    Object.keys(localTasks).forEach(dateKey => {
+      const date = new Date(dateKey);
+      if (isBefore(date, today) || isToday(date)) {
+        localTasks[dateKey].forEach(task => {
+          if (!task.isCompleted) {
+            notifications.push({ dateKey, task });
+          }
+        });
+      }
+    });
+    
+    return notifications.sort((a, b) => new Date(a.dateKey).getTime() - new Date(b.dateKey).getTime());
+  }, [localTasks]);
+
+  // Handle push notification
+  useEffect(() => {
+    if (activeNotifications.length > 0 && !hasShownPush && 'Notification' in window) {
+      if (Notification.permission === 'granted') {
+        new Notification('משימות לביצוע', {
+          body: `יש לך ${activeNotifications.length} משימות לביצוע שלא הושלמו.`,
+        });
+        setHasShownPush(true);
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification('משימות לביצוע', {
+              body: `יש לך ${activeNotifications.length} משימות לביצוע שלא הושלמו.`,
+            });
+            setHasShownPush(true);
+          }
+        });
+      }
+    }
+  }, [activeNotifications, hasShownPush]);
+
+  // Click outside to close notifications
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Load monthlySchedule for the currently viewed month
   useEffect(() => {
@@ -155,10 +209,69 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
         </div>
         
         <div className="flex items-center gap-4">
-          <button className="w-10 h-10 rounded-full hover:bg-white/50 flex items-center justify-center transition-colors relative hover-scale">
-            <Bell className="w-5 h-5 text-gray-600" />
-            <span className="absolute top-2 right-2.5 w-2 h-2 bg-[#0071E3] rounded-full"></span>
-          </button>
+          <div className="relative" ref={notificationsRef}>
+            <button 
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="w-10 h-10 rounded-full hover:bg-white/50 flex items-center justify-center transition-colors relative hover-scale"
+            >
+              <Bell className="w-5 h-5 text-gray-600" />
+              {activeNotifications.length > 0 && (
+                <span className="absolute top-2 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#F5F5F7]"></span>
+              )}
+            </button>
+
+            <AnimatePresence>
+              {showNotifications && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  className="absolute top-12 left-0 w-80 bg-white/95 backdrop-blur-xl border border-white/40 shadow-2xl rounded-2xl overflow-hidden z-50 origin-top-left"
+                >
+                  <div className="p-4 border-b border-gray-100/50 flex justify-between items-center bg-white/50">
+                    <h3 className="font-medium text-gray-900">התראות</h3>
+                    {activeNotifications.length > 0 && (
+                      <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
+                        {activeNotifications.length} משימות
+                      </span>
+                    )}
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {activeNotifications.length === 0 ? (
+                      <div className="p-8 text-center text-sm text-gray-500 flex flex-col items-center gap-2">
+                        <CheckCircle2 className="w-8 h-8 text-green-400" />
+                        <p>הכל מעודכן! אין משימות לביצוע.</p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-gray-50/50">
+                        {activeNotifications.map(({ dateKey, task }) => (
+                          <div 
+                            key={task.id} 
+                            className="p-4 hover:bg-blue-50/50 transition-colors cursor-pointer group"
+                            onClick={() => {
+                              setSelectedTask({ dateKey, task });
+                              setShowNotifications(false);
+                            }}
+                          >
+                            <div className="flex gap-3">
+                              <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0 group-hover:bg-red-100 transition-colors">
+                                <Bell className="w-4 h-4 text-red-500" />
+                              </div>
+                              <div className="flex-1 min-w-0 text-right">
+                                <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
+                                <p className="text-xs text-gray-500 mt-1">מתוכנן לתאריך: {format(new Date(dateKey), 'd בMMM', { locale: he })}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
           <button onClick={() => setNewTaskDate(new Date())} className="bg-[#0071E3] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-2 hover-scale shadow-sm">
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">משימה חדשה</span>
@@ -249,47 +362,61 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
 
                   <div className="space-y-1.5 md:space-y-2 mt-1">
                     <AnimatePresence>
-                      {dayTasks.map(task => (
-                        <motion.div 
-                          key={task.id}
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedTask({ dateKey, task });
-                          }}
-                          draggable
-                          onDragStart={(e: any) => {
-                            e.dataTransfer.setData('taskId', task.id);
-                            e.dataTransfer.setData('sourceDateKey', dateKey);
-                            e.stopPropagation();
-                          }}
-                          className={`group/task flex items-start gap-2 p-1.5 md:p-2 rounded-lg text-xs cursor-pointer border shadow-sm
-                            ${task.isCompleted ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'}
-                            transition-all hover-scale
-                          `}
-                        >
-                          <button 
-                            className="flex-shrink-0 mt-0.5 text-gray-400 hover:text-gray-900 transition-colors"
+                      {dayTasks.map(task => {
+                        const isPastDate = isBefore(day, startOfDay(new Date()));
+                        let taskStyle = 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50';
+                        let titleStyle = 'text-gray-800';
+                        let iconStyle = 'text-gray-400 hover:text-gray-900';
+                        
+                        if (task.isCompleted) {
+                          taskStyle = 'bg-green-50 border-green-200 opacity-90';
+                          titleStyle = 'line-through text-green-700';
+                          iconStyle = 'text-green-600 hover:text-green-700';
+                        } else if (isPastDate) {
+                          taskStyle = 'bg-red-50 border-red-200 hover:bg-red-100';
+                          titleStyle = 'text-red-700';
+                          iconStyle = 'text-red-500 hover:text-red-600';
+                        }
+
+                        return (
+                          <motion.div 
+                            key={task.id}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              toggleTask(dateKey, task.id);
+                              setSelectedTask({ dateKey, task });
                             }}
+                            draggable
+                            onDragStart={(e: any) => {
+                              e.dataTransfer.setData('taskId', task.id);
+                              e.dataTransfer.setData('sourceDateKey', dateKey);
+                              e.stopPropagation();
+                            }}
+                            className={`group/task flex items-start gap-2 p-1.5 md:p-2 rounded-lg text-xs cursor-pointer border shadow-sm transition-all hover-scale ${taskStyle}`}
                           >
-                            {task.isCompleted ? <CheckCircle2 className="w-3.5 h-3.5 text-gray-600" /> : <Circle className="w-3.5 h-3.5" />}
-                          </button>
-                          <div className="flex flex-col gap-1 overflow-hidden">
-                            <span className={`truncate ${task.isCompleted ? 'line-through text-gray-500' : 'text-gray-800'}`}>
-                              {task.title}
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                              <span className={`w-1.5 h-1.5 rounded-full ${task.category.color}`}></span>
-                              <span className="text-[10px] text-gray-500 truncate">{task.category.name}</span>
-                            </span>
-                          </div>
-                        </motion.div>
-                      ))}
+                            <button 
+                              className={`flex-shrink-0 mt-0.5 transition-colors ${iconStyle}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleTask(dateKey, task.id);
+                              }}
+                            >
+                              {task.isCompleted ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
+                            </button>
+                            <div className="flex flex-col gap-1 overflow-hidden">
+                              <span className={`truncate ${titleStyle}`}>
+                                {task.title}
+                              </span>
+                              <span className="flex items-center gap-1.5">
+                                <span className={`w-1.5 h-1.5 rounded-full ${task.category.color}`}></span>
+                                <span className="text-[10px] text-gray-500 truncate">{task.category.name}</span>
+                              </span>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
                     </AnimatePresence>
                   </div>
                 </div>
