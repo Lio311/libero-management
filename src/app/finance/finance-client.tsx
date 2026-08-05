@@ -255,7 +255,15 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
             </div>
             <div>
               <span className="text-gray-500 text-xs">מספר כרטיס</span>
-              <p className="font-mono text-xs">{showSensitive ? card.cardNumber : maskCardNumber(card.cardNumber)}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-mono text-xs">{showSensitive ? card.cardNumber : maskCardNumber(card.cardNumber)}</p>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setShowSensitive(!showSensitive); }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showSensitive ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
             <div>
               <span className="text-gray-500 text-xs">סוג</span>
@@ -267,7 +275,15 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
             </div>
             <div>
               <span className="text-gray-500 text-xs">CVV</span>
-              <p className="font-mono">{showSensitive ? (card.cvv || '-') : '•••'}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-mono">{showSensitive ? (card.cvv || '-') : '•••'}</p>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); setShowSensitive(!showSensitive); }}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showSensitive ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
             <div>
               <span className="text-gray-500 text-xs">מסגרת אשראי</span>
