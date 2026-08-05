@@ -50,6 +50,18 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
   const [selectedTask, setSelectedTask] = useState<{ dateKey: string, task: Task } | null>(null);
   const [selectedDayDetails, setSelectedDayDetails] = useState<Date | null>(null);
 
+  // Prevent background scrolling when any modal is open
+  useEffect(() => {
+    if (newTaskDate || selectedDayDetails || selectedTask) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [newTaskDate, selectedDayDetails, selectedTask]);
+
   // Load monthlySchedule for the currently viewed month
   useEffect(() => {
     if (!scheduleData) return;
