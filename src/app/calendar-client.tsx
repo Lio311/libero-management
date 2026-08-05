@@ -512,7 +512,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                 </button>
               </div>
               
-              <div className="flex-1 overflow-y-auto pr-2 space-y-3">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 space-y-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 {(() => {
                   const dateKey = format(selectedDayDetails, 'yyyy-MM-dd');
                   const dayTasks = localTasks[dateKey] || [];
