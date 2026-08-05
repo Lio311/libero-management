@@ -26,13 +26,13 @@ export default async function TeamPage() {
       </div>
 
       {Object.keys(groupedTasks).length === 0 ? (
-        <div className="bg-card rounded-xl border border-border p-12 text-center text-muted-foreground shadow-sm">
+        <div className="glass-panel rounded-2xl p-12 text-center text-muted-foreground shadow-sm">
           אין נתונים על בעלי תפקידים. אנא הרץ את סקריפט הייבוא.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Object.entries(groupedTasks).map(([assignee, tasks]) => (
-            <div key={assignee} className="bg-card rounded-xl border border-border shadow-sm p-6 flex flex-col h-full">
+            <div key={assignee} className="glass-panel rounded-2xl shadow-sm p-6 flex flex-col h-full hover-scale">
               <div className="flex items-center gap-3 mb-6">
                 <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
                   {assignee.charAt(0)}

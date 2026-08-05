@@ -137,7 +137,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-card p-4 rounded-xl border border-border shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center glass-panel p-4 rounded-2xl shadow-sm">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
@@ -150,13 +150,13 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
           />
         </div>
         
-        <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+        <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors hover-scale">
           <Plus className="h-4 w-4" />
           משימה חדשה
         </button>
       </div>
 
-      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+      <div className="glass-panel rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-right" dir="rtl">
             <thead>
@@ -255,24 +255,24 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                         <div className="flex items-center justify-end gap-2 transition-opacity">
                           {isEditing ? (
                             <>
-                              <button onClick={saveEditing} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors">
+                              <button onClick={saveEditing} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md hover-scale">
                                 <Check className="h-4 w-4" />
                               </button>
-                              <button onClick={cancelEditing} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
+                              <button onClick={cancelEditing} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-md hover-scale">
                                 <X className="h-4 w-4" />
                               </button>
                             </>
                           ) : (
                             <>
                               {task.status !== "בוצע" && (
-                                <button onClick={() => handleMarkAsDone(task.id, task)} title="סמן כבוצע" className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md transition-colors">
+                                <button onClick={() => handleMarkAsDone(task.id, task)} title="סמן כבוצע" className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md hover-scale">
                                   <CheckCircle2 className="h-4 w-4" />
                                 </button>
                               )}
-                              <button onClick={() => startEditing(task)} title="ערוך" className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md transition-colors">
+                              <button onClick={() => startEditing(task)} title="ערוך" className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md hover-scale">
                                 <Edit2 className="h-4 w-4" />
                               </button>
-                              <button onClick={() => handleDelete(task.id)} title="מחק" className="p-1.5 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors">
+                              <button onClick={() => handleDelete(task.id)} title="מחק" className="p-1.5 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded-md hover-scale">
                                 <Trash2 className="h-4 w-4" />
                               </button>
                             </>
