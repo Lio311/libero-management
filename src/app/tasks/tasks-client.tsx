@@ -252,7 +252,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center justify-end gap-2 transition-opacity">
                           {isEditing ? (
                             <>
                               <button onClick={saveEditing} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md transition-colors">
