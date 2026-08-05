@@ -127,7 +127,7 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
         </span>
       </td>
       <td className="py-3 px-4 text-muted-foreground">{supplier.notes || '-'}</td>
-      <td className="py-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-left">
+      <td className="py-3 px-4 transition-opacity whitespace-nowrap text-left">
         <button
           onClick={() => setIsEditing(true)}
           className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors inline-block"

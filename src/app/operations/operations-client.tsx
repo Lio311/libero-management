@@ -4,15 +4,17 @@ import React, { useState, useEffect, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Briefcase, Building2, Contact, CheckCircle2, Clock, AlertCircle, LayoutList, LayoutGrid, Check, X, Edit2 } from "lucide-react";
-import { updateWholesaleCustomer } from "@/app/actions/operations";
+import { updateWholesaleCustomer, createWholesaleCustomer, deleteWholesaleCustomer } from "@/app/actions/operations";
+import { Trash2, Plus } from "lucide-react";
 
 interface OperationsClientProps {
   wholesaleClients: { name: string; contact: string; totalOrders: number; revenue: number; interest: string }[];
   rawWholesaleCustomers: any[];
 }
 
-function EditableWholesaleRow({ customer }: { customer: any }) {
-  const [isEditing, setIsEditing] = useState(false);
+
+function EditableWholesaleRow({ customer, onCancelNew }: { customer: any, onCancelNew?: () => void }) {
+  const [isEditing, setIsEditing] = useState(customer.isNew || false);
   const [isPending, startTransition] = useTransition();
   const [data, setData] = useState({
     storeName: customer.storeName || '',
@@ -27,125 +29,74 @@ function EditableWholesaleRow({ customer }: { customer: any }) {
 
   const handleSave = () => {
     startTransition(async () => {
-      await updateWholesaleCustomer(customer.id, data);
-      setIsEditing(false);
+      if (customer.isNew) {
+        await createWholesaleCustomer(data);
+        if (onCancelNew) onCancelNew();
+      } else {
+        await updateWholesaleCustomer(customer.id, data);
+        setIsEditing(false);
+      }
     });
   };
 
   const handleCancel = () => {
-    setData({
-      storeName: customer.storeName || '',
-      city: customer.city || '',
-      address: customer.address || '',
-      phoneCall: customer.phoneCall || '',
-      visit: customer.visit || '',
-      potential: customer.potential || '',
-      interest: customer.interest || '',
-      notes: customer.notes || ''
-    });
-    setIsEditing(false);
+    if (customer.isNew && onCancelNew) {
+      onCancelNew();
+    } else {
+      setData({
+        storeName: customer.storeName || '',
+        city: customer.city || '',
+        address: customer.address || '',
+        phoneCall: customer.phoneCall || '',
+        visit: customer.visit || '',
+        potential: customer.potential || '',
+        interest: customer.interest || '',
+        notes: customer.notes || ''
+      });
+      setIsEditing(false);
+    }
+  };
+
+  const handleDelete = () => {
+    if (confirm('האם אתה בטוח שברצונך למחוק שורה זו?')) {
+      startTransition(async () => {
+        await deleteWholesaleCustomer(customer.id);
+      });
+    }
   };
 
   if (isEditing) {
     return (
-      <tr className="hover:bg-gray-50/50 transition-colors">
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.storeName}
-            onChange={(e) => setData({ ...data, storeName: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.city}
-            onChange={(e) => setData({ ...data, city: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.address}
-            onChange={(e) => setData({ ...data, address: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.phoneCall}
-            onChange={(e) => setData({ ...data, phoneCall: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.visit}
-            onChange={(e) => setData({ ...data, visit: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.potential}
-            onChange={(e) => setData({ ...data, potential: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.interest}
-            onChange={(e) => setData({ ...data, interest: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <input
-            className="w-full text-right p-1 border rounded"
-            value={data.notes}
-            onChange={(e) => setData({ ...data, notes: e.target.value })}
-          />
-        </td>
-        <td className="py-2 px-4">
-          <div className="flex gap-2">
-            <button
-              onClick={handleSave}
-              disabled={isPending}
-              className="p-1 text-green-600 hover:bg-green-50 rounded"
-            >
-              <Check className="h-4 w-4" />
-            </button>
-            <button
-              onClick={handleCancel}
-              disabled={isPending}
-              className="p-1 text-red-600 hover:bg-red-50 rounded"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+      <tr className="bg-blue-50/30 transition-colors">
+        <td className="py-2 px-4"><input className="w-full text-right p-1 border rounded" value={data.storeName} onChange={(e) => setData({ ...data, storeName: e.target.value })} autoFocus /></td>
+        <td className="py-2 px-4"><input className="w-full text-right p-1 border rounded" value={data.city} onChange={(e) => setData({ ...data, city: e.target.value })} /></td>
+        <td className="py-2 px-4"><input className="w-full text-right p-1 border rounded" value={data.address} onChange={(e) => setData({ ...data, address: e.target.value })} /></td>
+        <td className="py-2 px-4"><input className="w-full text-right p-1 border rounded" value={data.phoneCall} onChange={(e) => setData({ ...data, phoneCall: e.target.value })} /></td>
+        <td className="py-2 px-4"><input className="w-full text-right p-1 border rounded" value={data.visit} onChange={(e) => setData({ ...data, visit: e.target.value })} /></td>
+        <td className="py-2 px-4"><input className="w-full text-right p-1 border rounded" value={data.potential} onChange={(e) => setData({ ...data, potential: e.target.value })} /></td>
+        <td className="py-2 px-4"><input className="w-full text-right p-1 border rounded" value={data.interest} onChange={(e) => setData({ ...data, interest: e.target.value })} /></td>
+        <td className="py-2 px-4"><input className="w-full text-right p-1 border rounded" value={data.notes} onChange={(e) => setData({ ...data, notes: e.target.value })} /></td>
+        <td className="py-2 px-4 text-left whitespace-nowrap">
+          <button onClick={handleSave} disabled={isPending} className="p-1 text-green-600 hover:bg-green-50 rounded mx-1"><Check className="h-4 w-4" /></button>
+          <button onClick={handleCancel} disabled={isPending} className="p-1 text-red-600 hover:bg-red-50 rounded mx-1"><X className="h-4 w-4" /></button>
         </td>
       </tr>
     );
   }
 
   return (
-    <tr className="hover:bg-gray-50/50 transition-colors group">
+    <tr className="hover:bg-gray-50/50 transition-colors">
       <td className="py-3 px-4 font-medium whitespace-nowrap">{customer.storeName || '-'}</td>
       <td className="py-3 px-4 whitespace-nowrap">{customer.city || '-'}</td>
       <td className="py-3 px-4 whitespace-nowrap">{customer.address || '-'}</td>
       <td className="py-3 px-4 whitespace-nowrap">{customer.phoneCall || '-'}</td>
       <td className="py-3 px-4 whitespace-nowrap">{customer.visit || '-'}</td>
       <td className="py-3 px-4 whitespace-nowrap">{customer.potential || '-'}</td>
-      <td className="py-3 px-4 whitespace-nowrap">
-        <Badge variant="outline" className="text-[10px]">{customer.interest || '-'}</Badge>
-      </td>
+      <td className="py-3 px-4 whitespace-nowrap"><Badge variant="outline" className="text-[10px]">{customer.interest || '-'}</Badge></td>
       <td className="py-3 px-4 text-muted-foreground">{customer.notes || '-'}</td>
-      <td className="py-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={() => setIsEditing(true)}
-          className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-        >
-          <Edit2 className="h-4 w-4" />
-        </button>
+      <td className="py-3 px-4 whitespace-nowrap text-left">
+        <button onClick={() => setIsEditing(true)} className="p-1 text-blue-600 hover:bg-blue-50 rounded mx-1"><Edit2 className="h-4 w-4" /></button>
+        <button onClick={handleDelete} className="p-1 text-red-600 hover:bg-red-50 rounded mx-1"><Trash2 className="h-4 w-4" /></button>
       </td>
     </tr>
   );
@@ -157,6 +108,7 @@ export default function OperationsClient({
 }: OperationsClientProps) {
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
+  const [isAddingCustomer, setIsAddingCustomer] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -213,7 +165,12 @@ export default function OperationsClient({
       {/* Raw Wholesale Customers Table */}
       <Card className="bg-white border-none shadow-sm mt-8">
         <CardHeader>
-          <CardTitle>נתוני לקוחות סיטונאיים (גולמי)</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>נתוני לקוחות סיטונאיים (גולמי)</CardTitle>
+            <button onClick={() => setIsAddingCustomer(true)} className="flex items-center gap-1 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90">
+              <Plus className="w-4 h-4" /> הוסף חדש
+            </button>
+          </div>
           <CardDescription>טבלת לקוחות סיטונאיים מלאה כפי שהוזנה במערכת</CardDescription>
         </CardHeader>
         <CardContent>
@@ -229,10 +186,11 @@ export default function OperationsClient({
                   <th className="py-3 px-4 font-medium whitespace-nowrap">פוטנציאל</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">עניין</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">פעולות</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-left">פעולות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
+                {isAddingCustomer && <EditableWholesaleRow customer={{ isNew: true }} onCancelNew={() => setIsAddingCustomer(false)} />}
                 {rawWholesaleCustomers && rawWholesaleCustomers.length > 0 ? (
                   rawWholesaleCustomers.map((customer) => (
                     <EditableWholesaleRow key={customer.id} customer={customer} />

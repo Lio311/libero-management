@@ -74,3 +74,32 @@ export async function updateSupplier(id: string, data: any) {
     return { success: false, error: "Failed to update supplier" };
   }
 }
+
+export async function createSupplier(data: any) {
+  try {
+    const [newSupplier] = await db.insert(suppliers)
+      .values({
+        brandName: data.brandName,
+        inventoryStatus: data.inventoryStatus,
+        planningStatus: data.planningStatus,
+        contactStatus: data.contactStatus,
+        notes: data.notes
+      }).returning();
+    revalidatePath("/inventory");
+    return { success: true, supplier: newSupplier };
+  } catch (error) {
+    console.error("Error creating supplier:", error);
+    return { success: false, error: "Failed to create supplier" };
+  }
+}
+
+export async function deleteSupplier(id: string) {
+  try {
+    await db.delete(suppliers).where(eq(suppliers.id, id));
+    revalidatePath("/inventory");
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting supplier:", error);
+    return { success: false, error: "Failed to delete supplier" };
+  }
+}
