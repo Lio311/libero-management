@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Camera, TrendingUp, HandCoins } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { updateInfluencer, updateInfluencerPayment } from "@/app/actions/marketing";
+import { Check, X, Edit2 } from "lucide-react";
 
 interface MarketingClientProps {
   activeInfluencers: number;
@@ -14,6 +16,145 @@ interface MarketingClientProps {
   influencerPerformance: any[];
   rawInfluencers: any[];
   rawPayments: any[];
+}
+
+function EditableInfluencerRow({ inf }: { inf: any }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [data, setData] = useState({
+    influencerName: inf.influencerName || '',
+    brand: inf.brand || '',
+    isPaid: inf.isPaid || '',
+    videoCount: inf.videoCount || '',
+    postCount: inf.postCount || '',
+    productsGiven: inf.productsGiven || '',
+    videosUploaded: inf.videosUploaded || '',
+    activities: inf.activities || '',
+    notes: inf.notes || ''
+  });
+
+  const handleSave = async () => {
+    await updateInfluencer(inf.id, data);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setData({
+      influencerName: inf.influencerName || '',
+      brand: inf.brand || '',
+      isPaid: inf.isPaid || '',
+      videoCount: inf.videoCount || '',
+      postCount: inf.postCount || '',
+      productsGiven: inf.productsGiven || '',
+      videosUploaded: inf.videosUploaded || '',
+      activities: inf.activities || '',
+      notes: inf.notes || ''
+    });
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <tr className="bg-blue-50/30 transition-colors">
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.brand} onChange={e => setData({...data, brand: e.target.value})} /></td>
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.isPaid} onChange={e => setData({...data, isPaid: e.target.value})} /></td>
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.videoCount} onChange={e => setData({...data, videoCount: e.target.value})} /></td>
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.postCount} onChange={e => setData({...data, postCount: e.target.value})} /></td>
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.productsGiven} onChange={e => setData({...data, productsGiven: e.target.value})} /></td>
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.videosUploaded} onChange={e => setData({...data, videosUploaded: e.target.value})} /></td>
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.activities} onChange={e => setData({...data, activities: e.target.value})} /></td>
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
+        <td className="p-2">
+          <div className="flex gap-2">
+            <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 rounded"><Check className="h-4 w-4" /></button>
+            <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-50 rounded"><X className="h-4 w-4" /></button>
+          </div>
+        </td>
+      </tr>
+    );
+  }
+
+  return (
+    <tr className="hover:bg-gray-50/50 transition-colors group">
+      <td className="py-3 px-4 font-medium whitespace-nowrap">{inf.influencerName || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">{inf.brand || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">{inf.isPaid || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">{inf.videoCount || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">{inf.postCount || '-'}</td>
+      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{inf.productsGiven || '-'}</td>
+      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{inf.videosUploaded || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap max-w-[200px] truncate" title={inf.activities}>{inf.activities || '-'}</td>
+      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap max-w-[200px] truncate" title={inf.notes}>{inf.notes || '-'}</td>
+      <td className="py-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onClick={() => setIsEditing(true)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
+          <Edit2 className="h-4 w-4" />
+        </button>
+      </td>
+    </tr>
+  );
+}
+
+function EditablePaymentRow({ payment }: { payment: any }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [data, setData] = useState({
+    influencerName: payment.influencerName || '',
+    amount: payment.amount || 0,
+    isDone: payment.isDone || '',
+    notes: payment.notes || ''
+  });
+
+  const handleSave = async () => {
+    await updateInfluencerPayment(payment.id, {
+      ...data,
+      amount: data.amount.toString()
+    });
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setData({
+      influencerName: payment.influencerName || '',
+      amount: payment.amount || 0,
+      isDone: payment.isDone || '',
+      notes: payment.notes || ''
+    });
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <tr className="bg-blue-50/30 transition-colors">
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
+        <td className="p-2"><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.amount} onChange={e => setData({...data, amount: e.target.value})} /></td>
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.isDone} onChange={e => setData({...data, isDone: e.target.value})} /></td>
+        <td className="p-2"><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
+        <td className="p-2">
+          <div className="flex gap-2">
+            <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 rounded"><Check className="h-4 w-4" /></button>
+            <button onClick={handleCancel} className="p-1 text-red-600 hover:bg-red-50 rounded"><X className="h-4 w-4" /></button>
+          </div>
+        </td>
+      </tr>
+    );
+  }
+
+  return (
+    <tr className="hover:bg-gray-50/50 transition-colors group">
+      <td className="py-3 px-4 font-medium whitespace-nowrap">{payment.influencerName || '-'}</td>
+      <td className="py-3 px-4 font-medium whitespace-nowrap">₪{payment.amount || '0'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">
+        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${payment.isDone === 'כן' || payment.isDone === 'בוצע' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+          {payment.isDone || '-'}
+        </span>
+      </td>
+      <td className="py-3 px-4 text-muted-foreground">{payment.notes || '-'}</td>
+      <td className="py-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onClick={() => setIsEditing(true)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
+          <Edit2 className="h-4 w-4" />
+        </button>
+      </td>
+    </tr>
+  );
 }
 
 export default function MarketingClient({
@@ -123,27 +264,18 @@ export default function MarketingClient({
                   <th className="py-3 px-4 font-medium whitespace-nowrap">מוצרים שניתנו</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סרטונים שהועלו</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">פעילויות</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">הערות</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">פעולות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {rawInfluencers && rawInfluencers.length > 0 ? (
                   rawInfluencers.map((inf) => (
-                    <tr key={inf.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="py-3 px-4 font-medium whitespace-nowrap">{inf.influencerName || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">{inf.brand || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">{inf.isPaid || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">{inf.videoCount || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">{inf.postCount || '-'}</td>
-                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{inf.productsGiven || '-'}</td>
-                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{inf.videosUploaded || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap max-w-[200px] truncate" title={inf.activities}>{inf.activities || '-'}</td>
-                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap max-w-[200px] truncate" title={inf.notes}>{inf.notes || '-'}</td>
-                    </tr>
+                    <EditableInfluencerRow key={inf.id} inf={inf} />
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={9} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={10} className="py-8 text-center text-muted-foreground">
                       לא נמצאו משפיענים.
                     </td>
                   </tr>
@@ -168,26 +300,18 @@ export default function MarketingClient({
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם משפיענ/ית</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סכום</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">בוצע?</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">הערות</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">פעולות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {rawPayments && rawPayments.length > 0 ? (
                   rawPayments.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="py-3 px-4 font-medium whitespace-nowrap">{payment.influencerName || '-'}</td>
-                      <td className="py-3 px-4 font-medium whitespace-nowrap">₪{payment.amount || '0'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${payment.isDone === 'כן' || payment.isDone === 'בוצע' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                          {payment.isDone || '-'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-muted-foreground">{payment.notes || '-'}</td>
-                    </tr>
+                    <EditablePaymentRow key={payment.id} payment={payment} />
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
                       לא נמצאו תשלומים.
                     </td>
                   </tr>

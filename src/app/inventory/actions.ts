@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { inventoryItems } from "@/lib/db/schema";
+import { inventoryItems, suppliers } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -53,5 +53,24 @@ export async function deleteInventoryItem(id: string) {
   } catch (error) {
     console.error("Error deleting inventory item:", error);
     return { success: false, error: "Failed to delete item" };
+  }
+}
+
+export async function updateSupplier(id: string, data: any) {
+  try {
+    await db.update(suppliers)
+      .set({
+        brandName: data.brandName,
+        inventoryStatus: data.inventoryStatus,
+        planningStatus: data.planningStatus,
+        contactStatus: data.contactStatus,
+        notes: data.notes
+      })
+      .where(eq(suppliers.id, id));
+    revalidatePath("/inventory");
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating supplier:", error);
+    return { success: false, error: "Failed to update supplier" };
   }
 }
