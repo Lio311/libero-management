@@ -52,13 +52,16 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
 
   // Prevent background scrolling when any modal is open
   useEffect(() => {
+    const mainEl = document.querySelector('main.page-animate') as HTMLElement;
+    if (!mainEl) return;
+    
     if (newTaskDate || selectedDayDetails || selectedTask) {
-      document.body.style.overflow = 'hidden';
+      mainEl.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'unset';
+      mainEl.style.overflow = '';
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      mainEl.style.overflow = '';
     };
   }, [newTaskDate, selectedDayDetails, selectedTask]);
 
