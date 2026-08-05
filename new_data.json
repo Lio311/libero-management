@@ -1,0 +1,1228 @@
+{
+  "wholesale": [
+    {
+      "storeName": "שם החנות",
+      "city": "עיר",
+      "address": "כתובת",
+      "phoneCall": "שיחת טלפון",
+      "visit": "ביקור",
+      "potential": "יש פוטנציאל",
+      "interest": "יש עניין",
+      "notes": "הערות"
+    },
+    {
+      "storeName": "Molecule Perfume",
+      "city": "תל אביב יפו",
+      "address": "לוינסקי 21",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Kadomi Perfume",
+      "city": "תל אביב יפו",
+      "address": "יהודה הימית 6",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "בית הבושם",
+      "city": "תל אביב יפו",
+      "address": "אריה עקיבא 1",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "אינדיבידואל בשמים",
+      "city": "תל אביב יפו",
+      "address": "שבזי 40",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Beyond Skin (ביונד סקין)",
+      "city": "תל אביב יפו",
+      "address": "איינשטיין 40 (קניון רמת אביב)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Essence (אסנס פרפיום)",
+      "city": "תל אביב יפו",
+      "address": "קרליבך 4 (קניון TLV)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "טורנסול",
+      "city": "תל אביב יפו",
+      "address": "נחליאל 31",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "רואיל פרפיום",
+      "city": "תל אביב יפו",
+      "address": "שדרות ירושלים 18",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "נור פרפיום",
+      "city": "תל אביב יפו",
+      "address": "שמואל בן עדיה 7",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "AMA LURRA",
+      "city": "תל אביב יפו",
+      "address": "כיכר דיזנגוף 1",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "חורי ביוטי סטור",
+      "city": "תל אביב יפו",
+      "address": "מקווה ישראל 4",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "צילי קרן דרמאור קליניק",
+      "city": "תל אביב יפו",
+      "address": "קהילת סלוניקי 11",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "כל בו ביאליק",
+      "city": "רמת גן",
+      "address": "ז'בוטינסקי 62",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Beyond Skin (ביונד סקין)",
+      "city": "רמת גן",
+      "address": "אבא הלל 301 (קניון איילון)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "דיל קוסמטיקס",
+      "city": "גבעתיים",
+      "address": "תפוצות ישראל 1",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "פרפומריה ימית",
+      "city": "בת ים",
+      "address": "רוטשילד 24",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "דרך היופי-מוצרי קוסמטיקה",
+      "city": "בת ים",
+      "address": "יוספטל 92 (קניון בת ים)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "פרפומריה שלומי",
+      "city": "בת ים",
+      "address": null,
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Beyond Skin (ביונד סקין)",
+      "city": "ראשון לציון",
+      "address": "דוד סחרוב 21 (קניון הזהב)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Factory 54 Beauty",
+      "city": "ראשון לציון",
+      "address": "דוד סחרוב 21 (קניון הזהב)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "מדי לינק פארם בע\"מ",
+      "city": "אור יהודה",
+      "address": "משה אביב 8",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "פרפומריה אתי ועזרא דוד",
+      "city": "רמלה",
+      "address": "שד' הרצל 85",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "נקודת חן",
+      "city": "רמלה",
+      "address": "ז'בוטינסקי 1",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "שאול תמרוקים הבן בע\"מ",
+      "city": "ירושלים",
+      "address": "בר אילן 9",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "שאול תמרוקים",
+      "city": "ירושלים",
+      "address": "מחנה יהודה 49",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "שאול תמרוקים (ברנדייס)",
+      "city": "ירושלים",
+      "address": "לואיס ברנדייס 3",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "שאול תמרוקים (קניון רמות)",
+      "city": "ירושלים",
+      "address": "גולדה מאיר 255 (קניון רמות)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "שאול קוסמטיק",
+      "city": "ירושלים",
+      "address": "אגריפס 88",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "כלבוטק עדיקה יפו חדש",
+      "city": "ירושלים",
+      "address": "יפו 220",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "כלבוטק ליאור עדיקה",
+      "city": "ירושלים",
+      "address": "יד חרוצים 22",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "וורה קוסמטיקס בע\"מ",
+      "city": "ירושלים",
+      "address": "יד חרוצים 19",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "מדי פלוס בע\"מ (בימ\"ר)",
+      "city": "ירושלים",
+      "address": "בר אילן 2",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "קוסמטיקס שופ",
+      "city": "בית שמש",
+      "address": "אביי 5",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Perfume Free (בוגוס פרפיום)",
+      "city": "בני ברק",
+      "address": "בר כוכבא 23",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "כל בו תהילה",
+      "city": "בני ברק",
+      "address": "רבי עקיבא 56",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "פשוט טיפוח",
+      "city": "בני ברק",
+      "address": "רבי עקיבא 65",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "קוסמשיק",
+      "city": "בני ברק",
+      "address": "רבי עקיבא 77",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "יפית קוסמטיקס",
+      "city": "בני ברק",
+      "address": "רבי עקיבא 91",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "דיוטי פרי",
+      "city": "בני ברק",
+      "address": "רבי עקיבא 118",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "ערוגות הבושם",
+      "city": "בני ברק",
+      "address": "דמשק אליעזר 14",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "פרפומריה אסתר",
+      "city": "בני ברק",
+      "address": "ירושלים 69",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "אורות - גלית הרשקוביץ",
+      "city": "בני ברק",
+      "address": "ז'בוטינסקי 152",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "עלמה פרפומריה",
+      "city": "נתניה",
+      "address": "הרצל 21",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Factory 54 Beauty",
+      "city": "נתניה",
+      "address": "בני גאון 8",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "מילאנו קוסמטיקס",
+      "city": "נתניה",
+      "address": "הל\"ה 4",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "פרפומריה ספקטור",
+      "city": "נתניה",
+      "address": "הרצל 20",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "דלוקסו (Deluxo Perfumes)",
+      "city": "נתניה",
+      "address": "החשמונאים 16",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "אוליגרך פרפיום",
+      "city": "פתח תקווה",
+      "address": "ההסתדרות 4",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "גלאם 42 (Glam 42)",
+      "city": "פתח תקווה",
+      "address": "הסיבים 43",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "parfum",
+      "city": "פתח תקווה",
+      "address": "הסדנא 11",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "שופמטיקס",
+      "city": "פתח תקווה",
+      "address": "השילוח 2",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "א. עטר תמרוקים בע\"מ",
+      "city": "פתח תקווה",
+      "address": "בהט 6",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "גלאם 42 (Glam 42)",
+      "city": "הוד השרון",
+      "address": "הרקון 2 (קניון MEEX)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "מקדש הבשמים",
+      "city": "כפר סבא",
+      "address": "ויצמן 37",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "לובן מור (Loven Mour)",
+      "city": "כפר סבא",
+      "address": "התע\"ש 6",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "לובן מור (Loven Mour)",
+      "city": "רעננה",
+      "address": "עמל 14 (משוער, אזור תעשייה)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "טריפל ביוטי",
+      "city": "רעננה",
+      "address": "עמל 14",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "אוד האוס (Oud House)",
+      "city": "הרצליה",
+      "address": "בן גוריון 22",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "נטאלי'ס",
+      "city": "רמת השרון",
+      "address": "סוקולוב 67",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Factory 54 Beauty",
+      "city": "רמת השרון",
+      "address": "ביג פאשן גלילות",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "נקודת חן פרפומריה",
+      "city": "אבן יהודה",
+      "address": "ההסתדרות 29",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Royal Scent",
+      "city": "באקה אל-גרבייה",
+      "address": "ליד מאפיית השבע",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "אקסטרה פארם (Extra Pharm)",
+      "city": "נצרת",
+      "address": "שכונה מזרחית (רח' השלום / 4020)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "פרפיומרי",
+      "city": "נוף הגליל",
+      "address": "מול הרים נצרת",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "טמרה פארם",
+      "city": "טמרה",
+      "address": "רחוב ראשי",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "BG Cosmatics",
+      "city": "נהריה",
+      "address": null,
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Essence (אסנס פרפיום)",
+      "city": "חיפה",
+      "address": "דרך שמחה גולן 54 (גרנד קניון)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "רביד קוסמטיקס",
+      "city": "חיפה",
+      "address": "הרצל 44",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "פרפומריה רות (רותי)",
+      "city": "חיפה",
+      "address": "הרצל 55",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "BA PERFUME",
+      "city": "חיפה",
+      "address": "קניון סינמול",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "דרך הבשמים",
+      "city": "חיפה",
+      "address": "הגפן 3",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "תרנים פרפיום",
+      "city": "חיפה",
+      "address": "מאיר 23",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "The Perfume Room",
+      "city": "חיפה",
+      "address": "החלוץ 48",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Essence (אסנס פרפיום)",
+      "city": "קרית אתא",
+      "address": "קניון שער הצפון",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Beyond Skin (ביונד סקין)",
+      "city": "קרית ביאליק",
+      "address": "דרך עכו 192 (קניון עופר הקריון)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "פרלה ניש פרפיום (Pearla)",
+      "city": "טמרה",
+      "address": "אלזראעיה",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "NICHE GARDEN (ניצ' גארדן)",
+      "city": "מג'ד אל כרום",
+      "address": "מג'ד אל כרום 54",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "בית מרקחת ספא פארם",
+      "city": "סכנין",
+      "address": "מר יוסף",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "מאהר פארם",
+      "city": "סכנין",
+      "address": "אלשוהדא 44",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "אל-פרמה שאני (Al-Farma)",
+      "city": "סכנין",
+      "address": "דוחא 47",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Care Pharm (קייר פארם)",
+      "city": "אום אל פאחם",
+      "address": "שכונת אל באטן",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "רושיתה פארם",
+      "city": "אום אל פאחם",
+      "address": "רחוב ראשי",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "חידר פארם",
+      "city": "אעבלין",
+      "address": "רחוב ראשי (ת.ד. 97)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "ערין שחאדה",
+      "city": "ירכא",
+      "address": "כביש אלזארה 42",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "לה פרפיום (Le Parfum)",
+      "city": "עכו",
+      "address": "בן עמי 24",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "לה פרפיום (Le Parfum)",
+      "city": "אור עקיבא",
+      "address": "הנשיא ויצמן 22",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "אקסטרה פארם (Extra Pharm)",
+      "city": "אשדוד",
+      "address": "קיבוץ גלויות 1",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "לה אסנס (La Essence)",
+      "city": "נתיבות",
+      "address": "מתחם צים סנטר (בעלי המלאכה 5)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "לה אסנס (La Essence)",
+      "city": "קרית גת",
+      "address": "כיכר פז 3/8 (קניון לב העיר)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "לה אסנס (La Essence)",
+      "city": "מ.א אשכול",
+      "address": "מושב ישע (משק 222)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "Perfume Free (בוגוס פרפיום)",
+      "city": "אשדוד",
+      "address": "קניון סימול",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "גלאם 42 (Glam 42)",
+      "city": "אשדוד",
+      "address": "ז'בוטינסקי 45 (סטאר סנטר)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "פרפומריה קרן מור",
+      "city": "אילת",
+      "address": null,
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "כלבוטק ליאור עדיקה",
+      "city": "אילת",
+      "address": "רחוב הבלן 2",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    },
+    {
+      "storeName": "גוד פארם (Good Pharm)",
+      "city": "אילת",
+      "address": "קאמפן 8 (אייס מול)",
+      "phoneCall": null,
+      "visit": null,
+      "potential": null,
+      "interest": null,
+      "notes": null
+    }
+  ],
+  "influencerPayments": [
+    {
+      "influencerName": "נועה בן דוד",
+      "amount": "4460.36",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "נועה בן דוד",
+      "amount": "7578.97",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "איילה אריאל",
+      "amount": "2628.21",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "ליה מזרחי",
+      "amount": "2914",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "שוהם ביטון",
+      "amount": "860",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "ראות סטורלוביץ",
+      "amount": "744.76",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "ליה מזרחי",
+      "amount": "2672.5",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "נגה אינגר",
+      "amount": "99.73",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "עמית טראש",
+      "amount": "280.67",
+      "isDone": null,
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "שוהם ביטון",
+      "amount": "280.76",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "ראות סטרולוביץ",
+      "amount": "173.7",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "הדסה",
+      "amount": "26.82",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "ניצן גולדשמיט",
+      "amount": "175.82",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "ניצן גולדשמיט",
+      "amount": "139.11",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "טל אוד קולקשיין",
+      "amount": "94.52",
+      "isDone": null,
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "שקד לנקרי",
+      "amount": "162.168",
+      "isDone": "V",
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "נוגה",
+      "amount": "11",
+      "isDone": null,
+      "paymentMonth": "יולי"
+    },
+    {
+      "influencerName": "נועה בן דוד",
+      "amount": "3000",
+      "isDone": null,
+      "paymentMonth": "אוגוסט"
+    },
+    {
+      "influencerName": "איילה אריאל",
+      "amount": "2000",
+      "isDone": null,
+      "paymentMonth": "אוגוסט"
+    },
+    {
+      "influencerName": "שוהם ביטון",
+      "amount": "0",
+      "isDone": null,
+      "paymentMonth": "אוגוסט"
+    },
+    {
+      "influencerName": "ליה מזרחי",
+      "amount": "2500",
+      "isDone": null,
+      "paymentMonth": "אוגוסט"
+    },
+    {
+      "influencerName": "עמית טראש",
+      "amount": "0",
+      "isDone": null,
+      "paymentMonth": "אוגוסט"
+    },
+    {
+      "influencerName": "ראות סטרולוביץ",
+      "amount": "0",
+      "isDone": null,
+      "paymentMonth": "אוגוסט"
+    },
+    {
+      "influencerName": "ניצן גולדשמיט",
+      "amount": "0",
+      "isDone": null,
+      "paymentMonth": "אוגוסט"
+    },
+    {
+      "influencerName": "טל אוד קולקשיין",
+      "amount": "0",
+      "isDone": null,
+      "paymentMonth": "אוגוסט"
+    },
+    {
+      "influencerName": "נוגה",
+      "amount": "0",
+      "isDone": null,
+      "paymentMonth": "אוגוסט"
+    }
+  ],
+  "influencers": [
+    {
+      "influencerName": "יהב",
+      "productsGiven": "אליסיר, ברגמוס, דודואר",
+      "videosUploaded": null,
+      "notes": null
+    },
+    {
+      "brand": "Piccirilli - מקדם 4",
+      "isPaid": null,
+      "videoCount": null,
+      "postCount": null,
+      "activities": null
+    },
+    {
+      "influencerName": "עמית",
+      "productsGiven": "דודואר",
+      "videosUploaded": null,
+      "notes": null
+    },
+    {
+      "brand": "Elisire - מקדם 4",
+      "isPaid": null,
+      "videoCount": null,
+      "postCount": null,
+      "activities": null
+    },
+    {
+      "influencerName": "עודד",
+      "productsGiven": "פייר פרשס",
+      "videosUploaded": null,
+      "notes": null
+    },
+    {
+      "brand": "Theodoros Kalotinis - מקדם 5",
+      "isPaid": null,
+      "videoCount": null,
+      "postCount": null,
+      "activities": null
+    },
+    {
+      "influencerName": "פרפיום טוק",
+      "productsGiven": null,
+      "videosUploaded": null,
+      "notes": null
+    },
+    {
+      "brand": "Dudar Milano - מקדם 4",
+      "isPaid": null,
+      "videoCount": null,
+      "postCount": null,
+      "activities": null
+    },
+    {
+      "influencerName": "ליז",
+      "productsGiven": null,
+      "videosUploaded": null,
+      "notes": null
+    },
+    {
+      "brand": "Memoirs Of A Perfume Collector - מקדם 3.8",
+      "isPaid": null,
+      "videoCount": null,
+      "postCount": null,
+      "activities": null
+    },
+    {
+      "influencerName": "נועה",
+      "productsGiven": null,
+      "videosUploaded": null,
+      "notes": null
+    },
+    {
+      "brand": "Bergamoss - מקדם 4.2",
+      "isPaid": null,
+      "videoCount": null,
+      "postCount": null,
+      "activities": null
+    },
+    {
+      "brand": "Farmacia SS. Annunziata - מקדם 5",
+      "isPaid": null,
+      "videoCount": null,
+      "postCount": null,
+      "activities": null
+    },
+    {
+      "brand": "Fomowa - מקדם 3.6",
+      "isPaid": null,
+      "videoCount": null,
+      "postCount": null,
+      "activities": null
+    },
+    {
+      "influencerName": "משימה",
+      "productsGiven": "פירוט",
+      "videosUploaded": "סטטוס",
+      "notes": "הערות"
+    },
+    {
+      "influencerName": "מונדיאל",
+      "productsGiven": null,
+      "videosUploaded": null,
+      "notes": null
+    }
+  ]
+}

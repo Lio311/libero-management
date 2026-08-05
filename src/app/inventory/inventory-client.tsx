@@ -312,22 +312,6 @@ export default function InventoryClient({
     return matchesSearch && matchesBrand;
   });
 
-  const valueByBrand = inventoryItems.reduce((acc, item) => {
-    const brand = item.brand || 'אחר';
-    const current = Number(item.currentStock || 0);
-    const cost = Number(item.costPrice || 0);
-    acc[brand] = (acc[brand] || 0) + (current * cost);
-    return acc;
-  }, {} as Record<string, number>);
-
-  const pieData = Object.entries(valueByBrand)
-    .filter(([_, value]) => (value as number) > 0)
-    .map(([brand, value]) => ({
-      name: brand,
-      value
-    }));
-
-  const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b', '#14b8a6'];
 
   return (
     <div className="p-8 space-y-8 bg-gray-50/50 min-h-screen" dir="rtl">
@@ -434,35 +418,6 @@ export default function InventoryClient({
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-        <Card className="bg-white border-none shadow-sm">
-          <CardHeader>
-            <CardTitle>התפלגות ערך מלאי</CardTitle>
-            <CardDescription>ערך כולל לפי מותג (ב-₪)</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[300px] flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={2}
-                  dataKey="value"
-                  label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <RechartsTooltip formatter={(value: any) => `₪${Number(value).toLocaleString()}`} />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Inventory Table */}
       <Card className="bg-white border-none shadow-sm">

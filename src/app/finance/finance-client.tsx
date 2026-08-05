@@ -766,15 +766,15 @@ export default function FinanceClient({
           <CardTitle>פילוג תשלומים</CardTitle>
           <CardDescription>סך תשלומים לפי מותג/סוג</CardDescription>
         </CardHeader>
-        <CardContent className="h-[450px] flex flex-col items-center justify-center pb-8">
+        <CardContent className="h-[600px] flex flex-col items-center justify-center pb-8">
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 0, right: 0, bottom: 20, left: 0 }}>
+            <PieChart margin={{ top: 0, right: 0, bottom: 40, left: 0 }}>
               <Pie
                 data={expensesData}
                 cx="50%"
                 cy="45%"
-                innerRadius={80}
-                outerRadius={120}
+                innerRadius={140}
+                outerRadius={210}
                 paddingAngle={5}
                 dataKey="value"
               >
@@ -783,7 +783,23 @@ export default function FinanceClient({
                 ))}
               </Pie>
               <RechartsTooltip formatter={(value: any) => `₪${value?.toLocaleString()}`} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-              <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: '30px', fontSize: '12px', lineHeight: '24px' }} />
+              <Legend 
+                content={(props: any) => {
+                  const { payload } = props;
+                  return (
+                    <ul className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-x-12 gap-y-4 text-sm pt-12" dir="rtl">
+                      {payload.map((entry: any, index: number) => (
+                        <li key={`item-${index}`} className="flex items-center gap-4">
+                          <div className="w-5 h-5 rounded-sm shrink-0" style={{ backgroundColor: entry.color }} />
+                          <span className="text-gray-800 font-medium truncate">{entry.value}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                }}
+                verticalAlign="bottom" 
+                align="center" 
+              />
             </PieChart>
           </ResponsiveContainer>
         </CardContent>

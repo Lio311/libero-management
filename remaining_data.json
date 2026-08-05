@@ -1,0 +1,290 @@
+{
+  "bankOfTasks": [
+    {
+      "itemIndex": "#",
+      "dueDate": "תאריך",
+      "taskName": "משימה",
+      "status": "סטטוס ביצוע",
+      "assignee": "אחראי"
+    },
+    {
+      "itemIndex": "1",
+      "dueDate": "21.7.2026",
+      "taskName": "ספירת מלאי חמאות לה בורה ועדכון באתר",
+      "status": "בתהליך",
+      "assignee": "ישראל"
+    },
+    {
+      "itemIndex": "2",
+      "dueDate": "21.7.2026",
+      "taskName": "באנר ופעילות לט\"ו באב",
+      "status": "בוצע",
+      "assignee": null
+    },
+    {
+      "itemIndex": "3",
+      "dueDate": "21.7.2026",
+      "taskName": "ישיבת שיווק ומילוי אקסל שיווק",
+      "status": null,
+      "assignee": null
+    },
+    {
+      "itemIndex": "4",
+      "dueDate": "21.7.2026",
+      "taskName": "פתיחת חשבון של וולור בפייסבוק",
+      "status": "בתהליך",
+      "assignee": "ליאור"
+    },
+    {
+      "itemIndex": "5",
+      "dueDate": "21.7.2026",
+      "taskName": "מענה בתפריט בוואטסאפ וולר",
+      "status": "בתהליך",
+      "assignee": "ליאור"
+    },
+    {
+      "itemIndex": "6",
+      "dueDate": "23.7.2026",
+      "taskName": "מכתב תביעה",
+      "status": "בתהליך",
+      "assignee": "יהודה"
+    },
+    {
+      "itemIndex": "7",
+      "dueDate": "27.7.2026",
+      "taskName": "שעון נוכחות",
+      "status": "בתהליך",
+      "assignee": "יהודה"
+    },
+    {
+      "itemIndex": "8",
+      "dueDate": "28.7.2026",
+      "taskName": "מנעול בדלת במחסן",
+      "status": "בתהליך",
+      "assignee": "דניאל"
+    },
+    {
+      "itemIndex": "9",
+      "dueDate": "28.7.2026",
+      "taskName": "מסך למצלמות במשרד",
+      "status": "בתהליך",
+      "assignee": "דניאל"
+    },
+    {
+      "itemIndex": "10",
+      "dueDate": "28.7.2026",
+      "taskName": "מכירת אתר דיקאנט",
+      "status": "בתהליך",
+      "assignee": "יהודה וליאור"
+    },
+    {
+      "itemIndex": "11",
+      "dueDate": "28.7.2026",
+      "taskName": "חוזה עבודה ליאור",
+      "status": null,
+      "assignee": null
+    },
+    {
+      "itemIndex": "12",
+      "dueDate": "28.7.2026",
+      "taskName": "אתר בקשות לקוחות",
+      "status": null,
+      "assignee": null
+    },
+    {
+      "itemIndex": "13",
+      "dueDate": "28.7.2026",
+      "taskName": "בחירת בקבוקים לאתר דיקנט",
+      "status": null,
+      "assignee": null
+    },
+    {
+      "itemIndex": "14",
+      "dueDate": "4.8.2026",
+      "taskName": "בושם אקסלוסיבי פיצרילי",
+      "status": null,
+      "assignee": null
+    },
+    {
+      "itemIndex": "15",
+      "dueDate": "4.8.2026",
+      "taskName": "בושם אקסלוסיבי ברגמוס",
+      "status": null,
+      "assignee": null
+    }
+  ],
+  "importPayments": [
+    {
+      "brand": "Theodoros Kalotinis - מקדם 5",
+      "orderAmountForeign": "9600",
+      "orderAmountNis": "33274.5696",
+      "vat": "5989.422528",
+      "shippingCost": null
+    },
+    {
+      "brand": "Dudar Milano - מקדם 4",
+      "orderAmountForeign": "9629.5",
+      "orderAmountNis": "33376.81958",
+      "vat": "6007.827524",
+      "shippingCost": null
+    },
+    {
+      "brand": "Piccirilli - מקדם 4",
+      "orderAmountForeign": "9765",
+      "orderAmountNis": "33846.47627",
+      "vat": "6092.365728",
+      "shippingCost": null
+    },
+    {
+      "brand": "Memoirs Of A Perfume Collector - מקדם 3.8",
+      "orderAmountForeign": "47053.76",
+      "orderAmountNis": "190320.931",
+      "vat": "34257.76759",
+      "shippingCost": null
+    },
+    {
+      "brand": "Fomowa - מקדם 3.6",
+      "orderAmountForeign": "67968",
+      "orderAmountNis": "235583.9528",
+      "vat": "42405.1115",
+      "shippingCost": null
+    }
+  ],
+  "suppliers": [
+    {
+      "brandName": "KV - מקדם 5",
+      "inventoryStatus": "אין מלאי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "FOMOWA",
+      "contactStatus": "נשלחה הודעה",
+      "notes": "לא עונה - לשלוח וואטסאפ"
+    },
+    {
+      "brandName": "Piccirilli - מקדם 4",
+      "inventoryStatus": "מלאי חלקי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "PERNOIRE",
+      "contactStatus": "לא נשלחה הודעה",
+      "notes": "להחליט בחמישי מה לעשות"
+    },
+    {
+      "brandName": "Theodoros Kalotinis - מקדם 5",
+      "inventoryStatus": "יש מלאי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "SORA DORA",
+      "contactStatus": "נשלחה הודעה שנייה",
+      "notes": "ממתין לתשובה שלו, מופעל לחץ"
+    },
+    {
+      "brandName": "Memoirs Of A Perfume Collector - מקדם 3.8",
+      "inventoryStatus": "אין מלאי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "BOHOBOCO",
+      "contactStatus": "נשלחה הודעה",
+      "notes": "לתת עוד זמן"
+    },
+    {
+      "brandName": "Bergamoss - מקדם 4.2",
+      "inventoryStatus": "יש מלאי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "NAVITUS \\ VIVAMOR",
+      "contactStatus": "נשלחה הודעה",
+      "notes": "לחכות עד שבוע הבא"
+    },
+    {
+      "brandName": "Dudar Milano - מקדם 4",
+      "inventoryStatus": "מלאי חלקי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "THE SPIRIT OF DUBAI",
+      "contactStatus": "נשלחה הודעה",
+      "notes": "לחכות עד שבוע הבא"
+    },
+    {
+      "brandName": "Elisire - מקדם 4",
+      "inventoryStatus": "יש מלאי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "Birkholz - מקדם 4",
+      "inventoryStatus": "מלאי חלקי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "Comporta - מקדם 5",
+      "inventoryStatus": "מלאי חלקי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "Piccirilli - מקדם 4",
+      "contactStatus": "שולם",
+      "notes": "33846.47627"
+    },
+    {
+      "brandName": "Fomowa - מקדם 3.6",
+      "inventoryStatus": "אין מלאי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "Farmacia SS. Annunziata - מקדם 5",
+      "contactStatus": "ממתין לחשבונית",
+      "notes": "49433.53246"
+    },
+    {
+      "brandName": "Bohoboco - מקדם 3.5",
+      "inventoryStatus": "אין מלאי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "Dudar Milano - מקדם 4",
+      "contactStatus": "שולם",
+      "notes": "33376.81958"
+    },
+    {
+      "brandName": "Farmacia SS. Annunziata - מקדם 5",
+      "inventoryStatus": "מלאי חלקי",
+      "planningStatus": null
+    },
+    {
+      "brandName": "Theodoros Kalotinis - מקדם 5",
+      "contactStatus": "שולם",
+      "notes": "33274.5696"
+    },
+    {
+      "brandName": "Memoirs Of A Perfume Collector - מקדם 3.8",
+      "contactStatus": "שולם",
+      "notes": "190320.931"
+    },
+    {
+      "brandName": "Bergamoss - מקדם 4.2",
+      "contactStatus": "ממתין לביצוע הזמנה",
+      "notes": "0"
+    },
+    {
+      "brandName": "Bohoboco - מקדם 3.5",
+      "contactStatus": "ממתין לתשובה",
+      "notes": "235583.9528"
+    },
+    {
+      "brandName": "Fomowa - מקדם 3.6",
+      "contactStatus": "שולם",
+      "notes": "19600"
+    },
+    {
+      "brandName": "Navitus / Vivamor",
+      "contactStatus": "ממתין לתשובה",
+      "notes": "-"
+    }
+  ]
+}

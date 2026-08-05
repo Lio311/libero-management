@@ -94,7 +94,9 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="w-full">
               <div className="relative mb-6">
                 <input
-                  type="text"
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   maxLength={6}
                   value={token}
                   onChange={(e) => {
