@@ -91,7 +91,7 @@ export default function FinanceClient({
               <BarChart data={creditCardUsage} margin={{ top: 20, right: 40, left: 40, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tickMargin={10} />
-                <YAxis width={80} axisLine={false} tickLine={false} tickFormatter={(value) => `₪${value.toLocaleString()}`} orientation="left" />
+                <YAxis width={100} axisLine={false} tickLine={false} tickFormatter={(value) => `₪${value.toLocaleString()}`} orientation="left" tickMargin={10} />
                 <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar dataKey="used" name="מנוצל (הערכה)" stackId="a" fill="#3b82f6" radius={[0, 0, 4, 4]} />
