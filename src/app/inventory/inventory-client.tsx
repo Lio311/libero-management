@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PackageSearch, AlertTriangle, Truck, Archive, Search } from "lucide-react";
+import { PackageSearch, AlertTriangle, Truck, Archive, Search, Edit2, Trash2, Plus, X } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
+import { addInventoryItem, updateInventoryItem, deleteInventoryItem } from "./actions";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface InventoryClientProps {
   totalInventoryValue: number;
@@ -28,6 +30,62 @@ export default function InventoryClient({
   const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("all");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    itemIndex: '',
+    modelName: '',
+    brand: '',
+    currentStock: '',
+    orderedQuantity: '',
+    targetStockLevel: '',
+    costPrice: ''
+  });
+
+  const handleOpenModal = (mode: 'add' | 'edit', item?: any) => {
+    setModalMode(mode);
+    if (mode === 'edit' && item) {
+      setEditingId(item.id);
+      setFormData({
+        itemIndex: item.itemIndex?.toString() || '',
+        modelName: item.modelName || '',
+        brand: item.brand || '',
+        currentStock: item.currentStock?.toString() || '',
+        orderedQuantity: item.orderedQuantity?.toString() || '',
+        targetStockLevel: item.targetStockLevel?.toString() || '',
+        costPrice: item.costPrice?.toString() || ''
+      });
+    } else {
+      setEditingId(null);
+      setFormData({ itemIndex: '', modelName: '', brand: '', currentStock: '', orderedQuantity: '', targetStockLevel: '', costPrice: '' });
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingId(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    if (modalMode === 'add') {
+      await addInventoryItem(formData);
+    } else if (modalMode === 'edit' && editingId) {
+      await updateInventoryItem(editingId, formData);
+    }
+    setIsSubmitting(false);
+    handleCloseModal();
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('האם אתה בטוח שברצונך למחוק פריט זה?')) {
+      await deleteInventoryItem(id);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -202,9 +260,18 @@ export default function InventoryClient({
         <CardHeader>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <CardTitle>טבלת מלאי לפי מותגים</CardTitle>
-                <CardDescription>בחירת מותג תציג את כל הדגמים הרלוונטיים</CardDescription>
+              <div className="flex items-center gap-4">
+                <div>
+                  <CardTitle>טבלת מלאי לפי מותגים</CardTitle>
+                  <CardDescription>בחירת מותג תציג את כל הדגמים הרלוונטיים</CardDescription>
+                </div>
+                <button
+                  onClick={() => handleOpenModal('add')}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium flex items-center transition-colors"
+                >
+                  <Plus className="w-4 h-4 ml-2" />
+                  הוסף פריט
+                </button>
               </div>
               
               <div className="relative">
@@ -252,28 +319,29 @@ export default function InventoryClient({
             <table className="w-full text-sm text-right">
               <thead className="bg-gray-50/80 text-muted-foreground">
                 <tr>
-                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md">מזהה (Index)</th>
-                  <th className="py-3 px-4 font-medium">שם הדגם</th>
-                  <th className="py-3 px-4 font-medium">מותג / קטגוריה</th>
-                  <th className="py-3 px-4 font-medium">מלאי נוכחי</th>
-                  <th className="py-3 px-4 font-medium">הוזמנו</th>
-                  <th className="py-3 px-4 font-medium">רמת מלאי (%)</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md">מחיר עלות</th>
+                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">מזהה (Index)</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">שם הדגם</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">מותג / קטגוריה</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">מלאי נוכחי</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">הוזמנו</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">רמת מלאי (%)</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">מחיר עלות</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-left">פעולות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {filteredItems.slice(0, 100).map((item) => (
                   <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="py-3 px-4 text-muted-foreground">{item.itemIndex || '-'}</td>
-                    <td className="py-3 px-4 font-medium">{item.modelName}</td>
-                    <td className="py-3 px-4">
+                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{item.itemIndex || '-'}</td>
+                    <td className="py-3 px-4 font-medium whitespace-nowrap">{item.modelName}</td>
+                    <td className="py-3 px-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
                         {item.brand}
                       </span>
                     </td>
-                    <td className="py-3 px-4 font-semibold">{item.currentStock || '0'}</td>
-                    <td className="py-3 px-4 text-muted-foreground">{item.orderedQuantity || '0'}</td>
-                    <td className="py-3 px-4 text-muted-foreground">
+                    <td className="py-3 px-4 font-semibold whitespace-nowrap">{item.currentStock || '0'}</td>
+                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{item.orderedQuantity || '0'}</td>
+                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
                       {item.targetStockLevel ? (
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           Number(item.targetStockLevel) < 0.20 
@@ -286,7 +354,25 @@ export default function InventoryClient({
                         </span>
                       ) : '0%'}
                     </td>
-                    <td className="py-3 px-4 font-medium">₪{item.costPrice || '0'}</td>
+                    <td className="py-3 px-4 font-medium whitespace-nowrap">₪{item.costPrice || '0'}</td>
+                    <td className="py-3 px-4 whitespace-nowrap text-left">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenModal('edit', item)}
+                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                          title="ערוך"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                          title="מחק"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
                 {filteredItems.length === 0 && (
@@ -306,6 +392,138 @@ export default function InventoryClient({
           </div>
         </CardContent>
       </Card>
+      {/* Add/Edit Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+              onClick={handleCloseModal}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-xl shadow-xl z-50 overflow-hidden"
+              dir="rtl"
+            >
+              <div className="flex items-center justify-between p-6 border-b">
+                <h3 className="text-lg font-bold">
+                  {modalMode === 'add' ? 'הוספת פריט למלאי' : 'עריכת פריט'}
+                </h3>
+                <button
+                  onClick={handleCloseModal}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="p-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">שם הדגם</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.modelName}
+                        onChange={e => setFormData({...formData, modelName: e.target.value})}
+                        className="w-full px-3 py-2 border rounded-md"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">מותג / קטגוריה</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.brand}
+                        onChange={e => setFormData({...formData, brand: e.target.value})}
+                        className="w-full px-3 py-2 border rounded-md"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">מזהה (Index)</label>
+                      <input
+                        type="number"
+                        value={formData.itemIndex}
+                        onChange={e => setFormData({...formData, itemIndex: e.target.value})}
+                        className="w-full px-3 py-2 border rounded-md"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">מחיר עלות</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.costPrice}
+                        onChange={e => setFormData({...formData, costPrice: e.target.value})}
+                        className="w-full px-3 py-2 border rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">מלאי נוכחי</label>
+                      <input
+                        type="number"
+                        required
+                        value={formData.currentStock}
+                        onChange={e => setFormData({...formData, currentStock: e.target.value})}
+                        className="w-full px-3 py-2 border rounded-md"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">רמת מלאי רצויה</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.targetStockLevel}
+                        onChange={e => setFormData({...formData, targetStockLevel: e.target.value})}
+                        className="w-full px-3 py-2 border rounded-md"
+                        placeholder="לדוגמה: 0.5 ל-50%"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">הוזמנו</label>
+                      <input
+                        type="number"
+                        value={formData.orderedQuantity}
+                        onChange={e => setFormData({...formData, orderedQuantity: e.target.value})}
+                        className="w-full px-3 py-2 border rounded-md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 mt-6">
+                    <button
+                      type="button"
+                      onClick={handleCloseModal}
+                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                    >
+                      ביטול
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md transition-colors disabled:opacity-50"
+                    >
+                      {isSubmitting ? 'שומר...' : 'שמור פריט'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
