@@ -16,6 +16,7 @@ interface InventoryClientProps {
   stockHealthData: { brand: string; current: number; target: number; status: string; color: string }[];
   lowStockItems: { name: string; brand: string; current: number; target: number }[];
   inventoryItems: any[];
+  suppliers: any[];
 }
 
 export default function InventoryClient({
@@ -25,7 +26,8 @@ export default function InventoryClient({
   activeSkus,
   stockHealthData,
   lowStockItems,
-  inventoryItems
+  inventoryItems,
+  suppliers
 }: InventoryClientProps) {
   const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -324,6 +326,7 @@ export default function InventoryClient({
                   <th className="py-3 px-4 font-medium whitespace-nowrap">מותג / קטגוריה</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">מלאי נוכחי</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">הוזמנו</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">הזמנה קודמת</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">רמת מלאי (%)</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">מחיר עלות</th>
                   <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-left">פעולות</th>
@@ -341,6 +344,7 @@ export default function InventoryClient({
                     </td>
                     <td className="py-3 px-4 font-semibold whitespace-nowrap">{item.currentStock || '0'}</td>
                     <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{item.orderedQuantity || '0'}</td>
+                    <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{item.lastOrderQuantity || '0'}</td>
                     <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
                       {item.targetStockLevel ? (
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -392,6 +396,61 @@ export default function InventoryClient({
           </div>
         </CardContent>
       </Card>
+
+      {/* Suppliers Table */}
+      <Card className="bg-white border-none shadow-sm mt-8">
+        <CardHeader>
+          <CardTitle>טבלת ספקים</CardTitle>
+          <CardDescription>רשימת הספקים והסטטוס שלהם</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-right">
+              <thead className="bg-gray-50/80 text-muted-foreground">
+                <tr>
+                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">מותג</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס מלאי</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס תכנון</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס קשר</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">הערות</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {suppliers && suppliers.length > 0 ? (
+                  suppliers.map((supplier) => (
+                    <tr key={supplier.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-3 px-4 font-medium whitespace-nowrap">{supplier.brandName || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                          {supplier.inventoryStatus || '-'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                          {supplier.planningStatus || '-'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                          {supplier.contactStatus || '-'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground">{supplier.notes || '-'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                      לא נמצאו ספקים.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Add/Edit Modal */}
       <AnimatePresence>
         {isModalOpen && (

@@ -12,6 +12,8 @@ interface MarketingClientProps {
   totalInfluencerPayments: number;
   monthlyGrowth: any[];
   influencerPerformance: any[];
+  rawInfluencers: any[];
+  rawPayments: any[];
 }
 
 export default function MarketingClient({
@@ -20,7 +22,9 @@ export default function MarketingClient({
   totalProductsGiven,
   totalInfluencerPayments,
   monthlyGrowth,
-  influencerPerformance
+  influencerPerformance,
+  rawInfluencers,
+  rawPayments
 }: MarketingClientProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -99,6 +103,102 @@ export default function MarketingClient({
           </CardContent>
         </Card>
       </div>
+        </Card>
+      </div>
+
+      {/* Raw Influencers Table */}
+      <Card className="bg-white border-none shadow-sm mt-8">
+        <CardHeader>
+          <CardTitle>נתוני משפיענים (גולמי)</CardTitle>
+          <CardDescription>פירוט פעילות משפיענים כפי שהוזנה במערכת</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-right">
+              <thead className="bg-gray-50/80 text-muted-foreground">
+                <tr>
+                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">מותג</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">בתשלום?</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">מספר סרטונים</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">מספר פוסטים</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">מוצרים שניתנו</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">סרטונים שהועלו</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">פעילויות</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">הערות</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {rawInfluencers && rawInfluencers.length > 0 ? (
+                  rawInfluencers.map((inf) => (
+                    <tr key={inf.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-3 px-4 font-medium whitespace-nowrap">{inf.influencerName || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">{inf.brand || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">{inf.isPaid || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">{inf.videoCount || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">{inf.postCount || '-'}</td>
+                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{inf.productsGiven || '-'}</td>
+                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{inf.videosUploaded || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap max-w-[200px] truncate" title={inf.activities}>{inf.activities || '-'}</td>
+                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap max-w-[200px] truncate" title={inf.notes}>{inf.notes || '-'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={9} className="py-8 text-center text-muted-foreground">
+                      לא נמצאו משפיענים.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Raw Influencer Payments Table */}
+      <Card className="bg-white border-none shadow-sm mt-8">
+        <CardHeader>
+          <CardTitle>תשלומי משפיענים (גולמי)</CardTitle>
+          <CardDescription>פירוט התשלומים למשפיענים כפי שהוזנו במערכת</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-right">
+              <thead className="bg-gray-50/80 text-muted-foreground">
+                <tr>
+                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם משפיענ/ית</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">סכום</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">בוצע?</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">הערות</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {rawPayments && rawPayments.length > 0 ? (
+                  rawPayments.map((payment) => (
+                    <tr key={payment.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-3 px-4 font-medium whitespace-nowrap">{payment.influencerName || '-'}</td>
+                      <td className="py-3 px-4 font-medium whitespace-nowrap">₪{payment.amount || '0'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${payment.isDone === 'כן' || payment.isDone === 'בוצע' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                          {payment.isDone || '-'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground">{payment.notes || '-'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="py-8 text-center text-muted-foreground">
+                      לא נמצאו תשלומים.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

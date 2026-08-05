@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { inventoryItems } from "@/lib/db/schema";
+import { inventoryItems, suppliers } from "@/lib/db/schema";
 import InventoryClient from "./inventory-client";
 
 export const dynamic = "force-dynamic";
@@ -80,6 +80,8 @@ export default async function InventoryDashboard() {
     
     lowStockItems = itemsWithRatio.slice(0, 5);
 
+    const suppliersData = await db.select().from(suppliers);
+
   } catch (e) {
     console.error("Database connection failed, using empty data:", e);
   }
@@ -93,6 +95,7 @@ export default async function InventoryDashboard() {
       stockHealthData={stockHealthData}
       lowStockItems={lowStockItems}
       inventoryItems={allItems}
+      suppliers={suppliersData || []}
     />
   );
 }
