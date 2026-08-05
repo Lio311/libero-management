@@ -84,7 +84,7 @@ export default function MarketingClient({
         <Card className="col-span-4 bg-white border-none shadow-sm">
           <CardHeader>
             <CardTitle>צמיחה מדווחת מול הוצאות</CardTitle>
-            <CardDescription>מגמות לאורך חציון אחרון (המחשה)</CardDescription>
+            <CardDescription>מגמות לאורך חציון אחרון</CardDescription>
           </CardHeader>
           <CardContent className="pl-2 h-[450px]">
             <div dir="ltr" className="h-full w-full">
@@ -107,7 +107,7 @@ export default function MarketingClient({
         <Card className="col-span-3 bg-white border-none shadow-sm">
           <CardHeader>
             <CardTitle>ביצועי קמפיינים</CardTitle>
-            <CardDescription>ניתוח מדדי איכות (המחשה מבוססת תיעוד)</CardDescription>
+            <CardDescription>ניתוח מדדי איכות (מבוסס תיעוד)</CardDescription>
           </CardHeader>
           <CardContent className="h-[350px] flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">

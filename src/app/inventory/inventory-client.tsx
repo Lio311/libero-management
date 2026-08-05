@@ -102,19 +102,21 @@ export default function InventoryClient({
             <CardDescription>מלאי קיים לעומת יעד (Target Stock Level)</CardDescription>
           </CardHeader>
           <CardContent className="pl-2 h-[350px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stockHealthData} margin={{ top: 20, right: 60, left: 60, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="brand" axisLine={false} tickLine={false} tickMargin={10} />
-                <YAxis axisLine={false} tickLine={false} width={100} tickMargin={10} orientation="left" />
-                <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                <Bar dataKey="current" name="מלאי נוכחי" radius={[4, 4, 0, 0]} maxBarSize={50}>
-                  {stockHealthData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div dir="ltr" className="h-full w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stockHealthData} margin={{ top: 20, right: 20, left: 100, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="brand" axisLine={false} tickLine={false} tickMargin={10} />
+                  <YAxis axisLine={false} tickLine={false} width={100} tickMargin={10} orientation="left" />
+                  <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                  <Bar dataKey="current" name="מלאי נוכחי" radius={[4, 4, 0, 0]} maxBarSize={50}>
+                    {stockHealthData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
@@ -151,13 +153,13 @@ export default function InventoryClient({
       {/* Inventory Table */}
       <Card className="bg-white border-none shadow-sm">
         <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <CardTitle>טבלת מלאי (הזמנות ליברו ועוד)</CardTitle>
-              <CardDescription>רשימה מפורטת של כל הפריטים במערכת</CardDescription>
-            </div>
-            
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <CardTitle>טבלת מלאי לפי מותגים</CardTitle>
+                <CardDescription>בחירת מותג תציג את כל הדגמים הרלוונטיים</CardDescription>
+              </div>
+              
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
@@ -168,17 +170,33 @@ export default function InventoryClient({
                   className="pl-3 pr-9 py-2 border rounded-md text-sm w-[200px] focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
               </div>
-              
-              <select
-                value={selectedBrand}
-                onChange={(e) => setSelectedBrand(e.target.value)}
-                className="px-3 py-2 border rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            </div>
+
+            {/* Brands Tabs */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <button
+                onClick={() => setSelectedBrand("all")}
+                className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  selectedBrand === "all" 
+                    ? "bg-primary text-primary-foreground shadow-sm" 
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
               >
-                <option value="all">כל המותגים / קטגוריות</option>
-                {uniqueBrands.map((b, i) => (
-                  <option key={i} value={b as string}>{b as string}</option>
-                ))}
-              </select>
+                כל המותגים
+              </button>
+              {uniqueBrands.map((b, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedBrand(b as string)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    selectedBrand === b
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {b as string}
+                </button>
+              ))}
             </div>
           </div>
         </CardHeader>
