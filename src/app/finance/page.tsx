@@ -90,7 +90,7 @@ export default function FinanceDashboard() {
               <BarChart data={creditCardUsage} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => \`₪\${value}\`} />
+                <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `₪${value}`} />
                 <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Legend />
                 <Bar dataKey="used" name="מנוצל" stackId="a" fill="#3b82f6" radius={[0, 0, 4, 4]} />
@@ -118,10 +118,10 @@ export default function FinanceDashboard() {
                   dataKey="value"
                 >
                   {expensesData.map((entry, index) => (
-                    <Cell key={\`cell-\${index}\`} fill={entry.color} />
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <RechartsTooltip formatter={(value) => \`₪\${value.toLocaleString()}\`} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                <RechartsTooltip formatter={(value: any) => `₪${value?.toLocaleString()}`} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Legend layout="horizontal" verticalAlign="bottom" align="center" />
               </PieChart>
             </ResponsiveContainer>

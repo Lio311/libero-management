@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Instagram, TrendingUp, HandCoins } from "lucide-react";
+import { Users, Camera, TrendingUp, HandCoins } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 
 // Dummy data for visual rendering
@@ -54,7 +54,7 @@ export default function MarketingDashboard() {
         <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">סה"כ עוקבים (מצטבר)</CardTitle>
-            <Instagram className="h-4 w-4 text-primary" />
+            <Camera className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1.2M</div>
