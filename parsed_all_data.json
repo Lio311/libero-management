@@ -1860,5 +1860,23 @@
       "subtasks": null,
       "responsible": null
     }
+  ],
+  "chinaOrders": [
+    {
+      "arrivalDate": "18.8.2026",
+      "products": "2 מל"
+    },
+    {
+      "arrivalDate": "2.8.2026",
+      "products": "שקיות קטיפה קטנות ליברו"
+    },
+    {
+      "arrivalDate": "31.10.2026",
+      "products": "שקיות בריסטול גדול קטן + קופסאות גדולות + גלילי סאטין + נייר משי"
+    },
+    {
+      "arrivalDate": "31.9.2026",
+      "products": "5 מל"
+    }
   ]
 }

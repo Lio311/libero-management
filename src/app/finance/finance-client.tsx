@@ -132,11 +132,23 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
     return 'bg-red-100';
   };
 
-  // Card gradient based on type
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    if (showSensitive) {
+      timeoutId = setTimeout(() => {
+        setShowSensitive(false);
+      }, 15000);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [showSensitive]);
+
+  const formattedExpiration = card.expiration ? card.expiration.replace('.', '/') : '-';
+
+  // Card gradient based on type - lighter cyan/blue colors
   const isBusinessCard = card.cardType === 'עסקי';
   const cardGradient = isBusinessCard 
-    ? 'from-slate-800 via-slate-700 to-slate-900'
-    : 'from-blue-800 via-blue-700 to-indigo-900';
+    ? 'from-cyan-700 via-cyan-600 to-blue-700'
+    : 'from-sky-500 via-cyan-500 to-sky-400';
   
   return (
     <div className="group">
@@ -170,8 +182,16 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
           </div>
           
           {/* Card Number */}
-          <div className="text-lg tracking-[0.2em] font-mono mb-3 opacity-90">
-            {showSensitive ? card.cardNumber : maskCardNumber(card.cardNumber)}
+          <div className="flex items-center gap-3 mb-3">
+            <div className="text-lg tracking-[0.2em] font-mono opacity-90">
+              {showSensitive ? card.cardNumber : maskCardNumber(card.cardNumber)}
+            </div>
+            <button 
+              onClick={(e) => { e.stopPropagation(); setShowSensitive(!showSensitive); }}
+              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            >
+              {showSensitive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
           </div>
           
           {/* Progress Bar - Credit Utilization */}
@@ -199,7 +219,7 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
             <div className="flex gap-4">
               <div>
                 <div className="text-[10px] opacity-50">תוקף</div>
-                <div className="text-sm font-mono">{card.expiration || '-'}</div>
+                <div className="text-sm font-mono">{formattedExpiration}</div>
               </div>
               {card.billingDate && (
                 <div>
@@ -215,12 +235,6 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
               )}
             </div>
             <div className="flex items-center gap-2">
-              <button 
-                onClick={(e) => { e.stopPropagation(); setShowSensitive(!showSensitive); }}
-                className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-              >
-                {showSensitive ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-              </button>
               {expanded ? <ChevronUp className="w-4 h-4 opacity-60" /> : <ChevronDown className="w-4 h-4 opacity-60" />}
             </div>
           </div>
@@ -249,7 +263,7 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
             </div>
             <div>
               <span className="text-gray-500 text-xs">תוקף</span>
-              <p className="font-medium">{card.expiration || '-'}</p>
+              <p className="font-medium">{formattedExpiration}</p>
             </div>
             <div>
               <span className="text-gray-500 text-xs">CVV</span>

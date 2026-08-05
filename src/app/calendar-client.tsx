@@ -48,6 +48,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
   const [newTaskDate, setNewTaskDate] = useState<Date | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedTask, setSelectedTask] = useState<{ dateKey: string, task: Task } | null>(null);
+  const [selectedDayDetails, setSelectedDayDetails] = useState<Date | null>(null);
 
   // Load monthlySchedule for the currently viewed month
   useEffect(() => {
@@ -90,18 +91,15 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         const isMonthlySummary = taskTitle.includes('פגישת סיכום חודש');
         const isPricingMeeting = taskTitle.includes('פגישת תמחור');
 
-        const isDefaultWeeklySummary = isWeeklySummary && [3, 10, 17].includes(task.weekNumber);
-        const isDefaultMonthlySummary = isMonthlySummary && [24].includes(task.weekNumber);
-        const isDefaultPricingMeeting = isPricingMeeting && [4, 11, 18, 25].includes(task.weekNumber);
-
-        if (isDefaultWeeklySummary || isDefaultMonthlySummary || isDefaultPricingMeeting) {
-          // Determine week occurrence (1st, 2nd, 3rd, 4th)
+        if (isWeeklySummary || isMonthlySummary || isPricingMeeting) {
+          // Determine week occurrence (1st, 2nd, 3rd, 4th, 5th) based on the original day of month stored in DB
           let n = 1;
-          const weekNumber = task.weekNumber || 1;
-          if (weekNumber >= 3 && weekNumber <= 8) n = 1;
-          else if (weekNumber >= 10 && weekNumber <= 15) n = 2;
-          else if (weekNumber >= 17 && weekNumber <= 22) n = 3;
-          else if (weekNumber >= 24 && weekNumber <= 29) n = 4;
+          const originalDay = task.weekNumber || 1;
+          if (originalDay >= 1 && originalDay <= 7) n = 1;
+          else if (originalDay >= 8 && originalDay <= 14) n = 2;
+          else if (originalDay >= 15 && originalDay <= 21) n = 3;
+          else if (originalDay >= 22 && originalDay <= 28) n = 4;
+          else if (originalDay >= 29) n = 5;
 
           const dayOfWeek = (isWeeklySummary || isMonthlySummary) ? 4 : 1; // 4 = Thursday, 1 = Monday
           taskDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), dayOfWeek, n);
@@ -238,8 +236,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
   };
 
   const handleDayClick = (day: Date) => {
-    setNewTaskDate(day);
-    setNewTaskTitle('');
+    setSelectedDayDetails(day);
   };
 
   const saveNewTask = () => {
@@ -359,7 +356,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                       await updateBankOfTaskAction(taskToMove.dbId, { dueDate: format(day, 'yyyy-MM-dd') });
                     }
                   }}
-                  className={`min-h-[120px] md:min-h-[160px] p-2 md:p-3 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer
+                  className={`h-[120px] md:h-[160px] p-2 md:p-3 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer overflow-hidden
                     ${!isCurrentMonth ? 'bg-transparent opacity-60' : 'bg-transparent'}
                     ${dayIdx % 7 === 6 ? 'border-l-0' : ''}
                   `}
@@ -371,14 +368,21 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                       {format(day, dateFormat)}
                     </span>
                     
-                    <button className="p-1 text-gray-400 hover:text-[#0071E3] transition-all bg-white/50 rounded-full hover-scale">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setNewTaskDate(day);
+                        setNewTaskTitle('');
+                      }}
+                      className="p-1 text-gray-400 hover:text-[#0071E3] transition-all bg-white/50 rounded-full hover-scale"
+                    >
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
 
                   <div className="space-y-1.5 md:space-y-2 mt-1">
                     <AnimatePresence>
-                      {dayTasks.map(task => {
+                      {dayTasks.slice(0, 3).map(task => {
                         const isPastDate = isBefore(day, startOfDay(new Date()));
                         let taskStyle = 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50';
                         let titleStyle = 'text-gray-800';
@@ -444,6 +448,11 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                         );
                       })}
                     </AnimatePresence>
+                    {dayTasks.length > 3 && (
+                      <div className="text-[10px] text-[#0071E3] font-medium px-1 mt-1 text-center bg-blue-50/50 rounded p-1">
+                        + {dayTasks.length - 3} משימות נוספות
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -486,6 +495,111 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                   <button onClick={() => setNewTaskDate(null)} className="px-4 py-2 text-gray-600 hover:bg-white/50 rounded-xl transition-colors hover-scale">ביטול</button>
                   <button onClick={saveNewTask} className="px-4 py-2 bg-[#0071E3] text-white rounded-xl hover:bg-blue-600 transition-colors shadow-sm hover-scale">שמור משימה</button>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Day Details Modal */}
+        {selectedDayDetails && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSelectedDayDetails(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              onClick={e => e.stopPropagation()}
+              className="glass-panel rounded-2xl p-6 w-full max-w-lg shadow-xl border border-white/40 max-h-[80vh] flex flex-col"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-medium">
+                  משימות ל-{format(selectedDayDetails, 'd בMMM yyyy', { locale: he })}
+                </h2>
+                <button 
+                  onClick={() => {
+                    setNewTaskDate(selectedDayDetails);
+                    setNewTaskTitle('');
+                    setSelectedDayDetails(null);
+                  }}
+                  className="bg-[#0071E3] text-white p-2 rounded-xl text-sm font-medium hover:bg-blue-600 transition-colors shadow-sm"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto pr-2 space-y-3">
+                {(() => {
+                  const dateKey = format(selectedDayDetails, 'yyyy-MM-dd');
+                  const dayTasks = localTasks[dateKey] || [];
+                  if (dayTasks.length === 0) {
+                    return <p className="text-gray-500 text-center py-8">אין משימות ליום זה</p>;
+                  }
+                  return dayTasks.map(task => {
+                        const isPastDate = isBefore(selectedDayDetails, startOfDay(new Date()));
+                        let taskStyle = 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50';
+                        let titleStyle = 'text-gray-800';
+                        let iconStyle = 'text-gray-400 hover:text-gray-900';
+                        
+                        if (task.isCompleted) {
+                          taskStyle = 'bg-green-100 border-green-300 opacity-90';
+                          titleStyle = 'line-through text-green-800';
+                          iconStyle = 'text-green-600 hover:text-green-800';
+                        } else if (task.isDelayed) {
+                          if (task.delayMonths && task.delayMonths >= 1) {
+                            taskStyle = 'bg-orange-100 border-orange-300 hover:bg-orange-200';
+                            titleStyle = 'text-orange-800';
+                            iconStyle = 'text-orange-600 hover:text-orange-800';
+                          } else {
+                            taskStyle = 'bg-yellow-100 border-yellow-300 hover:bg-yellow-200';
+                            titleStyle = 'text-yellow-800';
+                            iconStyle = 'text-yellow-600 hover:text-yellow-800';
+                          }
+                        } else if (isPastDate) {
+                          taskStyle = 'bg-red-100 border-red-300 hover:bg-red-200';
+                          titleStyle = 'text-red-800';
+                          iconStyle = 'text-red-500 hover:text-red-700';
+                        }
+
+                        return (
+                          <div 
+                            key={task.id}
+                            onClick={() => {
+                              setSelectedTask({ dateKey, task });
+                              setSelectedDayDetails(null);
+                            }}
+                            className={`flex justify-between items-center p-3 rounded-xl cursor-pointer border shadow-sm transition-all hover-scale ${taskStyle}`}
+                          >
+                            <div className="flex items-center gap-3 overflow-hidden">
+                              <button 
+                                className={`flex-shrink-0 transition-colors ${iconStyle}`}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleTask(dateKey, task.id);
+                                }}
+                              >
+                                {task.isCompleted ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
+                              </button>
+                              <div className="flex flex-col overflow-hidden">
+                                <span className={`font-medium ${titleStyle} truncate`}>{task.title}</span>
+                                <span className="text-xs text-gray-500 flex items-center gap-1.5">
+                                  <span className={`w-2 h-2 rounded-full ${task.category.color}`}></span>
+                                  {task.category.name}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                  });
+                })()}
+              </div>
+              
+              <div className="mt-6 flex justify-end">
+                <button onClick={() => setSelectedDayDetails(null)} className="px-5 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors font-medium">סגור</button>
               </div>
             </motion.div>
           </motion.div>

@@ -8,7 +8,8 @@ import {
   creditCards,
   roleHolders,
   monthlySchedule,
-  bankOfTasks
+  bankOfTasks,
+  chinaOrders
 } from '../src/lib/db/schema';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -121,6 +122,14 @@ async function main() {
   }
 
   console.log("Done seeding all data!");
+
+  // chinaOrders
+  if (data.chinaOrders && data.chinaOrders.length > 0) {
+    console.log("Seeding chinaOrders...");
+    await db.delete(chinaOrders);
+    await db.insert(chinaOrders).values(data.chinaOrders);
+  }
+  
   process.exit(0);
 }
 
