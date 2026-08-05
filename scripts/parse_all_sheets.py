@@ -249,6 +249,46 @@ all_data['monthlySchedule'] = parse_monthly_schedule()
 # 9. בנק משימות
 all_data['bankOfTasks'] = parse_bank_of_tasks()
 
+# 10. הזמנות מסין
+def parse_china_orders():
+    try:
+        df = pd.read_excel(excel_path, sheet_name="הזמנות מסין")
+    except Exception as e:
+        print(f"Skipping הזמנות מסין: {e}")
+        return []
+    
+    items = []
+    # Find columns dynamically based on headers
+    date_col = None
+    product_col = None
+    for idx, row in df.iterrows():
+        # First try to find headers
+        if date_col is None or product_col is None:
+            for col in df.columns:
+                val = str(row[col]).strip() if pd.notna(row[col]) else ""
+                if val == "תאריך הגעה":
+                    date_col = col
+                elif val == "מוצרים":
+                    product_col = col
+            continue
+            
+        if date_col and product_col:
+            arrival_date = clean(row[date_col])
+            products = clean(row[product_col])
+            
+            # Stop if we hit a non-date related row like summary or empty rows
+            if products and str(products) == 'סה״כ':
+                break
+                
+            if arrival_date and products:
+                items.append({
+                    'arrivalDate': arrival_date,
+                    'products': products
+                })
+    return items
+
+all_data['chinaOrders'] = parse_china_orders()
+
 with open('parsed_all_data.json', 'w', encoding='utf-8') as f:
     json.dump(all_data, f, ensure_ascii=False, indent=2)
 

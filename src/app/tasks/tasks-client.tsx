@@ -159,6 +159,22 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
     });
   };
 
+  const handleDrop = (e: React.DragEvent, newStatus: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const taskId = e.dataTransfer.getData('taskId');
+    if (!taskId) return;
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (!task || task.status === newStatus) return;
+
+    startTransition(async () => {
+      // Optimistic update
+      setTasks(tasks.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
+      await updateBankOfTaskAction(taskId, { ...task, status: newStatus });
+    });
+  };
+
   const handleEditChange = (field: keyof Task, value: any) => {
     setEditForm(prev => ({ ...prev, [field]: value }));
   };
@@ -210,12 +226,21 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
         {viewMode === 'kanban' ? (
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[400px]">
             {/* To Do Column */}
-            <div className="bg-slate-50/50 p-4 rounded-xl flex flex-col gap-3">
+            <div 
+              className="bg-slate-50/50 p-4 rounded-xl flex flex-col gap-3"
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onDrop={(e) => handleDrop(e, "לא התחיל")}
+            >
               <div className="font-semibold text-sm flex items-center justify-between text-slate-600 mb-2">
                 לא התחיל <Badge variant="secondary" className="bg-slate-200/50 text-slate-700">{todoTasks.length}</Badge>
               </div>
               {todoTasks.map(task => (
-                <div key={task.id} className={`${isOverdue(task.dueDate) ? 'bg-red-50/50 border-red-200 text-red-900' : 'bg-background border-border/50 text-foreground'} p-4 rounded-xl shadow-sm border border-border/50 text-sm hover:border-primary/50 cursor-pointer transition-all hover:shadow-md group`}>
+                <div 
+                  key={task.id} 
+                  draggable
+                  onDragStart={(e) => { e.dataTransfer.setData('taskId', task.id); e.stopPropagation(); }}
+                  className={`${isOverdue(task.dueDate) ? 'bg-red-50/50 border-red-200 text-red-900' : 'bg-background border-border/50 text-foreground'} p-4 rounded-xl shadow-sm border border-border/50 text-sm hover:border-primary/50 cursor-pointer transition-all hover:shadow-md group`}
+                >
                   <div className="font-medium mb-1 text-foreground leading-snug">{task.taskName}</div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground mt-4">
                     <div className="flex items-center gap-2">
@@ -245,12 +270,21 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
             </div>
 
             {/* In Progress Column */}
-            <div className="bg-amber-50/30 p-4 rounded-xl flex flex-col gap-3">
+            <div 
+              className="bg-amber-50/30 p-4 rounded-xl flex flex-col gap-3"
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onDrop={(e) => handleDrop(e, "בתהליך")}
+            >
               <div className="font-semibold text-sm flex items-center justify-between text-amber-600 mb-2">
                 בתהליך <Badge variant="secondary" className="bg-amber-100/50 text-amber-700">{inProgressTasks.length}</Badge>
               </div>
               {inProgressTasks.map(task => (
-                <div key={task.id} className={`${isOverdue(task.dueDate) ? 'bg-red-50/50 border-red-200 text-red-900' : 'bg-background border-amber-100 text-foreground'} p-4 rounded-xl shadow-sm border border-amber-100 text-sm hover:border-amber-300 cursor-pointer transition-all hover:shadow-md group`}>
+                <div 
+                  key={task.id} 
+                  draggable
+                  onDragStart={(e) => { e.dataTransfer.setData('taskId', task.id); e.stopPropagation(); }}
+                  className={`${isOverdue(task.dueDate) ? 'bg-red-50/50 border-red-200 text-red-900' : 'bg-background border-amber-100 text-foreground'} p-4 rounded-xl shadow-sm border border-amber-100 text-sm hover:border-amber-300 cursor-pointer transition-all hover:shadow-md group`}
+                >
                   <div className="font-medium mb-1 text-foreground leading-snug">{task.taskName}</div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground mt-4">
                     <div className="flex items-center gap-2">
@@ -280,12 +314,21 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
             </div>
 
             {/* Done Column */}
-            <div className="bg-emerald-50/30 p-4 rounded-xl flex flex-col gap-3">
+            <div 
+              className="bg-emerald-50/30 p-4 rounded-xl flex flex-col gap-3"
+              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              onDrop={(e) => handleDrop(e, "בוצע")}
+            >
               <div className="font-semibold text-sm flex items-center justify-between text-emerald-600 mb-2">
                 בוצע <Badge variant="secondary" className="bg-emerald-100/50 text-emerald-700">{doneTasks.length}</Badge>
               </div>
               {doneTasks.map(task => (
-                <div key={task.id} className="bg-background p-4 rounded-xl shadow-sm border border-emerald-100 text-sm hover:border-emerald-300 cursor-pointer transition-all hover:shadow-md group opacity-80 hover:opacity-100">
+                <div 
+                  key={task.id} 
+                  draggable
+                  onDragStart={(e) => { e.dataTransfer.setData('taskId', task.id); e.stopPropagation(); }}
+                  className="bg-background p-4 rounded-xl shadow-sm border border-emerald-100 text-sm hover:border-emerald-300 cursor-pointer transition-all hover:shadow-md group opacity-80 hover:opacity-100"
+                >
                   <div className="font-medium mb-1 text-muted-foreground line-through leading-snug">{task.taskName}</div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground mt-4">
                     <div className="flex items-center gap-2">
