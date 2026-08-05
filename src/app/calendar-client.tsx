@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Plus, Bell, Calendar as CalendarIcon, CheckCircle2, Circle } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek } from 'date-fns';
@@ -45,28 +45,42 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedTask, setSelectedTask] = useState<{ dateKey: string, task: Task } | null>(null);
 
-  // Map monthlySchedule to calendar days on load
-  if (Object.keys(localTasks).length === 0 && scheduleData && scheduleData.length > 0) {
-    const initialTasks: Record<string, Task[]> = {};
-    scheduleData.forEach((task, idx) => {
-      // Approximate date based on week number
-      const weekNum = task.weekNumber || 1;
-      const dayOffset = (weekNum - 1) * 7;
-      const approximateDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1 + dayOffset);
-      const dateKey = format(approximateDate, 'yyyy-MM-dd');
+  // Load monthlySchedule for the currently viewed month
+  useEffect(() => {
+    if (!scheduleData || scheduleData.length === 0) return;
+    
+    setLocalTasks(prev => {
+      const newTasks = { ...prev };
+      let hasChanges = false;
       
-      if (!initialTasks[dateKey]) {
-        initialTasks[dateKey] = [];
-      }
-      initialTasks[dateKey].push({
-        id: `task-${idx}`,
-        title: task.task,
-        category: { name: 'Monthly Task', color: 'bg-blue-400' },
-        isCompleted: false
+      scheduleData.forEach((task, idx) => {
+        // The database field 'weekNumber' actually contains the day of the month
+        const dayOfMonth = task.weekNumber || 1;
+        const taskDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayOfMonth);
+        const dateKey = format(taskDate, 'yyyy-MM-dd');
+        
+        if (!newTasks[dateKey]) {
+          newTasks[dateKey] = [];
+        }
+        
+        // Ensure we don't add duplicates if it already exists for this specific day
+        const taskId = `task-${idx}-${dateKey}`;
+        const exists = newTasks[dateKey].some(t => t.id === taskId);
+        
+        if (!exists) {
+          newTasks[dateKey].push({
+            id: taskId,
+            title: task.task,
+            category: { name: 'Monthly Task', color: 'bg-blue-400' },
+            isCompleted: false
+          });
+          hasChanges = true;
+        }
       });
+      
+      return hasChanges ? newTasks : prev;
     });
-    setLocalTasks(initialTasks);
-  }
+  }, [currentDate, scheduleData]);
 
   const toggleTask = (dateKey: string, taskId: string) => {
     setLocalTasks(prev => {
