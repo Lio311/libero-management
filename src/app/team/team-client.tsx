@@ -373,7 +373,7 @@ export default function TeamClient({
               )}
               
               {/* Render arrows - hidden on mobile via hidden md:block */}
-              <div className="hidden md:block absolute inset-0 z-30 pointer-events-none">
+              <div className="hidden md:block absolute inset-0 z-10 pointer-events-none">
                 {connections
                   .filter((conn, index, self) => 
                     index === self.findIndex(c => 
@@ -391,7 +391,7 @@ export default function TeamClient({
                      dashness={connectMode ? { animation: true } : true}
                      startAnchor={["right", "left"]}
                      endAnchor={["right", "left"]}
-                     zIndex={30}
+                     zIndex={10}
                      labels={
                       connectMode ? (
                         <div 
