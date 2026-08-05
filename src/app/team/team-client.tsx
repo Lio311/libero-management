@@ -46,7 +46,8 @@ function EmployeeCard({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full hover:shadow-md transition-shadow relative group">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full group">
+      <div className="flex flex-col h-full relative">
       {isEditing ? (
         <div className="mb-6 space-y-3 relative z-30">
           <input 
@@ -77,7 +78,7 @@ function EmployeeCard({
               <h2 className="text-xl font-semibold text-gray-900">{roleHolder.name}</h2>
             </div>
             {!roleHolder.isTemp && (
-              <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+              <div className="flex gap-2 lg:opacity-0 lg:group-hover:opacity-100">
                 <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="ערוך"><Edit2 className="w-4 h-4" /></button>
                 <button onClick={() => { if(confirm('האם למחוק?')) onDelete(roleHolder.id); }} className="p-1.5 text-red-600 hover:bg-red-50 rounded" title="מחק"><Trash2 className="w-4 h-4" /></button>
               </div>
@@ -96,20 +97,26 @@ function EmployeeCard({
               key={task.id} 
               id={`task-${task.id}`}
               onClick={() => handleTaskClick(task.id)}
-              className={`flex items-start gap-2 p-3 rounded-lg transition-all relative ${
-                connectMode ? 'cursor-pointer hover:bg-blue-50 border border-transparent hover:border-blue-200' : ''
-              } ${
-                isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-50'
+              className={`flex items-start gap-2 p-3 rounded-lg relative group/task ${
+                connectMode ? 'cursor-pointer' : ''
               }`}
             >
-              <div id={`task-icon-${task.id}`} className="flex-shrink-0 mt-0.5 z-30 relative">
+              {/* Background layer */}
+              <div className={`absolute inset-0 rounded-lg z-0 ${
+                connectMode ? 'group-hover/task:bg-blue-50 border border-transparent group-hover/task:border-blue-200' : ''
+              } ${
+                isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-50'
+              }`} />
+
+              <div id={`task-icon-${task.id}`} className="flex-shrink-0 mt-0.5 relative z-20 rounded-full bg-white">
                 <CheckCircle2 className={`w-4 h-4 ${connectMode ? 'text-blue-400' : 'text-gray-400'}`} />
               </div>
-              <span className="text-sm text-gray-700 leading-relaxed relative z-30">{task.description}</span>
+              <span className="text-sm text-gray-700 leading-relaxed relative z-20 font-medium bg-transparent" style={{ textShadow: '0 0 3px #f9fafb, 0 0 3px #f9fafb' }}>{task.description}</span>
             </li>
           );
         })}
       </ul>
+      </div>
     </div>
   );
 }
@@ -373,7 +380,7 @@ export default function TeamClient({
               )}
               
               {/* Render arrows - hidden on mobile via hidden md:block */}
-              <div className="hidden md:block absolute inset-0 z-20 pointer-events-none">
+              <div className="hidden md:block absolute inset-0 z-10 pointer-events-none">
                 {connections
                   .filter((conn, index, self) => 
                     index === self.findIndex(c => 
@@ -391,7 +398,7 @@ export default function TeamClient({
                       dashness={connectMode ? { animation: true } : true}
                       startAnchor={["right", "left"]}
                       endAnchor={["right", "left"]}
-                      zIndex={20}
+                      zIndex={10}
                      labels={
                       connectMode ? (
                         <div 
