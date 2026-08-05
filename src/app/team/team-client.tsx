@@ -46,7 +46,7 @@ function EmployeeCard({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full hover:shadow-md transition-shadow relative z-50 group">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full hover:shadow-md transition-shadow relative group">
       {isEditing ? (
         <div className="mb-6 space-y-3 relative z-20">
           <input 
@@ -88,7 +88,7 @@ function EmployeeCard({
           )}
         </div>
       )}
-      <ul className="grid grid-cols-2 gap-3 flex-1 relative z-10">
+      <ul className="grid grid-cols-2 gap-3 flex-1 relative z-20">
         {tasks.map((task) => {
           const isSelected = selectedTask === task.id;
           return (
