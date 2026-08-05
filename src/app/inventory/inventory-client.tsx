@@ -192,7 +192,7 @@ export default function InventoryClient({
                   <th className="py-3 px-4 font-medium">מותג / קטגוריה</th>
                   <th className="py-3 px-4 font-medium">מלאי נוכחי</th>
                   <th className="py-3 px-4 font-medium">הוזמנו</th>
-                  <th className="py-3 px-4 font-medium">יעד מלאי</th>
+                  <th className="py-3 px-4 font-medium">רמת מלאי (%)</th>
                   <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md">מחיר עלות</th>
                 </tr>
               </thead>
@@ -208,7 +208,19 @@ export default function InventoryClient({
                     </td>
                     <td className="py-3 px-4 font-semibold">{item.currentStock || '0'}</td>
                     <td className="py-3 px-4 text-muted-foreground">{item.orderedQuantity || '0'}</td>
-                    <td className="py-3 px-4 text-muted-foreground">{item.targetStockLevel || '0'}</td>
+                    <td className="py-3 px-4 text-muted-foreground">
+                      {item.targetStockLevel ? (
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          Number(item.targetStockLevel) < 0.20 
+                            ? 'bg-red-100 text-red-800' 
+                            : Number(item.targetStockLevel) >= 0.70
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {Math.round(Number(item.targetStockLevel) * 100)}%
+                        </span>
+                      ) : '0%'}
+                    </td>
                     <td className="py-3 px-4 font-medium">₪{item.costPrice || '0'}</td>
                   </tr>
                 ))}

@@ -231,7 +231,7 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
                 <tr>
                   <th className="py-3 px-6 font-medium">דגם</th>
                   <th className="py-3 px-6 font-medium">כמות במלאי</th>
-                  <th className="py-3 px-6 font-medium">מלאי יעד</th>
+                  <th className="py-3 px-6 font-medium">רמת מלאי (%)</th>
                   <th className="py-3 px-6 font-medium">כמות שהוזמנה</th>
                   <th className="py-3 px-6 font-medium">כמות הזמנה אחרונה</th>
                   <th className="py-3 px-6 font-medium">מחיר עלות</th>
@@ -243,15 +243,23 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
                     <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
                       <td className="py-3 px-6 font-medium text-gray-900">{item.modelName || 'N/A'}</td>
                       <td className="py-3 px-6 text-gray-600">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          Number(item.currentStock) < Number(item.targetStockLevel) 
-                            ? 'bg-red-100 text-red-800' 
-                            : 'bg-emerald-100 text-emerald-800'
-                        }`}>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                           {item.currentStock ?? 0}
                         </span>
                       </td>
-                      <td className="py-3 px-6 text-gray-600">{item.targetStockLevel ?? 0}</td>
+                      <td className="py-3 px-6 text-gray-600">
+                        {item.targetStockLevel ? (
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            Number(item.targetStockLevel) < 0.20 
+                              ? 'bg-red-100 text-red-800' 
+                              : Number(item.targetStockLevel) >= 0.70
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {Math.round(Number(item.targetStockLevel) * 100)}%
+                          </span>
+                        ) : '0%'}
+                      </td>
                       <td className="py-3 px-6 text-gray-600">{item.orderedQuantity ?? 0}</td>
                       <td className="py-3 px-6 text-gray-600">{item.lastOrderQuantity ?? 0}</td>
                       <td className="py-3 px-6 text-gray-600">
