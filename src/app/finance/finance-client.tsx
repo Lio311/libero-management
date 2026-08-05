@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, TrendingUp, CreditCard, ShoppingCart, ChevronDown, ChevronUp, Eye, EyeOff, Calendar, Building2, User } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { updateImportPayment } from "@/app/actions/finance";
+import { Check, X, Edit2 } from "lucide-react";
 
 interface CreditCardData {
   id: string;
@@ -300,6 +302,101 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
   );
 }
 
+function EditablePaymentRow({ payment }: { payment: any }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    brand: payment.brand || '',
+    orderAmountForeign: payment.orderAmountForeign || 0,
+    orderAmountNis: payment.orderAmountNis || 0,
+    vat: payment.vat || 0,
+    shippingCost: payment.shippingCost || 0
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    setIsEditing(false);
+    if (payment.id) {
+      await updateImportPayment(payment.id, {
+        brand: formData.brand,
+        orderAmountForeign: formData.orderAmountForeign.toString(),
+        orderAmountNis: formData.orderAmountNis.toString(),
+        vat: formData.vat.toString(),
+        shippingCost: formData.shippingCost.toString(),
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      brand: payment.brand || '',
+      orderAmountForeign: payment.orderAmountForeign || 0,
+      orderAmountNis: payment.orderAmountNis || 0,
+      vat: payment.vat || 0,
+      shippingCost: payment.shippingCost || 0
+    });
+    setIsEditing(false);
+  };
+
+  if (!isEditing) {
+    return (
+      <tr onClick={() => setIsEditing(true)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
+        <td className="p-3 text-gray-700">{formData.brand || '-'}</td>
+        <td className="p-3 text-gray-700">{Number(formData.orderAmountForeign || 0).toLocaleString()}</td>
+        <td className="p-3 text-gray-700">₪{Number(formData.orderAmountNis || 0).toLocaleString()}</td>
+        <td className="p-3 text-gray-700">₪{Number(formData.vat || 0).toLocaleString()}</td>
+        <td className="p-3 text-gray-700">₪{Number(formData.shippingCost || 0).toLocaleString()}</td>
+        <td className="p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
+            className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+          >
+            <Edit2 className="h-4 w-4" />
+          </button>
+        </td>
+      </tr>
+    );
+  }
+
+  return (
+    <tr className="bg-blue-50/30 transition-colors">
+      <td className="p-2">
+        <input name="brand" value={formData.brand} onChange={handleChange} autoFocus className="w-full p-1 border rounded text-sm text-right" dir="rtl" />
+      </td>
+      <td className="p-2">
+        <input type="number" name="orderAmountForeign" value={formData.orderAmountForeign} onChange={handleChange} className="w-full p-1 border rounded text-sm text-right" dir="ltr" />
+      </td>
+      <td className="p-2">
+        <input type="number" name="orderAmountNis" value={formData.orderAmountNis} onChange={handleChange} className="w-full p-1 border rounded text-sm text-right" dir="ltr" />
+      </td>
+      <td className="p-2">
+        <input type="number" name="vat" value={formData.vat} onChange={handleChange} className="w-full p-1 border rounded text-sm text-right" dir="ltr" />
+      </td>
+      <td className="p-2">
+        <input type="number" name="shippingCost" value={formData.shippingCost} onChange={handleChange} className="w-full p-1 border rounded text-sm text-right" dir="ltr" />
+      </td>
+      <td className="p-2">
+        <div className="flex gap-2">
+          <button
+            onClick={handleSave}
+            className="p-1 text-green-600 hover:bg-green-50 rounded"
+          >
+            <Check className="h-4 w-4" />
+          </button>
+          <button
+            onClick={handleCancel}
+            className="p-1 text-red-600 hover:bg-red-50 rounded"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 export default function FinanceClient({
   totalExpenses,
   totalCreditLimit,
@@ -477,19 +574,14 @@ export default function FinanceClient({
                 <th className="p-3 font-medium text-gray-600">מותג</th>
                 <th className="p-3 font-medium text-gray-600">סכום מט&quot;ח</th>
                 <th className="p-3 font-medium text-gray-600">סכום ש&quot;ח</th>
-                <th className="p-3 font-medium text-gray-600">מע&quot;מ</th>
-                <th className="p-3 font-medium text-gray-600">עלות משלוח</th>
+                <th className="p-3 font-medium text-right text-gray-500">מע&quot;מ</th>
+                <th className="p-3 font-medium text-right text-gray-500 rounded-tl-md">עלות שילוח</th>
+                <th className="p-3 font-medium text-right text-gray-500 rounded-tl-md w-16">פעולות</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {allPayments.map((p, i) => (
-                <tr key={p.id || i} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="p-3 text-gray-700">{p.brand || '-'}</td>
-                  <td className="p-3 text-gray-700">{Number(p.orderAmountForeign || 0).toLocaleString()}</td>
-                  <td className="p-3 text-gray-700">₪{Number(p.orderAmountNis || 0).toLocaleString()}</td>
-                  <td className="p-3 text-gray-700">₪{Number(p.vat || 0).toLocaleString()}</td>
-                  <td className="p-3 text-gray-700">₪{Number(p.shippingCost || 0).toLocaleString()}</td>
-                </tr>
+                <EditablePaymentRow key={p.id || i} payment={p} />
               ))}
             </tbody>
           </table>

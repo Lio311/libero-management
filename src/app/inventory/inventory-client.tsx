@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PackageSearch, AlertTriangle, Truck, Archive, Search, Edit2, Trash2, Plus, X } from "lucide-react";
+import { PackageSearch, AlertTriangle, Truck, Archive, Search, Edit2, Trash2, Plus, X, Check } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
-import { addInventoryItem, updateInventoryItem, deleteInventoryItem } from "./actions";
+import { addInventoryItem, updateInventoryItem, deleteInventoryItem, updateSupplier } from "./actions";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface InventoryClientProps {
@@ -17,6 +17,127 @@ interface InventoryClientProps {
   lowStockItems: { name: string; brand: string; current: number; target: number }[];
   inventoryItems: any[];
   suppliers: any[];
+}
+
+function EditableSupplierRow({ supplier }: { supplier: any }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [data, setData] = useState({
+    brandName: supplier.brandName || '',
+    inventoryStatus: supplier.inventoryStatus || '',
+    planningStatus: supplier.planningStatus || '',
+    contactStatus: supplier.contactStatus || '',
+    notes: supplier.notes || ''
+  });
+
+  const handleSave = () => {
+    startTransition(async () => {
+      await updateSupplier(supplier.id, data);
+      setIsEditing(false);
+    });
+  };
+
+  const handleCancel = () => {
+    setData({
+      brandName: supplier.brandName || '',
+      inventoryStatus: supplier.inventoryStatus || '',
+      planningStatus: supplier.planningStatus || '',
+      contactStatus: supplier.contactStatus || '',
+      notes: supplier.notes || ''
+    });
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <tr className="hover:bg-gray-50/50 transition-colors">
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.brandName}
+            onChange={(e) => setData({ ...data, brandName: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.inventoryStatus}
+            onChange={(e) => setData({ ...data, inventoryStatus: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.planningStatus}
+            onChange={(e) => setData({ ...data, planningStatus: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.contactStatus}
+            onChange={(e) => setData({ ...data, contactStatus: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.notes}
+            onChange={(e) => setData({ ...data, notes: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={handleSave}
+              disabled={isPending}
+              className="p-1 text-green-600 hover:bg-green-50 rounded"
+            >
+              <Check className="h-4 w-4" />
+            </button>
+            <button
+              onClick={handleCancel}
+              disabled={isPending}
+              className="p-1 text-red-600 hover:bg-red-50 rounded"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </td>
+      </tr>
+    );
+  }
+
+  return (
+    <tr className="hover:bg-gray-50/50 transition-colors group">
+      <td className="py-3 px-4 font-medium whitespace-nowrap">{supplier.brandName || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+          {supplier.inventoryStatus || '-'}
+        </span>
+      </td>
+      <td className="py-3 px-4 whitespace-nowrap">
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+          {supplier.planningStatus || '-'}
+        </span>
+      </td>
+      <td className="py-3 px-4 whitespace-nowrap">
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+          {supplier.contactStatus || '-'}
+        </span>
+      </td>
+      <td className="py-3 px-4 text-muted-foreground">{supplier.notes || '-'}</td>
+      <td className="py-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-left">
+        <button
+          onClick={() => setIsEditing(true)}
+          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors inline-block"
+          title="ערוך ספק"
+        >
+          <Edit2 className="w-4 h-4" />
+        </button>
+      </td>
+    </tr>
+  );
 }
 
 export default function InventoryClient({
@@ -95,10 +216,8 @@ export default function InventoryClient({
 
   if (!mounted) return null;
 
-  // Extract unique brands for the filter
   const uniqueBrands = Array.from(new Set(inventoryItems.map(i => i.brand))).filter(Boolean);
 
-  // Filter items
   const filteredItems = inventoryItems.filter(item => {
     const matchesSearch = (item.modelName || "").toLowerCase().includes(searchTerm.toLowerCase());
     const matchesBrand = selectedBrand === "all" || item.brand === selectedBrand;
@@ -288,7 +407,6 @@ export default function InventoryClient({
               </div>
             </div>
 
-            {/* Brands Tabs */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               <button
                 onClick={() => setSelectedBrand("all")}
@@ -412,31 +530,14 @@ export default function InventoryClient({
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס מלאי</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס תכנון</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס קשר</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">הערות</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-left">פעולות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {suppliers && suppliers.length > 0 ? (
                   suppliers.map((supplier) => (
-                    <tr key={supplier.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="py-3 px-4 font-medium whitespace-nowrap">{supplier.brandName || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                          {supplier.inventoryStatus || '-'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                          {supplier.planningStatus || '-'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                          {supplier.contactStatus || '-'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-muted-foreground">{supplier.notes || '-'}</td>
-                    </tr>
+                    <EditableSupplierRow key={supplier.id} supplier={supplier} />
                   ))
                 ) : (
                   <tr>

@@ -1,14 +1,154 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, Building2, Contact, CheckCircle2, Clock, AlertCircle, LayoutList, LayoutGrid } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
+import { Briefcase, Building2, Contact, CheckCircle2, Clock, AlertCircle, LayoutList, LayoutGrid, Check, X, Edit2 } from "lucide-react";
+import { updateWholesaleCustomer } from "@/app/actions/operations";
 
 interface OperationsClientProps {
   wholesaleClients: { name: string; contact: string; totalOrders: number; revenue: number; interest: string }[];
   rawWholesaleCustomers: any[];
+}
+
+function EditableWholesaleRow({ customer }: { customer: any }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [data, setData] = useState({
+    storeName: customer.storeName || '',
+    city: customer.city || '',
+    address: customer.address || '',
+    phoneCall: customer.phoneCall || '',
+    visit: customer.visit || '',
+    potential: customer.potential || '',
+    interest: customer.interest || '',
+    notes: customer.notes || ''
+  });
+
+  const handleSave = () => {
+    startTransition(async () => {
+      await updateWholesaleCustomer(customer.id, data);
+      setIsEditing(false);
+    });
+  };
+
+  const handleCancel = () => {
+    setData({
+      storeName: customer.storeName || '',
+      city: customer.city || '',
+      address: customer.address || '',
+      phoneCall: customer.phoneCall || '',
+      visit: customer.visit || '',
+      potential: customer.potential || '',
+      interest: customer.interest || '',
+      notes: customer.notes || ''
+    });
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <tr className="hover:bg-gray-50/50 transition-colors">
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.storeName}
+            onChange={(e) => setData({ ...data, storeName: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.city}
+            onChange={(e) => setData({ ...data, city: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.address}
+            onChange={(e) => setData({ ...data, address: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.phoneCall}
+            onChange={(e) => setData({ ...data, phoneCall: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.visit}
+            onChange={(e) => setData({ ...data, visit: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.potential}
+            onChange={(e) => setData({ ...data, potential: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.interest}
+            onChange={(e) => setData({ ...data, interest: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <input
+            className="w-full text-right p-1 border rounded"
+            value={data.notes}
+            onChange={(e) => setData({ ...data, notes: e.target.value })}
+          />
+        </td>
+        <td className="py-2 px-4">
+          <div className="flex gap-2">
+            <button
+              onClick={handleSave}
+              disabled={isPending}
+              className="p-1 text-green-600 hover:bg-green-50 rounded"
+            >
+              <Check className="h-4 w-4" />
+            </button>
+            <button
+              onClick={handleCancel}
+              disabled={isPending}
+              className="p-1 text-red-600 hover:bg-red-50 rounded"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </td>
+      </tr>
+    );
+  }
+
+  return (
+    <tr className="hover:bg-gray-50/50 transition-colors group">
+      <td className="py-3 px-4 font-medium whitespace-nowrap">{customer.storeName || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">{customer.city || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">{customer.address || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">{customer.phoneCall || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">{customer.visit || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">{customer.potential || '-'}</td>
+      <td className="py-3 px-4 whitespace-nowrap">
+        <Badge variant="outline" className="text-[10px]">{customer.interest || '-'}</Badge>
+      </td>
+      <td className="py-3 px-4 text-muted-foreground">{customer.notes || '-'}</td>
+      <td className="py-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={() => setIsEditing(true)}
+          className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+        >
+          <Edit2 className="h-4 w-4" />
+        </button>
+      </td>
+    </tr>
+  );
 }
 
 export default function OperationsClient({
@@ -88,28 +228,18 @@ export default function OperationsClient({
                   <th className="py-3 px-4 font-medium whitespace-nowrap">ביקור</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">פוטנציאל</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">עניין</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">הערות</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">פעולות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {rawWholesaleCustomers && rawWholesaleCustomers.length > 0 ? (
                   rawWholesaleCustomers.map((customer) => (
-                    <tr key={customer.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="py-3 px-4 font-medium whitespace-nowrap">{customer.storeName || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">{customer.city || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">{customer.address || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">{customer.phoneCall || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">{customer.visit || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">{customer.potential || '-'}</td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <Badge variant="outline" className="text-[10px]">{customer.interest || '-'}</Badge>
-                      </td>
-                      <td className="py-3 px-4 text-muted-foreground">{customer.notes || '-'}</td>
-                    </tr>
+                    <EditableWholesaleRow key={customer.id} customer={customer} />
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={9} className="py-8 text-center text-muted-foreground">
                       לא נמצאו לקוחות.
                     </td>
                   </tr>

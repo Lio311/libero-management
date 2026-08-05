@@ -71,6 +71,12 @@ export const teamTasks = pgTable("team_tasks", {
   taskDescription: text("task_description").notNull(),
 });
 
+export const teamTaskConnections = pgTable("team_task_connections", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  sourceTaskId: uuid("source_task_id").references(() => teamTasks.id).notNull(),
+  targetTaskId: uuid("target_task_id").references(() => teamTasks.id).notNull(),
+});
+
 // NEW TABLES FOR EXCEL INTEGRATION
 
 export const importPayments = pgTable("import_payments", {

@@ -162,7 +162,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
   const handleDrop = (e: React.DragEvent, newStatus: string) => {
     e.preventDefault();
     e.stopPropagation();
-    const taskId = e.dataTransfer.getData('taskId');
+    const taskId = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('taskId');
     if (!taskId) return;
     
     const task = tasks.find(t => t.id === taskId);
@@ -238,7 +238,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                 <div 
                   key={task.id} 
                   draggable
-                  onDragStart={(e) => { e.dataTransfer.setData('taskId', task.id); e.stopPropagation(); }}
+                  onDragStart={(e) => { e.dataTransfer.setData('text/plain', task.id); e.dataTransfer.setData('taskId', task.id); }}
                   className={`${isOverdue(task.dueDate) ? 'bg-red-50/50 border-red-200 text-red-900' : 'bg-background border-border/50 text-foreground'} p-4 rounded-xl shadow-sm border border-border/50 text-sm hover:border-primary/50 cursor-pointer transition-all hover:shadow-md group`}
                 >
                   <div className="font-medium mb-1 text-foreground leading-snug">{task.taskName}</div>
@@ -282,7 +282,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                 <div 
                   key={task.id} 
                   draggable
-                  onDragStart={(e) => { e.dataTransfer.setData('taskId', task.id); e.stopPropagation(); }}
+                  onDragStart={(e) => { e.dataTransfer.setData('text/plain', task.id); e.dataTransfer.setData('taskId', task.id); }}
                   className={`${isOverdue(task.dueDate) ? 'bg-red-50/50 border-red-200 text-red-900' : 'bg-background border-amber-100 text-foreground'} p-4 rounded-xl shadow-sm border border-amber-100 text-sm hover:border-amber-300 cursor-pointer transition-all hover:shadow-md group`}
                 >
                   <div className="font-medium mb-1 text-foreground leading-snug">{task.taskName}</div>
@@ -326,7 +326,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                 <div 
                   key={task.id} 
                   draggable
-                  onDragStart={(e) => { e.dataTransfer.setData('taskId', task.id); e.stopPropagation(); }}
+                  onDragStart={(e) => { e.dataTransfer.setData('text/plain', task.id); e.dataTransfer.setData('taskId', task.id); }}
                   className="bg-background p-4 rounded-xl shadow-sm border border-emerald-100 text-sm hover:border-emerald-300 cursor-pointer transition-all hover:shadow-md group opacity-80 hover:opacity-100"
                 >
                   <div className="font-medium mb-1 text-muted-foreground line-through leading-snug">{task.taskName}</div>
