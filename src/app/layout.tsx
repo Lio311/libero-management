@@ -18,6 +18,8 @@ export const viewport: Viewport = {
 };
 
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
+import { Sidebar } from "@/components/layout/sidebar";
+import { GlobalNotifications } from "@/components/layout/global-notifications";
 
 export default function RootLayout({
   children,
@@ -27,7 +29,11 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body className={`${assistant.className} antialiased h-screen overflow-hidden flex`}>
-        <LayoutWrapper>
+        <LayoutWrapper sidebar={
+          <Sidebar>
+            <GlobalNotifications />
+          </Sidebar>
+        }>
           {children}
         </LayoutWrapper>
       </body>

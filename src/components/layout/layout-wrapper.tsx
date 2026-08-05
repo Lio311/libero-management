@@ -1,10 +1,8 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Sidebar } from "@/components/layout/sidebar";
-import { GlobalNotifications } from "@/components/layout/global-notifications";
 
-export function LayoutWrapper({ children }: { children: React.ReactNode }) {
+export function LayoutWrapper({ children, sidebar }: { children: React.ReactNode, sidebar: React.ReactNode }) {
   const pathname = usePathname();
   
   if (pathname === '/login' || pathname === '/setup-2fa') {
@@ -17,9 +15,7 @@ export function LayoutWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <Sidebar>
-        <GlobalNotifications />
-      </Sidebar>
+      {sidebar}
       <main className="flex-1 overflow-y-auto bg-muted/20 page-animate">
         {children}
       </main>
