@@ -4,7 +4,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as xlsx from 'xlsx';
 import path from 'path';
-import { db } from '../src/lib/db';
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+const pool = new Pool({ connectionString: 'postgresql://neondb_owner:npg_1aDl9LIcAfCH@ep-little-dust-a2p1cl0m-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require' });
+const db = drizzle(pool);
 import {
   inventoryItems, teamTasks, tasks, categories,
   importPayments, creditCards, chinaOrders,
@@ -14,7 +17,7 @@ import {
 import { eq } from 'drizzle-orm';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '.env.local' });
+dotenv.config({ path: '.env' });
 
 export async function seedFromExcel(filePath: string) {
   const workbook = xlsx.readFile(filePath);

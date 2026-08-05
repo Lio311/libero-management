@@ -27,7 +27,7 @@ export async function login(token: string) {
   cookieStore.set('auth', 'authenticated', { 
     httpOnly: true, 
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 60 * 10, // 10 minutes
+    maxAge: 60 * 15, // 15 minutes
     path: '/'
   });
   return { success: true };

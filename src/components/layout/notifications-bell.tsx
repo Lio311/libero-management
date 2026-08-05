@@ -127,24 +127,31 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
   }, [scheduleData, bankTasksData, currentDate]);
 
   useEffect(() => {
-    if (activeNotifications.length > 0 && !hasShownPush && 'Notification' in window) {
-      if (Notification.permission === 'granted') {
-        new Notification('משימות לביצוע', {
-          body: `יש לך ${activeNotifications.length} משימות לביצוע שלא הושלמו.`,
-        });
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setHasShownPush(true);
-      } else if (Notification.permission !== 'denied') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            new Notification('משימות לביצוע', {
-              body: `יש לך ${activeNotifications.length} משימות לביצוע שלא הושלמו.`,
-            });
+    const showPush = async () => {
+      if (activeNotifications.length > 0 && !hasShownPush && typeof window !== 'undefined' && 'Notification' in window) {
+        try {
+          if (Notification.permission === 'granted') {
+            const body = `יש לך ${activeNotifications.length} משימות לביצוע שלא הושלמו.`;
+            let shown = false;
+            if ('serviceWorker' in navigator) {
+              const reg = await navigator.serviceWorker.getRegistration();
+              if (reg && reg.showNotification) {
+                await reg.showNotification('משימות לביצוע', { body });
+                shown = true;
+              }
+            }
+            if (!shown) {
+              new Notification('משימות לביצוע', { body });
+            }
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setHasShownPush(true);
           }
-        });
+        } catch (e) {
+          console.error('Failed to show push notification', e);
+        }
       }
-    }
+    };
+    showPush();
   }, [activeNotifications, hasShownPush]);
 
   useEffect(() => {

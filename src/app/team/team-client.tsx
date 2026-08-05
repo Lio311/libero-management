@@ -46,7 +46,7 @@ function EmployeeCard({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full hover:shadow-md transition-shadow relative group">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full hover:shadow-md transition-shadow relative z-10 group">
       {isEditing ? (
         <div className="mb-6 space-y-3 relative z-20">
           <input 
@@ -88,7 +88,7 @@ function EmployeeCard({
           )}
         </div>
       )}
-      <ul className="grid grid-cols-2 gap-3 flex-1 relative z-20">
+      <ul className="grid grid-cols-2 gap-3 flex-1 relative">
         {tasks.map((task) => {
           const isSelected = selectedTask === task.id;
           return (
@@ -96,16 +96,16 @@ function EmployeeCard({
               key={task.id} 
               id={`task-${task.id}`}
               onClick={() => handleTaskClick(task.id)}
-              className={`flex items-start gap-2 p-3 rounded-lg transition-all ${
+              className={`flex items-start gap-2 p-3 rounded-lg transition-all relative z-20 ${
                 connectMode ? 'cursor-pointer hover:bg-blue-50 border border-transparent hover:border-blue-200' : ''
               } ${
                 isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-50'
               }`}
             >
-              <div id={`task-icon-${task.id}`} className="flex-shrink-0 mt-0.5 z-20 relative">
+              <div id={`task-icon-${task.id}`} className="flex-shrink-0 mt-0.5 z-30 relative">
                 <CheckCircle2 className={`w-4 h-4 ${connectMode ? 'text-blue-400' : 'text-gray-400'}`} />
               </div>
-              <span className="text-sm text-gray-700 leading-relaxed relative z-20">{task.description}</span>
+              <span className="text-sm text-gray-700 leading-relaxed relative z-30">{task.description}</span>
             </li>
           );
         })}
@@ -373,7 +373,7 @@ export default function TeamClient({
               )}
               
               {/* Render arrows - hidden on mobile via hidden md:block */}
-              <div className="hidden md:block absolute inset-0 z-10 pointer-events-none">
+              <div className="hidden md:block absolute inset-0 z-30 pointer-events-none">
                 {connections
                   .filter((conn, index, self) => 
                     index === self.findIndex(c => 
@@ -381,17 +381,17 @@ export default function TeamClient({
                     )
                   )
                   .map(conn => (
-                   <Xarrow 
-                     key={conn.id} 
-                     start={`task-icon-${conn.sourceTaskId}`} 
-                     end={`task-icon-${conn.targetTaskId}`} 
-                     color="#94a3b8"
-                     strokeWidth={2}
-                     path="smooth"
-                     dashness={connectMode ? { animation: true } : true}
-                     startAnchor={["right", "left"]}
-                     endAnchor={["right", "left"]}
-                     zIndex={10}
+                    <Xarrow 
+                      key={conn.id} 
+                      start={`task-icon-${conn.sourceTaskId}`} 
+                      end={`task-icon-${conn.targetTaskId}`} 
+                      color="#94a3b8"
+                      strokeWidth={2}
+                      path="grid"
+                      dashness={connectMode ? { animation: true } : true}
+                      startAnchor={["right", "left", "top", "bottom"]}
+                      endAnchor={["right", "left", "top", "bottom"]}
+                      zIndex={30}
                      labels={
                       connectMode ? (
                         <div 

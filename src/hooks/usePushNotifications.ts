@@ -30,11 +30,6 @@ export function usePushNotifications() {
         const registration = await navigator.serviceWorker.register('/sw.js');
         const sub = await registration.pushManager.getSubscription();
         setSubscription(sub);
-        
-        if (!sub && Notification.permission === 'default') {
-          // Automatically ask for permission if not already granted/denied
-          subscribeToPush(registration);
-        }
       } catch (error) {
         console.error('Service Worker registration failed:', error);
       }
