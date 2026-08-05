@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, CheckCircle2
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, isBefore, startOfDay, differenceInMonths, isValid } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { updateMonthlyScheduleDay, toggleMonthlyScheduleStatus } from '@/app/actions/monthlySchedule';
-import { updateBankOfTaskAction } from '@/app/actions/bankOfTasks';
+import { updateBankOfTaskAction, createBankOfTaskAction, deleteBankOfTaskAction } from '@/app/actions/bankOfTasks';
 
 // Temporary mock data interface
 interface Task {
@@ -224,15 +224,17 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
   }, [currentDate, scheduleData, bankTasksData]);
 
   const toggleTask = async (dateKey: string, taskId: string) => {
-    let taskToToggle: Task | undefined;
+    const task = localTasks[dateKey]?.find(t => t.id === taskId);
+    if (!task) return;
+
+    const newIsCompleted = !task.isCompleted;
 
     setLocalTasks(prev => {
       const newTasks = { ...prev };
       if (newTasks[dateKey]) {
         newTasks[dateKey] = newTasks[dateKey].map(t => {
           if (t.id === taskId) {
-            taskToToggle = { ...t, isCompleted: !t.isCompleted };
-            return taskToToggle;
+            return { ...t, isCompleted: newIsCompleted };
           }
           return t;
         });
@@ -241,11 +243,11 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
     });
 
     // Fire backend update if it's a bank task or schedule task
-    if (taskToToggle?.dbId) {
-      if (taskToToggle.source === 'bank') {
-        await updateBankOfTaskAction(taskToToggle.dbId, { status: taskToToggle.isCompleted ? 'בוצע' : 'לא התחיל' });
-      } else if (taskToToggle.source === 'schedule') {
-        await toggleMonthlyScheduleStatus(taskToToggle.dbId, taskToToggle.isCompleted);
+    if (task.dbId) {
+      if (task.source === 'bank') {
+        await updateBankOfTaskAction(task.dbId, { status: newIsCompleted ? 'בוצע' : 'לא התחיל' });
+      } else if (task.source === 'schedule') {
+        await toggleMonthlyScheduleStatus(task.dbId, newIsCompleted);
       }
     }
   };
@@ -254,27 +256,52 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
     setSelectedDayDetails(day);
   };
 
-  const saveNewTask = () => {
+  const saveNewTask = async () => {
     if (!newTaskDate || !newTaskTitle.trim()) return;
     const dateKey = format(newTaskDate, 'yyyy-MM-dd');
+    const tempId = `task-${Date.now()}`;
+    const taskTitle = newTaskTitle;
+    
+    // Optimistic update
     setLocalTasks(prev => {
       const newTasks = { ...prev };
       if (!newTasks[dateKey]) newTasks[dateKey] = [];
       newTasks[dateKey] = [
         ...newTasks[dateKey],
         {
-          id: `task-${Date.now()}`,
-          title: newTaskTitle,
-          category: { name: 'Manual Task', color: 'bg-green-400' },
-          isCompleted: false
+          id: tempId,
+          title: taskTitle,
+          category: { name: 'בנק משימות', color: 'bg-purple-400' },
+          isCompleted: false,
+          source: 'bank'
         }
       ];
       return newTasks;
     });
     setNewTaskDate(null);
+    
+    const res = await createBankOfTaskAction({
+      taskName: taskTitle,
+      dueDate: format(newTaskDate, 'dd.MM.yyyy'), // Match the format used in tasks-client
+      status: 'לא התחיל'
+    });
+    
+    if (res.success && res.task) {
+      setLocalTasks(prev => {
+        const newTasks = { ...prev };
+        if (newTasks[dateKey]) {
+          newTasks[dateKey] = newTasks[dateKey].map(t => 
+            t.id === tempId ? { ...t, id: `bank-${res.task.id}`, dbId: res.task.id } : t
+          );
+        }
+        return newTasks;
+      });
+    }
   };
 
-  const deleteTask = (dateKey: string, taskId: string) => {
+  const deleteTask = async (dateKey: string, taskId: string) => {
+    const taskToDelete = localTasks[dateKey]?.find(t => t.id === taskId);
+    
     setLocalTasks(prev => {
       const newTasks = { ...prev };
       if (newTasks[dateKey]) {
@@ -283,6 +310,10 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
       return newTasks;
     });
     setSelectedTask(null);
+    
+    if (taskToDelete?.dbId && taskToDelete.source === 'bank') {
+      await deleteBankOfTaskAction(taskToDelete.dbId);
+    }
   };
 
   // Calendar events (mock arrival for now, inventory items don't have arrivalDate)
@@ -362,13 +393,21 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                     const taskToMove = sourceTasks.find(t => t.id === taskId);
                     if (!taskToMove) return;
 
-                    
+                    setLocalTasks(prev => {
+                      const newTasks = { ...prev };
+                      if (newTasks[sourceDateKey]) {
+                        newTasks[sourceDateKey] = newTasks[sourceDateKey].filter(t => t.id !== taskId);
+                      }
+                      if (!newTasks[dateKey]) newTasks[dateKey] = [];
+                      newTasks[dateKey] = [...newTasks[dateKey], taskToMove];
+                      return newTasks;
+                    });
 
                     if (taskToMove.dbId && taskToMove.source === 'schedule') {
                       const newDay = day.getDate();
                       await updateMonthlyScheduleDay(taskToMove.dbId, newDay);
                     } else if (taskToMove.source === 'bank' && taskToMove.dbId) {
-                      await updateBankOfTaskAction(taskToMove.dbId, { dueDate: format(day, 'yyyy-MM-dd') });
+                      await updateBankOfTaskAction(taskToMove.dbId, { dueDate: format(day, 'dd.MM.yyyy') });
                     }
                   }}
                   className={`h-[120px] md:h-[160px] p-2 md:p-3 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer overflow-hidden flex flex-col
