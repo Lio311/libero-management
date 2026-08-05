@@ -304,8 +304,10 @@ export default function TeamClient({
                      end={`task-${conn.targetTaskId}`} 
                      color="#94a3b8"
                      strokeWidth={2}
-                     path="smooth"
-                     dashness={connectMode ? { animation: true } : false}
+                     path="grid"
+                     startAnchor={['right', 'left', 'bottom', 'top']}
+                     endAnchor={['right', 'left', 'bottom', 'top']}
+                     dashness={connectMode ? { animation: true } : true}
                      labels={
                       connectMode ? (
                         <div 
