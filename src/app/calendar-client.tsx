@@ -16,10 +16,9 @@ interface Task {
 
 interface CalendarClientProps {
   scheduleData: any[];
-  ordersData: any[];
 }
 
-export default function CalendarPage({ scheduleData, ordersData }: CalendarClientProps) {
+export default function CalendarPage({ scheduleData }: CalendarClientProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   usePushNotifications(); // This triggers the prompt on load
 
@@ -38,7 +37,6 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const [localTasks, setLocalTasks] = useState<Record<string, Task[]>>({});
-  const [selectedBrand, setSelectedBrand] = useState<string>('');
   
   // Modal states
   const [newTaskDate, setNewTaskDate] = useState<Date | null>(null);
@@ -129,11 +127,6 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
     });
     setSelectedTask(null);
   };
-
-  const uniqueBrands = Array.from(new Set(ordersData?.map(item => item.brand).filter(Boolean)));
-  // Set default brand
-  const activeBrand = selectedBrand || (uniqueBrands.length > 0 ? uniqueBrands[0] : '');
-  const filteredInventory = ordersData?.filter(item => item.brand === activeBrand) || [];
 
   // Calendar events (mock arrival for now, inventory items don't have arrivalDate)
   // But we can add them to localTasks if needed. For now we just use the monthly schedule.
@@ -262,83 +255,6 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        {/* Libero Inventory Table By Brand */}
-        <div className="mt-12 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm" dir="rtl">
-          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50/50 flex justify-between items-center flex-wrap gap-4">
-            <div>
-              <h3 className="text-xl font-medium text-gray-900">ניהול מלאי והזמנות</h3>
-              <p className="text-sm text-gray-500">מחולק לפי מותגים (בחירת מותג להצגת כל הדגמים)</p>
-            </div>
-            {/* Brand Selector */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {uniqueBrands.map((brand: any) => (
-                <button
-                  key={brand}
-                  onClick={() => setSelectedBrand(brand)}
-                  className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
-                    activeBrand === brand 
-                      ? 'bg-gray-900 text-white border-gray-900' 
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  {brand}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-right">
-              <thead className="bg-gray-50/80 text-gray-500">
-                <tr>
-                  <th className="py-3 px-6 font-medium">דגם</th>
-                  <th className="py-3 px-6 font-medium">כמות במלאי</th>
-                  <th className="py-3 px-6 font-medium">רמת מלאי (%)</th>
-                  <th className="py-3 px-6 font-medium">כמות שהוזמנה</th>
-                  <th className="py-3 px-6 font-medium">כמות הזמנה אחרונה</th>
-                  <th className="py-3 px-6 font-medium">מחיר עלות</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredInventory && filteredInventory.length > 0 ? (
-                  filteredInventory.map((item, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="py-3 px-6 font-medium text-gray-900">{item.modelName || 'N/A'}</td>
-                      <td className="py-3 px-6 text-gray-600">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          {item.currentStock ?? 0}
-                        </span>
-                      </td>
-                      <td className="py-3 px-6 text-gray-600">
-                        {item.targetStockLevel ? (
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            Number(item.targetStockLevel) < 0.20 
-                              ? 'bg-red-100 text-red-800' 
-                              : Number(item.targetStockLevel) >= 0.70
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {Math.round(Number(item.targetStockLevel) * 100)}%
-                          </span>
-                        ) : '0%'}
-                      </td>
-                      <td className="py-3 px-6 text-gray-600">{item.orderedQuantity ?? 0}</td>
-                      <td className="py-3 px-6 text-gray-600">{item.lastOrderQuantity ?? 0}</td>
-                      <td className="py-3 px-6 text-gray-600">
-                        {item.costPrice ? `₪${item.costPrice}` : 'N/A'}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="py-6 text-center text-gray-500">אין נתונים עבור המותג הנבחר</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
           </div>
         </div>
       </main>
