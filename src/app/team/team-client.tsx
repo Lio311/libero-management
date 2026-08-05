@@ -94,7 +94,6 @@ function EmployeeCard({
           return (
             <li 
               key={task.id} 
-              id={`task-${task.id}`}
               onClick={() => handleTaskClick(task.id)}
               className={`flex items-start gap-2 p-3 rounded-lg transition-all ${
                 connectMode ? 'cursor-pointer hover:bg-blue-50 border border-transparent hover:border-blue-200' : ''
@@ -102,7 +101,9 @@ function EmployeeCard({
                 isSelected ? 'ring-2 ring-blue-500 bg-blue-50/50' : 'bg-gray-50/50'
               }`}
             >
-              <CheckCircle2 className={`w-4 h-4 mt-0.5 flex-shrink-0 ${connectMode ? 'text-blue-400' : 'text-gray-400'}`} />
+              <div id={`task-icon-${task.id}`} className="flex-shrink-0 mt-0.5 z-20 relative">
+                <CheckCircle2 className={`w-4 h-4 ${connectMode ? 'text-blue-400' : 'text-gray-400'}`} />
+              </div>
               <span className="text-sm text-gray-700 leading-relaxed">{task.description}</span>
             </li>
           );
@@ -300,14 +301,14 @@ export default function TeamClient({
                 {connections.map(conn => (
                    <Xarrow 
                      key={conn.id} 
-                     start={`task-${conn.sourceTaskId}`} 
-                     end={`task-${conn.targetTaskId}`} 
+                     start={`task-icon-${conn.sourceTaskId}`} 
+                     end={`task-icon-${conn.targetTaskId}`} 
                      color="#94a3b8"
                      strokeWidth={2}
                      path="grid"
                      startAnchor={['right', 'left', 'bottom', 'top']}
                      endAnchor={['right', 'left', 'bottom', 'top']}
-                     dashness={connectMode ? { animation: true } : true}
+                     dashness={false}
                      labels={
                       connectMode ? (
                         <div 
