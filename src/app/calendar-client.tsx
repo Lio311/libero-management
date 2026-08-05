@@ -315,11 +315,11 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
             {format(currentDate, 'MMMM', { locale: he })} <span className="text-gray-400 font-serif italic text-2xl md:text-4xl">{format(currentDate, 'yyyy')}</span>
           </h2>
           <div className="flex gap-2">
-            <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-white/50 transition-colors border border-white/40 bg-white/50 shadow-sm hover-scale" title="החודש הבא">
-              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
-            </button>
             <button onClick={prevMonth} className="p-2 md:p-3 rounded-full hover:bg-white/50 transition-colors border border-white/40 bg-white/50 shadow-sm hover-scale" title="החודש הקודם">
               <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+            </button>
+            <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-white/50 transition-colors border border-white/40 bg-white/50 shadow-sm hover-scale" title="החודש הבא">
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
             </button>
           </div>
         </div>
