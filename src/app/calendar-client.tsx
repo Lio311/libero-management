@@ -39,6 +39,11 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
 
   const [localTasks, setLocalTasks] = useState<Record<string, Task[]>>({});
   const [selectedBrand, setSelectedBrand] = useState<string>('');
+  
+  // Modal states
+  const [newTaskDate, setNewTaskDate] = useState<Date | null>(null);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [selectedTask, setSelectedTask] = useState<{ dateKey: string, task: Task } | null>(null);
 
   // Map monthlySchedule to calendar days on load
   if (Object.keys(localTasks).length === 0 && scheduleData && scheduleData.length > 0) {
@@ -75,6 +80,42 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
     });
   };
 
+  const handleDayClick = (day: Date) => {
+    setNewTaskDate(day);
+    setNewTaskTitle('');
+  };
+
+  const saveNewTask = () => {
+    if (!newTaskDate || !newTaskTitle.trim()) return;
+    const dateKey = format(newTaskDate, 'yyyy-MM-dd');
+    setLocalTasks(prev => {
+      const newTasks = { ...prev };
+      if (!newTasks[dateKey]) newTasks[dateKey] = [];
+      newTasks[dateKey] = [
+        ...newTasks[dateKey],
+        {
+          id: `task-${Date.now()}`,
+          title: newTaskTitle,
+          category: { name: 'Manual Task', color: 'bg-green-400' },
+          isCompleted: false
+        }
+      ];
+      return newTasks;
+    });
+    setNewTaskDate(null);
+  };
+
+  const deleteTask = (dateKey: string, taskId: string) => {
+    setLocalTasks(prev => {
+      const newTasks = { ...prev };
+      if (newTasks[dateKey]) {
+        newTasks[dateKey] = newTasks[dateKey].filter(t => t.id !== taskId);
+      }
+      return newTasks;
+    });
+    setSelectedTask(null);
+  };
+
   const uniqueBrands = Array.from(new Set(ordersData?.map(item => item.brand).filter(Boolean)));
   // Set default brand
   const activeBrand = selectedBrand || (uniqueBrands.length > 0 ? uniqueBrands[0] : '');
@@ -102,7 +143,7 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
             <Bell className="w-5 h-5 text-gray-600" />
             <span className="absolute top-2 right-2.5 w-2 h-2 bg-blue-500 rounded-full"></span>
           </button>
-          <button className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2">
+          <button onClick={() => setNewTaskDate(new Date())} className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2">
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">New Task</span>
           </button>
@@ -147,7 +188,8 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
               return (
                 <div 
                   key={day.toString()} 
-                  className={`min-h-[120px] md:min-h-[160px] p-2 md:p-3 border-r border-b border-gray-100 relative group transition-colors hover:bg-gray-50/50
+                  onClick={() => handleDayClick(day)}
+                  className={`min-h-[120px] md:min-h-[160px] p-2 md:p-3 border-r border-b border-gray-100 relative group transition-colors hover:bg-gray-50/50 cursor-pointer
                     ${!isCurrentMonth ? 'bg-white opacity-60' : 'bg-white'}
                     ${dayIdx % 7 === 6 ? 'border-r-0' : ''}
                   `}
@@ -172,13 +214,22 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
-                          onClick={() => toggleTask(dateKey, task.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedTask({ dateKey, task });
+                          }}
                           className={`group/task flex items-start gap-2 p-1.5 md:p-2 rounded-lg text-xs cursor-pointer border shadow-sm
                             ${task.isCompleted ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'}
                             transition-all
                           `}
                         >
-                          <button className="flex-shrink-0 mt-0.5 text-gray-400 hover:text-gray-900 transition-colors">
+                          <button 
+                            className="flex-shrink-0 mt-0.5 text-gray-400 hover:text-gray-900 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleTask(dateKey, task.id);
+                            }}
+                          >
                             {task.isCompleted ? <CheckCircle2 className="w-3.5 h-3.5 text-gray-600" /> : <Circle className="w-3.5 h-3.5" />}
                           </button>
                           <div className="flex flex-col gap-1 overflow-hidden">
@@ -277,6 +328,89 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
           </div>
         </div>
       </main>
+
+      {/* New Task Modal */}
+      <AnimatePresence>
+        {newTaskDate && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setNewTaskDate(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+            >
+              <h2 className="text-xl font-medium mb-4">New Task for {format(newTaskDate, 'MMM d, yyyy')}</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+                  <input
+                    type="text"
+                    value={newTaskTitle}
+                    onChange={e => setNewTaskTitle(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
+                    placeholder="Enter task title..."
+                    autoFocus
+                  />
+                </div>
+                <div className="flex justify-end gap-3 mt-6">
+                  <button onClick={() => setNewTaskDate(null)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                  <button onClick={saveNewTask} className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800">Save Task</button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Task Detail Modal */}
+        {selectedTask && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSelectedTask(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+            >
+              <h2 className="text-xl font-medium mb-2">{selectedTask.task.title}</h2>
+              <p className="text-sm text-gray-500 mb-6">Scheduled for {selectedTask.dateKey}</p>
+              
+              <div className="flex justify-between items-center mt-6">
+                <button 
+                  onClick={() => deleteTask(selectedTask.dateKey, selectedTask.task.id)}
+                  className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                >
+                  Delete Task
+                </button>
+                <div className="flex gap-2">
+                  <button onClick={() => setSelectedTask(null)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Close</button>
+                  <button 
+                    onClick={() => {
+                      toggleTask(selectedTask.dateKey, selectedTask.task.id);
+                      setSelectedTask(null);
+                    }}
+                    className={`px-4 py-2 text-white rounded-lg ${selectedTask.task.isCompleted ? 'bg-gray-500 hover:bg-gray-600' : 'bg-gray-900 hover:bg-gray-800'}`}
+                  >
+                    {selectedTask.task.isCompleted ? 'Mark Undone' : 'Mark Done'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
