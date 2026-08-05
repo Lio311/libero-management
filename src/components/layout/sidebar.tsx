@@ -18,7 +18,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-64 flex-col bg-card border-l border-border/50 text-card-foreground shadow-sm">
+    <div className="flex h-full w-64 flex-col glass-panel text-card-foreground shadow-sm z-10 relative">
       <div className="flex h-16 items-center px-6 border-b border-border/50">
         <h1 className="text-xl font-semibold tracking-tight text-primary">Libero</h1>
       </div>
@@ -30,7 +30,7 @@ export function Sidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200",
+                "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover-scale",
                 isActive
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"

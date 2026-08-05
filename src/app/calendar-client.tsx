@@ -6,10 +6,12 @@ import { ChevronLeft, ChevronRight, Plus, Bell, Calendar as CalendarIcon, CheckC
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { updateMonthlyScheduleDay } from '@/app/actions/monthlySchedule';
 
 // Temporary mock data interface
 interface Task {
   id: string;
+  dbId?: string;
   title: string;
   category: { name: string; color: string };
   isCompleted: boolean;
@@ -74,6 +76,7 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
         if (!exists) {
           newTasks[dateKey].push({
             id: taskId,
+            dbId: task.id,
             title: task.task,
             category: { name: 'Monthly Task', color: 'bg-blue-400' },
             isCompleted: false
@@ -138,27 +141,27 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
   // But we can add them to localTasks if needed. For now we just use the monthly schedule.
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 selection:bg-blue-500/30 font-sans pb-20 md:pb-0">
+    <div dir="rtl" className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] selection:bg-[#0071E3]/30 font-sans pb-20 md:pb-0 page-animate">
       {/* Premium Header */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-40 glass-panel border-b border-white/20 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center border border-gray-200">
+          <div className="w-10 h-10 bg-white/50 rounded-xl flex items-center justify-center border border-white/40 shadow-sm">
             <CalendarIcon className="w-5 h-5 text-gray-700" />
           </div>
           <div>
-            <h1 className="text-xl font-light tracking-wide">Monthly Schedule</h1>
-            <p className="text-xs text-gray-500 uppercase tracking-widest">Libero Management</p>
+            <h1 className="text-xl font-medium tracking-wide">בנק משימות</h1>
+            <p className="text-xs text-gray-500 uppercase tracking-widest">ניהול שוטף</p>
           </div>
         </div>
         
         <div className="flex items-center gap-4">
-          <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors relative">
+          <button className="w-10 h-10 rounded-full hover:bg-white/50 flex items-center justify-center transition-colors relative hover-scale">
             <Bell className="w-5 h-5 text-gray-600" />
-            <span className="absolute top-2 right-2.5 w-2 h-2 bg-blue-500 rounded-full"></span>
+            <span className="absolute top-2 right-2.5 w-2 h-2 bg-[#0071E3] rounded-full"></span>
           </button>
-          <button onClick={() => setNewTaskDate(new Date())} className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center gap-2">
+          <button onClick={() => setNewTaskDate(new Date())} className="bg-[#0071E3] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-2 hover-scale shadow-sm">
             <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">New Task</span>
+            <span className="hidden sm:inline">משימה חדשה</span>
           </button>
         </div>
       </header>
@@ -170,19 +173,19 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
             {format(currentDate, 'MMMM', { locale: he })} <span className="text-gray-400 font-serif italic text-2xl md:text-4xl">{format(currentDate, 'yyyy')}</span>
           </h2>
           <div className="flex gap-2">
-            <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-gray-200 transition-colors border border-gray-200 bg-white shadow-sm" title="החודש הבא">
-              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
-            </button>
-            <button onClick={prevMonth} className="p-2 md:p-3 rounded-full hover:bg-gray-200 transition-colors border border-gray-200 bg-white shadow-sm" title="החודש הקודם">
+            <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-white/50 transition-colors border border-white/40 bg-white/50 shadow-sm hover-scale" title="החודש הבא">
               <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+            </button>
+            <button onClick={prevMonth} className="p-2 md:p-3 rounded-full hover:bg-white/50 transition-colors border border-white/40 bg-white/50 shadow-sm hover-scale" title="החודש הקודם">
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
             </button>
           </div>
         </div>
 
         {/* Calendar Grid */}
-        <div className="bg-white rounded-2xl md:rounded-3xl border border-gray-200 overflow-hidden shadow-lg backdrop-blur-sm">
+        <div className="glass-panel rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-white/40">
           {/* Days of week */}
-          <div className="grid grid-cols-7 border-b border-gray-200 bg-white">
+          <div className="grid grid-cols-7 border-b border-gray-200/50 bg-white/30">
             {weekDays.map(day => (
               <div key={day} className="py-4 text-center text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                 {day}
@@ -202,19 +205,44 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
                 <div 
                   key={day.toString()} 
                   onClick={() => handleDayClick(day)}
-                  className={`min-h-[120px] md:min-h-[160px] p-2 md:p-3 border-r border-b border-gray-100 relative group transition-colors hover:bg-gray-50/50 cursor-pointer
-                    ${!isCurrentMonth ? 'bg-white opacity-60' : 'bg-white'}
-                    ${dayIdx % 7 === 6 ? 'border-r-0' : ''}
+                  onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const taskId = e.dataTransfer.getData('taskId');
+                    const sourceDateKey = e.dataTransfer.getData('sourceDateKey');
+                    if (!taskId || !sourceDateKey || sourceDateKey === dateKey) return;
+                    
+                    const sourceTasks = localTasks[sourceDateKey] || [];
+                    const taskToMove = sourceTasks.find(t => t.id === taskId);
+                    if (!taskToMove) return;
+
+                    setLocalTasks(prev => {
+                      const newTasks = { ...prev };
+                      newTasks[sourceDateKey] = newTasks[sourceDateKey].filter(t => t.id !== taskId);
+                      if (!newTasks[dateKey]) newTasks[dateKey] = [];
+                      newTasks[dateKey] = [...newTasks[dateKey], taskToMove];
+                      return newTasks;
+                    });
+
+                    if (taskToMove.dbId) {
+                      const newDay = day.getDate();
+                      await updateMonthlyScheduleDay(taskToMove.dbId, newDay);
+                    }
+                  }}
+                  className={`min-h-[120px] md:min-h-[160px] p-2 md:p-3 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer
+                    ${!isCurrentMonth ? 'bg-transparent opacity-60' : 'bg-transparent'}
+                    ${dayIdx % 7 === 6 ? 'border-l-0' : ''}
                   `}
                 >
                   <div className="flex justify-between items-start mb-2">
                     <span className={`text-sm md:text-base font-medium flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full
-                      ${isTodayDate ? 'bg-gray-900 text-white shadow-md' : (isCurrentMonth ? 'text-gray-900' : 'text-gray-400')}
+                      ${isTodayDate ? 'bg-[#0071E3] text-white shadow-md' : (isCurrentMonth ? 'text-gray-900' : 'text-gray-400')}
                     `}>
                       {format(day, dateFormat)}
                     </span>
                     
-                    <button className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-gray-900 transition-all bg-gray-100 rounded-full">
+                    <button className="p-1 text-gray-400 hover:text-[#0071E3] transition-all bg-white/50 rounded-full hover-scale">
                       <Plus className="w-4 h-4" />
                     </button>
                   </div>
@@ -231,9 +259,15 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
                             e.stopPropagation();
                             setSelectedTask({ dateKey, task });
                           }}
+                          draggable
+                          onDragStart={(e: any) => {
+                            e.dataTransfer.setData('taskId', task.id);
+                            e.dataTransfer.setData('sourceDateKey', dateKey);
+                            e.stopPropagation();
+                          }}
                           className={`group/task flex items-start gap-2 p-1.5 md:p-2 rounded-lg text-xs cursor-pointer border shadow-sm
                             ${task.isCompleted ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'}
-                            transition-all
+                            transition-all hover-scale
                           `}
                         >
                           <button 
@@ -280,24 +314,24 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+              className="glass-panel rounded-2xl p-6 w-full max-w-md shadow-xl border border-white/40"
             >
-              <h2 className="text-xl font-medium mb-4">New Task for {format(newTaskDate, 'MMM d, yyyy')}</h2>
+              <h2 className="text-xl font-medium mb-4">משימה חדשה לתאריך {format(newTaskDate, 'd בMMM yyyy', { locale: he })}</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">כותרת המשימה</label>
                   <input
                     type="text"
                     value={newTaskTitle}
                     onChange={e => setNewTaskTitle(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none"
-                    placeholder="Enter task title..."
+                    className="w-full bg-white/50 border border-white/40 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#0071E3] focus:border-transparent outline-none backdrop-blur-md"
+                    placeholder="הכנס כותרת..."
                     autoFocus
                   />
                 </div>
                 <div className="flex justify-end gap-3 mt-6">
-                  <button onClick={() => setNewTaskDate(null)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
-                  <button onClick={saveNewTask} className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800">Save Task</button>
+                  <button onClick={() => setNewTaskDate(null)} className="px-4 py-2 text-gray-600 hover:bg-white/50 rounded-xl transition-colors hover-scale">ביטול</button>
+                  <button onClick={saveNewTask} className="px-4 py-2 bg-[#0071E3] text-white rounded-xl hover:bg-blue-600 transition-colors shadow-sm hover-scale">שמור משימה</button>
                 </div>
               </div>
             </motion.div>
@@ -318,28 +352,28 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+              className="glass-panel rounded-2xl p-6 w-full max-w-md shadow-xl border border-white/40"
             >
               <h2 className="text-xl font-medium mb-2">{selectedTask.task.title}</h2>
-              <p className="text-sm text-gray-500 mb-6">Scheduled for {selectedTask.dateKey}</p>
+              <p className="text-sm text-gray-500 mb-6">מתוכנן לתאריך {selectedTask.dateKey}</p>
               
               <div className="flex justify-between items-center mt-6">
                 <button 
                   onClick={() => deleteTask(selectedTask.dateKey, selectedTask.task.id)}
-                  className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                  className="px-4 py-2 text-red-600 hover:bg-red-50/50 rounded-xl transition-colors hover-scale"
                 >
-                  Delete Task
+                  מחק משימה
                 </button>
                 <div className="flex gap-2">
-                  <button onClick={() => setSelectedTask(null)} className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Close</button>
+                  <button onClick={() => setSelectedTask(null)} className="px-4 py-2 text-gray-600 hover:bg-white/50 rounded-xl transition-colors hover-scale">סגור</button>
                   <button 
                     onClick={() => {
                       toggleTask(selectedTask.dateKey, selectedTask.task.id);
                       setSelectedTask(null);
                     }}
-                    className={`px-4 py-2 text-white rounded-lg ${selectedTask.task.isCompleted ? 'bg-gray-500 hover:bg-gray-600' : 'bg-gray-900 hover:bg-gray-800'}`}
+                    className={`px-4 py-2 text-white rounded-xl transition-colors shadow-sm hover-scale ${selectedTask.task.isCompleted ? 'bg-gray-500 hover:bg-gray-600' : 'bg-[#0071E3] hover:bg-blue-600'}`}
                   >
-                    {selectedTask.task.isCompleted ? 'Mark Undone' : 'Mark Done'}
+                    {selectedTask.task.isCompleted ? 'סמן כלא בוצע' : 'סמן כבוצע'}
                   </button>
                 </div>
               </div>
