@@ -37,10 +37,12 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  // Map monthlySchedule to calendar days
-  const dynamicTasks: Record<string, Task[]> = {};
-  
-  if (scheduleData && scheduleData.length > 0) {
+  const [localTasks, setLocalTasks] = useState<Record<string, Task[]>>({});
+  const [selectedBrand, setSelectedBrand] = useState<string>('');
+
+  // Map monthlySchedule to calendar days on load
+  if (Object.keys(localTasks).length === 0 && scheduleData && scheduleData.length > 0) {
+    const initialTasks: Record<string, Task[]> = {};
     scheduleData.forEach((task, idx) => {
       // Approximate date based on week number
       const weekNum = task.weekNumber || 1;
@@ -48,44 +50,38 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
       const approximateDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1 + dayOffset);
       const dateKey = format(approximateDate, 'yyyy-MM-dd');
       
-      if (!dynamicTasks[dateKey]) {
-        dynamicTasks[dateKey] = [];
+      if (!initialTasks[dateKey]) {
+        initialTasks[dateKey] = [];
       }
-      dynamicTasks[dateKey].push({
+      initialTasks[dateKey].push({
         id: `task-${idx}`,
         title: task.task,
         category: { name: 'Monthly Task', color: 'bg-blue-400' },
         isCompleted: false
       });
     });
+    setLocalTasks(initialTasks);
   }
 
-  // Add orders as calendar events if they have an arrival date
-  if (ordersData && ordersData.length > 0) {
-    ordersData.forEach((order, idx) => {
-      if (order.arrivalDate) {
-        try {
-          // Parse "DD.MM.YYYY"
-          const parts = order.arrivalDate.split('.');
-          if (parts.length === 3) {
-            const dateObj = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-            const dateKey = format(dateObj, 'yyyy-MM-dd');
-            if (!dynamicTasks[dateKey]) {
-              dynamicTasks[dateKey] = [];
-            }
-            dynamicTasks[dateKey].push({
-              id: `order-${idx}`,
-              title: `Arrival: ${order.products}`,
-              category: { name: 'Order', color: 'bg-emerald-500' },
-              isCompleted: false
-            });
-          }
-        } catch (e) {
-          // Ignore parsing errors
-        }
+  const toggleTask = (dateKey: string, taskId: string) => {
+    setLocalTasks(prev => {
+      const newTasks = { ...prev };
+      if (newTasks[dateKey]) {
+        newTasks[dateKey] = newTasks[dateKey].map(t => 
+          t.id === taskId ? { ...t, isCompleted: !t.isCompleted } : t
+        );
       }
+      return newTasks;
     });
-  }
+  };
+
+  const uniqueBrands = Array.from(new Set(ordersData?.map(item => item.brand).filter(Boolean)));
+  // Set default brand
+  const activeBrand = selectedBrand || (uniqueBrands.length > 0 ? uniqueBrands[0] : '');
+  const filteredInventory = ordersData?.filter(item => item.brand === activeBrand) || [];
+
+  // Calendar events (mock arrival for now, inventory items don't have arrivalDate)
+  // But we can add them to localTasks if needed. For now we just use the monthly schedule.
 
   return (
     <div className="min-h-screen bg-white text-gray-900 selection:bg-blue-500/30 font-sans pb-20 md:pb-0" dir="ltr">
@@ -132,7 +128,7 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
         {/* Calendar Grid */}
         <div className="bg-white rounded-2xl md:rounded-3xl border border-gray-200 overflow-hidden shadow-lg backdrop-blur-sm">
           {/* Days of week */}
-          <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50/80">
+          <div className="grid grid-cols-7 border-b border-gray-200 bg-white">
             {weekDays.map(day => (
               <div key={day} className="py-4 text-center text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                 {day}
@@ -144,15 +140,15 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
           <div className="grid grid-cols-7 auto-rows-fr">
             {days.map((day, dayIdx) => {
               const dateKey = format(day, 'yyyy-MM-dd');
-              const dayTasks = dynamicTasks[dateKey] || [];
+              const dayTasks = localTasks[dateKey] || [];
               const isCurrentMonth = isSameMonth(day, monthStart);
               const isTodayDate = isToday(day);
 
               return (
                 <div 
                   key={day.toString()} 
-                  className={`min-h-[120px] md:min-h-[160px] p-2 md:p-3 border-r border-b border-gray-100 relative group transition-colors hover:bg-gray-50/80
-                    ${!isCurrentMonth ? 'bg-gray-50/20' : 'bg-white'}
+                  className={`min-h-[120px] md:min-h-[160px] p-2 md:p-3 border-r border-b border-gray-100 relative group transition-colors hover:bg-gray-50/50
+                    ${!isCurrentMonth ? 'bg-white opacity-60' : 'bg-white'}
                     ${dayIdx % 7 === 6 ? 'border-r-0' : ''}
                   `}
                 >
@@ -176,6 +172,7 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0, scale: 0.95 }}
+                          onClick={() => toggleTask(dateKey, task.id)}
                           className={`group/task flex items-start gap-2 p-1.5 md:p-2 rounded-lg text-xs cursor-pointer border shadow-sm
                             ${task.isCompleted ? 'bg-gray-50 border-gray-100 opacity-60' : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'}
                             transition-all
@@ -203,35 +200,68 @@ export default function CalendarPage({ scheduleData, ordersData }: CalendarClien
           </div>
         </div>
 
-        {/* Libero Orders Table */}
+        {/* Libero Inventory Table By Brand */}
         <div className="mt-12 bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm" dir="rtl">
-          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50/50">
-            <h3 className="text-xl font-medium text-gray-900">הזמנות ליברו (China Orders)</h3>
-            <p className="text-sm text-gray-500">מעקב אחר משלוחים עתידיים</p>
+          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50/50 flex justify-between items-center flex-wrap gap-4">
+            <div>
+              <h3 className="text-xl font-medium text-gray-900">ניהול מלאי והזמנות</h3>
+              <p className="text-sm text-gray-500">מחולק לפי מותגים (בחירת מותג להצגת כל הדגמים)</p>
+            </div>
+            {/* Brand Selector */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {uniqueBrands.map((brand: any) => (
+                <button
+                  key={brand}
+                  onClick={() => setSelectedBrand(brand)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                    activeBrand === brand 
+                      ? 'bg-gray-900 text-white border-gray-900' 
+                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  {brand}
+                </button>
+              ))}
+            </div>
           </div>
+          
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-right">
               <thead className="bg-gray-50/80 text-gray-500">
                 <tr>
-                  <th className="py-3 px-6 font-medium">מוצרים</th>
-                  <th className="py-3 px-6 font-medium">תאריך הגעה משוער</th>
+                  <th className="py-3 px-6 font-medium">דגם</th>
+                  <th className="py-3 px-6 font-medium">כמות במלאי</th>
+                  <th className="py-3 px-6 font-medium">מלאי יעד</th>
+                  <th className="py-3 px-6 font-medium">כמות שהוזמנה</th>
+                  <th className="py-3 px-6 font-medium">כמות הזמנה אחרונה</th>
+                  <th className="py-3 px-6 font-medium">מחיר עלות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {ordersData && ordersData.length > 0 ? (
-                  ordersData.map((order, idx) => (
+                {filteredInventory && filteredInventory.length > 0 ? (
+                  filteredInventory.map((item, idx) => (
                     <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="py-3 px-6 font-medium text-gray-900">{order.products}</td>
+                      <td className="py-3 px-6 font-medium text-gray-900">{item.modelName || 'N/A'}</td>
                       <td className="py-3 px-6 text-gray-600">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                          {order.arrivalDate || 'לא הוגדר'}
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          Number(item.currentStock) < Number(item.targetStockLevel) 
+                            ? 'bg-red-100 text-red-800' 
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}>
+                          {item.currentStock ?? 0}
                         </span>
+                      </td>
+                      <td className="py-3 px-6 text-gray-600">{item.targetStockLevel ?? 0}</td>
+                      <td className="py-3 px-6 text-gray-600">{item.orderedQuantity ?? 0}</td>
+                      <td className="py-3 px-6 text-gray-600">{item.lastOrderQuantity ?? 0}</td>
+                      <td className="py-3 px-6 text-gray-600">
+                        {item.costPrice ? `₪${item.costPrice}` : 'N/A'}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={2} className="py-6 text-center text-gray-500">אין הזמנות פתוחות</td>
+                    <td colSpan={6} className="py-6 text-center text-gray-500">אין נתונים עבור המותג הנבחר</td>
                   </tr>
                 )}
               </tbody>

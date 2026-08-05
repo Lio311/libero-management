@@ -88,7 +88,7 @@ export default function FinanceClient({
           </CardHeader>
           <CardContent className="pl-2 h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={creditCardUsage} margin={{ top: 20, right: 40, left: 40, bottom: 20 }}>
+              <BarChart data={creditCardUsage} margin={{ top: 20, right: 60, left: 60, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tickMargin={10} />
                 <YAxis width={100} axisLine={false} tickLine={false} tickFormatter={(value) => `₪${value.toLocaleString()}`} orientation="left" tickMargin={10} />
