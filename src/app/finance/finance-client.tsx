@@ -348,7 +348,7 @@ function EditablePaymentRow({ payment }: { payment: any }) {
         <td className="p-3 text-gray-700">₪{Number(formData.orderAmountNis || 0).toLocaleString()}</td>
         <td className="p-3 text-gray-700">₪{Number(formData.vat || 0).toLocaleString()}</td>
         <td className="p-3 text-gray-700">₪{Number(formData.shippingCost || 0).toLocaleString()}</td>
-        <td className="p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        <td className="p-3">
           <button
             onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
             className="p-1 text-blue-600 hover:bg-blue-50 rounded"
