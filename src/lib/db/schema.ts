@@ -113,6 +113,7 @@ export const suppliers = pgTable("suppliers", {
   planningStatus: varchar("planning_status", { length: 255 }),
   contactStatus: varchar("contact_status", { length: 255 }),
   notes: text("notes"),
+  paymentMonth: varchar("payment_month", { length: 7 }),
 });
 
 export const influencers = pgTable("influencers", {
@@ -126,6 +127,7 @@ export const influencers = pgTable("influencers", {
   productsGiven: text("products_given"),
   videosUploaded: text("videos_uploaded"),
   notes: text("notes"),
+  paymentMonth: varchar("payment_month", { length: 7 }),
 });
 
 export const influencerPayments = pgTable("influencer_payments", {
@@ -134,6 +136,7 @@ export const influencerPayments = pgTable("influencer_payments", {
   amount: decimal("amount"),
   isDone: varchar("is_done", { length: 50 }),
   notes: text("notes"),
+  paymentMonth: varchar("payment_month", { length: 7 }),
 });
 
 export const wholesaleCustomers = pgTable("wholesale_customers", {
@@ -146,6 +149,7 @@ export const wholesaleCustomers = pgTable("wholesale_customers", {
   potential: varchar("potential", { length: 50 }),
   interest: varchar("interest", { length: 50 }),
   notes: text("notes"),
+  paymentMonth: varchar("payment_month", { length: 7 }),
 });
 
 export const roleHolders = pgTable("role_holders", {
