@@ -106,7 +106,7 @@ export default function InventoryClient({
               <BarChart data={stockHealthData} margin={{ top: 20, right: 60, left: 60, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                 <XAxis dataKey="brand" axisLine={false} tickLine={false} tickMargin={10} />
-                <YAxis axisLine={false} tickLine={false} width={100} tickMargin={10} />
+                <YAxis axisLine={false} tickLine={false} width={100} tickMargin={10} orientation="right" />
                 <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Bar dataKey="current" name="מלאי נוכחי" radius={[4, 4, 0, 0]} maxBarSize={50}>
                   {stockHealthData.map((entry, index) => (
