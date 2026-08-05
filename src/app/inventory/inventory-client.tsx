@@ -184,13 +184,13 @@ export default function InventoryClient({
                   outerRadius={100}
                   paddingAngle={2}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
                 >
                   {pieData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <RechartsTooltip formatter={(value: number) => `₪${value.toLocaleString()}`} />
+                <RechartsTooltip formatter={(value: any) => `₪${Number(value).toLocaleString()}`} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
