@@ -85,7 +85,7 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
       <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{inf.videosUploaded || '-'}</td>
       <td className="py-3 px-4 whitespace-nowrap max-w-[200px] truncate" title={inf.activities}>{inf.activities || '-'}</td>
       <td className="py-3 px-4 text-muted-foreground whitespace-nowrap max-w-[200px] truncate" title={inf.notes}>{inf.notes || '-'}</td>
-      <td className="py-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+      <td className="py-3 px-4">
         <button onClick={() => setIsEditing(true)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
           <Edit2 className="h-4 w-4" />
         </button>
@@ -163,7 +163,7 @@ function EditablePaymentRow({ payment }: { payment: any }) {
       </td>
       <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">{payment.paymentMonth || '-'}</td>
       <td className="py-3 px-4 text-muted-foreground">{payment.notes || '-'}</td>
-      <td className="py-3 px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+      <td className="py-3 px-4">
         <button onClick={() => setIsEditing(true)} className="p-1 text-blue-600 hover:bg-blue-50 rounded">
           <Edit2 className="h-4 w-4" />
         </button>
@@ -281,7 +281,7 @@ export default function MarketingClient({
           <CardDescription>פירוט פעילות משפיענים כפי שהוזנה במערכת</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto pb-2">
             <table className="w-full text-sm text-right">
               <thead className="bg-gray-50/80 text-muted-foreground">
                 <tr>
@@ -343,7 +343,7 @@ export default function MarketingClient({
           )}
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto pb-2">
             <table className="w-full text-sm text-right">
               <thead className="bg-gray-50/80 text-muted-foreground">
                 <tr>

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, CheckCircle2, Circle } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, isBefore, startOfDay, differenceInMonths, isValid } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { updateMonthlyScheduleDay, toggleMonthlyScheduleStatus } from '@/app/actions/monthlySchedule';
+import { updateMonthlyScheduleDay, toggleMonthlyScheduleStatus, deleteMonthlyScheduleAction } from '@/app/actions/monthlySchedule';
 import { updateBankOfTaskAction, createBankOfTaskAction, deleteBankOfTaskAction } from '@/app/actions/bankOfTasks';
 
 // Temporary mock data interface
@@ -258,35 +258,36 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
 
   const saveNewTask = async () => {
     if (!newTaskDate || !newTaskTitle.trim()) return;
-    const dateKey = format(newTaskDate, 'yyyy-MM-dd');
-    const tempId = `task-${Date.now()}`;
     const taskTitle = newTaskTitle;
     
+    // Close modal immediately for snappy feel
+    setNewTaskDate(null);
+    
     // Optimistic update
+    const dateKey = format(newTaskDate, 'yyyy-MM-dd');
+    const tempId = `temp-${Date.now()}`;
     setLocalTasks(prev => {
       const newTasks = { ...prev };
       if (!newTasks[dateKey]) newTasks[dateKey] = [];
-      newTasks[dateKey] = [
-        ...newTasks[dateKey],
-        {
-          id: tempId,
-          title: taskTitle,
-          category: { name: 'בנק משימות', color: 'bg-purple-400' },
-          isCompleted: false,
-          source: 'bank'
-        }
-      ];
+      newTasks[dateKey] = [...newTasks[dateKey], {
+        id: tempId,
+        title: taskTitle,
+        category: { name: 'בנק משימות', color: 'bg-purple-400' },
+        isCompleted: false,
+        source: 'bank'
+      }];
       return newTasks;
     });
-    setNewTaskDate(null);
-    
+
+    // Wait for the server action and revalidatePath to update the calendar via Server Components
     const res = await createBankOfTaskAction({
       taskName: taskTitle,
       dueDate: format(newTaskDate, 'dd.MM.yyyy'), // Match the format used in tasks-client
       status: 'לא התחיל'
     });
     
-    if (res.success && res.task) {
+    // Update temp task with real dbId if successful
+    if (res?.success && res.task) {
       setLocalTasks(prev => {
         const newTasks = { ...prev };
         if (newTasks[dateKey]) {
@@ -311,8 +312,12 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
     });
     setSelectedTask(null);
     
-    if (taskToDelete?.dbId && taskToDelete.source === 'bank') {
-      await deleteBankOfTaskAction(taskToDelete.dbId);
+    if (taskToDelete?.dbId) {
+      if (taskToDelete.source === 'bank') {
+        await deleteBankOfTaskAction(taskToDelete.dbId);
+      } else if (taskToDelete.source === 'schedule') {
+        await deleteMonthlyScheduleAction(taskToDelete.dbId);
+      }
     }
   };
 
