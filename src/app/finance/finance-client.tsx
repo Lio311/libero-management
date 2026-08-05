@@ -144,17 +144,17 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
 
   const formattedExpiration = card.expiration ? card.expiration.replace('.', '/') : '-';
 
-  // Card gradient based on type - lighter cyan/blue colors
+  // Card gradient based on type - soft, light colors matching site aesthetic
   const isBusinessCard = card.cardType === 'עסקי';
   const cardGradient = isBusinessCard 
-    ? 'from-cyan-700 via-cyan-600 to-blue-700'
-    : 'from-sky-500 via-cyan-500 to-sky-400';
+    ? 'from-slate-400 via-slate-300 to-blue-300'
+    : 'from-sky-300 via-blue-200 to-indigo-200';
   
   return (
     <div className="group">
       {/* Card Visual */}
       <div 
-        className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${cardGradient} p-5 text-white cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]`}
+        className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${cardGradient} p-5 text-slate-800 cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border border-white/60`}
         onClick={() => setExpanded(!expanded)}
       >
         {/* Background Pattern */}
@@ -176,7 +176,7 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
                 </div>
               </div>
             </div>
-            <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${isBusinessCard ? 'bg-amber-500/30 text-amber-200' : 'bg-blue-400/30 text-blue-200'}`}>
+            <span className={`text-[10px] font-semibold px-2 py-1 rounded-full ${isBusinessCard ? 'bg-slate-600/20 text-slate-700' : 'bg-blue-500/20 text-blue-700'}`}>
               {isBusinessCard ? '🏢 עסקי' : '👤 פרטי'}
             </span>
           </div>
@@ -188,7 +188,7 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
             </div>
             <button 
               onClick={(e) => { e.stopPropagation(); setShowSensitive(!showSensitive); }}
-              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              className="p-1.5 rounded-full bg-white/30 hover:bg-white/50 transition-colors"
             >
               {showSensitive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -201,7 +201,7 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
                 <span className="opacity-70">ניצול מסגרת</span>
                 <span className="font-medium">{usedPercent}%</span>
               </div>
-              <div className="w-full h-2 rounded-full bg-white/20 overflow-hidden">
+              <div className="w-full h-2 rounded-full bg-white/40 overflow-hidden">
                 <div 
                   className={`h-full rounded-full transition-all duration-1000 ease-out ${usedPercent < 50 ? 'bg-emerald-400' : usedPercent < 75 ? 'bg-amber-400' : 'bg-red-400'}`}
                   style={{ width: `${usedPercent}%` }}
