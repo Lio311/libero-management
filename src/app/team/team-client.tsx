@@ -111,7 +111,11 @@ function EmployeeCard({
               <div id={`task-icon-${task.id}`} className="flex-shrink-0 mt-0.5 relative z-20 rounded-full bg-white">
                 <CheckCircle2 className={`w-4 h-4 ${connectMode ? 'text-blue-400' : 'text-gray-400'}`} />
               </div>
-              <span className="text-sm text-gray-700 leading-relaxed relative z-20 font-medium bg-transparent" style={{ textShadow: '0 0 3px #f9fafb, 0 0 3px #f9fafb' }}>{task.description}</span>
+              <span className={`text-sm text-gray-700 leading-relaxed relative z-20 font-medium px-1 rounded ${
+                connectMode ? 'group-hover/task:bg-blue-50' : ''
+              } ${
+                isSelected ? 'bg-blue-50' : 'bg-gray-50'
+              }`}>{task.description}</span>
             </li>
           );
         })}
@@ -396,8 +400,8 @@ export default function TeamClient({
                       strokeWidth={2}
                       path="smooth"
                       dashness={connectMode ? { animation: true } : true}
-                      startAnchor={["right", "left"]}
-                      endAnchor={["right", "left"]}
+                      startAnchor="auto"
+                      endAnchor="auto"
                       zIndex={10}
                      labels={
                       connectMode ? (
