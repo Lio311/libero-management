@@ -165,3 +165,9 @@ export const bankOfTasks = pgTable("bank_of_tasks", {
   itemIndex: integer("item_index"),
 });
 
+export const settings = pgTable("settings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  key: varchar("key", { length: 255 }).unique().notNull(),
+  value: text("value"),
+});
+
