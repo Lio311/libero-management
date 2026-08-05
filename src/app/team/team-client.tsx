@@ -314,6 +314,8 @@ export default function TeamClient({
                      strokeWidth={2}
                      path="smooth"
                      dashness={false}
+                     startAnchor={["right", "left"]}
+                     endAnchor={["right", "left"]}
                      labels={
                       connectMode ? (
                         <div 
