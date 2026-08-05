@@ -227,7 +227,8 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
           <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[400px]">
             {/* To Do Column */}
             <div 
-              className="bg-slate-50/50 p-4 rounded-xl flex flex-col gap-3"
+              className="bg-slate-50/50 p-4 rounded-xl flex flex-col gap-3 flex-1 min-h-[300px]"
+              onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); }}
               onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
               onDrop={(e) => handleDrop(e, "לא התחיל")}
             >
@@ -271,7 +272,8 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
 
             {/* In Progress Column */}
             <div 
-              className="bg-amber-50/30 p-4 rounded-xl flex flex-col gap-3"
+              className="bg-amber-50/30 p-4 rounded-xl flex flex-col gap-3 flex-1 min-h-[300px]"
+              onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); }}
               onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
               onDrop={(e) => handleDrop(e, "בתהליך")}
             >
@@ -315,7 +317,8 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
 
             {/* Done Column */}
             <div 
-              className="bg-emerald-50/30 p-4 rounded-xl flex flex-col gap-3"
+              className="bg-emerald-50/30 p-4 rounded-xl flex flex-col gap-3 flex-1 min-h-[300px]"
+              onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); }}
               onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
               onDrop={(e) => handleDrop(e, "בוצע")}
             >
