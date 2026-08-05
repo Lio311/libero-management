@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
- 
- 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, Cable, Trash2, Edit2, Check, X } from "lucide-react";
+import { CheckCircle2, Cable, Trash2, Edit2, Check, X, Plus } from "lucide-react";
 import Xarrow, { Xwrapper, useXarrow } from "react-xarrows";
 import { updateRoleHolder, addTeamTaskConnection, removeTeamTaskConnection, createRoleHolder, deleteRoleHolder } from "@/app/actions/team";
 import { useRouter } from "next/navigation";
@@ -17,104 +15,100 @@ interface TeamClientProps {
   connections: any[];
 }
 
-function EditableRoleRow({ roleHolder, onDelete }: { roleHolder: any, onDelete: (id: string) => void }) {
+function EmployeeCard({ 
+  roleHolder, 
+  tasks, 
+  connectMode, 
+  selectedTask, 
+  handleTaskClick, 
+  onDelete,
+  onUpdate
+}: {
+  roleHolder: any;
+  tasks: { id: string, description: string }[];
+  connectMode: boolean;
+  selectedTask: string | null;
+  handleTaskClick: (taskId: string) => void;
+  onDelete: (id: string) => void;
+  onUpdate: (id: string, data: any) => void;
+}) {
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    name: roleHolder.name || '',
-    role: roleHolder.role || '',
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleBlur = async () => {
-    // We will use explicit save/cancel buttons instead of onBlur
-  };
+  const [formData, setFormData] = useState({ name: roleHolder.name || '', role: roleHolder.role || '' });
 
   const handleSave = async () => {
+    await onUpdate(roleHolder.id, formData);
     setIsEditing(false);
-    if (roleHolder.id) {
-      await updateRoleHolder(roleHolder.id, {
-        name: formData.name,
-        role: formData.role,
-      });
-    }
   };
 
   const handleCancel = () => {
-    setFormData({
-      name: roleHolder.name || '',
-      role: roleHolder.role || '',
-    });
+    setFormData({ name: roleHolder.name || '', role: roleHolder.role || '' });
     setIsEditing(false);
   };
 
-  if (!isEditing) {
-    return (
-      <tr onClick={() => setIsEditing(true)} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
-        <td className="py-3 px-4 font-medium whitespace-nowrap">{formData.name || '-'}</td>
-        <td className="py-3 px-4 text-muted-foreground whitespace-pre-wrap text-right">{formData.role || '-'}</td>
-        <td className="py-3 px-4 w-16">
-          <div className="flex gap-2 justify-end">
-            <button
-              onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-              className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-              title="ערוך"
-            >
-              <Edit2 className="h-4 w-4" />
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); if (roleHolder.id) onDelete(roleHolder.id); }}
-              className="p-1 text-red-600 hover:bg-red-50 rounded"
-              title="מחק"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        </td>
-      </tr>
-    );
-  }
-
   return (
-    <tr className="bg-blue-50/30 transition-colors">
-      <td className="p-2">
-        <input 
-          name="name" 
-          value={formData.name} 
-          onChange={handleChange} 
-          autoFocus 
-          className="w-full p-2 border rounded text-sm text-right" 
-          dir="rtl" 
-        />
-      </td>
-      <td className="p-2">
-        <textarea 
-          name="role" 
-          value={formData.role} 
-          onChange={handleChange} 
-          className="w-full p-2 border rounded text-sm text-right min-h-[60px]" 
-          dir="rtl" 
-        />
-      </td>
-      <td className="p-2">
-        <div className="flex gap-2">
-          <button
-            onClick={handleSave}
-            className="p-1 text-green-600 hover:bg-green-50 rounded"
-          >
-            <Check className="h-4 w-4" />
-          </button>
-          <button
-            onClick={handleCancel}
-            className="p-1 text-red-600 hover:bg-red-50 rounded"
-          >
-            <X className="h-4 w-4" />
-          </button>
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full hover:shadow-md transition-shadow relative group">
+      {isEditing ? (
+        <div className="mb-6 space-y-3 relative z-20">
+          <input 
+            value={formData.name} 
+            onChange={e => setFormData({...formData, name: e.target.value})} 
+            className="w-full p-2 border rounded font-semibold bg-blue-50/50" 
+            placeholder="שם עובד"
+            autoFocus
+          />
+          <textarea 
+            value={formData.role} 
+            onChange={e => setFormData({...formData, role: e.target.value})} 
+            className="w-full p-2 border rounded text-sm min-h-[60px] bg-blue-50/50" 
+            placeholder="תפקיד / תחומי אחריות"
+          />
+          <div className="flex gap-2 justify-end">
+            <button onClick={handleSave} className="text-green-600 p-1.5 bg-green-50 rounded hover:bg-green-100"><Check className="w-4 h-4"/></button>
+            <button onClick={handleCancel} className="text-red-600 p-1.5 bg-red-50 rounded hover:bg-red-100"><X className="w-4 h-4"/></button>
+          </div>
         </div>
-      </td>
-    </tr>
+      ) : (
+        <div className="flex flex-col mb-6 relative z-20">
+          <div className="flex justify-between items-start">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg flex-shrink-0">
+                {roleHolder.name ? roleHolder.name.charAt(0) : '?'}
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900">{roleHolder.name}</h2>
+            </div>
+            {!roleHolder.isTemp && (
+              <div className="flex gap-2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+                <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="ערוך"><Edit2 className="w-4 h-4" /></button>
+                <button onClick={() => { if(confirm('האם למחוק?')) onDelete(roleHolder.id); }} className="p-1.5 text-red-600 hover:bg-red-50 rounded" title="מחק"><Trash2 className="w-4 h-4" /></button>
+              </div>
+            )}
+          </div>
+          {roleHolder.role && (
+            <p className="text-sm text-gray-500 mt-2 whitespace-pre-wrap">{roleHolder.role}</p>
+          )}
+        </div>
+      )}
+      <ul className="space-y-3 flex-1 relative z-10">
+        {tasks.map((task) => {
+          const isSelected = selectedTask === task.id;
+          return (
+            <li 
+              key={task.id} 
+              id={`task-${task.id}`}
+              onClick={() => handleTaskClick(task.id)}
+              className={`flex items-start gap-2 p-3 rounded-lg transition-all ${
+                connectMode ? 'cursor-pointer hover:bg-blue-50 border border-transparent hover:border-blue-200' : ''
+              } ${
+                isSelected ? 'ring-2 ring-blue-500 bg-blue-50/50' : 'bg-gray-50/50'
+              }`}
+            >
+              <CheckCircle2 className={`w-4 h-4 mt-0.5 flex-shrink-0 ${connectMode ? 'text-blue-400' : 'text-gray-400'}`} />
+              <span className="text-sm text-gray-700 leading-relaxed">{task.description}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 
@@ -134,7 +128,6 @@ export default function TeamClient({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-    // Add event listener to update arrows on window resize
     window.addEventListener('resize', updateXarrow);
     return () => window.removeEventListener('resize', updateXarrow);
   }, [updateXarrow]);
@@ -168,188 +161,142 @@ export default function TeamClient({
   };
 
   const handleDeleteRole = async (id: string) => {
-    if (confirm('האם אתה בטוח שברצונך למחוק תפקיד זה?')) {
-      await deleteRoleHolder(id);
-      router.refresh();
-    }
+    await deleteRoleHolder(id);
+    router.refresh();
+  };
+
+  const handleUpdateRole = async (id: string, data: { name: string, role: string }) => {
+    await updateRoleHolder(id, data);
+    router.refresh();
   };
 
   if (!mounted) return null;
 
+  const roleHolderNames = roleHolders.map(r => r.name);
+  const assigneesWithoutRole = Object.keys(groupedTasks).filter(name => !roleHolderNames.includes(name));
+  const allCards = [
+    ...roleHolders,
+    ...assigneesWithoutRole.map(name => ({ id: `temp-${name}`, name, role: '', isTemp: true }))
+  ];
+
   return (
-    <div className="p-8 space-y-8 bg-gray-50/50 min-h-screen" dir="rtl">
+    <div className="p-4 md:p-8 space-y-8 bg-gray-50/50 min-h-screen" dir="rtl">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">בעלי תפקידים וצוות</h1>
         <p className="text-muted-foreground mt-2">צפייה בתחומי האחריות ומשימות של חברי הצוות.</p>
       </div>
 
       <Xwrapper>
-        {Object.keys(groupedTasks).length === 0 ? (
+        {allCards.length === 0 && !isAddingNew ? (
           <div className="glass-panel rounded-2xl p-12 text-center text-muted-foreground shadow-sm">
-            אין נתונים על בעלי תפקידים.
+            <p>אין נתונים על בעלי תפקידים.</p>
+            <button
+                onClick={() => setIsAddingNew(true)}
+                className="mt-4 inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                הוסף תפקיד ראשון
+            </button>
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex flex-wrap items-center gap-4">
-              <button
-                onClick={() => { setConnectMode(!connectMode); setSelectedTask(null); }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  connectMode 
-                    ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700' 
-                    : 'bg-white text-gray-700 border hover:bg-gray-50'
-                }`}
-              >
-                <Cable className="w-5 h-5" />
-                {connectMode ? 'מצב חיבור פעיל (לחץ לביטול)' : 'מצב יצירת קשרים'}
-              </button>
-              {connectMode && (
-                <p className="text-sm font-medium text-blue-600 bg-blue-50 px-4 py-2 rounded-lg animate-pulse">
-                  {selectedTask ? 'בחר משימת יעד לחיבור' : 'בחר משימת מקור לחיבור'}
-                </p>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <button
+                  onClick={() => { setConnectMode(!connectMode); setSelectedTask(null); }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                    connectMode 
+                      ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700' 
+                      : 'bg-white text-gray-700 border hover:bg-gray-50'
+                  }`}
+                >
+                  <Cable className="w-5 h-5" />
+                  {connectMode ? 'מצב חיבור פעיל (לחץ לביטול)' : 'מצב יצירת קשרים'}
+                </button>
+                {connectMode && (
+                  <p className="text-sm font-medium text-blue-600 bg-blue-50 px-4 py-2 rounded-lg animate-pulse">
+                    {selectedTask ? 'בחר משימת יעד לחיבור' : 'בחר משימת מקור לחיבור'}
+                  </p>
+                )}
+              </div>
+              
+              {!isAddingNew && (
+                <button
+                  onClick={() => setIsAddingNew(true)}
+                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors w-full md:w-auto justify-center"
+                >
+                  <Plus className="w-4 h-4" />
+                  הוסף תפקיד חדש
+                </button>
               )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
-              {Object.entries(groupedTasks).map(([assignee, tasks]) => (
-                <div key={assignee} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg">
-                      {assignee.charAt(0)}
+              {allCards.map(roleHolder => (
+                <EmployeeCard
+                  key={roleHolder.id}
+                  roleHolder={roleHolder}
+                  tasks={groupedTasks[roleHolder.name] || []}
+                  connectMode={connectMode}
+                  selectedTask={selectedTask}
+                  handleTaskClick={handleTaskClick}
+                  onDelete={handleDeleteRole}
+                  onUpdate={handleUpdateRole}
+                />
+              ))}
+
+              {isAddingNew && (
+                <div className="bg-white rounded-xl border-2 border-dashed border-blue-300 shadow-sm p-6 flex flex-col h-full bg-blue-50/20">
+                  <div className="mb-6 space-y-3">
+                    <input 
+                      value={newRole.name} 
+                      onChange={e => setNewRole({...newRole, name: e.target.value})} 
+                      className="w-full p-2 border rounded font-semibold bg-white" 
+                      placeholder="שם עובד"
+                      autoFocus
+                    />
+                    <textarea 
+                      value={newRole.role} 
+                      onChange={e => setNewRole({...newRole, role: e.target.value})} 
+                      className="w-full p-2 border rounded text-sm min-h-[60px] bg-white" 
+                      placeholder="תפקיד / תחומי אחריות"
+                    />
+                    <div className="flex gap-2 justify-end">
+                      <button onClick={handleCreateRole} className="text-green-600 p-2 bg-green-50 rounded hover:bg-green-100"><Check className="w-5 h-5"/></button>
+                      <button onClick={() => { setIsAddingNew(false); setNewRole({name:'', role:''}); }} className="text-red-600 p-2 bg-red-50 rounded hover:bg-red-100"><X className="w-5 h-5"/></button>
                     </div>
-                    <h2 className="text-xl font-semibold text-gray-900">{assignee}</h2>
                   </div>
-                  
-                  <ul className="space-y-3 flex-1 relative z-10">
-                    {tasks.map((task) => {
-                      const isSelected = selectedTask === task.id;
-                      return (
-                        <li 
-                          key={task.id} 
-                          id={`task-${task.id}`}
-                          onClick={() => handleTaskClick(task.id)}
-                          className={`flex items-start gap-2 p-3 rounded-lg transition-all ${
-                            connectMode ? 'cursor-pointer hover:bg-blue-50 border border-transparent hover:border-blue-200' : ''
-                          } ${
-                            isSelected ? 'ring-2 ring-blue-500 bg-blue-50/50' : 'bg-gray-50/50'
-                          }`}
-                        >
-                          <CheckCircle2 className={`w-4 h-4 mt-0.5 flex-shrink-0 ${connectMode ? 'text-blue-400' : 'text-gray-400'}`} />
-                          <span className="text-sm text-gray-700 leading-relaxed">{task.description}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
                 </div>
-              ))}
+              )}
               
-              {/* Render arrows */}
-              {connections.map(conn => (
-                 <Xarrow 
-                   key={conn.id} 
-                   start={`task-${conn.sourceTaskId}`} 
-                   end={`task-${conn.targetTaskId}`} 
-                   color="#94a3b8"
-                   strokeWidth={2}
-                   path="smooth"
-                   dashness={connectMode ? { animation: true } : false}
-                   labels={
-                    connectMode ? (
-                      <div 
-                        onClick={(e) => handleRemoveConnection(e, conn.id)}
-                        className="bg-white p-1 rounded-full shadow-sm border cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors pointer-events-auto"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </div>
-                    ) : undefined
-                   }
-                 />
-              ))}
+              {/* Render arrows - hidden on mobile via hidden md:block */}
+              <div className="hidden md:block">
+                {connections.map(conn => (
+                   <Xarrow 
+                     key={conn.id} 
+                     start={`task-${conn.sourceTaskId}`} 
+                     end={`task-${conn.targetTaskId}`} 
+                     color="#94a3b8"
+                     strokeWidth={2}
+                     path="smooth"
+                     dashness={connectMode ? { animation: true } : false}
+                     labels={
+                      connectMode ? (
+                        <div 
+                          onClick={(e) => handleRemoveConnection(e, conn.id)}
+                          className="bg-white p-1 rounded-full shadow-sm border cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors pointer-events-auto"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </div>
+                      ) : undefined
+                     }
+                   />
+                ))}
+              </div>
             </div>
           </div>
         )}
       </Xwrapper>
-
-      {/* Raw Role Holders Table */}
-      <Card className="bg-white border-none shadow-sm mt-8 relative">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>טבלת תפקידים</CardTitle>
-            <CardDescription>לחץ על שורה כדי לערוך את בעל התפקיד והגדרת התפקיד שלו.</CardDescription>
-          </div>
-          <button
-            onClick={() => setIsAddingNew(true)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            הוסף תפקיד חדש
-          </button>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto pb-2">
-            <table className="w-full text-sm text-right">
-              <thead className="bg-gray-50/80 text-muted-foreground">
-                <tr>
-                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap w-1/4">שם</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">תפקיד</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap w-10">פעולות</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {isAddingNew && (
-                  <tr className="bg-blue-50/30 transition-colors">
-                    <td className="p-2">
-                      <input 
-                        value={newRole.name} 
-                        onChange={(e) => setNewRole({ ...newRole, name: e.target.value })} 
-                        autoFocus 
-                        placeholder="שם העובד"
-                        className="w-full p-2 border rounded text-sm text-right" 
-                        dir="rtl" 
-                      />
-                    </td>
-                    <td className="p-2">
-                      <textarea 
-                        value={newRole.role} 
-                        onChange={(e) => setNewRole({ ...newRole, role: e.target.value })} 
-                        placeholder="תפקיד / תחומי אחריות"
-                        className="w-full p-2 border rounded text-sm text-right min-h-[60px]" 
-                        dir="rtl" 
-                      />
-                    </td>
-                    <td className="p-2">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={handleCreateRole}
-                          className="p-1 text-green-600 hover:bg-green-50 rounded"
-                        >
-                          <Check className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => { setIsAddingNew(false); setNewRole({ name: '', role: '' }); }}
-                          className="p-1 text-red-600 hover:bg-red-50 rounded"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-                {roleHolders && roleHolders.length > 0 ? (
-                  roleHolders.map((roleHolder) => (
-                    <EditableRoleRow key={roleHolder.id} roleHolder={roleHolder} onDelete={handleDeleteRole} />
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={3} className="py-8 text-center text-muted-foreground">
-                      לא נמצאו תפקידים.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
