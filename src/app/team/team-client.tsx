@@ -172,11 +172,34 @@ export default function TeamClient({
 
   if (!mounted) return null;
 
-  const roleHolderNames = roleHolders.map(r => r.name);
-  const assigneesWithoutRole = Object.keys(groupedTasks).filter(name => !roleHolderNames.includes(name));
+  const normalizedGroupedTasks: Record<string, { id: string, description: string }[]> = {};
+  const originalNameMap: Record<string, string> = {};
+
+  for (const [key, tasks] of Object.entries(groupedTasks)) {
+    const normKey = key.trim().toLowerCase();
+    if (!normalizedGroupedTasks[normKey]) {
+      normalizedGroupedTasks[normKey] = [];
+      originalNameMap[normKey] = key.trim();
+    }
+    normalizedGroupedTasks[normKey].push(...tasks);
+  }
+
+  const normalizedRoleHolders: any[] = [];
+  const seenNames = new Set<string>();
+
+  for (const r of roleHolders) {
+    const normName = (r.name || '').trim().toLowerCase();
+    if (!seenNames.has(normName)) {
+      seenNames.add(normName);
+      normalizedRoleHolders.push({ ...r, name: r.name?.trim() || '' });
+    }
+  }
+
+  const assigneesWithoutRole = Object.keys(normalizedGroupedTasks).filter(normName => !seenNames.has(normName));
+
   const allCards = [
-    ...roleHolders,
-    ...assigneesWithoutRole.map(name => ({ id: `temp-${name}`, name, role: '', isTemp: true }))
+    ...normalizedRoleHolders,
+    ...assigneesWithoutRole.map(normName => ({ id: `temp-${normName}`, name: originalNameMap[normName], role: '', isTemp: true }))
   ];
 
   return (
@@ -232,18 +255,21 @@ export default function TeamClient({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
-              {allCards.map(roleHolder => (
-                <EmployeeCard
-                  key={roleHolder.id}
-                  roleHolder={roleHolder}
-                  tasks={groupedTasks[roleHolder.name] || []}
-                  connectMode={connectMode}
-                  selectedTask={selectedTask}
-                  handleTaskClick={handleTaskClick}
-                  onDelete={handleDeleteRole}
-                  onUpdate={handleUpdateRole}
-                />
-              ))}
+              {allCards.map(roleHolder => {
+                const normName = (roleHolder.name || '').trim().toLowerCase();
+                return (
+                  <EmployeeCard
+                    key={roleHolder.id}
+                    roleHolder={roleHolder}
+                    tasks={normalizedGroupedTasks[normName] || []}
+                    connectMode={connectMode}
+                    selectedTask={selectedTask}
+                    handleTaskClick={handleTaskClick}
+                    onDelete={handleDeleteRole}
+                    onUpdate={handleUpdateRole}
+                  />
+                );
+              })}
 
               {isAddingNew && (
                 <div className="bg-white rounded-xl border-2 border-dashed border-blue-300 shadow-sm p-6 flex flex-col h-full bg-blue-50/20">
