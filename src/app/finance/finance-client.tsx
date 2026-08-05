@@ -86,12 +86,12 @@ export default function FinanceClient({
             <CardTitle>ניצול מסגרות אשראי (המחשה)</CardTitle>
             <CardDescription>מסגרת לעומת ניצול חלקי משוער לכל כרטיס</CardDescription>
           </CardHeader>
-          <CardContent className="pl-2 h-[350px]">
+          <CardContent className="pl-2 h-[450px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={creditCardUsage} margin={{ top: 20, right: 60, left: 60, bottom: 20 }}>
+              <BarChart data={creditCardUsage} margin={{ top: 20, right: 60, left: 60, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tickMargin={10} />
-                <YAxis width={100} axisLine={false} tickLine={false} tickFormatter={(value) => `₪${value.toLocaleString()}`} orientation="left" tickMargin={10} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tickMargin={25} angle={-35} textAnchor="end" height={80} tick={{ fontSize: 12 }} />
+                <YAxis width={120} axisLine={false} tickLine={false} tickFormatter={(value) => `₪${value.toLocaleString()}`} orientation="left" tickMargin={10} />
                 <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar dataKey="used" name="מנוצל (הערכה)" stackId="a" fill="#3b82f6" radius={[0, 0, 4, 4]} />
@@ -106,15 +106,15 @@ export default function FinanceClient({
             <CardTitle>פילוג תשלומים</CardTitle>
             <CardDescription>סך תשלומים לפי מותג/סוג</CardDescription>
           </CardHeader>
-          <CardContent className="h-[350px] flex flex-col items-center justify-center pb-8">
+          <CardContent className="h-[450px] flex flex-col items-center justify-center pb-8">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart margin={{ top: 0, right: 0, bottom: 20, left: 0 }}>
                 <Pie
                   data={expensesData}
                   cx="50%"
                   cy="45%"
-                  innerRadius={70}
-                  outerRadius={110}
+                  innerRadius={80}
+                  outerRadius={120}
                   paddingAngle={5}
                   dataKey="value"
                 >
@@ -123,7 +123,7 @@ export default function FinanceClient({
                   ))}
                 </Pie>
                 <RechartsTooltip formatter={(value: any) => `₪${value?.toLocaleString()}`} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: '20px' }} />
+                <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ paddingTop: '30px', fontSize: '12px', lineHeight: '24px' }} />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
