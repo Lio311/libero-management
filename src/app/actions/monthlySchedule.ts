@@ -18,3 +18,19 @@ export async function updateMonthlyScheduleDay(id: string, newDay: number) {
     return { success: false, error: "Failed to update schedule day" };
   }
 }
+
+export async function toggleMonthlyScheduleStatus(id: string, isCompleted: boolean) {
+  try {
+    const todayStr = new Date().toISOString().split('T')[0];
+    await db.update(monthlySchedule).set({
+      status: isCompleted ? 'בוצע' : 'לא התחיל',
+      lastCompletedDate: isCompleted ? todayStr : null
+    }).where(eq(monthlySchedule.id, id));
+    
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to toggle schedule status", error);
+    return { success: false, error: "Failed to toggle schedule status" };
+  }
+}

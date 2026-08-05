@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, CheckCircle2, Circle } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, isBefore, startOfDay, differenceInMonths, isValid } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { updateMonthlyScheduleDay } from '@/app/actions/monthlySchedule';
+import { updateMonthlyScheduleDay, toggleMonthlyScheduleStatus } from '@/app/actions/monthlySchedule';
 import { updateBankOfTaskAction } from '@/app/actions/bankOfTasks';
 
 // Temporary mock data interface
@@ -65,12 +65,51 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         }
       });
       
+      // Helper to find the N-th occurrence of a day of the week in a month
+      const getNthDayOfMonth = (year: number, month: number, dayOfWeek: number, n: number): Date => {
+        let count = 0;
+        for (let day = 1; day <= 31; day++) {
+          const date = new Date(year, month, day);
+          if (date.getMonth() !== month) break;
+          if (date.getDay() === dayOfWeek) {
+            count++;
+            if (count === n) return date;
+          }
+        }
+        return new Date(year, month, n * 7); // Fallback
+      };
+
       // Then add the tasks from scheduleData
       scheduleData.forEach((task, idx) => {
         if (task.task && /^\d+$/.test(task.task.trim())) return;
 
-        const dayOfMonth = task.weekNumber || 1;
-        const taskDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayOfMonth);
+        let taskDate: Date;
+        const taskTitle = task.task || '';
+
+        const isWeeklySummary = taskTitle.includes('פגישת סיכום שבוע');
+        const isMonthlySummary = taskTitle.includes('פגישת סיכום חודש');
+        const isPricingMeeting = taskTitle.includes('פגישת תמחור');
+
+        const isDefaultWeeklySummary = isWeeklySummary && [3, 10, 17].includes(task.weekNumber);
+        const isDefaultMonthlySummary = isMonthlySummary && [24].includes(task.weekNumber);
+        const isDefaultPricingMeeting = isPricingMeeting && [4, 11, 18, 25].includes(task.weekNumber);
+
+        if (isDefaultWeeklySummary || isDefaultMonthlySummary || isDefaultPricingMeeting) {
+          // Determine week occurrence (1st, 2nd, 3rd, 4th)
+          let n = 1;
+          const weekNumber = task.weekNumber || 1;
+          if (weekNumber >= 3 && weekNumber <= 8) n = 1;
+          else if (weekNumber >= 10 && weekNumber <= 15) n = 2;
+          else if (weekNumber >= 17 && weekNumber <= 22) n = 3;
+          else if (weekNumber >= 24 && weekNumber <= 29) n = 4;
+
+          const dayOfWeek = (isWeeklySummary || isMonthlySummary) ? 4 : 1; // 4 = Thursday, 1 = Monday
+          taskDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), dayOfWeek, n);
+        } else {
+          const dayOfMonth = task.weekNumber || 1;
+          taskDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayOfMonth);
+        }
+
         const dateKey = format(taskDate, 'yyyy-MM-dd');
         
         if (!newTasks[dateKey]) newTasks[dateKey] = [];
@@ -87,7 +126,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
           dbId: task.id,
           title: task.task,
           category: { name: 'Monthly Task', color: 'bg-blue-400' },
-          isCompleted: existingTask ? existingTask.isCompleted : false,
+          isCompleted: existingTask ? existingTask.isCompleted : (task.status === 'בוצע'),
           source: 'schedule'
         });
       });
@@ -188,9 +227,13 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
       return newTasks;
     });
 
-    // Fire backend update if it's a bank task
-    if (taskToToggle?.source === 'bank' && taskToToggle?.dbId) {
-      await updateBankOfTaskAction(taskToToggle.dbId, { status: taskToToggle.isCompleted ? 'בוצע' : 'לא התחיל' });
+    // Fire backend update if it's a bank task or schedule task
+    if (taskToToggle?.dbId) {
+      if (taskToToggle.source === 'bank') {
+        await updateBankOfTaskAction(taskToToggle.dbId, { status: taskToToggle.isCompleted ? 'בוצע' : 'לא התחיל' });
+      } else if (taskToToggle.source === 'schedule') {
+        await toggleMonthlyScheduleStatus(taskToToggle.dbId, taskToToggle.isCompleted);
+      }
     }
   };
 
