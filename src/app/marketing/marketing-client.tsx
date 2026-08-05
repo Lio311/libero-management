@@ -88,11 +88,11 @@ export default function MarketingClient({
           </CardHeader>
           <CardContent className="pl-2 h-[350px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthlyGrowth} margin={{ top: 20, right: 40, left: 40, bottom: 20 }}>
+              <LineChart data={monthlyGrowth} margin={{ top: 20, right: 60, left: 60, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tickMargin={10} />
-                <YAxis yAxisId="left" axisLine={false} tickLine={false} width={80} tickMargin={10} />
-                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} width={80} tickMargin={10} />
+                <YAxis yAxisId="left" axisLine={false} tickLine={false} width={100} tickMargin={10} />
+                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} width={100} tickMargin={10} />
                 <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Legend />
                 <Line yAxisId="left" type="monotone" dataKey="followers" name="עוקבים" stroke="#8b5cf6" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
