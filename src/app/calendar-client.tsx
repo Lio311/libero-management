@@ -125,7 +125,7 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
         
         // Ensure we don't add duplicates if it already exists for this specific day
         const taskId = `task-${idx}-${dateKey}`;
-        const exists = newTasks[dateKey].some(t => t.id === taskId);
+        const exists = newTasks[dateKey].some(t => (task.id && t.dbId === task.id) || t.id === taskId);
         
         if (!exists) {
           newTasks[dateKey].push({
