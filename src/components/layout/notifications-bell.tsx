@@ -173,7 +173,7 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute bottom-12 right-0 md:top-12 md:left-0 md:right-auto md:bottom-auto w-80 bg-white border border-gray-200 shadow-2xl rounded-2xl overflow-hidden z-50 origin-bottom-right md:origin-top-left"
+            className="absolute bottom-12 right-0 md:top-12 md:right-0 md:left-auto md:bottom-auto w-80 bg-white border border-gray-200 shadow-2xl rounded-2xl overflow-hidden z-[100] origin-bottom-right md:origin-top-right"
           >
             <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
               <h3 className="font-medium text-gray-900">התראות</h3>
