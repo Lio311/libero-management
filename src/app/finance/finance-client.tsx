@@ -88,10 +88,10 @@ export default function FinanceClient({
           </CardHeader>
           <CardContent className="pl-2 h-[450px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={creditCardUsage} margin={{ top: 20, right: 60, left: 60, bottom: 40 }}>
+              <BarChart data={creditCardUsage} margin={{ top: 20, right: 60, left: 120, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tickMargin={25} angle={-35} textAnchor="end" height={80} tick={{ fontSize: 12 }} />
-                <YAxis width={120} axisLine={false} tickLine={false} tickFormatter={(value) => `₪${value.toLocaleString()}`} orientation="right" tickMargin={10} />
+                <YAxis width={120} axisLine={false} tickLine={false} tickFormatter={(value) => `₪${value.toLocaleString()}`} orientation="left" tickMargin={30} dx={-10} />
                 <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar dataKey="used" name="מנוצל (הערכה)" stackId="a" fill="#3b82f6" radius={[0, 0, 4, 4]} />
