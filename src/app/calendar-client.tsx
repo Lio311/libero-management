@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Plus, Bell, Calendar as CalendarIcon, CheckCircle2, Circle } from 'lucide-react';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek } from 'date-fns';
+import { he } from 'date-fns/locale';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 // Temporary mock data interface
@@ -34,7 +35,7 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
   const dateFormat = "d";
   const days = eachDayOfInterval({ start: startDate, end: endDate });
 
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekDays = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 
   const [localTasks, setLocalTasks] = useState<Record<string, Task[]>>({});
   
@@ -137,7 +138,7 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
   // But we can add them to localTasks if needed. For now we just use the monthly schedule.
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 selection:bg-blue-500/30 font-sans pb-20 md:pb-0" dir="ltr">
+    <div className="min-h-screen bg-white text-gray-900 selection:bg-blue-500/30 font-sans pb-20 md:pb-0">
       {/* Premium Header */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -166,13 +167,13 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
         {/* Month Navigation */}
         <div className="flex items-center justify-between mb-8 mt-4">
           <h2 className="text-3xl md:text-5xl font-light flex gap-3 items-baseline text-gray-900">
-            {format(currentDate, 'MMMM')} <span className="text-gray-400 font-serif italic text-2xl md:text-4xl">{format(currentDate, 'yyyy')}</span>
+            {format(currentDate, 'MMMM', { locale: he })} <span className="text-gray-400 font-serif italic text-2xl md:text-4xl">{format(currentDate, 'yyyy')}</span>
           </h2>
           <div className="flex gap-2">
-            <button onClick={prevMonth} className="p-2 md:p-3 rounded-full hover:bg-gray-200 transition-colors border border-gray-200 bg-white shadow-sm">
+            <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-gray-200 transition-colors border border-gray-200 bg-white shadow-sm" title="החודש הבא">
               <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
             </button>
-            <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-gray-200 transition-colors border border-gray-200 bg-white shadow-sm">
+            <button onClick={prevMonth} className="p-2 md:p-3 rounded-full hover:bg-gray-200 transition-colors border border-gray-200 bg-white shadow-sm" title="החודש הקודם">
               <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
             </button>
           </div>

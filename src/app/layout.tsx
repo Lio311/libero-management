@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Assistant } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const assistant = Assistant({ subsets: ['latin', 'hebrew'] });
 
 export const metadata: Metadata = {
   title: 'Libero Management',
@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl">
-      <body className={`${inter.className} antialiased h-screen overflow-hidden flex`}>
+      <body className={`${assistant.className} antialiased h-screen overflow-hidden flex`}>
         <Sidebar />
         <main className="flex-1 overflow-y-auto bg-muted/20">
           {children}
