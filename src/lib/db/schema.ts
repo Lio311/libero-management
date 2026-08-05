@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, integer, timestamp, date } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, boolean, integer, timestamp, date, decimal } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const categories = pgTable("categories", {
@@ -51,4 +51,22 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   p256dh: text("p256dh").notNull(),
   auth: text("auth").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const inventoryItems = pgTable("inventory_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  brand: varchar("brand", { length: 255 }),
+  modelName: varchar("model_name", { length: 255 }),
+  itemIndex: integer("item_index"),
+  costPrice: decimal("cost_price"),
+  targetStockLevel: decimal("target_stock_level"),
+  orderedQuantity: integer("ordered_quantity"),
+  lastOrderQuantity: integer("last_order_quantity"),
+  currentStock: integer("current_stock"),
+});
+
+export const teamTasks = pgTable("team_tasks", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  assignee: varchar("assignee", { length: 255 }).notNull(),
+  taskDescription: text("task_description").notNull(),
 });
