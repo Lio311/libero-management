@@ -88,7 +88,7 @@ function EmployeeCard({
           )}
         </div>
       )}
-      <ul className="space-y-3 flex-1 relative z-10">
+      <ul className="grid grid-cols-2 gap-3 flex-1 relative z-10">
         {tasks.map((task) => {
           const isSelected = selectedTask === task.id;
           return (
@@ -378,7 +378,7 @@ export default function TeamClient({
                      color="#94a3b8"
                      strokeWidth={2}
                      path="smooth"
-                     dashness={false}
+                     dashness={connectMode ? { animation: true } : true}
                      startAnchor={["right", "left"]}
                      endAnchor={["right", "left"]}
                      labels={
