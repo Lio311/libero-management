@@ -11,13 +11,17 @@ interface OperationsClientProps {
   inProgressTasks: { id: string; title: string; status: string; priority: string; assignee: string }[];
   doneTasks: { id: string; title: string; status: string; priority: string; assignee: string }[];
   wholesaleClients: { name: string; contact: string; totalOrders: number; revenue: number; interest: string }[];
+  rawWholesaleCustomers: any[];
+  rawTeamTasks: any[];
 }
 
 export default function OperationsClient({
   todoTasks,
   inProgressTasks,
   doneTasks,
-  wholesaleClients
+  wholesaleClients,
+  rawWholesaleCustomers,
+  rawTeamTasks
 }: OperationsClientProps) {
   const [mounted, setMounted] = useState(false);
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
@@ -247,6 +251,94 @@ export default function OperationsClient({
           </CardContent>
         </Card>
       </div>
+
+      {/* Raw Wholesale Customers Table */}
+      <Card className="bg-white border-none shadow-sm mt-8">
+        <CardHeader>
+          <CardTitle>נתוני לקוחות סיטונאיים (גולמי)</CardTitle>
+          <CardDescription>טבלת לקוחות סיטונאיים מלאה כפי שהוזנה במערכת</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-right">
+              <thead className="bg-gray-50/80 text-muted-foreground">
+                <tr>
+                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם חנות</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">עיר</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">כתובת</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">שיחת טלפון</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">ביקור</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">פוטנציאל</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">עניין</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">הערות</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {rawWholesaleCustomers && rawWholesaleCustomers.length > 0 ? (
+                  rawWholesaleCustomers.map((customer) => (
+                    <tr key={customer.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-3 px-4 font-medium whitespace-nowrap">{customer.storeName || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">{customer.city || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">{customer.address || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">{customer.phoneCall || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">{customer.visit || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">{customer.potential || '-'}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <Badge variant="outline" className="text-[10px]">{customer.interest || '-'}</Badge>
+                      </td>
+                      <td className="py-3 px-4 text-muted-foreground">{customer.notes || '-'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="py-8 text-center text-muted-foreground">
+                      לא נמצאו לקוחות.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Raw Team Tasks Table */}
+      <Card className="bg-white border-none shadow-sm mt-8">
+        <CardHeader>
+          <CardTitle>משימות צוות (גולמי)</CardTitle>
+          <CardDescription>פירוט משימות צוות כפי שהוזנו במערכת</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-right">
+              <thead className="bg-gray-50/80 text-muted-foreground">
+                <tr>
+                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">מזהה</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">אחראי</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">תיאור משימה</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {rawTeamTasks && rawTeamTasks.length > 0 ? (
+                  rawTeamTasks.map((task) => (
+                    <tr key={task.id} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="py-3 px-4 text-muted-foreground font-mono text-xs whitespace-nowrap">{task.id.slice(0, 8)}</td>
+                      <td className="py-3 px-4 font-medium whitespace-nowrap">{task.assignee || '-'}</td>
+                      <td className="py-3 px-4 text-muted-foreground">{task.taskDescription || '-'}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} className="py-8 text-center text-muted-foreground">
+                      לא נמצאו משימות.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

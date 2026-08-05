@@ -58,6 +58,8 @@ export default async function MarketingDashboard() {
       totalInfluencerPayments={totalInfluencerPayments}
       monthlyGrowth={monthlyGrowth}
       influencerPerformance={influencerPerformance}
+      rawInfluencers={allInfluencers}
+      rawPayments={payments}
     />
   );
 }

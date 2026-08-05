@@ -10,9 +10,12 @@ export default async function OperationsDashboard() {
   let doneTasks: { id: string; title: string; status: string; priority: string; assignee: string }[] = [];
   let wholesaleClients: { name: string; contact: string; totalOrders: number; revenue: number; interest: string }[] = [];
 
+  let clients: any[] = [];
+  let tasks: any[] = [];
+
   try {
-    const clients = await db.select().from(wholesaleCustomers);
-    const tasks = await db.select().from(teamTasks);
+    clients = await db.select().from(wholesaleCustomers);
+    tasks = await db.select().from(teamTasks);
 
     wholesaleClients = clients.map(c => ({
       name: c.storeName || 'ללא שם',
@@ -51,6 +54,8 @@ export default async function OperationsDashboard() {
       inProgressTasks={inProgressTasks}
       doneTasks={doneTasks}
       wholesaleClients={wholesaleClients}
+      rawWholesaleCustomers={clients}
+      rawTeamTasks={tasks}
     />
   );
 }

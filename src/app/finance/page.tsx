@@ -11,11 +11,18 @@ export default async function FinanceDashboard() {
   let openChinaOrders = 0;
   let expensesData: { name: string; value: number; color: string }[] = [];
   let creditCardUsage: { name: string; limit: number; used: number }[] = [];
+  let allPaymentsRaw: any[] = [];
+  let allCardsRaw: any[] = [];
+  let allChinaOrdersRaw: any[] = [];
 
   try {
     const allPayments = await db.select().from(importPayments);
     const allCards = await db.select().from(creditCards);
     const allChinaOrders = await db.select().from(chinaOrders);
+
+    allPaymentsRaw = allPayments;
+    allCardsRaw = allCards;
+    allChinaOrdersRaw = allChinaOrders;
 
     totalExpenses = allPayments.reduce((sum, p) => sum + Number(p.orderAmountNis || 0), 0);
     totalCreditLimit = allCards.reduce((sum, c) => sum + Number(c.creditLimit || 0), 0);
@@ -37,11 +44,17 @@ export default async function FinanceDashboard() {
       color: colors[index % colors.length]
     })).filter(e => e.value > 0);
 
-    creditCardUsage = allCards.map(c => ({
-      name: c.cardCompany || "כרטיס",
-      limit: Number(c.creditLimit || 0),
-      used: Number(c.creditLimit || 0) * 0.6 // Mock used amount
-    }));
+    creditCardUsage = allCards.map(c => {
+      const name = c.cardCompany || "כרטיס";
+      const bank = c.bank ? ` - ${c.bank}` : "";
+      const type = c.cardType ? ` (${c.cardType})` : "";
+      
+      return {
+        name: `${name}${bank}${type}`,
+        limit: Number(c.creditLimit || 0),
+        used: Number(c.creditLimit || 0) * 0.6 // Mock used amount
+      };
+    });
 
   } catch (e) {
     console.error("Database connection failed, using empty data:", e);
@@ -55,6 +68,9 @@ export default async function FinanceDashboard() {
       openChinaOrders={openChinaOrders}
       expensesData={expensesData}
       creditCardUsage={creditCardUsage}
+      allPayments={allPaymentsRaw}
+      allCards={allCardsRaw}
+      allChinaOrders={allChinaOrdersRaw}
     />
   );
 }

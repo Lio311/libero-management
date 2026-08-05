@@ -12,6 +12,9 @@ interface FinanceClientProps {
   openChinaOrders: number;
   expensesData: { name: string; value: number; color: string }[];
   creditCardUsage: { name: string; limit: number; used: number }[];
+  allPayments?: any[];
+  allCards?: any[];
+  allChinaOrders?: any[];
 }
 
 export default function FinanceClient({
@@ -20,7 +23,10 @@ export default function FinanceClient({
   totalCreditUsed,
   openChinaOrders,
   expensesData,
-  creditCardUsage
+  creditCardUsage,
+  allPayments = [],
+  allCards = [],
+  allChinaOrders = []
 }: FinanceClientProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -129,6 +135,86 @@ export default function FinanceClient({
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-12 space-y-8">
+        <h3 className="text-2xl font-bold tracking-tight text-gray-900">טבלאות נתונים</h3>
+        
+        <Card className="bg-white border-none shadow-sm p-4 overflow-x-auto">
+          <h4 className="text-lg font-semibold mb-4 text-primary">כרטיסי אשראי</h4>
+          <table className="w-full text-sm text-right whitespace-nowrap">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="p-3 font-medium text-gray-600">חברה</th>
+                <th className="p-3 font-medium text-gray-600">בנק</th>
+                <th className="p-3 font-medium text-gray-600">מסגרת</th>
+                <th className="p-3 font-medium text-gray-600">מספר</th>
+                <th className="p-3 font-medium text-gray-600">תוקף</th>
+                <th className="p-3 font-medium text-gray-600">CVV</th>
+                <th className="p-3 font-medium text-gray-600">סוג</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {allCards.map((c, i) => (
+                <tr key={c.id || i} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="p-3 text-gray-700">{c.cardCompany || '-'}</td>
+                  <td className="p-3 text-gray-700">{c.bank || '-'}</td>
+                  <td className="p-3 text-gray-700">₪{Number(c.creditLimit || 0).toLocaleString()}</td>
+                  <td className="p-3 text-gray-700">{c.cardNumber || '-'}</td>
+                  <td className="p-3 text-gray-700">{c.expiration || '-'}</td>
+                  <td className="p-3 text-gray-700">{c.cvv || '-'}</td>
+                  <td className="p-3 text-gray-700">{c.cardType || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+
+        <Card className="bg-white border-none shadow-sm p-4 overflow-x-auto">
+          <h4 className="text-lg font-semibold mb-4 text-primary">תשלומי יבוא</h4>
+          <table className="w-full text-sm text-right whitespace-nowrap">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="p-3 font-medium text-gray-600">מותג</th>
+                <th className="p-3 font-medium text-gray-600">סכום מט"ח</th>
+                <th className="p-3 font-medium text-gray-600">סכום ש"ח</th>
+                <th className="p-3 font-medium text-gray-600">מע"מ</th>
+                <th className="p-3 font-medium text-gray-600">עלות משלוח</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {allPayments.map((p, i) => (
+                <tr key={p.id || i} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="p-3 text-gray-700">{p.brand || '-'}</td>
+                  <td className="p-3 text-gray-700">{Number(p.orderAmountForeign || 0).toLocaleString()}</td>
+                  <td className="p-3 text-gray-700">₪{Number(p.orderAmountNis || 0).toLocaleString()}</td>
+                  <td className="p-3 text-gray-700">₪{Number(p.vat || 0).toLocaleString()}</td>
+                  <td className="p-3 text-gray-700">₪{Number(p.shippingCost || 0).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+
+        <Card className="bg-white border-none shadow-sm p-4 overflow-x-auto">
+          <h4 className="text-lg font-semibold mb-4 text-primary">הזמנות מסין</h4>
+          <table className="w-full text-sm text-right whitespace-nowrap">
+            <thead className="bg-gray-50 border-b">
+              <tr>
+                <th className="p-3 font-medium text-gray-600">מוצרים</th>
+                <th className="p-3 font-medium text-gray-600">תאריך הגעה</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {allChinaOrders.map((o, i) => (
+                <tr key={o.id || i} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="p-3 text-gray-700">{o.products || '-'}</td>
+                  <td className="p-3 text-gray-700">{o.arrivalDate || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </Card>
       </div>
     </div>
