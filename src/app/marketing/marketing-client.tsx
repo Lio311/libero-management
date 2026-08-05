@@ -80,31 +80,8 @@ export default function MarketingClient({
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 bg-white border-none shadow-sm">
-          <CardHeader>
-            <CardTitle>צמיחה מדווחת מול הוצאות</CardTitle>
-            <CardDescription>מגמות לאורך חציון אחרון</CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2 h-[450px]">
-            <div dir="ltr" className="h-full w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthlyGrowth} margin={{ top: 20, right: 60, left: 60, bottom: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tickMargin={10} />
-                <YAxis yAxisId="left" axisLine={false} tickLine={false} width={100} tickMargin={10} />
-                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} width={100} tickMargin={10} />
-                <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                <Legend wrapperStyle={{ paddingTop: '20px' }} verticalAlign="bottom" />
-                <Line yAxisId="left" type="monotone" dataKey="followers" name="עוקבים" stroke="#8b5cf6" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
-                <Line yAxisId="right" type="monotone" dataKey="revenue" name="הוצאות/הכנסות (₪)" stroke="#10b981" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
-              </LineChart>
-            </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="col-span-3 bg-white border-none shadow-sm">
+      <div className="flex justify-center w-full">
+        <Card className="w-full max-w-2xl bg-white border-none shadow-sm">
           <CardHeader>
             <CardTitle>ביצועי קמפיינים</CardTitle>
             <CardDescription>ניתוח מדדי איכות (מבוסס תיעוד)</CardDescription>
