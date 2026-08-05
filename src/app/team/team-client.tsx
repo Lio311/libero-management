@@ -46,9 +46,9 @@ function EmployeeCard({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full hover:shadow-md transition-shadow relative z-10 group">
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full hover:shadow-md transition-shadow relative group">
       {isEditing ? (
-        <div className="mb-6 space-y-3 relative z-20">
+        <div className="mb-6 space-y-3 relative z-30">
           <input 
             value={formData.name} 
             onChange={e => setFormData({...formData, name: e.target.value})} 
@@ -68,7 +68,7 @@ function EmployeeCard({
           </div>
         </div>
       ) : (
-        <div className="flex flex-col mb-6 relative z-20">
+        <div className="flex flex-col mb-6 relative z-30">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg flex-shrink-0">
@@ -96,7 +96,7 @@ function EmployeeCard({
               key={task.id} 
               id={`task-${task.id}`}
               onClick={() => handleTaskClick(task.id)}
-              className={`flex items-start gap-2 p-3 rounded-lg transition-all relative z-20 ${
+              className={`flex items-start gap-2 p-3 rounded-lg transition-all relative ${
                 connectMode ? 'cursor-pointer hover:bg-blue-50 border border-transparent hover:border-blue-200' : ''
               } ${
                 isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-50'
@@ -350,7 +350,7 @@ export default function TeamClient({
 
               {isAddingNew && (
                 <div className="bg-white rounded-xl border-2 border-dashed border-blue-300 shadow-sm p-6 flex flex-col h-full bg-blue-50/20">
-                  <div className="mb-6 space-y-3">
+                  <div className="mb-6 space-y-3 relative z-30">
                     <input 
                       value={newRole.name} 
                       onChange={e => setNewRole({...newRole, name: e.target.value})} 
@@ -373,7 +373,7 @@ export default function TeamClient({
               )}
               
               {/* Render arrows - hidden on mobile via hidden md:block */}
-              <div className="hidden md:block absolute inset-0 z-30 pointer-events-none">
+              <div className="hidden md:block absolute inset-0 z-20 pointer-events-none">
                 {connections
                   .filter((conn, index, self) => 
                     index === self.findIndex(c => 
@@ -387,11 +387,11 @@ export default function TeamClient({
                       end={`task-icon-${conn.targetTaskId}`} 
                       color="#94a3b8"
                       strokeWidth={2}
-                      path="grid"
+                      path="smooth"
                       dashness={connectMode ? { animation: true } : true}
-                      startAnchor={["right", "left", "top", "bottom"]}
-                      endAnchor={["right", "left", "top", "bottom"]}
-                      zIndex={30}
+                      startAnchor={["right", "left"]}
+                      endAnchor={["right", "left"]}
+                      zIndex={20}
                      labels={
                       connectMode ? (
                         <div 
