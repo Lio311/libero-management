@@ -299,7 +299,13 @@ export default function TeamClient({
               
               {/* Render arrows - hidden on mobile via hidden md:block */}
               <div className="hidden md:block">
-                {connections.map(conn => (
+                {connections
+                  .filter((conn, index, self) => 
+                    index === self.findIndex(c => 
+                      c.sourceTaskId === conn.sourceTaskId && c.targetTaskId === conn.targetTaskId
+                    )
+                  )
+                  .map(conn => (
                    <Xarrow 
                      key={conn.id} 
                      start={`task-icon-${conn.sourceTaskId}`} 
