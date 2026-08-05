@@ -385,7 +385,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                       {dayTasks.map(task => {
                         const isPastDate = isBefore(day, startOfDay(new Date()));
                         let titleStyle = 'text-gray-700 font-medium';
-                        let dotColor = task.category?.color || 'bg-blue-400';
+                        let dotColor = 'bg-gray-400';
                         let bgStyle = 'hover:bg-black/5';
                         
                         if (task.isCompleted) {
