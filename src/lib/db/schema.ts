@@ -91,6 +91,7 @@ export const creditCards = pgTable("credit_cards", {
   expiration: varchar("expiration", { length: 50 }),
   cvv: varchar("cvv", { length: 10 }),
   cardType: varchar("card_type", { length: 100 }), // עסקי / פרטי
+  billingDate: varchar("billing_date", { length: 10 }),
 });
 
 export const chinaOrders = pgTable("china_orders", {
@@ -151,6 +152,8 @@ export const monthlySchedule = pgTable("monthly_schedule", {
   id: uuid("id").defaultRandom().primaryKey(),
   weekNumber: integer("week_number"),
   task: text("task"),
+  status: varchar("status", { length: 50 }).default("לא התחיל"),
+  lastCompletedDate: varchar("last_completed_date", { length: 100 }),
 });
 
 export const bankOfTasks = pgTable("bank_of_tasks", {

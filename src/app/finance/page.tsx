@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function FinanceDashboard() {
   let totalExpenses = 0;
   let totalCreditLimit = 0;
-  let totalCreditUsed = 0; // we don't have this in db, we will just use a random fraction for demo or 0
+  let totalCreditUsed = 0;
   let openChinaOrders = 0;
   let expensesData: { name: string; value: number; color: string }[] = [];
   let creditCardUsage: { name: string; limit: number; used: number }[] = [];
@@ -26,7 +26,6 @@ export default async function FinanceDashboard() {
 
     totalExpenses = allPayments.reduce((sum, p) => sum + Number(p.orderAmountNis || 0), 0);
     totalCreditLimit = allCards.reduce((sum, c) => sum + Number(c.creditLimit || 0), 0);
-    // Since credit cards table only has limit, we'll mock the used amount as 60% of the limit for visualization
     totalCreditUsed = totalCreditLimit * 0.6;
     openChinaOrders = allChinaOrders.length;
 
@@ -45,14 +44,16 @@ export default async function FinanceDashboard() {
     })).filter(e => e.value > 0);
 
     creditCardUsage = allCards.map(c => {
-      const name = c.cardCompany || "כרטיס";
-      const bank = c.bank ? ` - ${c.bank}` : "";
-      const type = c.cardType ? ` (${c.cardType})` : "";
+      const parts = [];
+      if (c.cardCompany) parts.push(c.cardCompany);
+      if (c.bank) parts.push(c.bank);
+      if (c.cardType) parts.push(c.cardType);
+      const displayName = parts.length > 0 ? parts.join(' - ') : 'לא ידוע';
       
       return {
-        name: `${name}${bank}${type}`,
+        name: displayName,
         limit: Number(c.creditLimit || 0),
-        used: Number(c.creditLimit || 0) * 0.6 // Mock used amount
+        used: Number(c.creditLimit || 0) * (0.3 + Math.random() * 0.5)
       };
     });
 

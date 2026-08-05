@@ -1175,35 +1175,35 @@
       "inventoryStatus": "מלאי חלקי",
       "planningStatus": null,
       "contactStatus": "שולם",
-      "notes": "33776.62722"
+      "notes": "33846.47627"
     },
     {
       "brandName": "Fomowa - מקדם 3.6",
       "inventoryStatus": "אין מלאי",
       "planningStatus": null,
       "contactStatus": "ממתין לחשבונית",
-      "notes": "49331.51638"
+      "notes": "49433.53246"
     },
     {
       "brandName": "Bohoboco - מקדם 3.5",
       "inventoryStatus": "אין מלאי",
       "planningStatus": null,
       "contactStatus": "שולם",
-      "notes": "33307.93977"
+      "notes": "33376.81958"
     },
     {
       "brandName": "Farmacia SS. Annunziata - מקדם 5",
       "inventoryStatus": "מלאי חלקי",
       "planningStatus": null,
       "contactStatus": "שולם",
-      "notes": "33205.9008"
+      "notes": "33274.5696"
     },
     {
       "brandName": null,
       "inventoryStatus": null,
       "planningStatus": null,
       "contactStatus": "שולם",
-      "notes": "189811.3859"
+      "notes": "190320.931"
     },
     {
       "brandName": null,
@@ -1217,14 +1217,14 @@
       "inventoryStatus": null,
       "planningStatus": null,
       "contactStatus": null,
-      "notes": "339433.37"
+      "notes": "340252.3289"
     },
     {
       "brandName": null,
       "inventoryStatus": null,
       "planningStatus": null,
       "contactStatus": "ממתין לתשובה",
-      "notes": "235097.7777"
+      "notes": "235583.9528"
     },
     {
       "brandName": null,
@@ -1245,43 +1245,43 @@
       "inventoryStatus": null,
       "planningStatus": null,
       "contactStatus": null,
-      "notes": "574531.1477"
+      "notes": "575836.2817"
     }
   ],
   "importPayments": [
     {
       "brand": "Theodoros Kalotinis - מקדם 5",
       "orderAmountForeign": "9600",
-      "orderAmountNis": "33205.9008",
-      "vat": "5977.062144",
+      "orderAmountNis": "33274.5696",
+      "vat": "5989.422528",
       "shippingCost": null
     },
     {
       "brand": "Dudar Milano - מקדם 4",
       "orderAmountForeign": "9629.5",
-      "orderAmountNis": "33307.93977",
-      "vat": "5995.429158",
+      "orderAmountNis": "33376.81958",
+      "vat": "6007.827524",
       "shippingCost": null
     },
     {
       "brand": "Piccirilli - מקדם 4",
       "orderAmountForeign": "9765",
-      "orderAmountNis": "33776.62722",
-      "vat": "6079.7929",
+      "orderAmountNis": "33846.47627",
+      "vat": "6092.365728",
       "shippingCost": null
     },
     {
       "brand": "Memoirs Of A Perfume Collector - מקדם 3.8",
       "orderAmountForeign": "47053.76",
-      "orderAmountNis": "189811.3859",
-      "vat": "34166.04946",
+      "orderAmountNis": "190320.931",
+      "vat": "34257.76759",
       "shippingCost": null
     },
     {
       "brand": "Fomowa - מקדם 3.6",
       "orderAmountForeign": "67968",
-      "orderAmountNis": "235097.7777",
-      "vat": "42317.59998",
+      "orderAmountNis": "235583.9528",
+      "vat": "42405.1115",
       "shippingCost": null
     }
   ],
@@ -1293,7 +1293,8 @@
       "cardNumber": "4580950100117882",
       "expiration": "6.29",
       "cvv": "976",
-      "cardType": "לא מוגדר"
+      "billingDate": "15",
+      "cardType": "עסקי"
     },
     {
       "cardCompany": "כאל",
@@ -1302,7 +1303,8 @@
       "cardNumber": "5558885500081764",
       "expiration": "6.32",
       "cvv": "196",
-      "cardType": "לא מוגדר"
+      "billingDate": "10",
+      "cardType": "עסקי"
     },
     {
       "cardCompany": "ישרכארד",
@@ -1311,7 +1313,8 @@
       "cardNumber": "5326110331926303",
       "expiration": "10.31",
       "cvv": "249",
-      "cardType": "לא מוגדר"
+      "billingDate": null,
+      "cardType": "עסקי"
     },
     {
       "cardCompany": "כאל",
@@ -1320,7 +1323,8 @@
       "cardNumber": "4580980104522043",
       "expiration": "4.3",
       "cvv": "351",
-      "cardType": "לא מוגדר"
+      "billingDate": "10",
+      "cardType": "עסקי"
     },
     {
       "cardCompany": "אמריקן אקספרס",
@@ -1328,8 +1332,9 @@
       "creditLimit": "50000",
       "cardNumber": "375516393356854",
       "expiration": "7.32",
-      "cvv": "680",
-      "cardType": "לא מוגדר"
+      "cvv": "680\\7862",
+      "billingDate": null,
+      "cardType": "עסקי"
     },
     {
       "cardCompany": "ישרכארד",
@@ -1338,7 +1343,8 @@
       "cardNumber": "5326110331926306",
       "expiration": "10.31",
       "cvv": "59",
-      "cardType": "לא מוגדר"
+      "billingDate": null,
+      "cardType": "עסקי"
     },
     {
       "cardCompany": "כאל",
@@ -1347,25 +1353,8 @@
       "cardNumber": "4580160120993649",
       "expiration": "9.31",
       "cvv": "249",
-      "cardType": "לא מוגדר"
-    },
-    {
-      "cardCompany": null,
-      "bank": "סה״כ מסגרת:",
-      "creditLimit": "142000",
-      "cardNumber": null,
-      "expiration": null,
-      "cvv": null,
-      "cardType": "לא מוגדר"
-    },
-    {
-      "cardCompany": "חברת כרטיס",
-      "bank": "בנק",
-      "creditLimit": "מסגרת",
-      "cardNumber": "מספר כרטיס",
-      "expiration": "תוקף",
-      "cvv": "3 ספרות",
-      "cardType": "לא מוגדר"
+      "billingDate": "2",
+      "cardType": "עסקי"
     },
     {
       "cardCompany": "כאל",
@@ -1374,7 +1363,8 @@
       "cardNumber": "4580297100025586",
       "expiration": "2.27",
       "cvv": "703",
-      "cardType": "לא מוגדר"
+      "billingDate": "2",
+      "cardType": "פרטי"
     },
     {
       "cardCompany": "כאל",
@@ -1383,7 +1373,8 @@
       "cardNumber": "4580504000174277",
       "expiration": "3.29",
       "cvv": "627",
-      "cardType": "לא מוגדר"
+      "billingDate": "15",
+      "cardType": "פרטי"
     },
     {
       "cardCompany": "כאל",
@@ -1392,16 +1383,8 @@
       "cardNumber": "5451360000351362",
       "expiration": "11.27",
       "cvv": "37",
-      "cardType": "לא מוגדר"
-    },
-    {
-      "cardCompany": null,
-      "bank": "סה״כ מסגרת:",
-      "creditLimit": "60000",
-      "cardNumber": null,
-      "expiration": null,
-      "cvv": null,
-      "cardType": "לא מוגדר"
+      "billingDate": "10",
+      "cardType": "פרטי"
     }
   ],
   "roleHolders": [
@@ -1411,7 +1394,7 @@
     },
     {
       "name": "טל",
-      "role": "שיפור מוצרים ליברו"
+      "role": "ממומן וולור ולה בורה"
     },
     {
       "name": "אור דוד",
@@ -1419,7 +1402,7 @@
     },
     {
       "name": "ליאור",
-      "role": "אזל במלאי"
+      "role": "מעקב אחרי אזל במלאי"
     },
     {
       "name": "צדוק",
@@ -1447,11 +1430,15 @@
     },
     {
       "name": "ליאור",
-      "role": "רכש"
+      "role": "רכש ארץ מול אור דוד"
     },
     {
       "name": "צדוק",
       "role": "משלוחים מחו״ל"
+    },
+    {
+      "name": "יוליה",
+      "role": "שיווק רוסיות"
     },
     {
       "name": "רותי",
@@ -1467,11 +1454,15 @@
     },
     {
       "name": "ליאור",
-      "role": "תמחור מול אור"
+      "role": "תמחור מול אור דוד"
     },
     {
       "name": "צדוק",
       "role": "משלוחים למשפיענים"
+    },
+    {
+      "name": "יוליה",
+      "role": "מענה ברוסית שירות לקוחות"
     },
     {
       "name": "רותי",
@@ -1494,6 +1485,10 @@
       "role": "העברות כסף למותגים"
     },
     {
+      "name": "יוליה",
+      "role": "מילוי מיני בושם"
+    },
+    {
       "name": "רותי",
       "role": "מזכירות"
     },
@@ -1514,6 +1509,10 @@
       "role": "משכורות"
     },
     {
+      "name": "טל",
+      "role": "מבצעים וולור לה בורה"
+    },
+    {
       "name": "ליאור",
       "role": "סיטונאות"
     },
@@ -1524,6 +1523,10 @@
     {
       "name": "רותי",
       "role": "דוח סוף חודש"
+    },
+    {
+      "name": "טל",
+      "role": "באנרים וולור לה בורה"
     },
     {
       "name": "ליאור",
@@ -1538,36 +1541,84 @@
       "role": "ניהול חשבוניות"
     },
     {
+      "name": "טל",
+      "role": "העלאת מוצרים וולור"
+    },
+    {
       "name": "ליאור",
       "role": "פיתוחים טכנולוגים"
     },
     {
       "name": "צדוק",
-      "role": "פעילויות"
+      "role": "פעילויות שיווקיות"
     },
     {
-      "name": "ליאור",
-      "role": "דיקנט אריזת משלוחים"
-    },
-    {
-      "name": "צדוק",
-      "role": "מוכר חנות"
-    },
-    {
-      "name": "ליאור",
-      "role": "דיקנט תפעול אתר"
-    },
-    {
-      "name": "צדוק",
-      "role": "קידום אורגני / ממומן"
+      "name": "טל",
+      "role": "העלאת מוצרים ליברו"
     },
     {
       "name": "ליאור",
       "role": "הזמנות מותגים מח״ול"
     },
     {
+      "name": "צדוק",
+      "role": "מוכר חנות"
+    },
+    {
+      "name": "טל",
+      "role": "עזרה במשלוחים"
+    },
+    {
       "name": "ליאור",
       "role": "תקשורת מול מותגים מחו״ל"
+    },
+    {
+      "name": "צדוק",
+      "role": "קידום אורגני / ממומן"
+    },
+    {
+      "name": "טל",
+      "role": "מלאים וחוסרים וולור"
+    },
+    {
+      "name": "ליאור",
+      "role": "ניהול יומן פגישות משרד"
+    },
+    {
+      "name": "טל",
+      "role": "העלאת חשבוניות - גיבוי קומקס"
+    },
+    {
+      "name": "ליאור",
+      "role": "עבודה מול נתנאל"
+    },
+    {
+      "name": "טל",
+      "role": "שיפור מוצרים ליברו"
+    },
+    {
+      "name": "טל",
+      "role": "מוכרת חנות- השקות, ימי שישי, ערבי חג, גיבויים שצריך"
+    },
+    {
+      "name": "טל",
+      "role": "הזמנות סחורה וולור"
+    },
+    {
+      "name": "טל",
+      "role": "תפעול רשתות חברתיות וולור"
+    },
+    {
+      "name": "ליאור",
+      "role": "דיקנט אריזת משלוחים"
+    },
+    {
+      "name": "טל",
+      "role": "תפעול רשתות חברתיות לה בורה"
+    },
+    {
+      "name": "ליאור",
+      "role": "דיקנט תפעול אתר"
     }
   ],
   "monthlySchedule": [
@@ -1686,6 +1737,128 @@
     {
       "weekNumber": 30,
       "task": "31"
+    }
+  ],
+  "bankOfTasks": [
+    {
+      "taskNumber": "1",
+      "date": "21.7.2026",
+      "taskName": "ספירת מלאי חמאות לה בורה ועדכון באתר",
+      "status": "בתהליך",
+      "subtasks": "לספור",
+      "responsible": "ישראל"
+    },
+    {
+      "taskNumber": "2",
+      "date": "21.7.2026",
+      "taskName": "באנר ופעילות לט\"ו באב",
+      "status": "בוצע",
+      "subtasks": null,
+      "responsible": null
+    },
+    {
+      "taskNumber": "3",
+      "date": "21.7.2026",
+      "taskName": "ישיבת שיווק ומילוי אקסל שיווק",
+      "status": null,
+      "subtasks": null,
+      "responsible": null
+    },
+    {
+      "taskNumber": "4",
+      "date": "21.7.2026",
+      "taskName": "פתיחת חשבון של וולור בפייסבוק",
+      "status": "בתהליך",
+      "subtasks": null,
+      "responsible": "ליאור"
+    },
+    {
+      "taskNumber": "5",
+      "date": "21.7.2026",
+      "taskName": "מענה בתפריט בוואטסאפ וולר",
+      "status": "בתהליך",
+      "subtasks": null,
+      "responsible": "ליאור"
+    },
+    {
+      "taskNumber": "6",
+      "date": "23.7.2026",
+      "taskName": "מכתב תביעה",
+      "status": "בתהליך",
+      "subtasks": null,
+      "responsible": "יהודה"
+    },
+    {
+      "taskNumber": "7",
+      "date": "27.7.2026",
+      "taskName": "שעון נוכחות",
+      "status": "בתהליך",
+      "subtasks": null,
+      "responsible": "יהודה"
+    },
+    {
+      "taskNumber": "8",
+      "date": "28.7.2026",
+      "taskName": "מנעול בדלת במחסן",
+      "status": "בתהליך",
+      "subtasks": "לחלק מפתחות לעובדים",
+      "responsible": "דניאל"
+    },
+    {
+      "taskNumber": "9",
+      "date": "28.7.2026",
+      "taskName": "מסך למצלמות במשרד",
+      "status": "בתהליך",
+      "subtasks": "לקנות מסך",
+      "responsible": "דניאל"
+    },
+    {
+      "taskNumber": "10",
+      "date": "28.7.2026",
+      "taskName": "מכירת אתר דיקאנט",
+      "status": "בתהליך",
+      "subtasks": "לפתוח עסק, לשנות לוגו, לקנות מסוף, בקבוקי דוגמיות, שקיות פצפצים, מדבקות, מארזים",
+      "responsible": "יהודה וליאור"
+    },
+    {
+      "taskNumber": "11",
+      "date": "28.7.2026",
+      "taskName": "חוזה עבודה ליאור",
+      "status": null,
+      "subtasks": null,
+      "responsible": null
+    },
+    {
+      "taskNumber": "12",
+      "date": "28.7.2026",
+      "taskName": "אתר בקשות לקוחות",
+      "status": null,
+      "subtasks": null,
+      "responsible": null
+    },
+    {
+      "taskNumber": "13",
+      "date": "28.7.2026",
+      "taskName": "בחירת בקבוקים לאתר דיקנט",
+      "status": null,
+      "subtasks": null,
+      "responsible": null
+    },
+    {
+      "taskNumber": "14",
+      "date": "4.8.2026",
+      "taskName": "בושם אקסלוסיבי פיצרילי",
+      "status": null,
+      "subtasks": null,
+      "responsible": null
+    },
+    {
+      "taskNumber": "15",
+      "date": "4.8.2026",
+      "taskName": "בושם אקסלוסיבי ברגמוס",
+      "status": null,
+      "subtasks": null,
+      "responsible": null
     }
   ]
 }

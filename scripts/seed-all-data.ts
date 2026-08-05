@@ -7,7 +7,8 @@ import {
   importPayments,
   creditCards,
   roleHolders,
-  monthlySchedule
+  monthlySchedule,
+  bankOfTasks
 } from '../src/lib/db/schema';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -73,7 +74,7 @@ async function main() {
     })));
   }
 
-  // creditCards
+  // creditCards (now includes billingDate)
   if (data.creditCards && data.creditCards.length > 0) {
     console.log("Seeding creditCards...");
     await db.delete(creditCards);
@@ -84,7 +85,8 @@ async function main() {
       cardNumber: cc.cardNumber,
       expiration: cc.expiration,
       cvv: cc.cvv,
-      cardType: cc.cardType
+      cardType: cc.cardType,
+      billingDate: cc.billingDate
     })));
   }
 
@@ -102,6 +104,19 @@ async function main() {
     await db.insert(monthlySchedule).values(data.monthlySchedule.map((ms: any) => ({
       weekNumber: isNaN(parseInt(ms.weekNumber)) ? null : parseInt(ms.weekNumber),
       task: ms.task
+    })));
+  }
+
+  // bankOfTasks
+  if (data.bankOfTasks && data.bankOfTasks.length > 0) {
+    console.log("Seeding bankOfTasks...");
+    await db.delete(bankOfTasks);
+    await db.insert(bankOfTasks).values(data.bankOfTasks.map((bt: any) => ({
+      assignee: bt.responsible,
+      status: bt.status,
+      taskName: bt.taskName,
+      dueDate: bt.date,
+      itemIndex: isNaN(parseInt(bt.taskNumber)) ? null : parseInt(bt.taskNumber),
     })));
   }
 

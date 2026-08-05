@@ -103,8 +103,6 @@ export default function MarketingClient({
           </CardContent>
         </Card>
       </div>
-        </Card>
-      </div>
 
       {/* Raw Influencers Table */}
       <Card className="bg-white border-none shadow-sm mt-8">
