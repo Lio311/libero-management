@@ -17,15 +17,20 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
+import { Sidebar } from "@/components/layout/sidebar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-zinc-950 text-white antialiased`}>
-        {children}
+    <html lang="he" dir="rtl">
+      <body className={`${inter.className} antialiased h-screen overflow-hidden flex`}>
+        <Sidebar />
+        <main className="flex-1 overflow-y-auto bg-muted/20">
+          {children}
+        </main>
       </body>
     </html>
   );
