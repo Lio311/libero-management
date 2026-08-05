@@ -13,76 +13,78 @@ export default async function InventoryDashboard() {
   let lowStockItems: { name: string; brand: string; current: number; target: number }[] = [];
   let allItems: any[] = [];
 
-  try {
-    const items = await db.select().from(inventoryItems);
-    allItems = items;
-    
-    activeSkus = items.length;
-    
-    // Group by brand
-    const brandData: Record<string, { current: number; target: number }> = {};
-    
-    items.forEach(item => {
-      const current = Number(item.currentStock || 0);
-      const target = Number(item.targetStockLevel || 0);
-      const cost = Number(item.costPrice || 0);
-      const ordered = Number(item.orderedQuantity || 0);
-      
-      totalInventoryValue += (current * cost);
-      goodsOnTheWay += ordered;
-      
-      if (target > 0 && current < target * 0.2) {
-        itemsAtRisk++;
-      }
-      
-      const brand = item.brand || 'אחר';
-      if (!brandData[brand]) {
-        brandData[brand] = { current: 0, target: 0 };
-      }
-      brandData[brand].current += current;
-      brandData[brand].target += target;
-    });
+    let suppliersData: any[] = [];
 
-    const colors = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899'];
-    stockHealthData = Object.entries(brandData).map(([brand, data], index) => {
-      const ratio = data.target > 0 ? data.current / data.target : 1;
-      let status = 'good';
-      let color = colors[0]; // green
-      if (ratio < 0.2) {
-        status = 'danger';
-        color = colors[2]; // red
-      } else if (ratio < 0.5) {
-        status = 'warning';
-        color = colors[1]; // yellow
-      }
+    try {
+      const items = await db.select().from(inventoryItems);
+      allItems = items;
       
-      return {
-        brand,
-        current: data.current,
-        target: data.target,
-        status,
-        color
-      };
-    });
+      activeSkus = items.length;
+      
+      // Group by brand
+      const brandData: Record<string, { current: number; target: number }> = {};
+      
+      items.forEach(item => {
+        const current = Number(item.currentStock || 0);
+        const target = Number(item.targetStockLevel || 0);
+        const cost = Number(item.costPrice || 0);
+        const ordered = Number(item.orderedQuantity || 0);
+        
+        totalInventoryValue += (current * cost);
+        goodsOnTheWay += ordered;
+        
+        if (target > 0 && current < target * 0.2) {
+          itemsAtRisk++;
+        }
+        
+        const brand = item.brand || 'אחר';
+        if (!brandData[brand]) {
+          brandData[brand] = { current: 0, target: 0 };
+        }
+        brandData[brand].current += current;
+        brandData[brand].target += target;
+      });
 
-    // Top 5 items with lowest ratio
-    const itemsWithRatio = items.map(item => {
-      const current = Number(item.currentStock || 0);
-      const target = Number(item.targetStockLevel || 1);
-      return {
-        name: item.modelName || 'לא ידוע',
-        brand: item.brand || 'לא ידוע',
-        current,
-        target,
-        ratio: current / target
-      };
-    }).filter(i => i.ratio < 0.5).sort((a, b) => a.ratio - b.ratio);
-    
-    lowStockItems = itemsWithRatio.slice(0, 5);
+      const colors = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899'];
+      stockHealthData = Object.entries(brandData).map(([brand, data], index) => {
+        const ratio = data.target > 0 ? data.current / data.target : 1;
+        let status = 'good';
+        let color = colors[0]; // green
+        if (ratio < 0.2) {
+          status = 'danger';
+          color = colors[2]; // red
+        } else if (ratio < 0.5) {
+          status = 'warning';
+          color = colors[1]; // yellow
+        }
+        
+        return {
+          brand,
+          current: data.current,
+          target: data.target,
+          status,
+          color
+        };
+      });
 
-    const suppliersData = await db.select().from(suppliers);
+      // Top 5 items with lowest ratio
+      const itemsWithRatio = items.map(item => {
+        const current = Number(item.currentStock || 0);
+        const target = Number(item.targetStockLevel || 1);
+        return {
+          name: item.modelName || 'לא ידוע',
+          brand: item.brand || 'לא ידוע',
+          current,
+          target,
+          ratio: current / target
+        };
+      }).filter(i => i.ratio < 0.5).sort((a, b) => a.ratio - b.ratio);
+      
+      lowStockItems = itemsWithRatio.slice(0, 5);
 
-  } catch (e) {
+      suppliersData = await db.select().from(suppliers);
+
+    } catch (e) {
     console.error("Database connection failed, using empty data:", e);
   }
 

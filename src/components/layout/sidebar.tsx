@@ -14,13 +14,14 @@ const navigation = [
   { name: "בעלי תפקידים", href: "/team", icon: Users },
 ];
 
-export function Sidebar() {
+export function Sidebar({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
     <div className="flex h-full w-64 flex-col glass-panel text-card-foreground shadow-sm z-10 relative">
-      <div className="flex h-16 items-center px-6 border-b border-border/50">
+      <div className="flex h-16 items-center justify-between px-6 border-b border-border/50">
         <h1 className="text-xl font-semibold tracking-tight text-primary">Libero</h1>
+        {children}
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
         {navigation.map((item) => {

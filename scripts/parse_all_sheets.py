@@ -89,7 +89,6 @@ def parse_monthly_schedule():
             headers.append((col, str(val)))
             
     for r in range(1, len(df)):
-        # identify week number? Actually just parse all tasks. Let's assign an incremental ID.
         for col, hname in headers:
             task = clean(df.iloc[r, df.columns.get_loc(col)])
             if task:
@@ -97,6 +96,71 @@ def parse_monthly_schedule():
                     "weekNumber": r,
                     "task": task
                 })
+    return items
+
+def parse_credit_cards():
+    """Custom parser for credit cards with business/personal sections"""
+    try:
+        df = pd.read_excel(excel_path, sheet_name="כרטיסי אשראי")
+    except Exception as e:
+        print(f"Skipping כרטיסי אשראי: {e}")
+        return []
+    
+    cards = []
+    card_type = None
+    for idx, row in df.iterrows():
+        vals = [str(v) if pd.notna(v) else None for v in row.values]
+        # Check for card type marker
+        if vals[2] == 'עסקי':
+            card_type = 'עסקי'
+            continue
+        if vals[2] == 'פרטי':
+            card_type = 'פרטי'
+            continue
+        # Check for header row
+        if vals[2] == 'תאריך חיוב':
+            continue
+        # Check for summary row
+        if vals[7] and 'סה״כ' in str(vals[7]):
+            continue
+        # Parse data row
+        card_company = clean(row.iloc[8])
+        card_number = clean(row.iloc[5])
+        if card_company and card_number:
+            cards.append({
+                'cardCompany': card_company,
+                'bank': clean(row.iloc[7]),
+                'creditLimit': clean(row.iloc[6]),
+                'cardNumber': card_number,
+                'expiration': clean(row.iloc[4]),
+                'cvv': clean(row.iloc[3]),
+                'billingDate': clean(row.iloc[2]),
+                'cardType': card_type or 'לא מוגדר'
+            })
+    return cards
+
+def parse_bank_of_tasks():
+    """Custom parser for bank of tasks sheet"""
+    try:
+        df = pd.read_excel(excel_path, sheet_name="בנק משימות")
+    except Exception as e:
+        print(f"Skipping בנק משימות: {e}")
+        return []
+    
+    items = []
+    for idx, row in df.iterrows():
+        if idx < 3:  # Skip header rows
+            continue
+        task_name = clean(row.iloc[4])
+        if task_name:
+            items.append({
+                'taskNumber': clean(row.iloc[6]),
+                'date': clean(row.iloc[5]),
+                'taskName': task_name,
+                'status': clean(row.iloc[3]),
+                'subtasks': clean(row.iloc[2]),
+                'responsible': clean(row.iloc[1])
+            })
     return items
 
 
@@ -173,26 +237,17 @@ all_data['importPayments'] = parse_sheet(
     }
 )
 
-# 6. כרטיסי אשראי
-all_data['creditCards'] = parse_sheet(
-    "כרטיסי אשראי",
-    ['חברת כרטיס', 'בנק', 'מסגרת', 'מספר כרטיס', 'תוקף', '3 ספרות'],
-    lambda rd: {
-        "cardCompany": rd.get('חברת כרטיס'),
-        "bank": rd.get('בנק'),
-        "creditLimit": rd.get('מסגרת'),
-        "cardNumber": rd.get('מספר כרטיס'),
-        "expiration": rd.get('תוקף'),
-        "cvv": rd.get('3 ספרות'),
-        "cardType": "לא מוגדר"
-    }
-)
+# 6. כרטיסי אשראי (custom parser with business/personal types)
+all_data['creditCards'] = parse_credit_cards()
 
 # 7. בעלי תפקידים
 all_data['roleHolders'] = parse_sheet("בעלי תפקידים", [], None, find_headers_first=False)
 
 # 8. לוז חודשי
 all_data['monthlySchedule'] = parse_monthly_schedule()
+
+# 9. בנק משימות
+all_data['bankOfTasks'] = parse_bank_of_tasks()
 
 with open('parsed_all_data.json', 'w', encoding='utf-8') as f:
     json.dump(all_data, f, ensure_ascii=False, indent=2)

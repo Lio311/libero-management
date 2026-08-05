@@ -29,9 +29,12 @@ export default async function MarketingDashboard() {
     { subject: 'הגעה', A: 65, fullMark: 150 },
   ];
 
+  let allInfluencers: any[] = [];
+  let payments: any[] = [];
+
   try {
-    const allInfluencers = await db.select().from(influencers);
-    const payments = await db.select().from(influencerPayments);
+    allInfluencers = await db.select().from(influencers);
+    payments = await db.select().from(influencerPayments);
 
     activeInfluencers = allInfluencers.length;
 

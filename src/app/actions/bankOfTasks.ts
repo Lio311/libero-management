@@ -14,7 +14,7 @@ export async function updateBankOfTaskAction(id: string, data: { taskName?: stri
       dueDate: data.dueDate,
     }).where(eq(bankOfTasks.id, id));
     
-    revalidatePath("/tasks");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error) {
     console.error("Failed to update task", error);
@@ -31,7 +31,7 @@ export async function createBankOfTaskAction(data: { taskName?: string | null, a
       dueDate: data.dueDate,
     }).returning();
     
-    revalidatePath("/tasks");
+    revalidatePath("/", "layout");
     return { success: true, task: newTask };
   } catch (error) {
     console.error("Failed to create task", error);
@@ -43,7 +43,7 @@ export async function deleteBankOfTaskAction(id: string) {
   try {
     await db.delete(bankOfTasks).where(eq(bankOfTasks.id, id));
     
-    revalidatePath("/tasks");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete task", error);

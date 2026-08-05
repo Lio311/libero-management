@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Plus, Bell, Calendar as CalendarIcon, CheckCircle2, Circle } from 'lucide-react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, isBefore, startOfDay } from 'date-fns';
+import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, CheckCircle2, Circle } from 'lucide-react';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, isBefore, startOfDay, differenceInMonths, isValid } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { updateMonthlyScheduleDay } from '@/app/actions/monthlySchedule';
+import { updateBankOfTaskAction } from '@/app/actions/bankOfTasks';
 
 // Temporary mock data interface
 interface Task {
@@ -15,15 +15,18 @@ interface Task {
   title: string;
   category: { name: string; color: string };
   isCompleted: boolean;
+  isDelayed?: boolean;
+  delayMonths?: number;
+  source?: 'schedule' | 'bank';
 }
 
 interface CalendarClientProps {
   scheduleData: any[];
+  bankTasksData?: any[];
 }
 
-export default function CalendarPage({ scheduleData }: CalendarClientProps) {
+export default function CalendarPage({ scheduleData, bankTasksData = [] }: CalendarClientProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  usePushNotifications(); // This triggers the prompt on load
 
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
@@ -45,114 +48,150 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
   const [newTaskDate, setNewTaskDate] = useState<Date | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedTask, setSelectedTask] = useState<{ dateKey: string, task: Task } | null>(null);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [hasShownPush, setHasShownPush] = useState(false);
-  const notificationsRef = useRef<HTMLDivElement>(null);
-
-  // Compute active notifications
-  const activeNotifications = useMemo(() => {
-    const today = startOfDay(new Date());
-    const notifications: { dateKey: string; task: Task }[] = [];
-    
-    Object.keys(localTasks).forEach(dateKey => {
-      const date = new Date(dateKey);
-      if (isBefore(date, today) || isToday(date)) {
-        localTasks[dateKey].forEach(task => {
-          if (!task.isCompleted) {
-            notifications.push({ dateKey, task });
-          }
-        });
-      }
-    });
-    
-    return notifications.sort((a, b) => new Date(a.dateKey).getTime() - new Date(b.dateKey).getTime());
-  }, [localTasks]);
-
-  // Handle push notification
-  useEffect(() => {
-    if (activeNotifications.length > 0 && !hasShownPush && 'Notification' in window) {
-      if (Notification.permission === 'granted') {
-        new Notification('משימות לביצוע', {
-          body: `יש לך ${activeNotifications.length} משימות לביצוע שלא הושלמו.`,
-        });
-        setHasShownPush(true);
-      } else if (Notification.permission !== 'denied') {
-        Notification.requestPermission().then(permission => {
-          if (permission === 'granted') {
-            new Notification('משימות לביצוע', {
-              body: `יש לך ${activeNotifications.length} משימות לביצוע שלא הושלמו.`,
-            });
-            setHasShownPush(true);
-          }
-        });
-      }
-    }
-  }, [activeNotifications, hasShownPush]);
-
-  // Click outside to close notifications
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        setShowNotifications(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   // Load monthlySchedule for the currently viewed month
   useEffect(() => {
-    if (!scheduleData || scheduleData.length === 0) return;
+    if (!scheduleData) return;
     
     setLocalTasks(prev => {
-      const newTasks = { ...prev };
-      let hasChanges = false;
+      // Create a fresh copy
+      const newTasks: Record<string, Task[]> = {};
       
-      scheduleData.forEach((task, idx) => {
-        // Skip tasks that are just numbers (these are likely date headers imported from Excel by mistake)
-        if (task.task && /^\d+$/.test(task.task.trim())) {
-          return;
+      // First, copy over ALL manual tasks (those without dbId)
+      Object.keys(prev).forEach(dateKey => {
+        const manualTasks = prev[dateKey].filter(t => !t.dbId);
+        if (manualTasks.length > 0) {
+          newTasks[dateKey] = manualTasks;
         }
+      });
+      
+      // Then add the tasks from scheduleData
+      scheduleData.forEach((task, idx) => {
+        if (task.task && /^\d+$/.test(task.task.trim())) return;
 
-        // The database field 'weekNumber' actually contains the day of the month
         const dayOfMonth = task.weekNumber || 1;
         const taskDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayOfMonth);
         const dateKey = format(taskDate, 'yyyy-MM-dd');
         
-        if (!newTasks[dateKey]) {
-          newTasks[dateKey] = [];
+        if (!newTasks[dateKey]) newTasks[dateKey] = [];
+        
+        // Find if this task existed in prev (so we can keep its isCompleted state)
+        let existingTask: Task | undefined;
+        for (const key of Object.keys(prev)) {
+          existingTask = prev[key].find(t => t.dbId === task.id);
+          if (existingTask) break;
         }
-        
-        // Ensure we don't add duplicates if it already exists for this specific day
-        const taskId = `task-${idx}-${dateKey}`;
-        const exists = newTasks[dateKey].some(t => (task.id && t.dbId === task.id) || t.id === taskId);
-        
-        if (!exists) {
-          newTasks[dateKey].push({
-            id: taskId,
-            dbId: task.id,
-            title: task.task,
-            category: { name: 'Monthly Task', color: 'bg-blue-400' },
-            isCompleted: false
-          });
-          hasChanges = true;
+
+        newTasks[dateKey].push({
+          id: existingTask ? existingTask.id : `task-${idx}-${dateKey}`,
+          dbId: task.id,
+          title: task.task,
+          category: { name: 'Monthly Task', color: 'bg-blue-400' },
+          isCompleted: existingTask ? existingTask.isCompleted : false,
+          source: 'schedule'
+        });
+      });
+
+      // Then add tasks from bankTasksData
+      const parseDateString = (dateStr: string) => {
+        if (!dateStr) return null;
+        let day, month, year;
+        if (dateStr.includes('-')) {
+          const parts = dateStr.split('-');
+          if (parts[0].length === 4) { year = parseInt(parts[0]); month = parseInt(parts[1]) - 1; day = parseInt(parts[2]); }
+          else { day = parseInt(parts[0]); month = parseInt(parts[1]) - 1; year = parseInt(parts[2]); }
+        } else if (dateStr.includes('.')) {
+          const parts = dateStr.split('.');
+          day = parseInt(parts[0]); month = parseInt(parts[1]) - 1; year = parseInt(parts[2]);
+        } else if (dateStr.includes('/')) {
+          const parts = dateStr.split('/');
+          day = parseInt(parts[0]); month = parseInt(parts[1]) - 1; year = parseInt(parts[2]);
+        } else {
+          const parsed = new Date(dateStr);
+          if (isValid(parsed)) return parsed;
+          return null;
+        }
+        if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+        if (year < 100) year += 2000;
+        return new Date(year, month, day);
+      };
+
+      bankTasksData.forEach(task => {
+        if (!task.dueDate) return;
+        const parsedDate = parseDateString(task.dueDate);
+        if (parsedDate) {
+           const today = startOfDay(new Date());
+           let renderDate = parsedDate;
+           let isDelayed = false;
+           let delayMonths = 0;
+           
+           if (task.status !== 'בוצע' && isBefore(parsedDate, today)) {
+              renderDate = today;
+              isDelayed = true;
+              delayMonths = differenceInMonths(today, parsedDate);
+           }
+           
+           const dateKey = format(renderDate, 'yyyy-MM-dd');
+           if (!newTasks[dateKey]) newTasks[dateKey] = [];
+           
+           let category = { name: 'בנק משימות', color: 'bg-purple-400' };
+           if (isDelayed) {
+             if (delayMonths >= 1) {
+                category = { name: 'עיכוב של חודש+', color: 'bg-orange-400' };
+             } else {
+                category = { name: 'משימה בדחייה', color: 'bg-yellow-400' };
+             }
+           }
+
+           // Check if we manually toggled completion in Calendar
+           let isCompleted = task.status === 'בוצע';
+           let existingTask: Task | undefined;
+           for (const key of Object.keys(prev)) {
+             existingTask = prev[key].find(t => t.id === `bank-${task.id}`);
+             if (existingTask) break;
+           }
+           if (existingTask) {
+             isCompleted = existingTask.isCompleted;
+           }
+
+           newTasks[dateKey].push({
+             id: `bank-${task.id}`,
+             dbId: task.id, // For drag and drop it might try to update monthlySchedule if we don't differentiate
+             title: task.taskName,
+             category,
+             isCompleted,
+             isDelayed,
+             delayMonths,
+             source: 'bank'
+           });
         }
       });
       
-      return hasChanges ? newTasks : prev;
+      return newTasks;
     });
-  }, [currentDate, scheduleData]);
+  }, [currentDate, scheduleData, bankTasksData]);
 
-  const toggleTask = (dateKey: string, taskId: string) => {
+  const toggleTask = async (dateKey: string, taskId: string) => {
+    let taskToToggle: Task | undefined;
+
     setLocalTasks(prev => {
       const newTasks = { ...prev };
       if (newTasks[dateKey]) {
-        newTasks[dateKey] = newTasks[dateKey].map(t => 
-          t.id === taskId ? { ...t, isCompleted: !t.isCompleted } : t
-        );
+        newTasks[dateKey] = newTasks[dateKey].map(t => {
+          if (t.id === taskId) {
+            taskToToggle = { ...t, isCompleted: !t.isCompleted };
+            return taskToToggle;
+          }
+          return t;
+        });
       }
       return newTasks;
     });
+
+    // Fire backend update if it's a bank task
+    if (taskToToggle?.source === 'bank' && taskToToggle?.dbId) {
+      await updateBankOfTaskAction(taskToToggle.dbId, { status: taskToToggle.isCompleted ? 'בוצע' : 'לא התחיל' });
+    }
   };
 
   const handleDayClick = (day: Date) => {
@@ -209,68 +248,6 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="relative" ref={notificationsRef}>
-            <button 
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="w-10 h-10 rounded-full hover:bg-white/50 flex items-center justify-center transition-colors relative hover-scale"
-            >
-              <Bell className="w-5 h-5 text-gray-600" />
-              {activeNotifications.length > 0 && (
-                <span className="absolute top-2 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#F5F5F7]"></span>
-              )}
-            </button>
-
-            <AnimatePresence>
-              {showNotifications && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute top-12 left-0 w-80 bg-white/95 backdrop-blur-xl border border-white/40 shadow-2xl rounded-2xl overflow-hidden z-50 origin-top-left"
-                >
-                  <div className="p-4 border-b border-gray-100/50 flex justify-between items-center bg-white/50">
-                    <h3 className="font-medium text-gray-900">התראות</h3>
-                    {activeNotifications.length > 0 && (
-                      <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
-                        {activeNotifications.length} משימות
-                      </span>
-                    )}
-                  </div>
-                  <div className="max-h-[300px] overflow-y-auto">
-                    {activeNotifications.length === 0 ? (
-                      <div className="p-8 text-center text-sm text-gray-500 flex flex-col items-center gap-2">
-                        <CheckCircle2 className="w-8 h-8 text-green-400" />
-                        <p>הכל מעודכן! אין משימות לביצוע.</p>
-                      </div>
-                    ) : (
-                      <div className="divide-y divide-gray-50/50">
-                        {activeNotifications.map(({ dateKey, task }) => (
-                          <div 
-                            key={task.id} 
-                            className="p-4 hover:bg-blue-50/50 transition-colors cursor-pointer group"
-                            onClick={() => {
-                              setSelectedTask({ dateKey, task });
-                              setShowNotifications(false);
-                            }}
-                          >
-                            <div className="flex gap-3">
-                              <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0 group-hover:bg-red-100 transition-colors">
-                                <Bell className="w-4 h-4 text-red-500" />
-                              </div>
-                              <div className="flex-1 min-w-0 text-right">
-                                <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
-                                <p className="text-xs text-gray-500 mt-1">מתוכנן לתאריך: {format(new Date(dateKey), 'd בMMM', { locale: he })}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
 
           <button onClick={() => setNewTaskDate(new Date())} className="bg-[#0071E3] text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-600 transition-colors flex items-center gap-2 hover-scale shadow-sm">
             <Plus className="w-4 h-4" />
@@ -287,10 +264,10 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
           </h2>
           <div className="flex gap-2">
             <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-white/50 transition-colors border border-white/40 bg-white/50 shadow-sm hover-scale" title="החודש הבא">
-              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
             </button>
             <button onClick={prevMonth} className="p-2 md:p-3 rounded-full hover:bg-white/50 transition-colors border border-white/40 bg-white/50 shadow-sm hover-scale" title="החודש הקודם">
-              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
             </button>
           </div>
         </div>
@@ -330,17 +307,13 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
                     const taskToMove = sourceTasks.find(t => t.id === taskId);
                     if (!taskToMove) return;
 
-                    setLocalTasks(prev => {
-                      const newTasks = { ...prev };
-                      newTasks[sourceDateKey] = newTasks[sourceDateKey].filter(t => t.id !== taskId);
-                      if (!newTasks[dateKey]) newTasks[dateKey] = [];
-                      newTasks[dateKey] = [...newTasks[dateKey], taskToMove];
-                      return newTasks;
-                    });
+                    
 
-                    if (taskToMove.dbId) {
+                    if (taskToMove.dbId && taskToMove.source === 'schedule') {
                       const newDay = day.getDate();
                       await updateMonthlyScheduleDay(taskToMove.dbId, newDay);
+                    } else if (taskToMove.source === 'bank' && taskToMove.dbId) {
+                      await updateBankOfTaskAction(taskToMove.dbId, { dueDate: format(day, 'yyyy-MM-dd') });
                     }
                   }}
                   className={`min-h-[120px] md:min-h-[160px] p-2 md:p-3 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer
@@ -369,13 +342,23 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
                         let iconStyle = 'text-gray-400 hover:text-gray-900';
                         
                         if (task.isCompleted) {
-                          taskStyle = 'bg-green-50 border-green-200 opacity-90';
-                          titleStyle = 'line-through text-green-700';
-                          iconStyle = 'text-green-600 hover:text-green-700';
+                          taskStyle = 'bg-green-100 border-green-300 opacity-90';
+                          titleStyle = 'line-through text-green-800';
+                          iconStyle = 'text-green-600 hover:text-green-800';
+                        } else if (task.isDelayed) {
+                          if (task.delayMonths && task.delayMonths >= 1) {
+                            taskStyle = 'bg-orange-100 border-orange-300 hover:bg-orange-200';
+                            titleStyle = 'text-orange-800';
+                            iconStyle = 'text-orange-600 hover:text-orange-800';
+                          } else {
+                            taskStyle = 'bg-yellow-100 border-yellow-300 hover:bg-yellow-200';
+                            titleStyle = 'text-yellow-800';
+                            iconStyle = 'text-yellow-600 hover:text-yellow-800';
+                          }
                         } else if (isPastDate) {
-                          taskStyle = 'bg-red-50 border-red-200 hover:bg-red-100';
-                          titleStyle = 'text-red-700';
-                          iconStyle = 'text-red-500 hover:text-red-600';
+                          taskStyle = 'bg-red-100 border-red-300 hover:bg-red-200';
+                          titleStyle = 'text-red-800';
+                          iconStyle = 'text-red-500 hover:text-red-700';
                         }
 
                         return (

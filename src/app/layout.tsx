@@ -18,6 +18,7 @@ export const viewport: Viewport = {
 };
 
 import { Sidebar } from "@/components/layout/sidebar";
+import { GlobalNotifications } from "@/components/layout/global-notifications";
 
 export default function RootLayout({
   children,
@@ -27,7 +28,9 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body className={`${assistant.className} antialiased h-screen overflow-hidden flex`}>
-        <Sidebar />
+        <Sidebar>
+          <GlobalNotifications />
+        </Sidebar>
         <main className="flex-1 overflow-y-auto bg-muted/20 page-animate">
           {children}
         </main>
