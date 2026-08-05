@@ -204,6 +204,71 @@ export default function TeamClient({
     ...assigneesWithoutRole.map(normName => ({ id: `temp-${normName}`, name: originalNameMap[normName], role: '', isTemp: true }))
   ];
 
+  // Map task IDs to assignee normalized names
+  const taskIdToAssignee: Record<string, string> = {};
+  for (const [assignee, tasks] of Object.entries(normalizedGroupedTasks)) {
+    for (const task of tasks) {
+      taskIdToAssignee[task.id] = assignee;
+    }
+  }
+
+  // Calculate connection weights between assignees
+  const connectivity: Record<string, Record<string, number>> = {};
+  for (const card of allCards) {
+    const normName = (card.name || '').trim().toLowerCase();
+    connectivity[normName] = {};
+  }
+  
+  for (const conn of connections) {
+    const sourceAssignee = taskIdToAssignee[conn.sourceTaskId];
+    const targetAssignee = taskIdToAssignee[conn.targetTaskId];
+    
+    if (sourceAssignee && targetAssignee && sourceAssignee !== targetAssignee) {
+      connectivity[sourceAssignee][targetAssignee] = (connectivity[sourceAssignee][targetAssignee] || 0) + 1;
+      connectivity[targetAssignee][sourceAssignee] = (connectivity[targetAssignee][sourceAssignee] || 0) + 1;
+    }
+  }
+
+  // Greedy sorting to keep connected assignees together
+  const sortedCards = [];
+  const unplaced = new Set(allCards);
+  
+  if (allCards.length > 0) {
+    // Start with the one that has the most total connections
+    let currentCard = [...unplaced].sort((a, b) => {
+      const aName = (a.name || '').trim().toLowerCase();
+      const bName = (b.name || '').trim().toLowerCase();
+      const aTotal = Object.values(connectivity[aName] || {}).reduce((sum, val) => sum + val, 0);
+      const bTotal = Object.values(connectivity[bName] || {}).reduce((sum, val) => sum + val, 0);
+      return bTotal - aTotal; // descending
+    })[0];
+    
+    sortedCards.push(currentCard);
+    unplaced.delete(currentCard);
+    
+    while (unplaced.size > 0) {
+      const currentName = (currentCard.name || '').trim().toLowerCase();
+      
+      // Find the unplaced card with the most connections to currentCard
+      let nextCard: any = null;
+      let maxConns = -1;
+      
+      for (const card of unplaced) {
+        const name = (card.name || '').trim().toLowerCase();
+        const conns = (connectivity[currentName] && connectivity[currentName][name]) || 0;
+        
+        if (conns > maxConns) {
+          maxConns = conns;
+          nextCard = card;
+        }
+      }
+      
+      currentCard = nextCard!;
+      sortedCards.push(currentCard);
+      unplaced.delete(currentCard);
+    }
+  }
+
   return (
     <div className="p-4 md:p-8 space-y-8 bg-gray-50/50 min-h-screen" dir="rtl">
       <div>
@@ -257,7 +322,7 @@ export default function TeamClient({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
-              {allCards.map(roleHolder => {
+              {sortedCards.map(roleHolder => {
                 const normName = (roleHolder.name || '').trim().toLowerCase();
                 return (
                   <EmployeeCard
