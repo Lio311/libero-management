@@ -356,12 +356,12 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                       await updateBankOfTaskAction(taskToMove.dbId, { dueDate: format(day, 'yyyy-MM-dd') });
                     }
                   }}
-                  className={`h-[120px] md:h-[160px] p-2 md:p-3 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer overflow-hidden
+                  className={`h-[120px] md:h-[160px] p-2 md:p-3 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer overflow-hidden flex flex-col
                     ${!isCurrentMonth ? 'bg-transparent opacity-60' : 'bg-transparent'}
                     ${dayIdx % 7 === 6 ? 'border-l-0' : ''}
                   `}
                 >
-                  <div className="flex justify-between items-start mb-2">
+                  <div className="flex justify-between items-start mb-1 flex-shrink-0">
                     <span className={`text-sm md:text-base font-medium flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full
                       ${isTodayDate ? 'bg-[#0071E3] text-white shadow-md' : (isCurrentMonth ? 'text-gray-900' : 'text-gray-400')}
                     `}>
@@ -380,40 +380,39 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                     </button>
                   </div>
 
-                  <div className="space-y-1.5 md:space-y-2 mt-1">
+                  <div className="space-y-1 overflow-y-auto flex-1 pr-1 custom-scrollbar pb-1">
                     <AnimatePresence>
-                      {dayTasks.slice(0, 3).map(task => {
+                      {dayTasks.map(task => {
                         const isPastDate = isBefore(day, startOfDay(new Date()));
-                        let taskStyle = 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50';
-                        let titleStyle = 'text-gray-800';
-                        let iconStyle = 'text-gray-400 hover:text-gray-900';
+                        let titleStyle = 'text-gray-700 font-medium';
+                        let dotColor = task.category?.color || 'bg-blue-400';
+                        let bgStyle = 'hover:bg-black/5';
                         
                         if (task.isCompleted) {
-                          taskStyle = 'bg-green-100 border-green-300 opacity-90';
-                          titleStyle = 'line-through text-green-800';
-                          iconStyle = 'text-green-600 hover:text-green-800';
+                          titleStyle = 'text-gray-400 line-through';
+                          dotColor = 'bg-green-400';
                         } else if (task.isDelayed) {
                           if (task.delayMonths && task.delayMonths >= 1) {
-                            taskStyle = 'bg-orange-100 border-orange-300 hover:bg-orange-200';
                             titleStyle = 'text-orange-800';
-                            iconStyle = 'text-orange-600 hover:text-orange-800';
+                            dotColor = 'bg-orange-500';
+                            bgStyle = 'bg-orange-50 hover:bg-orange-100';
                           } else {
-                            taskStyle = 'bg-yellow-100 border-yellow-300 hover:bg-yellow-200';
                             titleStyle = 'text-yellow-800';
-                            iconStyle = 'text-yellow-600 hover:text-yellow-800';
+                            dotColor = 'bg-yellow-500';
+                            bgStyle = 'bg-yellow-50 hover:bg-yellow-100';
                           }
                         } else if (isPastDate) {
-                          taskStyle = 'bg-red-100 border-red-300 hover:bg-red-200';
                           titleStyle = 'text-red-800';
-                          iconStyle = 'text-red-500 hover:text-red-700';
+                          dotColor = 'bg-red-500';
+                          bgStyle = 'bg-red-50 hover:bg-red-100';
                         }
 
                         return (
                           <motion.div 
                             key={task.id}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedTask({ dateKey, task });
@@ -424,35 +423,16 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                               e.dataTransfer.setData('sourceDateKey', dateKey);
                               e.stopPropagation();
                             }}
-                            className={`group/task flex items-start gap-2 p-1.5 md:p-2 rounded-lg text-xs cursor-pointer border shadow-sm transition-all hover-scale ${taskStyle}`}
+                            className={`group/task flex items-center gap-1.5 px-1.5 py-0.5 rounded text-[10px] md:text-[11px] cursor-pointer transition-colors ${bgStyle}`}
                           >
-                            <button 
-                              className={`flex-shrink-0 mt-0.5 transition-colors ${iconStyle}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleTask(dateKey, task.id);
-                              }}
-                            >
-                              {task.isCompleted ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
-                            </button>
-                            <div className="flex flex-col gap-1 overflow-hidden">
-                              <span className={`truncate ${titleStyle}`}>
-                                {task.title}
-                              </span>
-                              <span className="flex items-center gap-1.5">
-                                <span className={`w-1.5 h-1.5 rounded-full ${task.category.color}`}></span>
-                                <span className="text-[10px] text-gray-500 truncate">{task.category.name}</span>
-                              </span>
-                            </div>
+                            <span className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full flex-shrink-0 ${dotColor}`}></span>
+                            <span className={`truncate ${titleStyle}`} title={task.title}>
+                              {task.title}
+                            </span>
                           </motion.div>
                         );
                       })}
                     </AnimatePresence>
-                    {dayTasks.length > 3 && (
-                      <div className="text-[10px] text-[#0071E3] font-medium px-1 mt-1 text-center bg-blue-50/50 rounded p-1">
-                        + {dayTasks.length - 3} משימות נוספות
-                      </div>
-                    )}
                   </div>
                 </div>
               );
