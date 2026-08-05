@@ -81,7 +81,7 @@ export default function FinanceClient({
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 bg-white border-none shadow-sm">
+        <Card className="col-span-7 bg-white border-none shadow-sm">
           <CardHeader>
             <CardTitle>ניצול מסגרות אשראי</CardTitle>
             <CardDescription>מסגרת לעומת ניצול חלקי משוער לכל כרטיס</CardDescription>
@@ -89,21 +89,21 @@ export default function FinanceClient({
           <CardContent className="pl-2 h-[450px]">
             <div dir="ltr" className="h-full w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={creditCardUsage} margin={{ top: 20, right: 20, left: 140, bottom: 40 }}>
+                <BarChart data={creditCardUsage} margin={{ top: 20, right: 20, left: 20, bottom: 40 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tickMargin={25} angle={-35} textAnchor="end" height={80} tick={{ fontSize: 12 }} />
-                  <YAxis width={140} axisLine={false} tickLine={false} tickFormatter={(value) => `₪${value.toLocaleString()}`} orientation="left" tickMargin={40} dx={-30} />
+                  <YAxis width={80} axisLine={false} tickLine={false} tickFormatter={(value) => `₪${value.toLocaleString()}`} orientation="left" tickMargin={10} />
                   <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                   <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                  <Bar dataKey="used" name="מנוצל (הערכה)" stackId="a" fill="#3b82f6" radius={[0, 0, 4, 4]} />
-                  <Bar dataKey="limit" name="מסגרת כוללת" stackId="a" fill="#e2e8f0" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="used" name="מנוצל (הערכה)" stackId="a" fill="#3b82f6" radius={[0, 0, 4, 4]} maxBarSize={60} />
+                  <Bar dataKey="limit" name="מסגרת כוללת" stackId="a" fill="#e2e8f0" radius={[4, 4, 0, 0]} maxBarSize={60} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 bg-white border-none shadow-sm">
+        <Card className="col-span-7 bg-white border-none shadow-sm">
           <CardHeader>
             <CardTitle>פילוג תשלומים</CardTitle>
             <CardDescription>סך תשלומים לפי מותג/סוג</CardDescription>
