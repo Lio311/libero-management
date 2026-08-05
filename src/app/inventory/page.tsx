@@ -95,7 +95,7 @@ export default function InventoryDashboard() {
                 <RechartsTooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Bar dataKey="current" name="מלאי נוכחי" radius={[4, 4, 0, 0]} maxBarSize={50}>
                   {stockHealthData.map((entry, index) => (
-                    <Cell key={\`cell-\${index}\`} fill={entry.color} />
+                    <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Bar>
               </BarChart>
@@ -120,7 +120,7 @@ export default function InventoryDashboard() {
                     <span className="font-medium">{item.name} <span className="text-xs text-muted-foreground">({item.brand})</span></span>
                     <span className="font-bold text-red-600">{item.current} / {item.target}</span>
                   </div>
-                  <Progress value={percentage} className="h-2" indicatorColor={percentage < 10 ? "bg-red-600" : "bg-orange-500"} />
+                  <Progress value={percentage} className="h-2" />
                 </div>
               );
             })}
