@@ -62,11 +62,93 @@ export const inventoryItems = pgTable("inventory_items", {
   targetStockLevel: decimal("target_stock_level"),
   orderedQuantity: integer("ordered_quantity"),
   lastOrderQuantity: integer("last_order_quantity"),
-  currentStock: integer("current_stock"),
+  currentStock: decimal("current_stock"),
 });
 
 export const teamTasks = pgTable("team_tasks", {
   id: uuid("id").defaultRandom().primaryKey(),
   assignee: varchar("assignee", { length: 255 }).notNull(),
   taskDescription: text("task_description").notNull(),
+});
+
+// NEW TABLES FOR EXCEL INTEGRATION
+
+export const importPayments = pgTable("import_payments", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  brand: varchar("brand", { length: 255 }),
+  orderAmountForeign: decimal("order_amount_foreign"),
+  orderAmountNis: decimal("order_amount_nis"),
+  vat: decimal("vat"),
+  shippingCost: decimal("shipping_cost"),
+});
+
+export const creditCards = pgTable("credit_cards", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  cardCompany: varchar("card_company", { length: 100 }),
+  bank: varchar("bank", { length: 100 }),
+  creditLimit: decimal("credit_limit"),
+  cardNumber: varchar("card_number", { length: 50 }),
+  expiration: varchar("expiration", { length: 50 }),
+  cvv: varchar("cvv", { length: 10 }),
+  cardType: varchar("card_type", { length: 100 }), // עסקי / פרטי
+});
+
+export const chinaOrders = pgTable("china_orders", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  products: text("products"),
+  arrivalDate: varchar("arrival_date", { length: 100 }),
+});
+
+export const suppliers = pgTable("suppliers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  brandName: varchar("brand_name", { length: 255 }),
+  inventoryStatus: varchar("inventory_status", { length: 255 }),
+  planningStatus: varchar("planning_status", { length: 255 }),
+  contactStatus: varchar("contact_status", { length: 255 }),
+  notes: text("notes"),
+});
+
+export const influencers = pgTable("influencers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  brand: varchar("brand", { length: 255 }),
+  isPaid: varchar("is_paid", { length: 50 }),
+  videoCount: varchar("video_count", { length: 50 }),
+  postCount: varchar("post_count", { length: 50 }),
+  activities: text("activities"),
+  influencerName: varchar("influencer_name", { length: 255 }),
+  productsGiven: text("products_given"),
+  videosUploaded: text("videos_uploaded"),
+  notes: text("notes"),
+});
+
+export const influencerPayments = pgTable("influencer_payments", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  influencerName: varchar("influencer_name", { length: 255 }),
+  amount: decimal("amount"),
+  isDone: varchar("is_done", { length: 50 }),
+  notes: text("notes"),
+});
+
+export const wholesaleCustomers = pgTable("wholesale_customers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  storeName: varchar("store_name", { length: 255 }),
+  city: varchar("city", { length: 255 }),
+  address: varchar("address", { length: 255 }),
+  phoneCall: varchar("phone_call", { length: 50 }),
+  visit: varchar("visit", { length: 50 }),
+  potential: varchar("potential", { length: 50 }),
+  interest: varchar("interest", { length: 50 }),
+  notes: text("notes"),
+});
+
+export const roleHolders = pgTable("role_holders", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 100 }),
+  role: text("role"),
+});
+
+export const monthlySchedule = pgTable("monthly_schedule", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  weekNumber: integer("week_number"),
+  task: text("task"),
 });
