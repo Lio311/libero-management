@@ -52,6 +52,11 @@ export default function CalendarPage({ scheduleData }: CalendarClientProps) {
       let hasChanges = false;
       
       scheduleData.forEach((task, idx) => {
+        // Skip tasks that are just numbers (these are likely date headers imported from Excel by mistake)
+        if (task.task && /^\d+$/.test(task.task.trim())) {
+          return;
+        }
+
         // The database field 'weekNumber' actually contains the day of the month
         const dayOfMonth = task.weekNumber || 1;
         const taskDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayOfMonth);
