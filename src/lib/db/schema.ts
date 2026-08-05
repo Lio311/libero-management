@@ -152,3 +152,13 @@ export const monthlySchedule = pgTable("monthly_schedule", {
   weekNumber: integer("week_number"),
   task: text("task"),
 });
+
+export const bankOfTasks = pgTable("bank_of_tasks", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  assignee: varchar("assignee", { length: 255 }),
+  status: varchar("status", { length: 50 }),
+  taskName: text("task_name"),
+  dueDate: varchar("due_date", { length: 100 }),
+  itemIndex: integer("item_index"),
+});
+
