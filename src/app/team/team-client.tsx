@@ -269,6 +269,16 @@ export default function TeamClient({
     }
   }
 
+  // Swap ישראל and רותי if they both exist
+  const israelIndex = sortedCards.findIndex(c => (c.name || '').trim() === 'ישראל');
+  const rutiIndex = sortedCards.findIndex(c => (c.name || '').trim() === 'רותי');
+  
+  if (israelIndex !== -1 && rutiIndex !== -1) {
+    const temp = sortedCards[israelIndex];
+    sortedCards[israelIndex] = sortedCards[rutiIndex];
+    sortedCards[rutiIndex] = temp;
+  }
+
   return (
     <div className="p-4 md:p-8 space-y-8 bg-gray-50/50 min-h-screen" dir="rtl">
       <div>
