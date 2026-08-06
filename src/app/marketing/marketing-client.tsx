@@ -307,7 +307,9 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
   
   const currentInfluencerId = data.influencerId || payment.influencerId;
   const selectedInfluencer = rawInfluencers?.find((i: any) => i.influencerId === currentInfluencerId);
-  const baseSalary = selectedInfluencer?.baseSalary ? Number(selectedInfluencer.baseSalary) : 0;
+  const baseSalary = payment.baseSalary !== undefined 
+    ? Number(payment.baseSalary) 
+    : (selectedInfluencer?.baseSalary ? Number(selectedInfluencer.baseSalary) : 0);
   const totalPayment = (commission || 0) + baseSalary;
 
   return (
@@ -435,7 +437,20 @@ export default function MarketingClient({
   const filteredPayments = currentMonth ? rawPayments.filter(p => p.paymentMonth === currentMonth) : rawPayments;
 
   const combinedPayments = currentMonth ? (() => {
-    const combined = rawInfluencers.map(inf => {
+    const allKnownInfluencers = [...(rawInfluencers || [])];
+    
+    Object.keys(influencersConfig).forEach(key => {
+       if (!allKnownInfluencers.find(i => i.influencerId === key)) {
+          allKnownInfluencers.push({
+             id: `config-${key}`,
+             influencerId: key,
+             influencerName: influencersConfig[key].name,
+             baseSalary: 0
+          });
+       }
+    });
+
+    const combined = allKnownInfluencers.map(inf => {
       const existingPayment = filteredPayments.find(p => p.influencerId === inf.influencerId || (p.influencerName && p.influencerName === inf.influencerName));
       if (existingPayment) {
         return { ...existingPayment, baseSalary: inf.baseSalary, hasRealPayment: true };
