@@ -190,10 +190,11 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
           taskDate = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate() + 1);
         }
 
-        const dateKey = format(taskDate, 'yyyy-MM-dd');
-        
-        if (!newTasks[dateKey]) newTasks[dateKey] = [];
-        
+        const today = startOfDay(new Date());
+        let renderDate = taskDate;
+        let isDelayed = false;
+        let delayMonths = 0;
+
         // Find if this task existed in prev (so we can keep its isCompleted state)
         let existingTask: Task | undefined;
         for (const key of Object.keys(prev)) {
@@ -201,12 +202,43 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
           if (existingTask) break;
         }
 
+        const isCompleted = existingTask ? existingTask.isCompleted : (task.status === 'בוצע');
+
+        // Delay logic: uncompleted tasks with past dates move to today
+        if (!isCompleted && isBefore(taskDate, today)) {
+          renderDate = today;
+          isDelayed = true;
+          delayMonths = differenceInMonths(today, taskDate);
+        }
+
+        // Ensure renderDate doesn't fall on Friday/Saturday
+        if (renderDate.getDay() === 5) {
+          renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 2);
+        } else if (renderDate.getDay() === 6) {
+          renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 1);
+        }
+
+        const dateKey = format(renderDate, 'yyyy-MM-dd');
+        
+        if (!newTasks[dateKey]) newTasks[dateKey] = [];
+
+        let category = { name: 'Monthly Task', color: 'bg-blue-400' };
+        if (isDelayed) {
+          if (delayMonths >= 1) {
+            category = { name: 'עיכוב של חודש+', color: 'bg-orange-400' };
+          } else {
+            category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
+          }
+        }
+
         newTasks[dateKey].push({
           id: existingTask ? existingTask.id : `task-${idx}-${dateKey}`,
           dbId: task.id,
           title: task.task,
-          category: { name: 'Monthly Task', color: 'bg-blue-400' },
-          isCompleted: existingTask ? existingTask.isCompleted : (task.status === 'בוצע'),
+          category,
+          isCompleted,
+          isDelayed,
+          delayMonths,
           source: 'schedule'
         });
       });
@@ -298,7 +330,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
              if (delayMonths >= 1) {
                 category = { name: 'עיכוב של חודש+', color: 'bg-orange-400' };
              } else {
-                category = { name: 'משימה בדחייה', color: 'bg-yellow-400' };
+                category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
              }
            }
 
@@ -566,15 +598,9 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                           titleStyle = 'text-gray-400 line-through';
                           dotColor = 'bg-green-400';
                         } else if (task.isDelayed) {
-                          if (task.delayMonths && task.delayMonths >= 1) {
                             titleStyle = 'text-orange-800';
                             dotColor = 'bg-orange-500';
                             bgStyle = 'bg-orange-50 hover:bg-orange-100';
-                          } else {
-                            titleStyle = 'text-yellow-800';
-                            dotColor = 'bg-yellow-500';
-                            bgStyle = 'bg-yellow-50 hover:bg-yellow-100';
-                          }
                         } else if (isPastDate) {
                           titleStyle = 'text-red-800';
                           dotColor = 'bg-red-500';
@@ -704,15 +730,9 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                           titleStyle = 'line-through text-green-800';
                           iconStyle = 'text-green-600 hover:text-green-800';
                         } else if (task.isDelayed) {
-                          if (task.delayMonths && task.delayMonths >= 1) {
                             taskStyle = 'bg-orange-100 border-orange-300 hover:bg-orange-200';
                             titleStyle = 'text-orange-800';
                             iconStyle = 'text-orange-600 hover:text-orange-800';
-                          } else {
-                            taskStyle = 'bg-yellow-100 border-yellow-300 hover:bg-yellow-200';
-                            titleStyle = 'text-yellow-800';
-                            iconStyle = 'text-yellow-600 hover:text-yellow-800';
-                          }
                         } else if (isPastDate) {
                           taskStyle = 'bg-red-100 border-red-300 hover:bg-red-200';
                           titleStyle = 'text-red-800';
