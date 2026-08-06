@@ -132,18 +132,14 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
               </div>
               <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-500">סטטוס קשר</span>
-                <select
+                <input
+                  list="contact-status-options"
                   className="w-full text-right p-2 border rounded-md"
                   value={data.contactStatus}
                   onChange={(e) => setData({ ...data, contactStatus: e.target.value })}
                   dir="rtl"
-                >
-                  <option value="">-</option>
-                  <option value="נשלחה הודעה">נשלחה הודעה</option>
-                  <option value="לא נשלחה הודעה">לא נשלחה הודעה</option>
-                  <option value="נשלחה הודעה שנייה">נשלחה הודעה שנייה</option>
-                  <option value="סטטוס">סטטוס</option>
-                </select>
+                  placeholder="בחר או הקלד סטטוס..."
+                />
               </div>
               <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-500">הערות</span>
@@ -207,18 +203,19 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
             </select>
           </td>
           <td className="py-2 px-4">
-            <select
+            <input
+              list="contact-status-options"
               className="w-full text-right p-1.5 border rounded"
               value={data.contactStatus}
               onChange={(e) => setData({ ...data, contactStatus: e.target.value })}
               dir="rtl"
-            >
-              <option value="">-</option>
-              <option value="נשלחה הודעה">נשלחה הודעה</option>
-              <option value="לא נשלחה הודעה">לא נשלחה הודעה</option>
-              <option value="נשלחה הודעה שנייה">נשלחה הודעה שנייה</option>
-              <option value="סטטוס">סטטוס</option>
-            </select>
+              placeholder="בחר או הקלד סטטוס..."
+            />
+            <datalist id="contact-status-options">
+              <option value="נשלחה הודעה" />
+              <option value="לא נשלחה הודעה" />
+              <option value="נשלחה הודעה שנייה" />
+            </datalist>
           </td>
           <td className="py-2 px-4">
             <input className="w-full text-right p-1.5 border rounded" value={data.notes} onChange={(e) => setData({ ...data, notes: e.target.value })} />
@@ -770,14 +767,23 @@ export default function InventoryClient({
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
                     className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
                   >
-                    הבא
+                    הקודם
                   </button>
                   <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => {
+                        let start = Math.max(1, currentPage - 1);
+                        let end = Math.min(totalPages, start + 2);
+                        if (end - start < 2) {
+                          start = Math.max(1, end - 2);
+                        }
+                        return page >= start && page <= end;
+                      })
+                      .map(page => (
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
@@ -792,11 +798,11 @@ export default function InventoryClient({
                     ))}
                   </div>
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
                     className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
                   >
-                    הקודם
+                    הבא
                   </button>
                 </div>
               </div>

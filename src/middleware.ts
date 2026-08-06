@@ -17,13 +17,16 @@ export const config = {
      * Match all request paths except for the ones starting with:
      * - login (auth page)
      * - api/webhooks (public API endpoints)
+     * - api/oded-coupon (public Oded report API)
+     * - marketing/oded (public Oded report page)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - sw.js (service worker)
      * - manifest.json (PWA manifest)
      * - libero-logo.png (PWA icon)
+     * - oded.png (Oded profile image)
      */
-    '/((?!login|api/webhooks|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-logo.png).*)',
+    '/((?!login|api/webhooks|api/oded-coupon|marketing/oded|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-logo.png|oded.png).*)',
   ],
 };

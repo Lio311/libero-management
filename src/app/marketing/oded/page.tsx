@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { MonthNavigator } from '@/components/MonthNavigator';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Loader2, AlertCircle, RefreshCw, User, ShoppingBag, Tag, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw, ShoppingBag, Tag, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import Image from 'next/image';
 
 interface OrderItem {
     name: string;
@@ -46,6 +47,15 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
     'on-hold': { label: 'בהמתנה', className: 'bg-amber-100 text-amber-700' },
     'cancelled': { label: 'בוטלה', className: 'bg-red-100 text-red-700' },
     'refunded': { label: 'הוחזרה', className: 'bg-gray-100 text-gray-700' },
+};
+
+// Helper: format currency with ₪ sign properly in LTR context
+const formatILS = (amount: number, fractionDigits = 0) => {
+    return `₪${Math.abs(amount).toLocaleString('he-IL', { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits })}`;
+};
+
+const formatILSNeg = (amount: number, fractionDigits = 0) => {
+    return `₪${Math.abs(amount).toLocaleString('he-IL', { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits })}-`;
 };
 
 export default function OdedCouponPage() {
@@ -97,9 +107,9 @@ export default function OdedCouponPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
-                            <User size={24} className="text-white" />
+                    <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-lg shadow-purple-500/20 border-2 border-purple-400 flex-shrink-0">
+                            <Image src="/oded.png" alt="עודד" width={56} height={56} className="w-full h-full object-cover" />
                         </div>
                         <div>
                             <h1 className="text-2xl md:text-3xl font-bold text-slate-900">דוח עודד — קופון OSVR10</h1>
@@ -150,7 +160,7 @@ export default function OdedCouponPage() {
                 <>
                     {/* Summary Cards */}
                     {summary && (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">הזמנות</p>
                                 <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_orders}</p>
@@ -161,19 +171,19 @@ export default function OdedCouponPage() {
                             </div>
                             <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות נטו</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]">₪{summary.total_revenue.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</p>
+                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.total_revenue)}</p>
                             </div>
                             <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ הנחות</p>
-                                <p className="text-2xl font-black text-red-500">₪{summary.total_discount.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</p>
+                                <p className="text-2xl font-black text-red-500" dir="ltr">{formatILSNeg(summary.total_discount)}</p>
                             </div>
                             <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">ממוצע להזמנה</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]">₪{summary.avg_order_value.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</p>
+                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.avg_order_value)}</p>
                             </div>
                             <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-5 rounded-2xl shadow-lg shadow-purple-500/20">
                                 <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלה נטו</p>
-                                <p className="text-2xl font-black text-white">₪{summary.commission.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</p>
+                                <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission)}</p>
                             </div>
                         </div>
                     )}
@@ -235,11 +245,11 @@ export default function OdedCouponPage() {
                                                 </div>
                                                 <div className="flex items-center gap-4 flex-shrink-0">
                                                     <div className="text-left">
-                                                        <div className="font-bold text-slate-900">
-                                                            ₪{order.subtotal.toLocaleString('he-IL', { maximumFractionDigits: 0 })}
+                                                        <div className="font-bold text-slate-900" dir="ltr">
+                                                            {formatILS(order.subtotal)}
                                                         </div>
-                                                        <div className="text-xs text-red-500 font-medium">
-                                                            -₪{order.discount_amount.toLocaleString('he-IL', { maximumFractionDigits: 0 })} הנחה
+                                                        <div className="text-xs text-red-500 font-medium" dir="ltr">
+                                                            {formatILSNeg(order.discount_amount)} הנחה
                                                         </div>
                                                     </div>
                                                     {isExpanded ? (
@@ -294,8 +304,8 @@ export default function OdedCouponPage() {
                                                                             {item.sku && <span className="text-xs text-slate-400 mr-6">SKU: {item.sku}</span>}
                                                                         </td>
                                                                         <td className="text-center px-3 py-3 text-slate-600">{item.quantity}</td>
-                                                                        <td className="text-center px-3 py-3 text-slate-600">₪{item.price.toLocaleString('he-IL')}</td>
-                                                                        <td className="text-center px-5 py-3 font-semibold text-slate-800">₪{item.total.toLocaleString('he-IL')}</td>
+                                                                        <td className="text-center px-3 py-3 text-slate-600" dir="ltr">{formatILS(item.price)}</td>
+                                                                        <td className="text-center px-5 py-3 font-semibold text-slate-800" dir="ltr">{formatILS(item.total)}</td>
                                                                     </tr>
                                                                 ))}
                                                             </tbody>
@@ -305,14 +315,14 @@ export default function OdedCouponPage() {
                                                         <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
                                                             <div className="flex gap-6 text-sm">
                                                                 <span className="text-slate-600">
-                                                                    סה"כ מוצרים: <span className="font-bold text-slate-800">₪{order.subtotal.toLocaleString('he-IL', { minimumFractionDigits: 2 })}</span>
+                                                                    סה"כ מוצרים: <span className="font-bold text-slate-800" dir="ltr">{formatILS(order.subtotal, 2)}</span>
                                                                 </span>
                                                                 <span className="text-red-500">
-                                                                    הנחת קופון: <span className="font-bold">-₪{order.discount_amount.toLocaleString('he-IL', { minimumFractionDigits: 2 })}</span>
+                                                                    הנחת קופון: <span className="font-bold" dir="ltr">{formatILSNeg(order.discount_amount, 2)}</span>
                                                                 </span>
                                                             </div>
-                                                            <span className="font-bold text-lg text-purple-600">
-                                                                סה"כ: ₪{order.total.toLocaleString('he-IL', { minimumFractionDigits: 2 })}
+                                                            <span className="font-bold text-lg text-purple-600" dir="ltr">
+                                                                סה"כ: {formatILS(order.total, 2)}
                                                             </span>
                                                         </div>
                                                     </div>
