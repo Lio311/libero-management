@@ -274,8 +274,38 @@ export default function MarketingClient({
 }: MarketingClientProps) {
   const [mounted, setMounted] = useState(false);
 
-  // Month navigation logic
-  const allMonths = Array.from(new Set(rawPayments.map(p => p.paymentMonth).filter(Boolean))).sort();
+  const hebrewMonths = [
+    'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 
+    'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
+  ];
+
+  const getMonthWeight = (monthStr: string) => {
+    if (!monthStr) return -1;
+    for (let i = 0; i < hebrewMonths.length; i++) {
+      if (monthStr.includes(hebrewMonths[i])) {
+        const match = monthStr.match(/\d{4}/);
+        const year = match ? parseInt(match[0], 10) : 0;
+        return year * 100 + i;
+      }
+    }
+    const dateMatch = monthStr.match(/(\d{1,2})[./-](\d{2,4})/);
+    if (dateMatch) {
+      const m = parseInt(dateMatch[1], 10);
+      let y = parseInt(dateMatch[2], 10);
+      if (y < 100) y += 2000;
+      return y * 100 + m;
+    }
+    return 0; // fallback
+  };
+
+  const allMonths = Array.from(new Set(rawPayments.map(p => p.paymentMonth).filter(Boolean))).sort((a, b) => {
+    const weightA = getMonthWeight(String(a));
+    const weightB = getMonthWeight(String(b));
+    if (weightA !== 0 && weightB !== 0 && weightA !== weightB) {
+      return weightA - weightB;
+    }
+    return String(a).localeCompare(String(b));
+  });
   const [currentMonthIndex, setCurrentMonthIndex] = useState(allMonths.length > 0 ? allMonths.length - 1 : -1);
 
   const [isAddingInfluencer, setIsAddingInfluencer] = useState(false);
@@ -361,7 +391,7 @@ export default function MarketingClient({
         </CardHeader>
         <CardContent>
           <div className="md:overflow-x-auto pb-2">
-            <table className="w-full text-sm text-right whitespace-normal md:whitespace-nowrap">
+            <table className="w-full text-sm text-center whitespace-normal md:whitespace-nowrap">
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם</th>
@@ -429,7 +459,7 @@ export default function MarketingClient({
         </CardHeader>
         <CardContent>
           <div className="md:overflow-x-auto pb-2">
-            <table className="w-full text-sm text-right whitespace-normal md:whitespace-nowrap">
+            <table className="w-full text-sm text-center whitespace-normal md:whitespace-nowrap">
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם משפיענ/ית</th>

@@ -363,7 +363,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
           </div>
         ) : (
         <div className="overflow-x-auto">
-          <table className="w-full text-right" dir="rtl">
+          <table className="w-full text-center" dir="rtl">
             <thead className="hidden md:table-header-group">
               <tr className="border-b border-border bg-muted/50">
                 <th className="px-6 py-4 text-sm font-medium text-muted-foreground w-16">#</th>
@@ -398,7 +398,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                             type="text"
                             value={editForm.taskName || ""}
                             onChange={(e) => handleEditChange("taskName", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-right"
+                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-center"
                           />
                         ) : (
                           <span className="font-medium text-foreground">{task.taskName}</span>
@@ -411,7 +411,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                             type="text"
                             value={editForm.assignee || ""}
                             onChange={(e) => handleEditChange("assignee", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-right"
+                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-center"
                           />
                         ) : (
                           <div className="flex items-center gap-2">
@@ -434,7 +434,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                           <select 
                             value={editForm.status || "לא התחיל"}
                             onChange={(e) => handleEditChange("status", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-right"
+                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-center"
                           >
                             <option value="בוצע">בוצע</option>
                             <option value="בתהליך">בתהליך</option>
@@ -454,15 +454,15 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                             type="text"
                             value={editForm.dueDate || ""}
                             onChange={(e) => handleEditChange("dueDate", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-right"
+                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-center"
                             placeholder="DD.MM.YYYY"
                           />
                         ) : (
                           <span className="text-sm text-muted-foreground">{task.dueDate || "-"}</span>
                         )}
                       </td>
-                      <td className="px-2 py-2 mt-2 md:mt-0 md:px-6 md:py-4 flex justify-end items-center md:table-cell border-t md:border-none">
-                        <div className="flex items-center justify-end gap-2 transition-opacity">
+                      <td className="px-2 py-2 mt-2 md:mt-0 md:px-6 md:py-4 flex justify-center items-center md:table-cell border-t md:border-none">
+                        <div className="flex items-center justify-center gap-2 transition-opacity">
                           {isEditing ? (
                             <>
                               <button onClick={saveEditing} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md hover-scale">

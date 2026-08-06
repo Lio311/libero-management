@@ -111,7 +111,13 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         const isMonthlySummary = taskTitle.includes('פגישת סיכום חודש');
         const isPricingMeeting = taskTitle.includes('פגישת תמחור');
 
-        if (isWeeklySummary || isMonthlySummary || isPricingMeeting) {
+        if (isMonthlySummary) {
+          let lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Last day of month
+          while (lastDay.getDay() === 5 || lastDay.getDay() === 6) {
+            lastDay = new Date(lastDay.getFullYear(), lastDay.getMonth(), lastDay.getDate() - 1);
+          }
+          taskDate = lastDay;
+        } else if (isWeeklySummary || isPricingMeeting) {
           // Determine week occurrence (1st, 2nd, 3rd, 4th, 5th) based on the original day of month stored in DB
           let n = 1;
           const originalDay = task.weekNumber || 1;
@@ -121,14 +127,14 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
           else if (originalDay >= 22 && originalDay <= 28) n = 4;
           else if (originalDay >= 29) n = 5;
 
-          const dayOfWeek = (isWeeklySummary || isMonthlySummary) ? 4 : 1; // 4 = Thursday, 1 = Monday
+          const dayOfWeek = isWeeklySummary ? 4 : 1; // 4 = Thursday, 1 = Monday
           taskDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), dayOfWeek, n);
         } else {
           const dayOfMonth = task.weekNumber || 1;
           taskDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayOfMonth);
         }
 
-        if (taskTitle.includes('סריקת 100 מוצרים') && taskDate.getDay() === 5) {
+        if (taskDate.getDay() === 5) {
           taskDate = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate() + 2);
         }
 
@@ -181,7 +187,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         if (!task.dueDate) return;
         const parsedDate = parseDateString(task.dueDate);
         if (parsedDate) {
-           if (task.taskName && task.taskName.includes('סריקת 100 מוצרים') && parsedDate.getDay() === 5) {
+           if (parsedDate.getDay() === 5) {
              parsedDate.setDate(parsedDate.getDate() + 2);
            }
            const today = startOfDay(new Date());
@@ -411,7 +417,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                     if (!taskToMove) return;
 
                     let targetDay = day;
-                    if (taskToMove.title.includes('סריקת 100 מוצרים') && targetDay.getDay() === 5) {
+                    if (targetDay.getDay() === 5) {
                       targetDay = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate() + 2);
                     }
                     const targetDateKey = format(targetDay, 'yyyy-MM-dd');
