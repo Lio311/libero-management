@@ -261,9 +261,17 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (payment.hasRealPayment === false) return;
     if (confirm('האם למחוק שורה זו?')) {
-      await deleteInfluencerPayment(payment.id);
+      if (payment.hasRealPayment !== false) {
+        await deleteInfluencerPayment(payment.id);
+      } else if (payment.id && payment.id.startsWith('pseudo-')) {
+        const infIdToDelete = payment.id.replace('pseudo-', '');
+        if (infIdToDelete.startsWith('config-')) {
+          alert('לא ניתן למחוק משפיען זה מהמערכת.');
+        } else {
+          await deleteInfluencer(infIdToDelete);
+        }
+      }
     }
   };
 
@@ -361,11 +369,9 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
           <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors bg-blue-50 md:bg-transparent">
             <Edit2 className="h-5 w-5 md:h-4 md:w-4" />
           </button>
-          {payment.hasRealPayment !== false && (
-            <button onClick={handleDelete} className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors bg-red-50 md:bg-transparent">
-              <Trash2 className="h-5 w-5 md:h-4 md:w-4" />
-            </button>
-          )}
+          <button onClick={handleDelete} className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors bg-red-50 md:bg-transparent">
+            <Trash2 className="h-5 w-5 md:h-4 md:w-4" />
+          </button>
         </div>
       </td>
     </tr>

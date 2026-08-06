@@ -179,6 +179,7 @@ export const bankOfTasks = pgTable("bank_of_tasks", {
   taskName: text("task_name"),
   dueDate: varchar("due_date", { length: 100 }),
   itemIndex: integer("item_index"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export const settings = pgTable("settings", {
