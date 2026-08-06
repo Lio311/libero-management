@@ -8,8 +8,8 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Month parameter is required (YYYY-MM)' }, { status: 400 });
     }
 
-    const ck = process.env.LABURA_WC_CK || 'ck_c05a4ccf7b36d2c7f5aeee1307db0da45512c306';
-    const cs = process.env.LABURA_WC_CS || 'cs_d3d1d9eba2cf904b5a4b4324b1fba75d4a1da2c2';
+    const ck = 'ck_c05a4ccf7b36d2c7f5aeee1307db0da45512c306';
+    const cs = 'cs_d3d1d9eba2cf904b5a4b4324b1fba75d4a1da2c2';
     const baseUrl = 'https://la-burro.co.il';
 
     if (!ck || !cs) {

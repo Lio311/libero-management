@@ -8,8 +8,8 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Month parameter is required (YYYY-MM)' }, { status: 400 });
     }
 
-    const ck = process.env.VELOUR_WC_CK || 'ck_50e2712ebe187cae81f5a2b6353c0a316067eefe';
-    const cs = process.env.VELOUR_WC_CS || 'cs_fe5ad58ff939b47a0856f5a9c3478cefa5c74c04';
+    const ck = 'ck_50e2712ebe187cae81f5a2b6353c0a316067eefe';
+    const cs = 'cs_fe5ad58ff939b47a0856f5a9c3478cefa5c74c04';
     const baseUrl = 'https://velour.co.il';
 
     if (!ck || !cs) {
