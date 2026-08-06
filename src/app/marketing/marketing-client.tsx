@@ -108,7 +108,7 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
           <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
             <option value="">לא מקושר</option>
             {Object.entries(influencersConfig)
-              .sort(([, a], [, b]) => a.name.localeCompare(b.name, 'he'))
+              .sort(([, a], [, b]) => a.name > b.name ? 1 : -1)
               .map(([key, config]) => (
               <option key={key} value={key}>{config.name}</option>
             ))}
@@ -319,7 +319,7 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
           <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
             <option value="">לא מקושר</option>
             {Object.entries(influencersConfig)
-              .sort(([, a], [, b]) => a.name.localeCompare(b.name, 'he'))
+              .sort(([, a], [, b]) => a.name > b.name ? 1 : -1)
               .map(([key, config]) => (
               <option key={key} value={key}>{config.name}</option>
             ))}
@@ -452,7 +452,7 @@ export default function MarketingClient({
     if (weightA !== 0 && weightB !== 0 && weightA !== weightB) {
       return weightA - weightB;
     }
-    return String(a).localeCompare(String(b));
+    return String(a) > String(b) ? 1 : -1;
   });
   const [currentMonthIndex, setCurrentMonthIndex] = useState(allMonths.length - 1);
 
@@ -641,7 +641,7 @@ export default function MarketingClient({
                 {isAddingInfluencer && <EditableInfluencerRow inf={{ isNew: true, onCancelNew: () => setIsAddingInfluencer(false) }} />}
                 {rawInfluencers && rawInfluencers.length > 0 ? (
                   [...rawInfluencers]
-                    .sort((a, b) => (a.influencerName || '').localeCompare(b.influencerName || '', 'he'))
+                    .sort((a, b) => (a.influencerName || '') > (b.influencerName || '') ? 1 : -1)
                     .map((inf) => (
                     <EditableInfluencerRow key={inf.id} inf={inf} />
                   ))
@@ -709,7 +709,7 @@ export default function MarketingClient({
                 {isAddingPayment && <EditablePaymentRow payment={{ isNew: true, paymentMonth: currentMonth, onCancelNew: () => setIsAddingPayment(false) }} rawInfluencers={rawInfluencers} />}
                 {combinedPayments && combinedPayments.length > 0 ? (
                   [...combinedPayments]
-                    .sort((a, b) => (a.influencerName || '').localeCompare(b.influencerName || '', 'he'))
+                    .sort((a, b) => (a.influencerName || '') > (b.influencerName || '') ? 1 : -1)
                     .map((payment) => (
                     <EditablePaymentRow key={payment.id} payment={payment} rawInfluencers={rawInfluencers} />
                   ))
