@@ -357,13 +357,23 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
              parsedDate.setDate(parsedDate.getDate() + 1);
            }
            const today = startOfDay(new Date());
+           
+           // Check if we manually toggled completion in Calendar
+           let isCompleted = task.status === 'בוצע';
+           let existingTask: Task | undefined;
+           for (const key of Object.keys(prev)) {
+             existingTask = prev[key].find(t => t.id === `bank-${task.id}`);
+             if (existingTask) break;
+           }
+           if (existingTask) {
+             isCompleted = existingTask.isCompleted;
+           }
+
            let renderDate = parsedDate;
            let isDelayed = false;
            let delayMonths = 0;
            
-           const isCreatedToday = task.createdAt ? isSameDay(new Date(task.createdAt), today) : false;
-           
-           if (task.status !== 'בוצע' && isBefore(parsedDate, today) && !isCreatedToday) {
+           if (!isCompleted && isBefore(parsedDate, today)) {
               renderDate = today;
               isDelayed = true;
               delayMonths = differenceInMonths(today, parsedDate);
@@ -380,27 +390,12 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
            
            let category = { name: 'בנק משימות', color: 'bg-purple-400' };
            if (isDelayed) {
-             if (delayMonths >= 1) {
-                category = { name: 'עיכוב של חודש+', color: 'bg-orange-400' };
-             } else {
-                category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
-             }
-           }
-
-           // Check if we manually toggled completion in Calendar
-           let isCompleted = task.status === 'בוצע';
-           let existingTask: Task | undefined;
-           for (const key of Object.keys(prev)) {
-             existingTask = prev[key].find(t => t.id === `bank-${task.id}`);
-             if (existingTask) break;
-           }
-           if (existingTask) {
-             isCompleted = existingTask.isCompleted;
+              category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
            }
 
            newTasks[dateKey].push({
              id: `bank-${task.id}`,
-             dbId: task.id, // For drag and drop it might try to update monthlySchedule if we don't differentiate
+             dbId: task.id,
              title: task.taskName,
              category,
              isCompleted,
