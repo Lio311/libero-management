@@ -440,20 +440,24 @@ export default function MarketingClient({
     const allKnownInfluencers = [...(rawInfluencers || [])];
     
     Object.keys(influencersConfig).forEach(key => {
-       if (!allKnownInfluencers.find(i => i.influencerId === key)) {
+       const existing = allKnownInfluencers.find(i => i.influencerId === key);
+       if (!existing) {
           allKnownInfluencers.push({
              id: `config-${key}`,
              influencerId: key,
              influencerName: influencersConfig[key].name,
-             baseSalary: 0
+             baseSalary: influencersConfig[key].baseSalary || 0
           });
        }
     });
 
     const combined = allKnownInfluencers.map(inf => {
+      const configBaseSalary = influencersConfig[inf.influencerId]?.baseSalary;
+      const finalBaseSalary = configBaseSalary !== undefined ? configBaseSalary : (inf.baseSalary || 0);
+
       const existingPayment = filteredPayments.find(p => p.influencerId === inf.influencerId || (p.influencerName && p.influencerName === inf.influencerName));
       if (existingPayment) {
-        return { ...existingPayment, baseSalary: inf.baseSalary, hasRealPayment: true };
+        return { ...existingPayment, baseSalary: finalBaseSalary, hasRealPayment: true };
       }
       return {
         id: `pseudo-${inf.id}`,
@@ -463,17 +467,20 @@ export default function MarketingClient({
         isDone: 'לא בוצע',
         paymentMonth: currentMonth,
         notes: '',
-        baseSalary: inf.baseSalary,
+        baseSalary: finalBaseSalary,
         hasRealPayment: false
       };
     });
+    
     filteredPayments.forEach(p => {
       if (!combined.find(cp => cp.id === p.id)) {
-        combined.push({ ...p, hasRealPayment: true });
+        combined.push({ ...p, baseSalary: influencersConfig[p.influencerId]?.baseSalary || p.baseSalary || 0, hasRealPayment: true });
       }
     });
-    return combined;
-  })() : filteredPayments.map(p => ({ ...p, hasRealPayment: true }));
+    
+    // Filter out any influencers not in our active config
+    return combined.filter(p => p.influencerId && influencersConfig[p.influencerId]);
+  })() : filteredPayments.map(p => ({ ...p, baseSalary: influencersConfig[p.influencerId]?.baseSalary || p.baseSalary || 0, hasRealPayment: true })).filter(p => p.influencerId && influencersConfig[p.influencerId]);
 
   const handlePrevMonth = () => {
     if (currentMonthIndex > 0) setCurrentMonthIndex(currentMonthIndex - 1);
