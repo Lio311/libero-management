@@ -300,6 +300,9 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                     <button onClick={(e) => { e.stopPropagation(); startEditing(task); setViewMode('table'); }} title="ערוך" className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded">
                       <Edit2 className="h-3.5 w-3.5" />
                     </button>
+                    <button onClick={(e) => { e.stopPropagation(); handleDelete(task.id); }} title="מחק" className="p-1 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -345,6 +348,9 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                     <button onClick={(e) => { e.stopPropagation(); startEditing(task); setViewMode('table'); }} title="ערוך" className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded">
                       <Edit2 className="h-3.5 w-3.5" />
                     </button>
+                    <button onClick={(e) => { e.stopPropagation(); handleDelete(task.id); }} title="מחק" className="p-1 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -386,6 +392,9 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                   <div className="mt-3 flex justify-end transition-opacity gap-1">
                     <button onClick={(e) => { e.stopPropagation(); startEditing(task); setViewMode('table'); }} title="ערוך" className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded">
                       <Edit2 className="h-3.5 w-3.5" />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); handleDelete(task.id); }} title="מחק" className="p-1 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded">
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>

@@ -778,7 +778,7 @@ export default function FinanceClient({
           <CardTitle>פילוג תשלומים</CardTitle>
           <CardDescription>סך תשלומים לפי מותג/סוג</CardDescription>
         </CardHeader>
-        <CardContent className="h-[450px] flex flex-col items-center justify-center pb-8">
+        <CardContent className="h-[500px] flex flex-col items-center justify-center pb-8">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart margin={{ top: 40, right: 0, bottom: 20, left: 0 }}>
               <Pie
@@ -799,7 +799,7 @@ export default function FinanceClient({
                 content={(props: any) => {
                   const { payload } = props;
                   return (
-                    <div className="flex justify-center w-full mt-8">
+                    <div className="flex justify-center w-full mt-16">
                       <ul className="grid grid-cols-2 gap-x-12 gap-y-4 text-sm" dir="rtl">
                         {payload.map((entry: any, index: number) => (
                           <li key={`item-${index}`} className="flex items-center gap-3">
