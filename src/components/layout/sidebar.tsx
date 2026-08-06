@@ -20,10 +20,9 @@ const navigation: NavItem[] = [
   { name: "בנק משימות", href: "/tasks", icon: CheckSquare },
   { name: "שיווק ומשפיענים", icon: Megaphone, subItems: [
     { name: "לוח שיווק", href: "/marketing" },
-    { name: "עודד", href: "/marketing/oded" },
     ...Object.values(influencersConfig).map(inf => ({
       name: inf.name,
-      href: `/marketing/influencers/${inf.id}`
+      href: inf.id === 'oded' ? '/marketing/oded' : `/marketing/influencers/${inf.id}`
     }))
   ] },
   { name: "הזמנות וספקים", href: "/inventory", icon: Package },
