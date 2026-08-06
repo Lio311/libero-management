@@ -2,10 +2,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X } from "lucide-react";
+import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const navigation = [
+type NavItem = {
+  name: string;
+  href?: string;
+  icon: any;
+  subItems?: { name: string; href: string }[];
+};
+
+const navigation: NavItem[] = [
   { name: "לוז חודשי", href: "/", icon: Calendar },
   { name: "כספים", href: "/finance", icon: DollarSign },
   { name: "בנק משימות", href: "/tasks", icon: CheckSquare },
@@ -13,14 +20,32 @@ const navigation = [
   { name: "מלאי וספקים", href: "/inventory", icon: Package },
   { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
   { name: "בעלי תפקידים", href: "/team", icon: Users },
+  { name: "ניתוח מלאי חכם", href: "/inventory-analysis", icon: BarChart },
+  { name: "מעקב בונוסים", href: "/bonus", icon: Award },
+  { 
+    name: "קופונים", 
+    icon: Ticket, 
+    subItems: [
+      { name: "ליברו", href: "/coupons/libero" },
+      { name: "וולור", href: "/coupons/velour" },
+      { name: "לה בורה", href: "/coupons/labura" },
+    ]
+  },
 ];
 
 export function Sidebar({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [openDropdowns, setOpenDropdowns] = useState<string[]>([]);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
+
+  const toggleDropdown = (name: string) => {
+    setOpenDropdowns((prev) => 
+      prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
+    );
+  };
 
   return (
     <>
@@ -59,28 +84,83 @@ export function Sidebar({ children }: { children?: React.ReactNode }) {
         </div>
         <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
           {navigation.map((item) => {
-            const isActive = pathname === item.href;
+            const hasSubItems = !!item.subItems;
+            const isDropdownOpen = openDropdowns.includes(item.name);
+            const isActive = item.href ? pathname === item.href : item.subItems?.some(sub => pathname === sub.href);
+
             return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={closeSidebar}
-                className={cn(
-                  "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover-scale",
-                  isActive
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
+              <div key={item.name}>
+                {hasSubItems ? (
+                  <button
+                    onClick={() => toggleDropdown(item.name)}
+                    className={cn(
+                      "w-full group flex justify-between items-center px-3 py-2.5 text-sm font-medium rounded-lg hover-scale",
+                      isActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
+                    )}
+                  >
+                    <div className="flex items-center">
+                      <item.icon
+                        className={cn(
+                          "ml-3 flex-shrink-0 h-5 w-5 transition-colors",
+                          isActive ? "text-primary" : "text-muted-foreground group-hover:text-secondary-foreground"
+                        )}
+                        aria-hidden="true"
+                      />
+                      <span className="truncate">{item.name}</span>
+                    </div>
+                    {isDropdownOpen ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </button>
+                ) : (
+                  <Link
+                    href={item.href!}
+                    onClick={closeSidebar}
+                    className={cn(
+                      "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover-scale",
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
+                    )}
+                  >
+                    <item.icon
+                      className={cn(
+                        "ml-3 flex-shrink-0 h-5 w-5 transition-colors",
+                        isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-secondary-foreground"
+                      )}
+                      aria-hidden="true"
+                    />
+                    <span className="truncate">{item.name}</span>
+                  </Link>
                 )}
-              >
-                <item.icon
-                  className={cn(
-                    "ml-3 flex-shrink-0 h-5 w-5 transition-colors",
-                    isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-secondary-foreground"
-                  )}
-                  aria-hidden="true"
-                />
-                <span className="truncate">{item.name}</span>
-              </Link>
+
+                {hasSubItems && isDropdownOpen && (
+                  <div className="mt-1 space-y-1 px-3 pb-2">
+                    {item.subItems!.map((subItem) => {
+                      const isSubActive = pathname === subItem.href;
+                      return (
+                        <Link
+                          key={subItem.name}
+                          href={subItem.href}
+                          onClick={closeSidebar}
+                          className={cn(
+                            "group flex items-center pr-10 pl-3 py-2 text-sm font-medium rounded-lg hover-scale",
+                            isSubActive
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
+                          )}
+                        >
+                          <span className="truncate">{subItem.name}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
