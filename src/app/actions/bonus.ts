@@ -106,9 +106,24 @@ export async function deleteBonus(id: number) {
 
 export async function getBonusEmployees() {
     try {
-        const data = await db.query.bonusEmployees.findMany({
+        let data = await db.query.bonusEmployees.findMany({
             orderBy: (employees, { asc }) => [asc(employees.fullName)],
         });
+
+        // If no employees exist yet, seed standard team employees
+        if (data.length === 0) {
+            const defaultNames = ["ליאור", "רותי", "ישראל", "עודד", "עמית"];
+            for (const name of defaultNames) {
+                await db.insert(bonusEmployees).values({
+                    username: name.toLowerCase().replace(/\s+/g, '_'),
+                    fullName: name,
+                    password: '123'
+                }).onConflictDoNothing();
+            }
+            data = await db.query.bonusEmployees.findMany({
+                orderBy: (employees, { asc }) => [asc(employees.fullName)],
+            });
+        }
         
         // Transform camelCase back to snake_case for the frontend compatibility
         return data.map(emp => ({
@@ -126,13 +141,17 @@ export async function getBonusEmployees() {
 
 export async function addBonusEmployee(employee: any) {
     try {
+        const username = employee.username || employee.full_name?.trim().toLowerCase().replace(/\s+/g, '_') || `emp_${Date.now()}`;
+        const password = employee.password || '123';
+
         const result = await db.insert(bonusEmployees).values({
-            username: employee.username,
+            username,
             fullName: employee.full_name,
-            password: employee.password,
+            password,
         }).returning();
         
         revalidatePath("/bonus/admin");
+        revalidatePath("/bonus/add");
         return {
             id: result[0].id,
             username: result[0].username,
