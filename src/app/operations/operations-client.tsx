@@ -313,11 +313,6 @@ export default function OperationsClient({
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
   const [isAddingCustomerTop, setIsAddingCustomerTop] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-
-  const totalPages = Math.ceil((rawWholesaleCustomers?.length || 0) / itemsPerPage);
-  const currentItems = (rawWholesaleCustomers || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -373,53 +368,15 @@ export default function OperationsClient({
           </CardHeader>
           <CardContent className="space-y-4">
             {isAddingCustomerTop && <EditableB2BCard customer={{ isNew: true }} onCancelNew={() => setIsAddingCustomerTop(false)} />}
-            {currentItems.map((customer) => (
+            {rawWholesaleCustomers?.map((customer) => (
               <EditableB2BCard key={customer.id} customer={customer} />
             ))}
-            {rawWholesaleCustomers.length === 0 && !isAddingCustomerTop && (
+            {(!rawWholesaleCustomers || rawWholesaleCustomers.length === 0) && !isAddingCustomerTop && (
               <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
                 לא נמצאו לקוחות. לחץ על "הוסף לקוח" כדי להתחיל.
               </div>
             )}
             
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between pt-4 mt-4 border-t">
-                <div className="text-sm text-muted-foreground">
-                  מציג {(currentPage - 1) * itemsPerPage + 1} עד {Math.min(currentPage * itemsPerPage, rawWholesaleCustomers.length)} מתוך {rawWholesaleCustomers.length} תוצאות
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
-                  >
-                    הבא
-                  </button>
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`w-8 h-8 flex items-center justify-center rounded-md text-sm transition-colors ${
-                          currentPage === page
-                            ? 'bg-primary text-primary-foreground'
-                            : 'hover:bg-gray-50 border'
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
-                  >
-                    הקודם
-                  </button>
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>
@@ -455,8 +412,8 @@ export default function OperationsClient({
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {isAddingCustomer && <EditableWholesaleRow customer={{ isNew: true }} onCancelNew={() => setIsAddingCustomer(false)} />}
-                {currentItems && currentItems.length > 0 ? (
-                  currentItems.map((customer) => (
+                {rawWholesaleCustomers && rawWholesaleCustomers.length > 0 ? (
+                  rawWholesaleCustomers.map((customer) => (
                     <EditableWholesaleRow key={customer.id} customer={customer} />
                   ))
                 ) : (
@@ -468,45 +425,6 @@ export default function OperationsClient({
                 )}
               </tbody>
             </table>
-            
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t">
-                <div className="text-sm text-muted-foreground">
-                  מציג {(currentPage - 1) * itemsPerPage + 1} עד {Math.min(currentPage * itemsPerPage, rawWholesaleCustomers.length)} מתוך {rawWholesaleCustomers.length} תוצאות
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
-                  >
-                    הבא
-                  </button>
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`w-8 h-8 flex items-center justify-center rounded-md text-sm transition-colors ${
-                          currentPage === page
-                            ? 'bg-primary text-primary-foreground'
-                            : 'hover:bg-gray-50 border'
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
-                  >
-                    הקודם
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
