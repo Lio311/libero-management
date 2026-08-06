@@ -7,12 +7,19 @@ import { format } from 'date-fns';
 
 export default function AddBonusPage() {
     const router = useRouter();
-    const employeeId = typeof window !== 'undefined' ? parseInt(localStorage.getItem('userId') || '0') : 0;
-    const { uploadInvoice, addBonus } = useBonus();
+    // Default to the logged-in user if available, otherwise 0
+    const initialEmployeeId = typeof window !== 'undefined' ? parseInt(localStorage.getItem('userId') || '0') : 0;
+    const { uploadInvoice, addBonus, employees, fetchEmployees } = useBonus();
 
     const [saleDate, setSaleDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [amount, setAmount] = useState('');
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState<number>(initialEmployeeId);
     const [file, setFile] = useState<File | null>(null);
+
+    React.useEffect(() => {
+        fetchEmployees();
+    }, []);
+
     const [preview, setPreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -31,7 +38,7 @@ export default function AddBonusPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!amount || isSubmitting) return;
+        if (!amount || !selectedEmployeeId || isSubmitting) return;
 
         setIsSubmitting(true);
         try {
@@ -45,7 +52,7 @@ export default function AddBonusPage() {
             }
 
             await addBonus({
-                employee_id: employeeId,
+                employee_id: selectedEmployeeId,
                 sale_date: saleDate,
                 amount: parseFloat(amount),
                 invoice_url: invoiceUrl
@@ -90,6 +97,24 @@ export default function AddBonusPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                     <div className="space-y-6">
+                        {/* Employee Selection */}
+                        <div className="space-y-2">
+                            <label className="block text-sm font-semibold text-slate-700">שם העובד</label>
+                            <select
+                                value={selectedEmployeeId || ''}
+                                onChange={(e) => setSelectedEmployeeId(Number(e.target.value))}
+                                className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-lg font-medium"
+                                required
+                            >
+                                <option value="" disabled>בחר עובד</option>
+                                {employees.map((emp) => (
+                                    <option key={emp.id} value={emp.id}>
+                                        {emp.full_name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
                         {/* Sale Date */}
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-slate-700">תאריך מכירה</label>
