@@ -508,7 +508,7 @@ export default function InventoryClient({
           <CardContent className="pl-2 h-[350px]">
             <div dir="ltr" className="h-full w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stockHealthData} margin={{ top: 20, right: 20, left: 100, bottom: 20 }}>
+                <BarChart data={stockHealthData} margin={{ top: 40, right: 20, left: 100, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                   <XAxis dataKey="brand" axisLine={false} tickLine={false} tickMargin={10} />
                   <YAxis axisLine={false} tickLine={false} width={100} tickMargin={10} orientation="left" />

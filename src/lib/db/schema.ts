@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, integer, timestamp, date, decimal } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, boolean, integer, timestamp, date, decimal, serial } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const categories = pgTable("categories", {
@@ -183,3 +183,31 @@ export const settings = pgTable("settings", {
   value: text("value"),
 });
 
+export const bonusEmployees = pgTable("bonus_employees", {
+  id: serial("id").primaryKey(),
+  username: text("username").unique().notNull(),
+  fullName: text("full_name").notNull(),
+  password: text("password").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const bonuses = pgTable("bonuses", {
+  id: serial("id").primaryKey(),
+  employeeId: integer("employee_id").references(() => bonusEmployees.id, { onDelete: 'cascade' }),
+  saleDate: date("sale_date").defaultNow().notNull(),
+  amount: decimal("amount").default('0').notNull(),
+  invoiceUrl: text("invoice_url"),
+  status: text("status", { enum: ['pending', 'approved', 'paid'] }).default('pending').notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const bonusEmployeesRelations = relations(bonusEmployees, ({ many }) => ({
+  bonuses: many(bonuses),
+}));
+
+export const bonusesRelations = relations(bonuses, ({ one }) => ({
+  employee: one(bonusEmployees, {
+    fields: [bonuses.employeeId],
+    references: [bonusEmployees.id],
+  }),
+}));

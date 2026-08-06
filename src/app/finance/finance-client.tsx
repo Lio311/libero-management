@@ -780,7 +780,7 @@ export default function FinanceClient({
         </CardHeader>
         <CardContent className="h-[450px] flex flex-col items-center justify-center pb-8">
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 20, right: 0, bottom: 20, left: 0 }}>
+            <PieChart margin={{ top: 40, right: 0, bottom: 20, left: 0 }}>
               <Pie
                 data={expensesData}
                 cx="50%"
