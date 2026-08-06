@@ -151,7 +151,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
             const dateKey = format(renderDate, 'yyyy-MM-dd');
             if (!newTasks[dateKey]) newTasks[dateKey] = [];
 
-            let category = { name: 'Monthly Task', color: 'bg-blue-400' };
+            let category = { name: 'משימה חודשית', color: 'bg-blue-400' };
             if (isDelayed) {
               category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
             }
@@ -211,7 +211,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               id: existingTask ? existingTask.id : `task-${idx}-${i === 0 ? 'sun' : 'wed'}-${dateKey}`,
               dbId: task.id,
               title: task.task,
-              category: { name: 'Monthly Task', color: 'bg-blue-400' },
+              category: { name: 'משימה חודשית', color: 'bg-blue-400' },
               isCompleted: existingTask ? existingTask.isCompleted : (task.status === 'בוצע'),
               source: 'schedule'
             });
@@ -275,7 +275,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         
         if (!newTasks[dateKey]) newTasks[dateKey] = [];
 
-        let category = { name: 'Monthly Task', color: 'bg-blue-400' };
+        let category = { name: 'משימה חודשית', color: 'bg-blue-400' };
         if (isDelayed) {
           if (delayMonths >= 1) {
             category = { name: 'עיכוב של חודש+', color: 'bg-orange-400' };
@@ -340,7 +340,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               id: existingTask ? existingTask.id : `bank-${task.id}-mon-${n}`,
               dbId: task.id,
               title: task.taskName,
-              category: { name: 'Monthly Task', color: 'bg-blue-400' },
+              category: { name: 'משימה חודשית', color: 'bg-blue-400' },
               isCompleted: existingTask ? existingTask.isCompleted : (task.status === 'בוצע'),
               source: 'bank'
             });
