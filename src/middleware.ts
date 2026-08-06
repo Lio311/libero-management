@@ -26,7 +26,9 @@ export const config = {
      * - manifest.json (PWA manifest)
      * - libero-d.png (App logo)
      * - oded.png (Oded profile image)
+     * - influencers (influencer images)
+     * - brands (brand images)
      */
-    '/((?!login|api/webhooks|api/oded-coupon|api/influencer-coupon|marketing/oded|marketing/influencers|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-d.png|oded.png|influencers).*)',
+    '/((?!login|api/webhooks|api/oded-coupon|api/influencer-coupon|marketing/oded|marketing/influencers|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-d.png|oded.png|influencers|brands).*)',
   ],
 };
