@@ -23,7 +23,28 @@ interface InventoryClientProps {
   suppliers: any[];
 }
 
-function EditableSupplierRow({ supplier }: { supplier: any }) {
+const getInventoryStatusColor = (status: string | null) => {
+  if (status === 'יש מלאי') return 'bg-emerald-100 text-emerald-800';
+  if (status === 'מלאי חלקי') return 'bg-amber-100 text-amber-800';
+  if (status === 'אין מלאי') return 'bg-red-100 text-red-800';
+  return 'bg-gray-100 text-gray-800';
+};
+
+const getAccountStatusColor = (status: string | null) => {
+  if (status === 'שולם') return 'bg-emerald-100 text-emerald-800';
+  if (status === 'ממתין לחשבונית') return 'bg-amber-100 text-amber-800';
+  if (status === 'טרם שולם') return 'bg-red-100 text-red-800';
+  return 'bg-gray-100 text-gray-800';
+};
+
+const getContactStatusColor = (status: string | null) => {
+  if (status === 'נשלחה הודעה') return 'bg-emerald-100 text-emerald-800';
+  if (status === 'לא נשלחה הודעה') return 'bg-red-100 text-red-800';
+  if (status === 'נשלחה הודעה שנייה') return 'bg-blue-100 text-blue-800';
+  return 'bg-gray-100 text-gray-800';
+};
+
+function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, uniqueBrands?: string[] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [data, setData] = useState({
@@ -69,35 +90,60 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
             <div className="bg-white rounded-lg shadow-sm border p-4 mb-4 space-y-3">
               <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-500">מותג</span>
-                <input
+                <select
                   className="w-full text-right p-2 border rounded-md"
                   value={data.brandName}
                   onChange={(e) => setData({ ...data, brandName: e.target.value })}
-                />
+                  dir="rtl"
+                >
+                  <option value="">בחר מותג</option>
+                  {uniqueBrands.map(b => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-500">סטטוס מלאי</span>
-                <input
+                <select
                   className="w-full text-right p-2 border rounded-md"
                   value={data.inventoryStatus}
                   onChange={(e) => setData({ ...data, inventoryStatus: e.target.value })}
-                />
+                  dir="rtl"
+                >
+                  <option value="">-</option>
+                  <option value="יש מלאי">יש מלאי</option>
+                  <option value="מלאי חלקי">מלאי חלקי</option>
+                  <option value="אין מלאי">אין מלאי</option>
+                </select>
               </div>
               <div className="space-y-1">
-                <span className="text-sm font-medium text-gray-500">סטטוס תכנון</span>
-                <input
+                <span className="text-sm font-medium text-gray-500">סטטוס חשבון</span>
+                <select
                   className="w-full text-right p-2 border rounded-md"
                   value={data.planningStatus}
                   onChange={(e) => setData({ ...data, planningStatus: e.target.value })}
-                />
+                  dir="rtl"
+                >
+                  <option value="">-</option>
+                  <option value="שולם">שולם</option>
+                  <option value="ממתין לחשבונית">ממתין לחשבונית</option>
+                  <option value="טרם שולם">טרם שולם</option>
+                </select>
               </div>
               <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-500">סטטוס קשר</span>
-                <input
+                <select
                   className="w-full text-right p-2 border rounded-md"
                   value={data.contactStatus}
                   onChange={(e) => setData({ ...data, contactStatus: e.target.value })}
-                />
+                  dir="rtl"
+                >
+                  <option value="">-</option>
+                  <option value="נשלחה הודעה">נשלחה הודעה</option>
+                  <option value="לא נשלחה הודעה">לא נשלחה הודעה</option>
+                  <option value="נשלחה הודעה שנייה">נשלחה הודעה שנייה</option>
+                  <option value="סטטוס">סטטוס</option>
+                </select>
               </div>
               <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-500">הערות</span>
@@ -122,19 +168,60 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
         {/* Desktop View */}
         <tr className="hidden md:table-row hover:bg-gray-50/50 transition-colors">
           <td className="py-2 px-4">
-            <input className="w-full text-right p-1 border rounded" value={data.brandName} onChange={(e) => setData({ ...data, brandName: e.target.value })} />
+            <select
+              className="w-full text-right p-1.5 border rounded"
+              value={data.brandName}
+              onChange={(e) => setData({ ...data, brandName: e.target.value })}
+              dir="rtl"
+            >
+              <option value="">בחר מותג</option>
+              {uniqueBrands.map(b => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
           </td>
           <td className="py-2 px-4">
-            <input className="w-full text-right p-1 border rounded" value={data.inventoryStatus} onChange={(e) => setData({ ...data, inventoryStatus: e.target.value })} />
+            <select
+              className="w-full text-right p-1.5 border rounded"
+              value={data.inventoryStatus}
+              onChange={(e) => setData({ ...data, inventoryStatus: e.target.value })}
+              dir="rtl"
+            >
+              <option value="">-</option>
+              <option value="יש מלאי">יש מלאי</option>
+              <option value="מלאי חלקי">מלאי חלקי</option>
+              <option value="אין מלאי">אין מלאי</option>
+            </select>
           </td>
           <td className="py-2 px-4">
-            <input className="w-full text-right p-1 border rounded" value={data.planningStatus} onChange={(e) => setData({ ...data, planningStatus: e.target.value })} />
+            <select
+              className="w-full text-right p-1.5 border rounded"
+              value={data.planningStatus}
+              onChange={(e) => setData({ ...data, planningStatus: e.target.value })}
+              dir="rtl"
+            >
+              <option value="">-</option>
+              <option value="שולם">שולם</option>
+              <option value="ממתין לחשבונית">ממתין לחשבונית</option>
+              <option value="טרם שולם">טרם שולם</option>
+            </select>
           </td>
           <td className="py-2 px-4">
-            <input className="w-full text-right p-1 border rounded" value={data.contactStatus} onChange={(e) => setData({ ...data, contactStatus: e.target.value })} />
+            <select
+              className="w-full text-right p-1.5 border rounded"
+              value={data.contactStatus}
+              onChange={(e) => setData({ ...data, contactStatus: e.target.value })}
+              dir="rtl"
+            >
+              <option value="">-</option>
+              <option value="נשלחה הודעה">נשלחה הודעה</option>
+              <option value="לא נשלחה הודעה">לא נשלחה הודעה</option>
+              <option value="נשלחה הודעה שנייה">נשלחה הודעה שנייה</option>
+              <option value="סטטוס">סטטוס</option>
+            </select>
           </td>
           <td className="py-2 px-4">
-            <input className="w-full text-right p-1 border rounded" value={data.notes} onChange={(e) => setData({ ...data, notes: e.target.value })} />
+            <input className="w-full text-right p-1.5 border rounded" value={data.notes} onChange={(e) => setData({ ...data, notes: e.target.value })} />
           </td>
           <td className="py-2 px-4 text-left">
             <div className="flex justify-end gap-2">
@@ -175,13 +262,13 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <div className="text-sm text-gray-500 mb-1">סטטוס מלאי</div>
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getInventoryStatusColor(supplier.inventoryStatus)}`}>
                   {supplier.inventoryStatus || '-'}
                 </span>
               </div>
               <div>
-                <div className="text-sm text-gray-500 mb-1">סטטוס תכנון</div>
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                <div className="text-sm text-gray-500 mb-1">סטטוס חשבון</div>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getAccountStatusColor(supplier.planningStatus)}`}>
                   {supplier.planningStatus || '-'}
                 </span>
               </div>
@@ -190,7 +277,7 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <div className="text-sm text-gray-500 mb-1">סטטוס קשר</div>
-                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getContactStatusColor(supplier.contactStatus)}`}>
                   {supplier.contactStatus || '-'}
                 </span>
               </div>
@@ -209,17 +296,17 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
           {supplier.brandName || '-'}
         </td>
         <td className="py-3 px-4 whitespace-nowrap">
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getInventoryStatusColor(supplier.inventoryStatus)}`}>
             {supplier.inventoryStatus || '-'}
           </span>
         </td>
         <td className="py-3 px-4 whitespace-nowrap">
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getAccountStatusColor(supplier.planningStatus)}`}>
             {supplier.planningStatus || '-'}
           </span>
         </td>
         <td className="py-3 px-4 whitespace-nowrap">
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getContactStatusColor(supplier.contactStatus)}`}>
             {supplier.contactStatus || '-'}
           </span>
         </td>
@@ -291,6 +378,14 @@ export default function InventoryClient({
     costPrice: ''
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedBrand]);
+
+
   const handleOpenModal = (mode: 'add' | 'edit', item?: any) => {
     setModalMode(mode);
     if (mode === 'edit' && item) {
@@ -348,6 +443,10 @@ export default function InventoryClient({
     const matchesBrand = selectedBrand === "all" || item.brand === selectedBrand;
     return matchesSearch && matchesBrand;
   });
+
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const currentItems = filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
 
 
   return (
@@ -516,7 +615,7 @@ export default function InventoryClient({
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-right">
+            <table className="w-full text-sm text-center">
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">מזהה (Index)</th>
@@ -527,11 +626,11 @@ export default function InventoryClient({
                   <th className="py-3 px-4 font-medium whitespace-nowrap">הזמנה קודמת</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">רמת מלאי (%)</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">מחיר עלות</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-left">פעולות</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-center">פעולות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {filteredItems.slice(0, 100).map((item) => (
+                {currentItems.map((item) => (
                   <React.Fragment key={item.id}>
                     {/* Mobile View */}
                     <tr className="md:hidden">
@@ -634,8 +733,8 @@ export default function InventoryClient({
                       <td className="py-3 px-4 font-medium whitespace-nowrap">
                         {getCurrencySymbol(item.brand)}{item.costPrice || '0'}
                       </td>
-                      <td className="py-3 px-4 whitespace-nowrap text-left">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="py-3 px-4 whitespace-nowrap text-center">
+                        <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleOpenModal('edit', item)}
                             className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
@@ -664,9 +763,42 @@ export default function InventoryClient({
                 )}
               </tbody>
             </table>
-            {filteredItems.length > 100 && (
-              <div className="py-4 text-center text-xs text-muted-foreground bg-gray-50/50 border-t">
-                מציג 100 תוצאות ראשונות (מתוך {filteredItems.length})
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t">
+                <div className="text-sm text-muted-foreground">
+                  מציג {(currentPage - 1) * itemsPerPage + 1} עד {Math.min(currentPage * itemsPerPage, filteredItems.length)} מתוך {filteredItems.length} תוצאות
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                  >
+                    הבא
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-8 h-8 flex items-center justify-center rounded-md text-sm transition-colors ${
+                          currentPage === page
+                            ? 'bg-primary text-primary-foreground'
+                            : 'hover:bg-gray-50 border'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                  >
+                    הקודם
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -681,21 +813,21 @@ export default function InventoryClient({
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-right">
+            <table className="w-full text-sm text-center">
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">מותג</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס מלאי</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס תכנון</th>
+                  <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס חשבון</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס קשר</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-left">פעולות</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-center">פעולות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {suppliers && suppliers.length > 0 ? (
                   suppliers.map((supplier) => (
-                    <EditableSupplierRow key={supplier.id} supplier={supplier} />
+                    <EditableSupplierRow key={supplier.id} supplier={supplier} uniqueBrands={uniqueBrands as string[]} />
                   ))
                 ) : (
                   <tr>
@@ -755,13 +887,18 @@ export default function InventoryClient({
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">מותג / קטגוריה</label>
-                      <input
-                        type="text"
+                      <select
                         required
                         value={formData.brand}
                         onChange={e => setFormData({...formData, brand: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-md"
-                      />
+                        className="w-full px-3 py-2 border rounded-md bg-white"
+                        dir="rtl"
+                      >
+                        <option value="">בחר מותג</option>
+                        {uniqueBrands.map((b, i) => (
+                          <option key={i} value={b as string}>{b as string}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                   

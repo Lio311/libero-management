@@ -3,7 +3,7 @@
  
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from "@/lib/db";
-import { importPayments, creditCards, chinaOrders } from "@/lib/db/schema";
+import { importPayments, creditCards, chinaOrders, inventoryItems } from "@/lib/db/schema";
 import FinanceClient from "./finance-client";
 
 export const dynamic = "force-dynamic";
@@ -18,11 +18,15 @@ export default async function FinanceDashboard() {
   let allPaymentsRaw: any[] = [];
   let allCardsRaw: any[] = [];
   let allChinaOrdersRaw: any[] = [];
+  let uniqueBrands: string[] = [];
 
   try {
     const allPayments = await db.select().from(importPayments);
     const allCards = await db.select().from(creditCards);
     const allChinaOrders = await db.select().from(chinaOrders);
+    const inventory = await db.select().from(inventoryItems);
+    
+    uniqueBrands = Array.from(new Set(inventory.map(i => i.brand))).filter(Boolean) as string[];
 
     allPaymentsRaw = allPayments;
     allCardsRaw = allCards;
@@ -76,6 +80,7 @@ export default async function FinanceDashboard() {
       allPayments={allPaymentsRaw}
       allCards={allCardsRaw}
       allChinaOrders={allChinaOrdersRaw}
+      uniqueBrands={uniqueBrands}
     />
   );
 }

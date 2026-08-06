@@ -34,6 +34,7 @@ interface FinanceClientProps {
   allPayments?: any[];
   allCards?: CreditCardData[];
   allChinaOrders?: any[];
+  uniqueBrands?: string[];
 }
 
 // Logo components for card companies
@@ -307,7 +308,7 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
   );
 }
 
-function EditablePaymentRow({ payment, onCancelNew }: { payment: any, onCancelNew?: () => void }) {
+function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payment: any, onCancelNew?: () => void, uniqueBrands?: string[] }) {
   const [isEditing, setIsEditing] = useState(payment.isNew || false);
   const [formData, setFormData] = useState({
     brand: payment.brand || '',
@@ -317,7 +318,7 @@ function EditablePaymentRow({ payment, onCancelNew }: { payment: any, onCancelNe
     shippingCost: payment.shippingCost || 0
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -434,7 +435,12 @@ function EditablePaymentRow({ payment, onCancelNew }: { payment: any, onCancelNe
         <div className="flex flex-col gap-3">
           <div>
             <span className="text-[11px] text-gray-500 font-medium mb-1 block">מותג</span>
-            <input name="brand" value={formData.brand} onChange={handleChange} autoFocus className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-right outline-none transition-all" dir="rtl" />
+            <select name="brand" value={formData.brand} onChange={handleChange} autoFocus className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-right outline-none transition-all" dir="rtl">
+              <option value="">בחר מותג</option>
+              {uniqueBrands.map(b => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -467,7 +473,12 @@ function EditablePaymentRow({ payment, onCancelNew }: { payment: any, onCancelNe
       
       {/* Desktop Edit View */}
       <td className="hidden md:table-cell p-2 align-middle">
-        <input name="brand" value={formData.brand} onChange={handleChange} autoFocus className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-right outline-none" dir="rtl" />
+        <select name="brand" value={formData.brand} onChange={handleChange} autoFocus className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-right outline-none" dir="rtl">
+          <option value="">בחר מותג</option>
+          {uniqueBrands.map(b => (
+            <option key={b} value={b}>{b}</option>
+          ))}
+        </select>
       </td>
       <td className="hidden md:table-cell p-2 align-middle">
         <input type="number" name="orderAmountForeign" value={formData.orderAmountForeign} onChange={handleChange} className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-left outline-none" dir="ltr" />
@@ -630,7 +641,8 @@ export default function FinanceClient({
   creditCardUsage,
   allPayments = [],
   allCards = [],
-  allChinaOrders = []
+  allChinaOrders = [],
+  uniqueBrands = []
 }: FinanceClientProps) {
   const [mounted, setMounted] = useState(false);
   const [isAddingPayment, setIsAddingPayment] = useState(false);
@@ -768,11 +780,11 @@ export default function FinanceClient({
         </CardHeader>
         <CardContent className="h-[450px] flex flex-col items-center justify-center pb-8">
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart margin={{ top: 0, right: 0, bottom: 20, left: 0 }}>
+            <PieChart margin={{ top: 20, right: 0, bottom: 20, left: 0 }}>
               <Pie
                 data={expensesData}
                 cx="50%"
-                cy="45%"
+                cy="50%"
                 innerRadius={100}
                 outerRadius={150}
                 paddingAngle={5}
@@ -819,21 +831,21 @@ export default function FinanceClient({
             </button>
           </div>
           <div className="md:overflow-x-auto">
-            <table className="w-full text-sm text-right whitespace-normal md:whitespace-nowrap">
+            <table className="w-full text-sm text-center whitespace-normal md:whitespace-nowrap">
               <thead className="hidden md:table-header-group bg-gray-50 border-b">
                 <tr>
                   <th className="p-3 font-medium text-gray-600">מותג</th>
                   <th className="p-3 font-medium text-gray-600">סכום מט&quot;ח</th>
                   <th className="p-3 font-medium text-gray-600">סכום ש&quot;ח</th>
-                  <th className="p-3 font-medium text-right text-gray-500">מע&quot;מ</th>
-                  <th className="p-3 font-medium text-right text-gray-500 rounded-tl-md">עלות שילוח</th>
-                  <th className="p-3 font-medium text-right text-gray-500 rounded-tl-md w-16">פעולות</th>
+                  <th className="p-3 font-medium text-center text-gray-500">מע&quot;מ</th>
+                  <th className="p-3 font-medium text-center text-gray-500 rounded-tl-md">עלות שילוח</th>
+                  <th className="p-3 font-medium text-center text-gray-500 rounded-tl-md w-16">פעולות</th>
                 </tr>
               </thead>
               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
-                {isAddingPayment && <EditablePaymentRow payment={{ isNew: true }} onCancelNew={() => setIsAddingPayment(false)} />}
+                {isAddingPayment && <EditablePaymentRow payment={{ isNew: true }} onCancelNew={() => setIsAddingPayment(false)} uniqueBrands={uniqueBrands} />}
                 {allPayments.map((p, i) => (
-                  <EditablePaymentRow key={p.id || i} payment={p} />
+                  <EditablePaymentRow key={p.id || i} payment={p} uniqueBrands={uniqueBrands} />
                 ))}
               </tbody>
             </table>
@@ -848,12 +860,12 @@ export default function FinanceClient({
             </button>
           </div>
           <div className="md:overflow-x-auto">
-            <table className="w-full text-sm text-right whitespace-normal md:whitespace-nowrap">
+            <table className="w-full text-sm text-center whitespace-normal md:whitespace-nowrap">
               <thead className="hidden md:table-header-group bg-gray-50 border-b">
                 <tr>
                   <th className="p-3 font-medium text-gray-600">מוצרים</th>
                   <th className="p-3 font-medium text-gray-600">תאריך הגעה</th>
-                  <th className="p-3 font-medium text-left text-gray-500 rounded-tl-md w-16">פעולות</th>
+                  <th className="p-3 font-medium text-center text-gray-500 rounded-tl-md w-16">פעולות</th>
                 </tr>
               </thead>
               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">

@@ -17,6 +17,13 @@ interface OperationsClientProps {
 }
 
 
+const getStatusColor = (status: string | null) => {
+  if (['בוצע', 'נקבע', 'גבוה'].includes(status || '')) return 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border-emerald-200';
+  if (['בתהליך', 'בינוני'].includes(status || '')) return 'bg-amber-100 text-amber-800 hover:bg-amber-200 border-amber-200';
+  if (['לא בוצע', 'לא זמין', 'נמוך', 'אין פוטנציאל', 'לא מעוניין'].includes(status || '')) return 'bg-red-100 text-red-800 hover:bg-red-200 border-red-200';
+  return 'bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200';
+};
+
 
 function EditableB2BCard({ customer, onCancelNew }: { customer: any, onCancelNew?: () => void }) {
   const [isEditing, setIsEditing] = useState(customer.isNew || false);
@@ -80,7 +87,13 @@ function EditableB2BCard({ customer, onCancelNew }: { customer: any, onCancelNew
         <input className="w-full text-right p-2 border rounded-lg bg-white/80 font-semibold" placeholder="שם חנות" value={data.storeName} onChange={(e) => setData({ ...data, storeName: e.target.value })} autoFocus />
         <div className="grid grid-cols-2 gap-2">
           <input className="w-full text-right p-2 border rounded-lg bg-white/80 text-sm" placeholder="עיר / אזור" value={data.city} onChange={(e) => setData({ ...data, city: e.target.value })} />
-          <input className="w-full text-right p-2 border rounded-lg bg-white/80 text-sm" placeholder="רמת עניין" value={data.interest} onChange={(e) => setData({ ...data, interest: e.target.value })} />
+          <select className="w-full text-right p-2 border rounded-lg bg-white/80 text-sm" value={data.interest} onChange={(e) => setData({ ...data, interest: e.target.value })} dir="rtl">
+            <option value="">בחר רמת עניין</option>
+            <option value="גבוה">גבוה</option>
+            <option value="בינוני">בינוני</option>
+            <option value="נמוך">נמוך</option>
+            <option value="לא מעוניין">לא מעוניין</option>
+          </select>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <input className="w-full text-right p-2 border rounded-lg bg-white/80 text-sm" placeholder="תאריך הזמנה אחרונה" value={data.lastOrderDate} onChange={(e) => setData({ ...data, lastOrderDate: e.target.value })} />
@@ -116,7 +129,7 @@ function EditableB2BCard({ customer, onCancelNew }: { customer: any, onCancelNew
           )}
         </div>
         <div className="flex flex-col items-end gap-2">
-          <Badge variant="outline" className="text-[10px] bg-white">{customer.interest || 'לא צוין'}</Badge>
+          <Badge variant="outline" className={`text-[10px] ${getStatusColor(customer.interest)}`}>{customer.interest || 'לא צוין'}</Badge>
           <div className="flex gap-1 mt-2">
             <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-md transition-colors" title="ערוך"><Edit2 className="h-3.5 w-3.5" /></button>
             <button onClick={handleDelete} className="p-1.5 text-red-600 hover:bg-red-100 rounded-md transition-colors" title="מחק"><Trash2 className="h-3.5 w-3.5" /></button>
@@ -189,10 +202,46 @@ function EditableWholesaleRow({ customer, onCancelNew }: { customer: any, onCanc
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">שם חנות</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.storeName} onChange={(e) => setData({ ...data, storeName: e.target.value })} autoFocus /></td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">עיר</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.city} onChange={(e) => setData({ ...data, city: e.target.value })} /></td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">כתובת</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.address} onChange={(e) => setData({ ...data, address: e.target.value })} /></td>
-        <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">שיחת טלפון</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.phoneCall} onChange={(e) => setData({ ...data, phoneCall: e.target.value })} /></td>
-        <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">ביקור</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.visit} onChange={(e) => setData({ ...data, visit: e.target.value })} /></td>
-        <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">פוטנציאל</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.potential} onChange={(e) => setData({ ...data, potential: e.target.value })} /></td>
-        <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">עניין</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.interest} onChange={(e) => setData({ ...data, interest: e.target.value })} /></td>
+        <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1">
+          <span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">שיחת טלפון</span>
+          <select className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.phoneCall} onChange={(e) => setData({ ...data, phoneCall: e.target.value })} dir="rtl">
+            <option value="">-</option>
+            <option value="בוצע">בוצע</option>
+            <option value="לא בוצע">לא בוצע</option>
+            <option value="בתהליך">בתהליך</option>
+            <option value="לא זמין">לא זמין</option>
+          </select>
+        </td>
+        <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1">
+          <span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">ביקור</span>
+          <select className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.visit} onChange={(e) => setData({ ...data, visit: e.target.value })} dir="rtl">
+            <option value="">-</option>
+            <option value="בוצע">בוצע</option>
+            <option value="לא בוצע">לא בוצע</option>
+            <option value="נקבע">נקבע</option>
+            <option value="לא רלוונטי">לא רלוונטי</option>
+          </select>
+        </td>
+        <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1">
+          <span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">פוטנציאל</span>
+          <select className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.potential} onChange={(e) => setData({ ...data, potential: e.target.value })} dir="rtl">
+            <option value="">-</option>
+            <option value="גבוה">גבוה</option>
+            <option value="בינוני">בינוני</option>
+            <option value="נמוך">נמוך</option>
+            <option value="אין פוטנציאל">אין פוטנציאל</option>
+          </select>
+        </td>
+        <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1">
+          <span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">עניין</span>
+          <select className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.interest} onChange={(e) => setData({ ...data, interest: e.target.value })} dir="rtl">
+            <option value="">-</option>
+            <option value="גבוה">גבוה</option>
+            <option value="בינוני">בינוני</option>
+            <option value="נמוך">נמוך</option>
+            <option value="לא מעוניין">לא מעוניין</option>
+          </select>
+        </td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">הערות</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.notes} onChange={(e) => setData({ ...data, notes: e.target.value })} /></td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">תאריך הזמנה</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.lastOrderDate} onChange={(e) => setData({ ...data, lastOrderDate: e.target.value })} /></td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">סכום בש"ח</span><input type="number" className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.totalAmountNis} onChange={(e) => setData({ ...data, totalAmountNis: e.target.value })} /></td>
@@ -214,7 +263,7 @@ function EditableWholesaleRow({ customer, onCancelNew }: { customer: any, onCanc
             <span className="font-semibold text-lg text-gray-900 md:font-medium md:text-sm">{customer.storeName || '-'}</span>
             <span className="text-sm text-gray-500 md:hidden mt-0.5">{customer.city || '-'} • {customer.phoneCall || '-'}</span>
           </div>
-          <Badge variant="outline" className="text-[10px] md:hidden shadow-sm bg-white">{customer.interest || '-'}</Badge>
+          <Badge variant="outline" className={`text-[10px] md:hidden shadow-sm ${getStatusColor(customer.interest)}`}>{customer.interest || '-'}</Badge>
         </div>
       </td>
       <td className="hidden md:table-cell py-3 px-4">{customer.city || '-'}</td>
@@ -222,17 +271,19 @@ function EditableWholesaleRow({ customer, onCancelNew }: { customer: any, onCanc
         <span className="md:hidden text-gray-500 text-xs uppercase tracking-wider">כתובת</span>
         <span className="font-medium md:font-normal text-gray-700 md:text-inherit">{customer.address || '-'}</span>
       </td>
-      <td className="hidden md:table-cell py-3 px-4">{customer.phoneCall || '-'}</td>
+      <td className="hidden md:table-cell py-3 px-4">
+        <Badge variant="outline" className={`text-[10px] ${getStatusColor(customer.phoneCall)}`}>{customer.phoneCall || '-'}</Badge>
+      </td>
       <td className="py-2 px-4 md:py-3 flex justify-between items-center md:table-cell text-sm border-b border-gray-50 md:border-none">
         <span className="md:hidden text-gray-500 text-xs uppercase tracking-wider">ביקור</span>
-        <span className="font-medium md:font-normal text-gray-700 md:text-inherit">{customer.visit || '-'}</span>
+        <Badge variant="outline" className={`text-[10px] ${getStatusColor(customer.visit)}`}>{customer.visit || '-'}</Badge>
       </td>
       <td className="py-2 px-4 md:py-3 flex justify-between items-center md:table-cell text-sm border-b border-gray-50 md:border-none">
         <span className="md:hidden text-gray-500 text-xs uppercase tracking-wider">פוטנציאל</span>
-        <span className="font-medium md:font-normal text-gray-700 md:text-inherit">{customer.potential || '-'}</span>
+        <Badge variant="outline" className={`text-[10px] ${getStatusColor(customer.potential)}`}>{customer.potential || '-'}</Badge>
       </td>
       <td className="hidden md:table-cell py-3 px-4">
-        <Badge variant="outline" className="text-[10px]">{customer.interest || '-'}</Badge>
+        <Badge variant="outline" className={`text-[10px] ${getStatusColor(customer.interest)}`}>{customer.interest || '-'}</Badge>
       </td>
       <td className="py-2 px-4 md:py-3 flex justify-between items-center md:table-cell text-sm">
         <span className="md:hidden text-gray-500 text-xs uppercase tracking-wider">הערות</span>
@@ -262,6 +313,11 @@ export default function OperationsClient({
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
   const [isAddingCustomerTop, setIsAddingCustomerTop] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const totalPages = Math.ceil((rawWholesaleCustomers?.length || 0) / itemsPerPage);
+  const currentItems = (rawWholesaleCustomers || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -317,12 +373,51 @@ export default function OperationsClient({
           </CardHeader>
           <CardContent className="space-y-4">
             {isAddingCustomerTop && <EditableB2BCard customer={{ isNew: true }} onCancelNew={() => setIsAddingCustomerTop(false)} />}
-            {rawWholesaleCustomers.map((customer) => (
+            {currentItems.map((customer) => (
               <EditableB2BCard key={customer.id} customer={customer} />
             ))}
             {rawWholesaleCustomers.length === 0 && !isAddingCustomerTop && (
               <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
                 לא נמצאו לקוחות. לחץ על "הוסף לקוח" כדי להתחיל.
+              </div>
+            )}
+            
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-4 mt-4 border-t">
+                <div className="text-sm text-muted-foreground">
+                  מציג {(currentPage - 1) * itemsPerPage + 1} עד {Math.min(currentPage * itemsPerPage, rawWholesaleCustomers.length)} מתוך {rawWholesaleCustomers.length} תוצאות
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                  >
+                    הבא
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-8 h-8 flex items-center justify-center rounded-md text-sm transition-colors ${
+                          currentPage === page
+                            ? 'bg-primary text-primary-foreground'
+                            : 'hover:bg-gray-50 border'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                  >
+                    הקודם
+                  </button>
+                </div>
               </div>
             )}
           </CardContent>
@@ -342,7 +437,7 @@ export default function OperationsClient({
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-right">
+            <table className="w-full text-sm text-center">
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם חנות</th>
@@ -355,13 +450,13 @@ export default function OperationsClient({
                   <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">תאריך הזמנה</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סכום ש"ח</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-left">פעולות</th>
+                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-center">פעולות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {isAddingCustomer && <EditableWholesaleRow customer={{ isNew: true }} onCancelNew={() => setIsAddingCustomer(false)} />}
-                {rawWholesaleCustomers && rawWholesaleCustomers.length > 0 ? (
-                  rawWholesaleCustomers.map((customer) => (
+                {currentItems && currentItems.length > 0 ? (
+                  currentItems.map((customer) => (
                     <EditableWholesaleRow key={customer.id} customer={customer} />
                   ))
                 ) : (
@@ -373,6 +468,45 @@ export default function OperationsClient({
                 )}
               </tbody>
             </table>
+            
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t">
+                <div className="text-sm text-muted-foreground">
+                  מציג {(currentPage - 1) * itemsPerPage + 1} עד {Math.min(currentPage * itemsPerPage, rawWholesaleCustomers.length)} מתוך {rawWholesaleCustomers.length} תוצאות
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                  >
+                    הבא
+                  </button>
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-8 h-8 flex items-center justify-center rounded-md text-sm transition-colors ${
+                          currentPage === page
+                            ? 'bg-primary text-primary-foreground'
+                            : 'hover:bg-gray-50 border'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                  >
+                    הקודם
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
