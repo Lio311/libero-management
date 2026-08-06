@@ -452,21 +452,94 @@ export default function MarketingClient({
   const currentMonth = currentMonthIndex >= 0 ? allMonths[currentMonthIndex] : '';
   const filteredPayments = currentMonth ? rawPayments.filter(p => p.paymentMonth === currentMonth) : rawPayments;
 
-  const combinedPayments = currentMonth 
-    ? filteredPayments.map(p => ({
-        ...p,
-        baseSalary: influencersConfig[p.influencerId]?.baseSalary || p.baseSalary || 0,
-        hasRealPayment: true
-      }))
-    : rawPayments.map(p => ({
-        ...p,
-        baseSalary: influencersConfig[p.influencerId]?.baseSalary || p.baseSalary || 0,
-        hasRealPayment: true
-      }));
+  const combinedPayments = currentMonth ? (() => {
+    const influencerMap = new Map<string, { influencerId?: string; influencerName: string; baseSalary: number }>();
 
-  const uniqueInfluencersCount = rawPayments && rawPayments.length > 0
-    ? new Set(rawPayments.map(p => p.influencerName || p.influencerId).filter(Boolean)).size
-    : 0;
+    // From influencersConfig
+    Object.entries(influencersConfig).forEach(([key, config]) => {
+      influencerMap.set(key, {
+        influencerId: key,
+        influencerName: config.name,
+        baseSalary: config.baseSalary || 0
+      });
+    });
+
+    // From rawInfluencers (top table)
+    (rawInfluencers || []).forEach(inf => {
+      const key = inf.influencerId || inf.influencerName || inf.id;
+      if (!influencerMap.has(key)) {
+        influencerMap.set(key, {
+          influencerId: inf.influencerId || undefined,
+          influencerName: inf.influencerName || '',
+          baseSalary: Number(inf.baseSalary) || 0
+        });
+      }
+    });
+
+    // From rawPayments (payment records)
+    (rawPayments || []).forEach(p => {
+      const key = p.influencerId || p.influencerName || p.id;
+      if (!influencerMap.has(key)) {
+        influencerMap.set(key, {
+          influencerId: p.influencerId || undefined,
+          influencerName: p.influencerName || '',
+          baseSalary: Number(p.baseSalary) || 0
+        });
+      }
+    });
+
+    const resultRows: any[] = [];
+    const processedPaymentIds = new Set<string>();
+
+    influencerMap.forEach((infInfo, key) => {
+      const existingPayment = filteredPayments.find(p => 
+        (p.influencerId && p.influencerId === infInfo.influencerId) ||
+        (p.influencerName && p.influencerName === infInfo.influencerName)
+      );
+
+      if (existingPayment) {
+        processedPaymentIds.add(existingPayment.id);
+        const configSalary = infInfo.influencerId ? influencersConfig[infInfo.influencerId]?.baseSalary : undefined;
+        resultRows.push({
+          ...existingPayment,
+          baseSalary: configSalary !== undefined ? configSalary : (existingPayment.baseSalary || infInfo.baseSalary),
+          hasRealPayment: true
+        });
+      } else {
+        resultRows.push({
+          id: `pseudo-${key}-${currentMonth}`,
+          influencerId: infInfo.influencerId,
+          influencerName: infInfo.influencerName,
+          amount: 0,
+          isDone: 'לא בוצע',
+          paymentMonth: currentMonth,
+          notes: '',
+          baseSalary: infInfo.baseSalary,
+          hasRealPayment: false
+        });
+      }
+    });
+
+    filteredPayments.forEach(p => {
+      if (!processedPaymentIds.has(p.id)) {
+        resultRows.push({
+          ...p,
+          baseSalary: p.influencerId ? (influencersConfig[p.influencerId]?.baseSalary || p.baseSalary || 0) : (p.baseSalary || 0),
+          hasRealPayment: true
+        });
+      }
+    });
+
+    return resultRows;
+  })() : rawPayments.map(p => ({ ...p, baseSalary: p.baseSalary || 0, hasRealPayment: true }));
+
+  const totalInfluencersInSystemCount = (() => {
+    const keys = new Set<string>();
+    Object.keys(influencersConfig).forEach(k => keys.add(k));
+    (rawInfluencers || []).forEach(i => keys.add(i.influencerName || i.id));
+    (rawPayments || []).forEach(p => keys.add(p.influencerName || p.id));
+    return keys.size;
+  })();
 
   const handlePrevMonth = () => {
     if (currentMonthIndex > 0) setCurrentMonthIndex(currentMonthIndex - 1);
@@ -489,8 +562,8 @@ export default function MarketingClient({
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{uniqueInfluencersCount}</div>
-            <p className="text-xs text-muted-foreground">משפיענים פעילים מטבלת התשלומים</p>
+            <div className="text-2xl font-bold">{totalInfluencersInSystemCount}</div>
+            <p className="text-xs text-muted-foreground">משפיענים פעילים במערכת</p>
           </CardContent>
         </Card>
         <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
