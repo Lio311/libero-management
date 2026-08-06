@@ -139,7 +139,7 @@ export async function GET(request: Request) {
             avg_order_value: detailedOrders.length > 0
                 ? totalRevenue / detailedOrders.length
                 : 0,
-            commission: detailedOrders.reduce((acc: number, o: any) => acc + (o.subtotal / 1.18 * 0.1), 0),
+            commission: detailedOrders.reduce((acc: number, o: any) => acc + (o.house_brand_subtotal / 1.18 * 0.1) * 1.18, 0),
         };
 
         return NextResponse.json({ data: detailedOrders, summary, error: null }, { status: 200 });
