@@ -377,15 +377,15 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                     <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_items}</p>
                                 </div>
                                 <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                    <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ מכירות</p>
+                                    <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ מכירות (ללא מע"מ)</p>
                                     <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.total_revenue)}</p>
                                 </div>
                                 <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                    <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">ממוצע להזמנה</p>
+                                    <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">ממוצע להזמנה (ללא מע"מ)</p>
                                     <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.avg_order_value)}</p>
                                 </div>
                                 <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-blue-500/20">
-                                    <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ עמלה</p>
+                                    <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ עמלה {hasVat ? '(ללא מע"מ)' : '(כולל מע"מ)'}</p>
                                     <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission)}</p>
                                 </div>
                                 <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
@@ -415,11 +415,11 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                             <p className="text-2xl font-black text-[#1d1d1f]">{summary.duduar_bottles}</p>
                                         </div>
                                         <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                            <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות דודואר</p>
+                                            <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות דודואר (ללא מע"מ)</p>
                                             <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.duduar_revenue || 0)}</p>
                                         </div>
                                         <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-purple-500/20">
-                                            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלת דודואר</p>
+                                            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלת דודואר {hasVat ? '(ללא מע"מ)' : '(כולל מע"מ)'}</p>
                                             <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.duduar_commission || 0)}</p>
                                         </div>
                                     </>
@@ -448,11 +448,11 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                                     <p className="text-lg font-black text-slate-800">{bs.total_items}</p>
                                                 </div>
                                                 <div className="bg-white p-3 rounded-xl border border-slate-100/50 shadow-sm">
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">מכירות</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">מכירות (ללא מע"מ)</p>
                                                     <p className="text-lg font-black text-slate-800" dir="ltr">{formatILS(bs.total_revenue)}</p>
                                                 </div>
                                                 <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100/50 shadow-sm">
-                                                    <p className="text-[10px] font-bold text-blue-500/80 uppercase tracking-wider mb-0.5">עמלה</p>
+                                                    <p className="text-[10px] font-bold text-blue-500/80 uppercase tracking-wider mb-0.5">עמלה {hasVat ? '(ללא מע"מ)' : '(כולל מע"מ)'}</p>
                                                     <p className="text-lg font-black text-blue-600" dir="ltr">{formatILS(bs.commission)}</p>
                                                 </div>
                                             </div>
