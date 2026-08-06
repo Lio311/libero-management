@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { MonthNavigator } from '@/components/MonthNavigator';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Loader2, AlertCircle, RefreshCw, ShoppingBag, Tag, ChevronDown, ChevronUp, Package } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw, ShoppingBag, Tag, ChevronDown, ChevronUp, Package, Activity, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 
 interface OrderItem {
     name: string;
@@ -68,9 +69,75 @@ export default function OdedCouponPage() {
     const [error, setError] = useState<string | null>(null);
     const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
 
+    const [isOdedAuthenticated, setIsOdedAuthenticated] = useState<boolean | null>(null);
+    const [token, setToken] = useState('');
+    const [authError, setAuthError] = useState<string | false>(false);
+    const [isAuthLoading, setIsAuthLoading] = useState(false);
+
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [containerWidth, setContainerWidth] = useState(0);
+
+    const x = useMotionValue(0);
+    const background = useTransform(
+        x,
+        [0, containerWidth > 0 ? containerWidth - 56 : 0],
+        ['rgba(255, 255, 255, 0.02)', 'rgba(255, 255, 255, 0.2)']
+    );
+
     const month = format(currentDate, 'yyyy-MM');
 
     useEffect(() => {
+        const auth = sessionStorage.getItem('oded_auth');
+        if (auth === 'true') {
+            setIsOdedAuthenticated(true);
+        } else {
+            setIsOdedAuthenticated(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!isOdedAuthenticated && containerRef.current) {
+            setContainerWidth(containerRef.current.offsetWidth);
+        }
+    }, [isOdedAuthenticated]);
+
+    const handleLogin = async () => {
+        if (isAuthLoading || token.length < 1) return;
+        setAuthError(false);
+        setIsAuthLoading(true);
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        if (token === 'ניסים') {
+            sessionStorage.setItem('oded_auth', 'true');
+            setIsOdedAuthenticated(true);
+        } else {
+            setAuthError('סיסמה שגויה');
+            setToken('');
+            animate(x, 0, { type: 'spring', bounce: 0.2 });
+        }
+        setIsAuthLoading(false);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleLogin();
+    };
+
+    const disabled = isAuthLoading || token.length < 1;
+
+    const handleDragEnd = () => {
+        if (x.get() > containerWidth * 0.55 && !disabled) {
+            handleLogin();
+            animate(x, containerWidth - 56, { type: 'spring', bounce: 0, duration: 0.3 });
+        } else {
+            animate(x, 0, { type: 'spring', bounce: 0.2, duration: 0.4 });
+        }
+    };
+
+    useEffect(() => {
+        if (!isOdedAuthenticated) return;
+
         const fetchData = async () => {
             setLoading(true);
             setError(null);
@@ -98,11 +165,97 @@ export default function OdedCouponPage() {
         };
 
         fetchData();
-    }, [month]);
+    }, [month, isOdedAuthenticated]);
 
     const toggleOrder = (orderId: number) => {
         setExpandedOrder(prev => prev === orderId ? null : orderId);
     };
+
+    if (isOdedAuthenticated === null) return null;
+
+    if (!isOdedAuthenticated) {
+        return (
+            <div className="fixed inset-0 z-[100] min-h-screen w-full bg-black flex items-center justify-center overflow-hidden" dir="ltr">
+                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-zinc-800 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-pulse"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-zinc-900 rounded-full mix-blend-screen filter blur-[120px] opacity-40"></div>
+                
+                <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="z-10 w-full max-w-md p-8"
+                >
+                    <div className="backdrop-blur-2xl bg-zinc-950/40 border border-white/10 rounded-3xl p-10 shadow-2xl overflow-hidden relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50"></div>
+                        
+                        <div className="relative z-10 flex flex-col items-center">
+                            <motion.div 
+                                initial={{ scale: 0.8 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                                className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-8 border border-white/20 shadow-inner"
+                            >
+                                <Activity className="text-white w-8 h-8" />
+                            </motion.div>
+                            
+                            <div className="relative h-16 w-36 overflow-hidden mb-2">
+                                <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center invert opacity-90" priority />
+                            </div>
+                            <p className="text-zinc-400 text-sm mb-10 tracking-widest uppercase text-center w-full block">Oded Report</p>
+
+                            <form onSubmit={handleSubmit} className="w-full">
+                                <div className="relative mb-6" dir="rtl">
+                                    <input
+                                        type="password"
+                                        value={token}
+                                        onChange={(e) => {
+                                            setToken(e.target.value);
+                                            setAuthError(false);
+                                            animate(x, 0, { type: 'spring', bounce: 0.2 });
+                                        }}
+                                        className={`w-full bg-zinc-900/50 border text-center text-xl tracking-wider font-mono ${authError ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-white/30'} rounded-xl py-4 text-white placeholder-zinc-500 focus:outline-none focus:ring-4 ${authError ? 'focus:ring-red-500/10' : 'focus:ring-white/5'} transition-all duration-300 backdrop-blur-md`}
+                                        placeholder="סיסמה"
+                                        disabled={isAuthLoading}
+                                        autoFocus
+                                    />
+                                    {authError && <p className="text-red-400 text-sm mt-2 text-center">{authError}</p>}
+                                </div>
+
+                                <div dir="ltr" ref={containerRef} className="relative w-full h-14 bg-zinc-900/50 rounded-full overflow-hidden flex items-center justify-center border border-white/10 mt-4 backdrop-blur-md">
+                                    <motion.div style={{ background }} className="absolute inset-0 z-0" />
+                                    <span className="text-zinc-500 font-medium z-0 select-none text-sm tracking-wider uppercase">
+                                        {isAuthLoading ? 'Unlocking...' : 'Slide to unlock'}
+                                    </span>
+                                    
+                                    {!isAuthLoading && (
+                                        <motion.div
+                                            drag={disabled ? false : "x"}
+                                            dragConstraints={{ left: 0, right: containerWidth > 0 ? containerWidth - 56 : 0 }}
+                                            dragElastic={0.05}
+                                            onDragEnd={handleDragEnd}
+                                            style={{ x }}
+                                            className={`absolute left-1 w-12 h-12 bg-white rounded-full z-10 flex items-center justify-center shadow-lg ${disabled ? 'opacity-30 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}`}
+                                        >
+                                            <ChevronRight className="w-5 h-5 text-black" />
+                                        </motion.div>
+                                    )}
+                                    {isAuthLoading && (
+                                        <div className="absolute right-1 w-12 h-12 bg-white rounded-full z-10 flex items-center justify-center shadow-lg">
+                                            <motion.div
+                                                animate={{ rotate: 360 }}
+                                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                                className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full"
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500 px-6 md:px-12 pt-8 pb-20 max-w-7xl mx-auto" dir="rtl">
