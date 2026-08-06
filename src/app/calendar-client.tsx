@@ -151,7 +151,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
             const dateKey = format(renderDate, 'yyyy-MM-dd');
             if (!newTasks[dateKey]) newTasks[dateKey] = [];
 
-            let category = { name: 'משימה חודשית', color: 'bg-blue-400' };
+            let category = { name: 'משימה שבועית', color: 'bg-blue-400' };
             if (isDelayed) {
               category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
             }
@@ -160,6 +160,59 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               id: existingTask ? existingTask.id : `task-weekly-summary-thu-${n}-${dateKey}`,
               dbId: task.id,
               title: 'פגישת סיכום שבוע',
+              category,
+              isCompleted,
+              isDelayed,
+              delayMonths,
+              source: 'schedule'
+            });
+          }
+          return;
+        } else if (isScanProducts) {
+          const firstScanIdx = scheduleData.findIndex(t => t.task === task.task);
+          if (idx !== firstScanIdx) return;
+
+          for (let n = 1; n <= 5; n++) {
+            const tuesdayDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), 2, n);
+            if (tuesdayDate.getMonth() !== currentDate.getMonth()) continue;
+
+            const today = startOfDay(new Date());
+            let renderDate = tuesdayDate;
+            let isDelayed = false;
+            let delayMonths = 0;
+
+            let existingTask: Task | undefined;
+            for (const key of Object.keys(prev)) {
+              existingTask = prev[key].find(t => t.id.includes(`-tue-${n}-${task.task}`));
+              if (existingTask) break;
+            }
+
+            const isCompleted = existingTask ? existingTask.isCompleted : (task.status === 'בוצע');
+
+            if (!isCompleted && isBefore(tuesdayDate, today)) {
+              renderDate = today;
+              isDelayed = true;
+              delayMonths = differenceInMonths(today, tuesdayDate);
+            }
+
+            if (renderDate.getDay() === 5) {
+              renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 2);
+            } else if (renderDate.getDay() === 6) {
+              renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 1);
+            }
+
+            const dateKey = format(renderDate, 'yyyy-MM-dd');
+            if (!newTasks[dateKey]) newTasks[dateKey] = [];
+
+            let category = { name: 'משימה שבועית', color: 'bg-blue-400' };
+            if (isDelayed) {
+              category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
+            }
+
+            newTasks[dateKey].push({
+              id: existingTask ? existingTask.id : `task-scan-tue-${n}-${task.task}-${dateKey}`,
+              dbId: task.id,
+              title: task.task,
               category,
               isCompleted,
               isDelayed,
@@ -211,14 +264,13 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               id: existingTask ? existingTask.id : `task-${idx}-${i === 0 ? 'sun' : 'wed'}-${dateKey}`,
               dbId: task.id,
               title: task.task,
-              category: { name: 'משימה חודשית', color: 'bg-blue-400' },
+              category: { name: 'משימה דו-שבועית', color: 'bg-indigo-400' },
               isCompleted: existingTask ? existingTask.isCompleted : (task.status === 'בוצע'),
               source: 'schedule'
             });
           });
           return; // Skip the rest for this specific task
-        } else if (isWeeklySummary || isMarketingMeeting || isScanProducts) {
-          // Determine week occurrence (1st, 2nd, 3rd, 4th, 5th) based on the original day of month stored in DB
+        } else if (isMarketingMeeting) {
           let n = 1;
           const originalDay = task.weekNumber || 1;
           if (originalDay >= 1 && originalDay <= 7) n = 1;
@@ -227,11 +279,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
           else if (originalDay >= 22 && originalDay <= 28) n = 4;
           else if (originalDay >= 29) n = 5;
 
-          let dayOfWeek = 4; // Default to Thursday for weekly summary
-          if (isMarketingMeeting) dayOfWeek = 1; // Monday
-          if (isScanProducts) dayOfWeek = 2; // Tuesday
-
-          taskDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), dayOfWeek, n);
+          taskDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), 1, n);
         } else {
           const dayOfMonth = task.weekNumber || 1;
           taskDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), dayOfMonth);
@@ -275,13 +323,16 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         
         if (!newTasks[dateKey]) newTasks[dateKey] = [];
 
-        let category = { name: 'משימה חודשית', color: 'bg-blue-400' };
+        let categoryName = 'משימה חד-פעמית';
+        if (isMonthlySummary || isInventoryMeeting) {
+          categoryName = 'משימה חודשית';
+        } else if (isMarketingMeeting) {
+          categoryName = 'משימה שבועית';
+        }
+
+        let category = { name: categoryName, color: 'bg-blue-400' };
         if (isDelayed) {
-          if (delayMonths >= 1) {
-            category = { name: 'עיכוב של חודש+', color: 'bg-orange-400' };
-          } else {
-            category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
-          }
+          category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
         }
 
         newTasks[dateKey].push({
@@ -340,7 +391,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               id: existingTask ? existingTask.id : `bank-${task.id}-mon-${n}`,
               dbId: task.id,
               title: task.taskName,
-              category: { name: 'משימה חודשית', color: 'bg-blue-400' },
+              category: { name: 'משימה שבועית', color: 'bg-blue-400' },
               isCompleted: existingTask ? existingTask.isCompleted : (task.status === 'בוצע'),
               source: 'bank'
             });
@@ -388,7 +439,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
            const dateKey = format(renderDate, 'yyyy-MM-dd');
            if (!newTasks[dateKey]) newTasks[dateKey] = [];
            
-           let category = { name: 'בנק משימות', color: 'bg-purple-400' };
+           let category = { name: 'משימה חד-פעמית', color: 'bg-purple-400' };
            if (isDelayed) {
               category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
            }
