@@ -150,6 +150,8 @@ export const wholesaleCustomers = pgTable("wholesale_customers", {
   interest: varchar("interest", { length: 50 }),
   notes: text("notes"),
   paymentMonth: varchar("payment_month", { length: 7 }),
+  lastOrderDate: varchar("last_order_date", { length: 100 }),
+  totalAmountNis: decimal("total_amount_nis"),
 });
 
 export const roleHolders = pgTable("role_holders", {
