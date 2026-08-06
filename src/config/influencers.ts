@@ -144,7 +144,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
   },
   oded: {
     id: 'oded',
-    name: "עודד",
+    name: "עודד אלמקייס",
     image: "/oded.png",
     baseSalary: 11000,
     coupons: [
