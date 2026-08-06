@@ -111,13 +111,47 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         const isMonthlySummary = taskTitle.includes('פגישת סיכום חודש');
         const isPricingMeeting = taskTitle.includes('פגישת תמחור');
 
+        const isMarketingMeeting = taskTitle.includes('ישיבת שיווק');
+        const isScanProducts = taskTitle.includes('סריקת 100 מוצרים');
+
         if (isMonthlySummary) {
           let lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Last day of month
           while (lastDay.getDay() === 5 || lastDay.getDay() === 6) {
             lastDay = new Date(lastDay.getFullYear(), lastDay.getMonth(), lastDay.getDate() - 1);
           }
           taskDate = lastDay;
-        } else if (isWeeklySummary || isPricingMeeting) {
+        } else if (isPricingMeeting) {
+          let n = 1;
+          const originalDay = task.weekNumber || 1;
+          if (originalDay >= 1 && originalDay <= 7) n = 1;
+          else if (originalDay >= 8 && originalDay <= 14) n = 2;
+          else if (originalDay >= 15 && originalDay <= 21) n = 3;
+          else if (originalDay >= 22 && originalDay <= 28) n = 4;
+          else if (originalDay >= 29) n = 5;
+
+          const sundayDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), 0, n); // Sunday
+          const wednesdayDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), 3, n); // Wednesday
+
+          [sundayDate, wednesdayDate].forEach((d, i) => {
+            const dateKey = format(d, 'yyyy-MM-dd');
+            if (!newTasks[dateKey]) newTasks[dateKey] = [];
+            
+            let existingTask: Task | undefined;
+            for (const key of Object.keys(prev)) {
+              existingTask = prev[key].find(t => t.dbId === task.id && t.id.includes(i === 0 ? 'sun' : 'wed'));
+              if (existingTask) break;
+            }
+            newTasks[dateKey].push({
+              id: existingTask ? existingTask.id : `task-${idx}-${i === 0 ? 'sun' : 'wed'}-${dateKey}`,
+              dbId: task.id,
+              title: task.task,
+              category: { name: 'Monthly Task', color: 'bg-blue-400' },
+              isCompleted: existingTask ? existingTask.isCompleted : (task.status === 'בוצע'),
+              source: 'schedule'
+            });
+          });
+          return; // Skip the rest for this specific task
+        } else if (isWeeklySummary || isMarketingMeeting || isScanProducts) {
           // Determine week occurrence (1st, 2nd, 3rd, 4th, 5th) based on the original day of month stored in DB
           let n = 1;
           const originalDay = task.weekNumber || 1;
@@ -127,7 +161,10 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
           else if (originalDay >= 22 && originalDay <= 28) n = 4;
           else if (originalDay >= 29) n = 5;
 
-          const dayOfWeek = isWeeklySummary ? 4 : 1; // 4 = Thursday, 1 = Monday
+          let dayOfWeek = 4; // Default to Thursday for weekly summary
+          if (isMarketingMeeting) dayOfWeek = 1; // Monday
+          if (isScanProducts) dayOfWeek = 2; // Tuesday
+
           taskDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), dayOfWeek, n);
         } else {
           const dayOfMonth = task.weekNumber || 1;
@@ -186,6 +223,33 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
       };
 
       bankTasksData.forEach(task => {
+        if (task.taskName && task.taskName.includes('ישיבת שיווק')) {
+          // Render this specific bank task on every Monday of the month
+          for (let n = 1; n <= 5; n++) {
+            const mondayDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), 1, n);
+            if (mondayDate.getMonth() !== currentDate.getMonth()) continue; // Skip if n=5 overflows to next month
+            
+            const dateKey = format(mondayDate, 'yyyy-MM-dd');
+            if (!newTasks[dateKey]) newTasks[dateKey] = [];
+            
+            let existingTask: Task | undefined;
+            for (const key of Object.keys(prev)) {
+               existingTask = prev[key].find(t => t.dbId === task.id && t.id.includes(`-mon-${n}`));
+               if (existingTask) break;
+            }
+
+            newTasks[dateKey].push({
+              id: existingTask ? existingTask.id : `bank-${task.id}-mon-${n}`,
+              dbId: task.id,
+              title: task.taskName,
+              category: { name: 'Monthly Task', color: 'bg-blue-400' },
+              isCompleted: existingTask ? existingTask.isCompleted : (task.status === 'בוצע'),
+              source: 'bank'
+            });
+          }
+          return; // Skip standard due-date rendering
+        }
+
         if (!task.dueDate) return;
         const parsedDate = parseDateString(task.dueDate);
         if (parsedDate) {
