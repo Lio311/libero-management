@@ -227,6 +227,20 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
   );
 }
 
+const getCurrencySymbol = (brand: string | null) => {
+  if (!brand) return '₪';
+  const name = brand.toLowerCase();
+  
+  if (name.includes('farmacia') || name.includes('birkholz') || name.includes('comporta') || name.includes('bohoboco') || name.includes('fomowa') || name.includes('bergamoss') || name.includes('dudar milano') || name.includes('piccirilli') || name.includes('sora dora') || name.includes('elisire')) {
+    return '€';
+  }
+  if (name.includes('memoirs')) {
+    return '£';
+  }
+  
+  return '₪';
+};
+
 export default function InventoryClient({
   totalInventoryValue,
   itemsAtRisk,
@@ -552,7 +566,7 @@ export default function InventoryClient({
                             </div>
                             <div>
                               <div className="text-sm text-gray-500">מחיר עלות</div>
-                              <div className="font-medium">₪{item.costPrice || '0'}</div>
+                              <div className="font-medium">{getCurrencySymbol(item.brand)}{item.costPrice || '0'}</div>
                             </div>
                           </div>
                         </div>
@@ -595,7 +609,7 @@ export default function InventoryClient({
                         ) : '0%'}
                       </td>
                       <td className="py-3 px-4 font-medium whitespace-nowrap">
-                        ₪{item.costPrice || '0'}
+                        {getCurrencySymbol(item.brand)}{item.costPrice || '0'}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap text-left">
                         <div className="flex items-center justify-end gap-2">
