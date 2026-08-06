@@ -187,7 +187,7 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden text-right max-h-[80vh] flex flex-col"
+            className="absolute left-0 md:left-auto md:right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden text-right max-h-[80vh] flex flex-col"
             dir="rtl"
           >
             <div className="p-3 bg-gray-50 border-b border-gray-100 font-bold text-xs text-gray-500 flex justify-between items-center">

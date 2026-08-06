@@ -57,6 +57,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
   ayala: {
     id: 'ayala',
     name: "איילה אריאל",
+    image: "/influencers/ayala.jpg",
     coupons: [
       { brand: 'velour', code: 'ayala10' }
     ]
@@ -71,6 +72,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
   noga: {
     id: 'noga',
     name: "נוגה אינגר",
+    image: "/influencers/noga.jpg",
     coupons: [
       { brand: 'velour', code: 'noga10' },
       { brand: 'labura', code: 'noga15' }
@@ -79,6 +81,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
   noa: {
     id: 'noa',
     name: "נועה בן דוד",
+    image: "/influencers/noa.jpg",
     coupons: [
       { brand: 'velour', code: 'noa10' },
       { brand: 'labura', code: 'noa15' },
@@ -88,6 +91,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
   shoam: {
     id: 'shoam',
     name: "שוהם ביטון",
+    image: "/influencers/shoam.jpg",
     coupons: [
       { brand: 'labura', code: 'shoam15' },
       { brand: 'velour', code: 'shoam10' }
