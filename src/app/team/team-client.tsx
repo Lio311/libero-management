@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, Cable, Trash2, Edit2, Check, X, Plus } from "lucide-react";
 import Xarrow, { Xwrapper, useXarrow } from "react-xarrows";
-import { updateRoleHolder, addTeamTaskConnection, removeTeamTaskConnection, createRoleHolder, deleteRoleHolder } from "@/app/actions/team";
+import { updateRoleHolder, addTeamTaskConnection, removeTeamTaskConnection, createRoleHolder, deleteRoleHolder, createTeamTask, updateTeamTask, deleteTeamTask } from "@/app/actions/team";
 import { useRouter } from "next/navigation";
 
 interface TeamClientProps {
@@ -22,7 +22,10 @@ function EmployeeCard({
   selectedTask, 
   handleTaskClick, 
   onDelete,
-  onUpdate
+  onUpdate,
+  onTaskCreate,
+  onTaskUpdate,
+  onTaskDelete
 }: {
   roleHolder: any;
   tasks: { id: string, description: string }[];
@@ -31,9 +34,16 @@ function EmployeeCard({
   handleTaskClick: (taskId: string) => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, data: any) => void;
+  onTaskCreate: (assignee: string, description: string) => void;
+  onTaskUpdate: (id: string, description: string) => void;
+  onTaskDelete: (id: string) => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: roleHolder.name || '', role: roleHolder.role || '' });
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [taskEditValue, setTaskEditValue] = useState('');
+  const [isAddingTask, setIsAddingTask] = useState(false);
+  const [newTaskValue, setNewTaskValue] = useState('');
 
   const handleSave = async () => {
     await onUpdate(roleHolder.id, formData);
@@ -80,7 +90,7 @@ function EmployeeCard({
             {!roleHolder.isTemp && (
               <div className="flex gap-2">
                 <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="ערוך"><Edit2 className="w-4 h-4" /></button>
-                <button onClick={() => { if(confirm('האם למחוק?')) onDelete(roleHolder.id); }} className="p-1.5 text-red-600 hover:bg-red-50 rounded" title="מחק"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={() => { if(confirm('האם למחוק איש צוות?')) onDelete(roleHolder.id); }} className="p-1.5 text-red-600 hover:bg-red-50 rounded" title="מחק"><Trash2 className="w-4 h-4" /></button>
               </div>
             )}
           </div>
@@ -92,6 +102,7 @@ function EmployeeCard({
       <ul className="grid grid-cols-2 gap-3 flex-1 relative">
         {tasks.map((task) => {
           const isSelected = selectedTask === task.id;
+          const isEditingTask = editingTaskId === task.id;
           return (
             <li 
               key={task.id} 
@@ -108,18 +119,66 @@ function EmployeeCard({
                 isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-50'
               }`} />
 
-              <div id={`task-icon-${task.id}`} className="flex-shrink-0 mt-0.5 relative z-20 rounded-full bg-white">
-                <CheckCircle2 className={`w-4 h-4 ${connectMode ? 'text-blue-400' : 'text-gray-400'}`} />
-              </div>
-              <span className={`text-sm text-gray-700 leading-relaxed relative z-20 font-medium px-1 rounded ${
-                connectMode ? 'group-hover/task:bg-blue-50' : ''
-              } ${
-                isSelected ? 'bg-blue-50' : 'bg-gray-50'
-              }`}>{task.description}</span>
+              {isEditingTask ? (
+                <div className="flex flex-col gap-2 w-full z-20 relative">
+                   <textarea 
+                     value={taskEditValue} 
+                     onChange={e => setTaskEditValue(e.target.value)} 
+                     className="w-full p-2 border rounded text-sm min-h-[40px]"
+                     autoFocus
+                   />
+                   <div className="flex gap-2 justify-end">
+                     <button onClick={(e) => { e.stopPropagation(); onTaskUpdate(task.id, taskEditValue); setEditingTaskId(null); }} className="text-green-600 p-1 bg-green-50 rounded"><Check className="w-4 h-4"/></button>
+                     <button onClick={(e) => { e.stopPropagation(); setEditingTaskId(null); }} className="text-red-600 p-1 bg-red-50 rounded"><X className="w-4 h-4"/></button>
+                   </div>
+                </div>
+              ) : (
+                <>
+                  <div id={`task-icon-${task.id}`} className="flex-shrink-0 mt-0.5 relative z-20 rounded-full bg-white">
+                    <CheckCircle2 className={`w-4 h-4 ${connectMode ? 'text-blue-400' : 'text-gray-400'}`} />
+                  </div>
+                  <span className={`text-sm text-gray-700 leading-relaxed relative z-20 font-medium px-1 rounded ${
+                    connectMode ? 'group-hover/task:bg-blue-50' : ''
+                  } ${
+                    isSelected ? 'bg-blue-50' : 'bg-gray-50'
+                  }`}>{task.description}</span>
+                  
+                  {!connectMode && (
+                    <div className="absolute left-2 top-2 z-30 flex gap-1 opacity-0 group-hover/task:opacity-100 transition-opacity">
+                      <button onClick={(e) => { e.stopPropagation(); setTaskEditValue(task.description); setEditingTaskId(task.id); }} className="p-1 text-blue-600 hover:bg-blue-100 rounded bg-white/80" title="ערוך משימה"><Edit2 className="w-3 h-3" /></button>
+                      <button onClick={(e) => { e.stopPropagation(); if(confirm('האם למחוק משימה זו?')) onTaskDelete(task.id); }} className="p-1 text-red-600 hover:bg-red-100 rounded bg-white/80" title="מחק משימה"><Trash2 className="w-3 h-3" /></button>
+                    </div>
+                  )}
+                </>
+              )}
             </li>
           );
         })}
       </ul>
+      
+      {!roleHolder.isTemp && (
+        <div className="mt-4 relative z-30">
+          {isAddingTask ? (
+             <div className="flex flex-col gap-2 p-3 bg-gray-50 rounded-lg">
+               <textarea 
+                 value={newTaskValue} 
+                 onChange={e => setNewTaskValue(e.target.value)} 
+                 className="w-full p-2 border rounded text-sm min-h-[40px] bg-white"
+                 placeholder="תיאור משימה חדשה..."
+                 autoFocus
+               />
+               <div className="flex gap-2 justify-end">
+                 <button onClick={() => { if(newTaskValue) { onTaskCreate(roleHolder.name, newTaskValue); setIsAddingTask(false); setNewTaskValue(''); } }} className="text-green-600 p-1 bg-green-50 rounded"><Check className="w-4 h-4"/></button>
+                 <button onClick={() => { setIsAddingTask(false); setNewTaskValue(''); }} className="text-red-600 p-1 bg-red-50 rounded"><X className="w-4 h-4"/></button>
+               </div>
+             </div>
+          ) : (
+             <button onClick={() => setIsAddingTask(true)} className="flex items-center justify-center gap-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 w-full py-2 rounded-lg font-medium transition-colors">
+               <Plus className="w-4 h-4" /> הוסף משימה
+             </button>
+          )}
+        </div>
+      )}
       </div>
     </div>
   );
@@ -180,6 +239,21 @@ export default function TeamClient({
 
   const handleUpdateRole = async (id: string, data: { name: string, role: string }) => {
     await updateRoleHolder(id, data);
+    router.refresh();
+  };
+
+  const handleCreateTask = async (assignee: string, description: string) => {
+    await createTeamTask({ assignee, taskDescription: description });
+    router.refresh();
+  };
+
+  const handleUpdateTask = async (id: string, description: string) => {
+    await updateTeamTask(id, { taskDescription: description });
+    router.refresh();
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    await deleteTeamTask(id);
     router.refresh();
   };
 
@@ -355,6 +429,9 @@ export default function TeamClient({
                     handleTaskClick={handleTaskClick}
                     onDelete={handleDeleteRole}
                     onUpdate={handleUpdateRole}
+                    onTaskCreate={handleCreateTask}
+                    onTaskUpdate={handleUpdateTask}
+                    onTaskDelete={handleDeleteTask}
                   />
                 );
               })}

@@ -1,9 +1,50 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { roleHolders, teamTaskConnections } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { roleHolders, teamTaskConnections, teamTasks } from "@/lib/db/schema";
+import { eq, and, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+
+export async function createTeamTask(data: { assignee: string; taskDescription: string }) {
+  try {
+    await db.insert(teamTasks).values(data);
+    revalidatePath("/team");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to create team task:", error);
+    return { success: false, error: "Failed to create team task" };
+  }
+}
+
+export async function updateTeamTask(id: string, data: { taskDescription: string }) {
+  try {
+    await db.update(teamTasks).set(data).where(eq(teamTasks.id, id));
+    revalidatePath("/team");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update team task:", error);
+    return { success: false, error: "Failed to update team task" };
+  }
+}
+
+export async function deleteTeamTask(id: string) {
+  try {
+    // First, delete any connections related to this task
+    await db.delete(teamTaskConnections).where(
+      or(
+        eq(teamTaskConnections.sourceTaskId, id),
+        eq(teamTaskConnections.targetTaskId, id)
+      )
+    );
+    // Then delete the task itself
+    await db.delete(teamTasks).where(eq(teamTasks.id, id));
+    revalidatePath("/team");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete team task:", error);
+    return { success: false, error: "Failed to delete team task" };
+  }
+}
 
 export async function updateRoleHolder(id: string, data: Partial<typeof roleHolders.$inferInsert>) {
   try {

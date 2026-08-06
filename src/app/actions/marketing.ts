@@ -36,3 +36,14 @@ export async function deleteInfluencerPayment(id: string) {
   await db.delete(influencerPayments).where(eq(influencerPayments.id, id));
   revalidatePath('/marketing');
 }
+
+export async function getInfluencerBaseSalary(influencerId: string): Promise<number> {
+  const result = await db.select({ baseSalary: influencers.baseSalary })
+    .from(influencers)
+    .where(eq(influencers.influencerId, influencerId))
+    .limit(1);
+  if (result.length > 0 && result[0].baseSalary) {
+    return parseFloat(result[0].baseSalary);
+  }
+  return 0;
+}
