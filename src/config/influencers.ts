@@ -15,6 +15,31 @@ export interface InfluencerConfig {
 }
 
 export const influencersConfig: Record<string, InfluencerConfig> = {
+  mor: {
+    id: 'mor',
+    name: "מור אברג'ל",
+    image: "/influencers/mor.png",
+    coupons: [
+      { brand: 'velour', code: 'mor10' },
+      { brand: 'labura', code: 'mor15' }
+    ]
+  },
+  noy: {
+    id: 'noy',
+    name: "נוי מקונן",
+    image: "/influencers/noy.png",
+    coupons: [
+      { brand: 'velour', code: 'noy10' }
+    ]
+  },
+  maayan: {
+    id: 'maayan',
+    name: "מעיין פלח",
+    image: "/influencers/maayan.jpg",
+    coupons: [
+      { brand: 'velour', code: 'maayan10' }
+    ]
+  },
   amit: {
     id: 'amit',
     name: "עמית טראש",
@@ -83,6 +108,30 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     baseSalary: 2500,
     coupons: [
       { brand: 'labura', code: 'liya15' }
+    ]
+  },
+  shaked: {
+    id: 'shaked',
+    name: "שקד לנקרי",
+    image: "/influencers/shaked.png",
+    coupons: [
+      { brand: 'labura', code: 'shaked15' }
+    ]
+  },
+  hf: {
+    id: 'hf',
+    name: "הדר פדידה",
+    image: "/influencers/hf.png",
+    coupons: [
+      { brand: 'labura', code: 'hf15' }
+    ]
+  },
+  lian: {
+    id: 'lian',
+    name: "ליאן שיפמן",
+    image: "/influencers/lian.jpg",
+    coupons: [
+      { brand: 'labura', code: 'lian15' }
     ]
   },
   reut: {
