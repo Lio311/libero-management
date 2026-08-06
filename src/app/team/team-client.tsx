@@ -78,7 +78,7 @@ function EmployeeCard({
               <h2 className="text-xl font-semibold text-gray-900">{roleHolder.name}</h2>
             </div>
             {!roleHolder.isTemp && (
-              <div className="flex gap-2 lg:opacity-0 lg:group-hover:opacity-100">
+              <div className="flex gap-2">
                 <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="ערוך"><Edit2 className="w-4 h-4" /></button>
                 <button onClick={() => { if(confirm('האם למחוק?')) onDelete(roleHolder.id); }} className="p-1.5 text-red-600 hover:bg-red-50 rounded" title="מחק"><Trash2 className="w-4 h-4" /></button>
               </div>
