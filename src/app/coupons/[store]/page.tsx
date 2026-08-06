@@ -123,7 +123,7 @@ export default function CouponSummaryPage() {
     ];
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500" dir="rtl">
+        <div className="space-y-8 animate-in fade-in duration-500 px-6 md:px-12 pt-8 pb-20 max-w-7xl mx-auto" dir="rtl">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{config.title}</h1>
