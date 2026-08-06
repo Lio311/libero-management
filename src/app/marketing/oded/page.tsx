@@ -105,7 +105,7 @@ export default function OdedCouponPage() {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 px-4 md:px-8 pt-6 pb-12" dir="rtl">
+        <div className="space-y-8 animate-in fade-in duration-500 px-6 md:px-12 pt-8 pb-20 max-w-7xl mx-auto" dir="rtl">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -155,43 +155,43 @@ export default function OdedCouponPage() {
                         <Loader2 className="animate-spin text-purple-500" size={48} />
                         <div className="absolute inset-0 blur-xl opacity-20 bg-purple-500 animate-pulse" />
                     </div>
-                    <p className="text-[#1d1d1f] font-bold mt-8 text-lg">מושך נתונים...</p>
-                    <p className="text-[#6d6d6d] text-sm mt-1">מחפש הזמנות עם קופון OSVR10</p>
+                    <p className="text-[#1d1d1f] font-bold mt-8 text-lg text-center">מושך נתונים...</p>
+                    <p className="text-[#6d6d6d] text-sm mt-1 text-center">מחפש הזמנות עם קופון OSVR10</p>
                 </div>
             ) : (
                 <>
                     {/* Summary Cards */}
                     {summary && (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">הזמנות</p>
                                 <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_orders}</p>
                             </div>
-                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מוצרים</p>
                                 <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_items}</p>
                             </div>
-                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות מותגי הבית</p>
                                 <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.house_brand_revenue)}</p>
                             </div>
-                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות שאר המוצרים</p>
                                 <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.other_brand_revenue)}</p>
                             </div>
-                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ מכירות</p>
                                 <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.total_revenue)}</p>
                             </div>
-                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ הנחות</p>
                                 <p className="text-2xl font-black text-red-500" dir="ltr">{formatILSNeg(summary.total_discount)}</p>
                             </div>
-                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">ממוצע להזמנה</p>
                                 <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.avg_order_value)}</p>
                             </div>
-                            <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-5 rounded-2xl shadow-lg shadow-purple-500/20">
+                            <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-purple-500/20">
                                 <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלה נטו</p>
                                 <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission)}</p>
                             </div>
