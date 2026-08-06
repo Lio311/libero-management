@@ -115,7 +115,60 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         const isScanProducts = taskTitle.includes('סריקת 100 מוצרים');
         const isInventoryMeeting = taskTitle.includes('פגישת מלאי');
 
-        if (isMonthlySummary) {
+        if (isWeeklySummary) {
+          const firstWeeklySummaryIdx = scheduleData.findIndex(t => t.task && t.task.includes('פגישת סיכום שבוע'));
+          if (idx !== firstWeeklySummaryIdx) return;
+
+          for (let n = 1; n <= 5; n++) {
+            const thursdayDate = getNthDayOfMonth(currentDate.getFullYear(), currentDate.getMonth(), 4, n);
+            if (thursdayDate.getMonth() !== currentDate.getMonth()) continue;
+
+            const today = startOfDay(new Date());
+            let renderDate = thursdayDate;
+            let isDelayed = false;
+            let delayMonths = 0;
+
+            let existingTask: Task | undefined;
+            for (const key of Object.keys(prev)) {
+              existingTask = prev[key].find(t => t.id.includes(`-thu-${n}`));
+              if (existingTask) break;
+            }
+
+            const isCompleted = existingTask ? existingTask.isCompleted : (task.status === 'בוצע');
+
+            if (!isCompleted && isBefore(thursdayDate, today)) {
+              renderDate = today;
+              isDelayed = true;
+              delayMonths = differenceInMonths(today, thursdayDate);
+            }
+
+            if (renderDate.getDay() === 5) {
+              renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 2);
+            } else if (renderDate.getDay() === 6) {
+              renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 1);
+            }
+
+            const dateKey = format(renderDate, 'yyyy-MM-dd');
+            if (!newTasks[dateKey]) newTasks[dateKey] = [];
+
+            let category = { name: 'Monthly Task', color: 'bg-blue-400' };
+            if (isDelayed) {
+              category = { name: 'משימה בדחייה', color: 'bg-orange-400' };
+            }
+
+            newTasks[dateKey].push({
+              id: existingTask ? existingTask.id : `task-weekly-summary-thu-${n}-${dateKey}`,
+              dbId: task.id,
+              title: 'פגישת סיכום שבוע',
+              category,
+              isCompleted,
+              isDelayed,
+              delayMonths,
+              source: 'schedule'
+            });
+          }
+          return;
+        } else if (isMonthlySummary) {
           let lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Last day of month
           while (lastDay.getDay() === 5 || lastDay.getDay() === 6) {
             lastDay = new Date(lastDay.getFullYear(), lastDay.getMonth(), lastDay.getDate() - 1);
