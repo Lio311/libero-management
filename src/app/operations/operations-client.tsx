@@ -243,8 +243,6 @@ function EditableWholesaleRow({ customer, onCancelNew }: { customer: any, onCanc
           </select>
         </td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">הערות</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.notes} onChange={(e) => setData({ ...data, notes: e.target.value })} /></td>
-        <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">תאריך הזמנה</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.lastOrderDate} onChange={(e) => setData({ ...data, lastOrderDate: e.target.value })} /></td>
-        <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">סכום בש"ח</span><input type="number" className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.totalAmountNis} onChange={(e) => setData({ ...data, totalAmountNis: e.target.value })} /></td>
         <td className="p-0 md:p-2 flex justify-end md:table-cell mt-2 md:mt-0 pt-3 md:pt-0 border-t border-blue-200/50 md:border-none">
           <div className="flex gap-2 justify-end w-full md:w-auto">
             <button onClick={handleSave} disabled={isPending} className="flex-1 md:flex-none flex justify-center items-center p-2 md:p-1 text-green-700 bg-green-100 hover:bg-green-200 rounded-lg md:rounded md:bg-transparent transition-colors"><Check className="h-5 w-5 md:h-4 md:w-4" /></button>
@@ -289,8 +287,6 @@ function EditableWholesaleRow({ customer, onCancelNew }: { customer: any, onCanc
         <span className="md:hidden text-gray-500 text-xs uppercase tracking-wider">הערות</span>
         <span className="text-gray-600 truncate max-w-[200px] text-left md:text-right" dir="auto">{customer.notes || '-'}</span>
       </td>
-      <td className="hidden md:table-cell py-3 px-4 text-sm">{customer.lastOrderDate || '-'}</td>
-      <td className="hidden md:table-cell py-3 px-4 text-sm font-medium text-green-600">{customer.totalAmountNis ? `₪${customer.totalAmountNis}` : '-'}</td>
       <td className="p-3 md:py-3 md:px-4 flex justify-end md:table-cell border-t border-gray-50 md:border-none bg-gray-50/30 md:bg-transparent">
         <div className="flex gap-2 justify-end w-full md:w-auto">
           <button onClick={() => setIsEditing(true)} className="flex-1 md:flex-none flex justify-center items-center p-2.5 md:p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg md:rounded-md transition-colors bg-blue-50/50 md:bg-transparent border border-blue-100 md:border-transparent">
@@ -405,8 +401,6 @@ export default function OperationsClient({
                   <th className="py-3 px-4 font-medium whitespace-nowrap">פוטנציאל</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">עניין</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">תאריך הזמנה</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">סכום ש"ח</th>
                   <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-center">פעולות</th>
                 </tr>
               </thead>
@@ -418,7 +412,7 @@ export default function OperationsClient({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={11} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={9} className="py-8 text-center text-muted-foreground">
                       לא נמצאו לקוחות.
                     </td>
                   </tr>
