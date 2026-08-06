@@ -103,7 +103,7 @@ export default function OdedCouponPage() {
     };
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 px-4 md:px-8" dir="rtl">
+        <div className="space-y-8 animate-in fade-in duration-500 px-4 md:px-8 pt-6" dir="rtl">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
