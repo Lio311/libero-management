@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 type NavItem = {
   name: string;
@@ -58,7 +59,9 @@ export function Sidebar({ children }: { children?: React.ReactNode }) {
           <button onClick={toggleSidebar} className="p-1 -mr-1 text-foreground">
             <Menu className="h-6 w-6" />
           </button>
-          <h1 className="text-xl font-semibold tracking-tight text-primary">Libero</h1>
+          <div className="relative h-8 w-24 overflow-hidden -ml-2">
+            <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
+          </div>
         </div>
         <div>{children}</div>
       </div>
@@ -77,7 +80,9 @@ export function Sidebar({ children }: { children?: React.ReactNode }) {
         isOpen ? "translate-x-0" : "translate-x-full"
       )}>
         <div className="flex h-16 items-center justify-between px-6 border-b border-border/50">
-          <h1 className="text-xl font-semibold tracking-tight text-primary">Libero</h1>
+          <div className="relative h-8 w-24 overflow-hidden -ml-2">
+            <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
+          </div>
           <div className="flex items-center gap-2">
             <div className="hidden md:block">{children}</div>
             <button onClick={closeSidebar} className="md:hidden p-2 -ml-2 text-foreground">
