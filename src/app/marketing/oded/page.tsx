@@ -55,7 +55,7 @@ const formatILS = (amount: number, fractionDigits = 0) => {
 };
 
 const formatILSNeg = (amount: number, fractionDigits = 0) => {
-    return `₪${Math.abs(amount).toLocaleString('he-IL', { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits })}-`;
+    return `₪-${Math.abs(amount).toLocaleString('he-IL', { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits })}`;
 };
 
 export default function OdedCouponPage() {
