@@ -40,7 +40,7 @@ export default async function MarketingDashboard() {
     allInfluencers = await db.select().from(influencers);
     payments = await db.select().from(influencerPayments);
 
-    activeInfluencers = allInfluencers.length;
+    activeInfluencers = new Set(payments.map(p => p.influencerName || p.influencerId).filter(Boolean)).size;
 
     allInfluencers.forEach(inf => {
       // Very naive extraction of numbers if possible, else 1

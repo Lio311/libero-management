@@ -452,51 +452,21 @@ export default function MarketingClient({
   const currentMonth = currentMonthIndex >= 0 ? allMonths[currentMonthIndex] : '';
   const filteredPayments = currentMonth ? rawPayments.filter(p => p.paymentMonth === currentMonth) : rawPayments;
 
-  const combinedPayments = currentMonth ? (() => {
-    const allKnownInfluencers = [...(rawInfluencers || [])];
-    
-    Object.keys(influencersConfig).forEach(key => {
-       const existing = allKnownInfluencers.find(i => i.influencerId === key);
-       if (!existing) {
-          allKnownInfluencers.push({
-             id: `config-${key}`,
-             influencerId: key,
-             influencerName: influencersConfig[key].name,
-             baseSalary: influencersConfig[key].baseSalary || 0
-          });
-       }
-    });
+  const combinedPayments = currentMonth 
+    ? filteredPayments.map(p => ({
+        ...p,
+        baseSalary: influencersConfig[p.influencerId]?.baseSalary || p.baseSalary || 0,
+        hasRealPayment: true
+      }))
+    : rawPayments.map(p => ({
+        ...p,
+        baseSalary: influencersConfig[p.influencerId]?.baseSalary || p.baseSalary || 0,
+        hasRealPayment: true
+      }));
 
-    const combined = allKnownInfluencers.map(inf => {
-      const configBaseSalary = influencersConfig[inf.influencerId]?.baseSalary;
-      const finalBaseSalary = configBaseSalary !== undefined ? configBaseSalary : (inf.baseSalary || 0);
-
-      const existingPayment = filteredPayments.find(p => p.influencerId === inf.influencerId || (p.influencerName && p.influencerName === inf.influencerName));
-      if (existingPayment) {
-        return { ...existingPayment, baseSalary: finalBaseSalary, hasRealPayment: true };
-      }
-      return {
-        id: `pseudo-${inf.id}`,
-        influencerId: inf.influencerId,
-        influencerName: inf.influencerName || '',
-        amount: 0,
-        isDone: 'לא בוצע',
-        paymentMonth: currentMonth,
-        notes: '',
-        baseSalary: finalBaseSalary,
-        hasRealPayment: false
-      };
-    });
-    
-    filteredPayments.forEach(p => {
-      if (!combined.find(cp => cp.id === p.id)) {
-        combined.push({ ...p, baseSalary: influencersConfig[p.influencerId]?.baseSalary || p.baseSalary || 0, hasRealPayment: true });
-      }
-    });
-    
-    // Filter out any influencers not in our active config
-    return combined.filter(p => p.influencerId && influencersConfig[p.influencerId]);
-  })() : filteredPayments.map(p => ({ ...p, baseSalary: influencersConfig[p.influencerId]?.baseSalary || p.baseSalary || 0, hasRealPayment: true })).filter(p => p.influencerId && influencersConfig[p.influencerId]);
+  const uniqueInfluencersCount = rawPayments && rawPayments.length > 0
+    ? new Set(rawPayments.map(p => p.influencerName || p.influencerId).filter(Boolean)).size
+    : 0;
 
   const handlePrevMonth = () => {
     if (currentMonthIndex > 0) setCurrentMonthIndex(currentMonthIndex - 1);
@@ -519,8 +489,8 @@ export default function MarketingClient({
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{rawInfluencers ? rawInfluencers.length : 0}</div>
-            <p className="text-xs text-muted-foreground">משפיענים פעילים במערכת</p>
+            <div className="text-2xl font-bold">{uniqueInfluencersCount}</div>
+            <p className="text-xs text-muted-foreground">משפיענים פעילים מטבלת התשלומים</p>
           </CardContent>
         </Card>
         <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
