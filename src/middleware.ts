@@ -24,9 +24,9 @@ export const config = {
      * - favicon.ico (favicon file)
      * - sw.js (service worker)
      * - manifest.json (PWA manifest)
-     * - libero-logo.png (PWA icon)
+     * - libero-d.png (App logo)
      * - oded.png (Oded profile image)
      */
-    '/((?!login|api/webhooks|api/oded-coupon|marketing/oded|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-logo.png|oded.png).*)',
+    '/((?!login|api/webhooks|api/oded-coupon|marketing/oded|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-d.png|oded.png).*)',
   ],
 };
