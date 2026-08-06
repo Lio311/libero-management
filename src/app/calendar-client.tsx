@@ -7,7 +7,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Plus, Calendar as CalendarIcon, CheckCircle2, Circle } from 'lucide-react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, isBefore, startOfDay, differenceInMonths, isValid } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, startOfWeek, endOfWeek, isBefore, startOfDay, differenceInMonths, isValid, isSameDay } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { updateMonthlyScheduleDay, toggleMonthlyScheduleStatus, deleteMonthlyScheduleAction } from '@/app/actions/monthlySchedule';
 import { updateBankOfTaskAction, createBankOfTaskAction, deleteBankOfTaskAction } from '@/app/actions/bankOfTasks';
@@ -276,7 +276,9 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
            let isDelayed = false;
            let delayMonths = 0;
            
-           if (task.status !== 'בוצע' && isBefore(parsedDate, today)) {
+           const isCreatedToday = task.createdAt ? isSameDay(new Date(task.createdAt), today) : false;
+           
+           if (task.status !== 'בוצע' && isBefore(parsedDate, today) && !isCreatedToday) {
               renderDate = today;
               isDelayed = true;
               delayMonths = differenceInMonths(today, parsedDate);

@@ -67,12 +67,7 @@ function EmployeeCard({
             placeholder="שם עובד"
             autoFocus
           />
-          <textarea 
-            value={formData.role} 
-            onChange={e => setFormData({...formData, role: e.target.value})} 
-            className="w-full p-2 border rounded text-sm min-h-[60px] bg-blue-50/50" 
-            placeholder="תפקיד / תחומי אחריות"
-          />
+
           <div className="flex gap-2 justify-end">
             <button onClick={handleSave} className="text-green-600 p-1.5 bg-green-50 rounded hover:bg-green-100"><Check className="w-4 h-4"/></button>
             <button onClick={handleCancel} className="text-red-600 p-1.5 bg-red-50 rounded hover:bg-red-100"><X className="w-4 h-4"/></button>
@@ -94,9 +89,7 @@ function EmployeeCard({
               </div>
             )}
           </div>
-          {roleHolder.role && (
-            <p className="text-sm text-gray-500 mt-2 whitespace-pre-wrap hidden">{roleHolder.role}</p>
-          )}
+
         </div>
       )}
       <ul className="grid grid-cols-2 gap-3 flex-1 relative">
@@ -225,9 +218,9 @@ export default function TeamClient({
   };
 
   const handleCreateRole = async () => {
-    if (!newRole.name || !newRole.role) return;
+    if (!newRole.name) return;
     setIsAddingNew(false);
-    await createRoleHolder(newRole);
+    await createRoleHolder({ name: newRole.name, role: '' });
     setNewRole({ name: '', role: '' });
     router.refresh();
   };
@@ -446,12 +439,7 @@ export default function TeamClient({
                       placeholder="שם עובד"
                       autoFocus
                     />
-                    <textarea 
-                      value={newRole.role} 
-                      onChange={e => setNewRole({...newRole, role: e.target.value})} 
-                      className="w-full p-2 border rounded text-sm min-h-[60px] bg-white" 
-                      placeholder="תפקיד / תחומי אחריות"
-                    />
+
                     <div className="flex gap-2 justify-end">
                       <button onClick={handleCreateRole} className="text-green-600 p-2 bg-green-50 rounded hover:bg-green-100"><Check className="w-5 h-5"/></button>
                       <button onClick={() => { setIsAddingNew(false); setNewRole({name:'', role:''}); }} className="text-red-600 p-2 bg-red-50 rounded hover:bg-red-100"><X className="w-5 h-5"/></button>
