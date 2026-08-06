@@ -8,6 +8,7 @@ import { Loader2, AlertCircle, RefreshCw, ShoppingBag, Tag, ChevronDown, Chevron
 import Image from 'next/image';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { influencersConfig } from '@/config/influencers';
+import { getInfluencerBaseSalary } from '@/app/actions/marketing';
 
 interface OrderItem {
     name: string;
@@ -91,6 +92,8 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [expandedOrder, setExpandedOrder] = useState<string | null>(null); // changed to string to accommodate brand prefix
+
+    const [baseSalary, setBaseSalary] = useState<number>(0);
 
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [token, setToken] = useState('');
@@ -191,6 +194,11 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
 
         fetchData();
     }, [month, isAuthenticated, influencerId]);
+
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        getInfluencerBaseSalary(influencerId).then(salary => setBaseSalary(salary));
+    }, [isAuthenticated, influencerId]);
 
     const toggleOrder = (orderKey: string) => {
         setExpandedOrder(prev => prev === orderKey ? null : orderKey);
@@ -378,6 +386,14 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                 <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-blue-500/20">
                                     <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ עמלה</p>
                                     <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission)}</p>
+                                </div>
+                                <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                    <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">שכר בסיס</p>
+                                    <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(baseSalary)}</p>
+                                </div>
+                                <div className="bg-gradient-to-br from-emerald-500 to-teal-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-emerald-500/20">
+                                    <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ שכר חודשי</p>
+                                    <p className="text-2xl font-black text-white" dir="ltr">{formatILS(baseSalary + summary.commission)}</p>
                                 </div>
                                 
                                 {summary.duduar_bottles !== undefined && (

@@ -10,6 +10,7 @@ import { Users, Camera, TrendingUp, HandCoins } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { updateInfluencer, updateInfluencerPayment, createInfluencer, deleteInfluencer, createInfluencerPayment, deleteInfluencerPayment } from "@/app/actions/marketing";
 import { Check, X, Edit2, ChevronRight, ChevronLeft, Trash2, Plus } from "lucide-react";
+import { influencersConfig } from '@/config/influencers';
 
 interface MarketingClientProps {
   activeInfluencers: number;
@@ -33,7 +34,9 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
     productsGiven: inf.productsGiven || '',
     videosUploaded: inf.videosUploaded || '',
     activities: inf.activities || '',
-    notes: inf.notes || ''
+    notes: inf.notes || '',
+    baseSalary: inf.baseSalary || '',
+    influencerId: inf.influencerId || ''
   });
 
   const handleSave = async () => {
@@ -59,7 +62,9 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
         productsGiven: inf.productsGiven || '',
         videosUploaded: inf.videosUploaded || '',
         activities: inf.activities || '',
-        notes: inf.notes || ''
+        notes: inf.notes || '',
+        baseSalary: inf.baseSalary || '',
+        influencerId: inf.influencerId || ''
       });
       setIsEditing(false);
     }
@@ -84,6 +89,16 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">סרטונים שהועלו</span><input className="w-full p-1 border rounded text-sm text-right" value={data.videosUploaded} onChange={e => setData({...data, videosUploaded: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">פעילויות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.activities} onChange={e => setData({...data, activities: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">הערות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
+        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.baseSalary} onChange={e => setData({...data, baseSalary: e.target.value})} placeholder="0" /></td>
+        <td className="p-2 flex flex-col md:table-cell gap-1">
+          <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
+          <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
+            <option value="">-- לא מקושר --</option>
+            {Object.entries(influencersConfig).map(([key, config]) => (
+              <option key={key} value={key}>{config.name}</option>
+            ))}
+          </select>
+        </td>
         <td className="p-2 flex justify-end md:table-cell mt-2 md:mt-0">
           <div className="flex gap-2">
             <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 rounded bg-green-50 md:bg-transparent"><Check className="h-5 w-5 md:h-4 md:w-4" /></button>
@@ -96,44 +111,52 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
 
   return (
     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
-      <td className="py-1 md:py-3 px-4 font-medium md:whitespace-nowrap flex justify-between items-center md:table-cell">
+      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-right">
         <span className="md:hidden text-gray-500 text-sm">שם</span>
         {inf.influencerName || '-'}
       </td>
-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap flex justify-between items-center md:table-cell">
+      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-right">
         <span className="md:hidden text-gray-500 text-sm">מותג</span>
         {inf.brand || '-'}
       </td>
-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap flex justify-between items-center md:table-cell">
+      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">בתשלום?</span>
         {inf.isPaid || '-'}
       </td>
-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap flex justify-between items-center md:table-cell">
-        <span className="md:hidden text-gray-500 text-sm">מספר סרטונים</span>
+      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
+        <span className="md:hidden text-gray-500 text-sm">סרטונים</span>
         {inf.videoCount || '-'}
       </td>
-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap flex justify-between items-center md:table-cell">
-        <span className="md:hidden text-gray-500 text-sm">מספר פוסטים</span>
+      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
+        <span className="md:hidden text-gray-500 text-sm">פוסטים</span>
         {inf.postCount || '-'}
       </td>
-      <td className="py-1 md:py-3 px-4 text-muted-foreground md:whitespace-nowrap flex justify-between items-center md:table-cell">
+      <td className="py-1 md:py-3 px-2 text-muted-foreground flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">מוצרים שניתנו</span>
         {inf.productsGiven || '-'}
       </td>
-      <td className="py-1 md:py-3 px-4 text-muted-foreground md:whitespace-nowrap flex justify-between items-center md:table-cell">
+      <td className="py-1 md:py-3 px-2 text-muted-foreground flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">סרטונים שהועלו</span>
         {inf.videosUploaded || '-'}
       </td>
-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap max-w-[200px] truncate flex justify-between items-center md:table-cell" title={inf.activities}>
+      <td className="py-1 md:py-3 px-2 max-w-[150px] truncate flex justify-between items-center md:table-cell text-right" title={inf.activities}>
         <span className="md:hidden text-gray-500 text-sm">פעילויות</span>
         {inf.activities || '-'}
       </td>
-      <td className="py-1 md:py-3 px-4 text-muted-foreground md:whitespace-nowrap max-w-[200px] truncate flex justify-between items-center md:table-cell" title={inf.notes}>
+      <td className="py-1 md:py-3 px-2 text-muted-foreground max-w-[150px] truncate flex justify-between items-center md:table-cell text-right" title={inf.notes}>
         <span className="md:hidden text-gray-500 text-sm">הערות</span>
         {inf.notes || '-'}
       </td>
-      <td className="py-2 md:py-3 px-4 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
-        <div className="flex gap-2 justify-end">
+      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
+        <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
+        {inf.baseSalary ? `₪${Number(inf.baseSalary).toLocaleString()}` : '-'}
+      </td>
+      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
+        <span className="md:hidden text-gray-500 text-sm">קישור למשפיען</span>
+        {inf.influencerId ? (influencersConfig[inf.influencerId]?.name || inf.influencerId) : '-'}
+      </td>
+      <td className="py-2 md:py-3 px-2 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
+        <div className="flex gap-1 justify-end md:justify-center">
           <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors bg-blue-50 md:bg-transparent">
             <Edit2 className="h-5 w-5 md:h-4 md:w-4" />
           </button>
@@ -225,26 +248,26 @@ function EditablePaymentRow({ payment }: { payment: any }) {
 
   return (
     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
-      <td className="py-1 md:py-3 px-4 font-medium md:whitespace-nowrap flex justify-between items-center md:table-cell">
+      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-right">
         <span className="md:hidden text-gray-500 text-sm">שם משפיענ/ית</span>
         {payment.influencerName || '-'}
       </td>
-      <td className="py-1 md:py-3 px-4 font-medium md:whitespace-nowrap flex justify-between items-center md:table-cell">
+      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">סכום</span>
         ₪{payment.amount || '0'}
       </td>
-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap flex justify-between items-center md:table-cell">
+      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">בוצע?</span>
         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isCompleted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
           {isCompleted ? 'בוצע' : 'לא בוצע'}
         </span>
       </td>
-      <td className="py-1 md:py-3 px-4 text-muted-foreground flex justify-between items-center md:table-cell">
+      <td className="py-1 md:py-3 px-2 text-muted-foreground flex justify-between items-center md:table-cell text-right max-w-[200px] truncate" title={payment.notes}>
         <span className="md:hidden text-gray-500 text-sm">הערות</span>
         {payment.notes || '-'}
       </td>
-      <td className="py-2 md:py-3 px-4 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
-        <div className="flex gap-2 justify-end">
+      <td className="py-2 md:py-3 px-2 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
+        <div className="flex gap-1 justify-end md:justify-center">
           <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors bg-blue-50 md:bg-transparent">
             <Edit2 className="h-5 w-5 md:h-4 md:w-4" />
           </button>
@@ -386,19 +409,21 @@ export default function MarketingClient({
         </CardHeader>
         <CardContent>
           <div className="md:overflow-x-auto pb-2">
-            <table className="w-full text-sm text-center whitespace-normal md:whitespace-nowrap">
-              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
+            <table className="w-full text-sm text-center">
+              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group text-xs md:text-sm">
                 <tr>
-                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">מותג</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">בתשלום?</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">מספר סרטונים</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">מספר פוסטים</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">מוצרים שניתנו</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">סרטונים שהועלו</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">פעילויות</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">פעולות</th>
+                  <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם</th>
+                  <th className="py-3 px-2 font-medium text-right">מותג</th>
+                  <th className="py-3 px-2 font-medium text-center">בתשלום?</th>
+                  <th className="py-3 px-2 font-medium text-center">סרטונים<br/>שסוכמו</th>
+                  <th className="py-3 px-2 font-medium text-center">פוסטים<br/>שסוכמו</th>
+                  <th className="py-3 px-2 font-medium text-center">מוצרים<br/>שניתנו</th>
+                  <th className="py-3 px-2 font-medium text-center">סרטונים<br/>שהועלו</th>
+                  <th className="py-3 px-2 font-medium text-right">פעילויות</th>
+                  <th className="py-3 px-2 font-medium text-right">הערות</th>
+                  <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
+                  <th className="py-3 px-2 font-medium text-center">קישור למשפיען</th>
+                  <th className="py-3 px-2 font-medium rounded-tl-md rounded-bl-md text-center">פעולות</th>
                 </tr>
               </thead>
               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
@@ -409,7 +434,7 @@ export default function MarketingClient({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={10} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={12} className="py-8 text-center text-muted-foreground">
                       לא נמצאו משפיענים.
                     </td>
                   </tr>
@@ -454,14 +479,14 @@ export default function MarketingClient({
         </CardHeader>
         <CardContent>
           <div className="md:overflow-x-auto pb-2">
-            <table className="w-full text-sm text-center whitespace-normal md:whitespace-nowrap">
-              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
+            <table className="w-full text-sm text-center">
+              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group text-xs md:text-sm">
                 <tr>
-                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם משפיענ/ית</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">סכום</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">בוצע?</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">פעולות</th>
+                  <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם משפיענ/ית</th>
+                  <th className="py-3 px-2 font-medium text-center">סכום</th>
+                  <th className="py-3 px-2 font-medium text-center">בוצע?</th>
+                  <th className="py-3 px-2 font-medium text-right">הערות</th>
+                  <th className="py-3 px-2 font-medium rounded-tl-md rounded-bl-md text-center">פעולות</th>
                 </tr>
               </thead>
               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">

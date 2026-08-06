@@ -128,6 +128,8 @@ export const influencers = pgTable("influencers", {
   videosUploaded: text("videos_uploaded"),
   notes: text("notes"),
   paymentMonth: varchar("payment_month", { length: 7 }),
+  baseSalary: decimal("base_salary"),
+  influencerId: varchar("influencer_id", { length: 255 }),
 });
 
 export const influencerPayments = pgTable("influencer_payments", {
