@@ -27,6 +27,6 @@ export const config = {
      * - libero-d.png (App logo)
      * - oded.png (Oded profile image)
      */
-    '/((?!login|api/webhooks|api/oded-coupon|marketing/oded|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-d.png|oded.png).*)',
+    '/((?!login|api/webhooks|api/oded-coupon|api/influencer-coupon|marketing/oded|marketing/influencers|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-d.png|oded.png).*)',
   ],
 };
