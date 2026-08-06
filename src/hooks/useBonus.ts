@@ -1,5 +1,16 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState } from 'react';
+import { 
+    getBonuses, 
+    getEmployeeBonuses, 
+    addBonus as addBonusAction, 
+    updateBonus as updateBonusAction, 
+    deleteBonus as deleteBonusAction,
+    getBonusEmployees,
+    addBonusEmployee as addBonusEmployeeAction,
+    updateBonusEmployee as updateBonusEmployeeAction,
+    deleteBonusEmployee as deleteBonusEmployeeAction,
+    uploadInvoiceServer
+} from '@/app/actions/bonus';
 
 export interface Bonus {
     id: number;
@@ -31,149 +42,163 @@ export function useBonus() {
     // Fetch bonuses for a specific employee
     const fetchEmployeeBonuses = async (employeeId: number) => {
         setLoading(true);
-        const { data, error } = await supabase
-            .from('bonuses')
-            .select('*')
-            .eq('employee_id', employeeId)
-            .order('sale_date', { ascending: false });
-
-        if (!error && data) setBonuses(data);
+        try {
+            // Server actions return plain objects, but Date objects need to be converted to strings
+            // if we are typing them as string in the client interface.
+            const data = await getEmployeeBonuses(employeeId);
+            setBonuses(data.map((b: any) => ({
+                id: b.id,
+                employee_id: b.employeeId,
+                sale_date: b.saleDate,
+                amount: Number(b.amount),
+                invoice_url: b.invoiceUrl,
+                status: b.status,
+                created_at: b.createdAt.toISOString()
+            })));
+        } catch (error) {
+            console.error("Error fetching employee bonuses:", error);
+        }
         setLoading(false);
     };
 
     // Fetch all bonuses (Admin)
     const fetchAllBonuses = async () => {
         setLoading(true);
-        const { data, error } = await supabase
-            .from('bonuses')
-            .select('*, bonus_employees(full_name, username)')
-            .order('created_at', { ascending: false });
-
-        if (!error && data) setBonuses(data);
+        try {
+            const data = await getBonuses();
+            setBonuses(data.map((b: any) => ({
+                id: b.id,
+                employee_id: b.employeeId,
+                sale_date: b.saleDate,
+                amount: Number(b.amount),
+                invoice_url: b.invoiceUrl,
+                status: b.status,
+                created_at: b.createdAt.toISOString(),
+                bonus_employees: b.bonus_employees
+            })));
+        } catch (error) {
+            console.error("Error fetching all bonuses:", error);
+        }
         setLoading(false);
     };
 
     // Add new bonus
     const addBonus = async (bonus: Omit<Bonus, 'id' | 'created_at' | 'status'>) => {
-        const { data, error } = await supabase
-            .from('bonuses')
-            .insert([{ ...bonus, status: 'pending' }])
-            .select();
-        
-        if (!error && data) {
-            setBonuses(prev => [data[0], ...prev]);
-            return data[0];
+        try {
+            const newBonus = await addBonusAction(bonus);
+            if (newBonus) {
+                const formattedBonus = {
+                    id: newBonus.id,
+                    employee_id: newBonus.employeeId,
+                    sale_date: newBonus.saleDate,
+                    amount: Number(newBonus.amount),
+                    invoice_url: newBonus.invoiceUrl,
+                    status: newBonus.status,
+                    created_at: newBonus.createdAt.toISOString()
+                } as Bonus;
+                setBonuses(prev => [formattedBonus, ...prev]);
+                return formattedBonus;
+            }
+        } catch (error) {
+            console.error("Error adding bonus:", error);
         }
         return null;
     };
 
     // Update bonus (General)
     const updateBonus = async (id: number, updates: Partial<Bonus>) => {
-        const { data, error } = await supabase
-            .from('bonuses')
-            .update(updates)
-            .eq('id', id)
-            .select();
-        
-        if (!error && data) {
-            setBonuses(prev => prev.map(b => b.id === id ? data[0] : b));
-            return data[0];
+        try {
+            const updated = await updateBonusAction(id, updates);
+            if (updated) {
+                const formattedBonus = {
+                    id: updated.id,
+                    employee_id: updated.employeeId,
+                    sale_date: updated.saleDate,
+                    amount: Number(updated.amount),
+                    invoice_url: updated.invoiceUrl,
+                    status: updated.status,
+                    created_at: updated.createdAt.toISOString()
+                } as Bonus;
+                // Preserve the bonus_employees nested object if it exists in the current state
+                setBonuses(prev => prev.map(b => b.id === id ? { ...formattedBonus, bonus_employees: b.bonus_employees } : b));
+                return formattedBonus;
+            }
+        } catch (error) {
+            console.error("Error updating bonus:", error);
         }
         return null;
     };
 
     // Delete bonus
     const deleteBonus = async (id: number) => {
-        const { error } = await supabase
-            .from('bonuses')
-            .delete()
-            .eq('id', id);
-        
-        if (!error) {
+        try {
+            await deleteBonusAction(id);
             setBonuses(prev => prev.filter(b => b.id !== id));
             return true;
+        } catch (error) {
+            console.error("Error deleting bonus:", error);
+            return false;
         }
-        return false;
     };
 
     // Manage Employees (Admin)
     const fetchEmployees = async () => {
-        const { data, error } = await supabase
-            .from('bonus_employees')
-            .select('*')
-            .order('full_name');
-        
-        if (!error && data) setEmployees(data);
+        try {
+            const data = await getBonusEmployees();
+            setEmployees(data);
+        } catch (error) {
+            console.error("Error fetching employees:", error);
+        }
     };
 
     const addEmployee = async (employee: Omit<BonusEmployee, 'id' | 'created_at'>) => {
-        const { data, error } = await supabase
-            .from('bonus_employees')
-            .insert([employee])
-            .select();
-        
-        if (!error && data) {
-            setEmployees(prev => [...prev, data[0]]);
-            return data[0];
+        try {
+            const newEmployee = await addBonusEmployeeAction(employee);
+            if (newEmployee) {
+                setEmployees(prev => [...prev, newEmployee]);
+                return newEmployee;
+            }
+        } catch (error) {
+            console.error("Error adding employee:", error);
         }
         return null;
     };
 
     const updateEmployee = async (id: number, employee: Partial<BonusEmployee>) => {
-        const { data, error } = await supabase
-            .from('bonus_employees')
-            .update(employee)
-            .eq('id', id)
-            .select();
-        
-        if (!error && data) {
-            setEmployees(prev => prev.map(e => e.id === id ? data[0] : e));
-            return data[0];
+        try {
+            const updated = await updateBonusEmployeeAction(id, employee);
+            if (updated) {
+                setEmployees(prev => prev.map(e => e.id === id ? updated : e));
+                return updated;
+            }
+        } catch (error) {
+            console.error("Error updating employee:", error);
         }
         return null;
     };
 
     const deleteEmployee = async (id: number) => {
-        const { error } = await supabase
-            .from('bonus_employees')
-            .delete()
-            .eq('id', id);
-        
-        if (!error) {
+        try {
+            await deleteBonusEmployeeAction(id);
             setEmployees(prev => prev.filter(e => e.id !== id));
             return true;
+        } catch (error) {
+            console.error("Error deleting employee:", error);
+            return false;
         }
-        return false;
     };
 
     // Storage Upload
     const uploadInvoice = async (file: File) => {
         try {
-            // Create a safe filename to avoid encoding issues (e.g., Hebrew characters)
-            const fileExt = file.name.split('.').pop() || 'png';
-            const safeRandomName = Math.random().toString(36).substring(2, 10);
-            const fileName = `${Date.now()}-${safeRandomName}.${fileExt}`;
+            const formData = new FormData();
+            formData.append('file', file);
             
-            const { data, error } = await supabase.storage
-                .from('bonus-invoices')
-                .upload(fileName, file, {
-                    cacheControl: '3600',
-                    upsert: false
-                });
-            
-            if (error) {
-                console.error('Upload error (Make sure "bonus-invoices" bucket exists and is public!):', error);
-                alert("שגיאה בהעלאת התמונה. ייתכן שתיקיית האחסון לא הוגדרה כראוי ב-Supabase.");
-                return null;
-            }
-
-            const { data: { publicUrl } } = supabase.storage
-                .from('bonus-invoices')
-                .getPublicUrl(fileName);
-            
-            return publicUrl;
+            const url = await uploadInvoiceServer(formData);
+            return url;
         } catch (err) {
             console.error('Unexpected upload error:', err);
+            alert("שגיאה בהעלאת התמונה. ודא שמשתני הסביבה של Vercel Blob מוגדרים.");
             return null;
         }
     };

@@ -136,6 +136,8 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
 
         if (taskDate.getDay() === 5) {
           taskDate = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate() + 2);
+        } else if (taskDate.getDay() === 6) {
+          taskDate = new Date(taskDate.getFullYear(), taskDate.getMonth(), taskDate.getDate() + 1);
         }
 
         const dateKey = format(taskDate, 'yyyy-MM-dd');
@@ -189,6 +191,8 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         if (parsedDate) {
            if (parsedDate.getDay() === 5) {
              parsedDate.setDate(parsedDate.getDate() + 2);
+           } else if (parsedDate.getDay() === 6) {
+             parsedDate.setDate(parsedDate.getDate() + 1);
            }
            const today = startOfDay(new Date());
            let renderDate = parsedDate;
@@ -203,6 +207,8 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
            
            if (renderDate.getDay() === 5) {
              renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 2);
+           } else if (renderDate.getDay() === 6) {
+             renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 1);
            }
            
            const dateKey = format(renderDate, 'yyyy-MM-dd');
@@ -423,6 +429,8 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                     let targetDay = day;
                     if (targetDay.getDay() === 5) {
                       targetDay = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate() + 2);
+                    } else if (targetDay.getDay() === 6) {
+                      targetDay = new Date(targetDay.getFullYear(), targetDay.getMonth(), targetDay.getDate() + 1);
                     }
                     const targetDateKey = format(targetDay, 'yyyy-MM-dd');
 

@@ -8,8 +8,8 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Month parameter is required (YYYY-MM)' }, { status: 400 });
     }
 
-    const ck = process.env.LIBERO_WC_CK;
-    const cs = process.env.LIBERO_WC_CS;
+    const ck = process.env.LIBERO_WC_CK || 'ck_c551947f6cd4c709b527cab0f18651cf19433b51';
+    const cs = process.env.LIBERO_WC_CS || 'cs_c32883b9954569200ebea224812180dad9cc01dc';
     const baseUrl = 'https://libero-il.co.il';
 
     if (!ck || !cs) {
