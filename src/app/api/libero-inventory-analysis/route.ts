@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-    // Try to get from env, strip quotes and whitespace if present, fallback to hardcoded if missing/invalid
-    let ck = process.env.LIBERO_WC_CK?.replace(/['"]+/g, '').trim() || 'ck_c551947f6cd4c709b527cab0f18651cf19433b51';
-    let cs = process.env.LIBERO_WC_CS?.replace(/['"]+/g, '').trim() || 'cs_c32883b9954569200ebea224812180dad9cc01dc';
+    // Force hardcoded keys, ignoring Vercel env variables completely for now
+    const ck = 'ck_c551947f6cd4c709b527cab0f18651cf19433b51';
+    const cs = 'cs_c32883b9954569200ebea224812180dad9cc01dc';
     const baseUrl = 'https://libero-il.co.il';
 
     if (!ck || !cs) {
