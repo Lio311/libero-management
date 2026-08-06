@@ -158,7 +158,7 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
     const handleClickOutside = (event: MouseEvent) => {
       // We don't need this if it's a fixed modal, but keeping it safe
       if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
-        // setShowNotifications(false);
+        setShowNotifications(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -166,86 +166,67 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
   }, []);
 
   useEffect(() => {
-    if (showNotifications) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
+    // No overflow changes needed for dropdown
   }, [showNotifications]);
 
   return (
-    <div className="relative" ref={notificationsRef}>
+    <div className="relative z-30" ref={notificationsRef}>
       <button 
         onClick={() => setShowNotifications(!showNotifications)}
-        className="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors relative hover-scale"
+        className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors relative"
       >
         <Bell className="w-5 h-5 text-muted-foreground" />
         {activeNotifications.length > 0 && (
-          <span className="absolute top-2 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#F5F5F7]"></span>
+          <span className="absolute top-2 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
         )}
       </button>
 
       <AnimatePresence>
         {showNotifications && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setShowNotifications(false)}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden text-right max-h-[80vh] flex flex-col"
+            dir="rtl"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-white border border-gray-200 shadow-2xl rounded-2xl overflow-hidden flex flex-col max-h-[80vh]"
-            >
-              <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 flex-shrink-0">
-                <h3 className="font-medium text-gray-900">משימות לביצוע</h3>
-                <div className="flex items-center gap-3">
-                  {activeNotifications.length > 0 && (
-                    <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
-                      {activeNotifications.length} משימות
-                    </span>
-                  )}
-                  <button onClick={() => setShowNotifications(false)} className="text-gray-400 hover:text-gray-600 p-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                  </button>
-                </div>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                {activeNotifications.length === 0 ? (
-                  <div className="p-8 text-center text-sm text-gray-500 flex flex-col items-center gap-2">
-                    <CheckCircle2 className="w-8 h-8 text-green-400" />
-                    <p>הכל מעודכן! אין משימות לביצוע.</p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-gray-50">
-                    {activeNotifications.map(({ dateKey, task }) => (
-                      <div 
-                        key={task.id} 
-                        className="p-4 hover:bg-blue-50 transition-colors cursor-pointer group"
-                        onClick={() => setShowNotifications(false)}
-                      >
-                        <div className="flex gap-3">
-                          <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0 group-hover:bg-red-100 transition-colors">
-                            <Bell className="w-4 h-4 text-red-500" />
-                          </div>
-                          <div className="flex-1 min-w-0 text-right">
-                            <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
-                            <p className="text-xs text-gray-500 mt-1">מתוכנן לתאריך: {format(new Date(dateKey), 'd בMMM', { locale: he })}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+            <div className="p-3 bg-gray-50 border-b border-gray-100 font-bold text-xs text-gray-500 flex justify-between items-center">
+              <span>התראות לביצוע</span>
+              <div className="flex items-center gap-3">
+                {activeNotifications.length > 0 && (
+                  <span className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full font-medium">
+                    {activeNotifications.length} משימות
+                  </span>
                 )}
               </div>
-            </motion.div>
+            </div>
+            <div className="flex-1 overflow-y-auto max-h-[300px]">
+              {activeNotifications.length === 0 ? (
+                <div className="p-4 text-center text-gray-400 text-sm">
+                  הכל מעודכן! אין משימות.
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-50">
+                  {activeNotifications.map(({ dateKey, task }) => (
+                    <div 
+                      key={task.id} 
+                      className="p-3 hover:bg-gray-50 transition-colors cursor-pointer group"
+                      onClick={() => setShowNotifications(false)}
+                    >
+                      <div className="flex gap-3">
+                        <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0 group-hover:bg-red-100 transition-colors">
+                          <Bell className="w-4 h-4 text-red-500" />
+                        </div>
+                        <div className="flex-1 min-w-0 text-right">
+                          <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
+                          <p className="text-[10px] text-gray-400 mt-1">מתוכנן לתאריך: {format(new Date(dateKey), 'd בMMM', { locale: he })}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
