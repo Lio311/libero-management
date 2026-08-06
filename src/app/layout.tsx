@@ -18,20 +18,25 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
+import { cookies } from 'next/headers';
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { Sidebar } from "@/components/layout/sidebar";
 import { GlobalNotifications } from "@/components/layout/global-notifications";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('auth');
+  const isAuthenticated = authCookie?.value === 'authenticated';
+
   return (
     <html lang="he" dir="rtl">
       <body className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row`}>
         <LayoutWrapper sidebar={
-          <Sidebar>
+          <Sidebar isAuthenticated={isAuthenticated}>
             <GlobalNotifications />
           </Sidebar>
         }>
