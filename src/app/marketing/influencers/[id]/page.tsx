@@ -82,6 +82,7 @@ const formatILSNeg = (amount: number, fractionDigits = 0) => {
 export default function InfluencerCouponPage({ params }: { params: Promise<{ id: string }> }) {
     const { id: influencerId } = use(params);
     const influencerConfig = influencersConfig[influencerId];
+    const hasVat = influencerConfig?.hasVat;
     const influencerBrands = Array.from(new Set(influencerConfig?.coupons.map(c => c.brand) || []));
     
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -391,10 +392,21 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                     <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">שכר בסיס</p>
                                     <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(baseSalary)}</p>
                                 </div>
-                                <div className="bg-gradient-to-br from-emerald-500 to-teal-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-emerald-500/20">
-                                    <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ שכר חודשי</p>
-                                    <p className="text-2xl font-black text-white" dir="ltr">{formatILS(baseSalary + summary.commission)}</p>
-                                </div>
+                                {hasVat ? (
+                                    <div className="bg-gradient-to-br from-emerald-500 to-teal-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-emerald-500/20">
+                                        <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ שכר (לפני מע"מ)</p>
+                                        <p className="text-xl font-black text-white/90" dir="ltr">{formatILS(baseSalary + summary.commission)}</p>
+                                        <div className="mt-3 pt-3 border-t border-white/20">
+                                            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ לתשלום (כולל מע"מ)</p>
+                                            <p className="text-2xl font-black text-white" dir="ltr">{formatILS((baseSalary + summary.commission) * 1.17)}</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-gradient-to-br from-emerald-500 to-teal-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-emerald-500/20">
+                                        <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ שכר חודשי</p>
+                                        <p className="text-2xl font-black text-white" dir="ltr">{formatILS(baseSalary + summary.commission)}</p>
+                                    </div>
+                                )}
                                 
                                 {summary.duduar_bottles !== undefined && (
                                     <>

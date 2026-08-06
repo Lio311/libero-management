@@ -113,6 +113,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
 
         const isMarketingMeeting = taskTitle.includes('ישיבת שיווק');
         const isScanProducts = taskTitle.includes('סריקת 100 מוצרים');
+        const isInventoryMeeting = taskTitle.includes('פגישת מלאי');
 
         if (isMonthlySummary) {
           let lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0); // Last day of month
@@ -120,6 +121,18 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
             lastDay = new Date(lastDay.getFullYear(), lastDay.getMonth(), lastDay.getDate() - 1);
           }
           taskDate = lastDay;
+        } else if (isInventoryMeeting) {
+          let inventoryDay = 15;
+          const tempDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 15);
+          const dayOfWeek = tempDate.getDay();
+          
+          if (dayOfWeek === 5) {
+            inventoryDay = 14; // Friday -> Thursday (14th)
+          } else if (dayOfWeek === 6) {
+            inventoryDay = 16; // Saturday -> Sunday (16th)
+          }
+          
+          taskDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), inventoryDay);
         } else if (isPricingMeeting) {
           let n = 1;
           const originalDay = task.weekNumber || 1;

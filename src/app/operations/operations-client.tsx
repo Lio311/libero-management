@@ -364,10 +364,10 @@ export default function OperationsClient({
           </CardHeader>
           <CardContent className="space-y-4">
             {isAddingCustomerTop && <EditableB2BCard customer={{ isNew: true }} onCancelNew={() => setIsAddingCustomerTop(false)} />}
-            {rawWholesaleCustomers?.map((customer) => (
+            {rawWholesaleCustomers?.filter(c => c.storeName?.toLowerCase().includes('la essence')).map((customer) => (
               <EditableB2BCard key={customer.id} customer={customer} />
             ))}
-            {(!rawWholesaleCustomers || rawWholesaleCustomers.length === 0) && !isAddingCustomerTop && (
+            {(!rawWholesaleCustomers || rawWholesaleCustomers.filter(c => c.storeName?.toLowerCase().includes('la essence')).length === 0) && !isAddingCustomerTop && (
               <div className="text-center py-6 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-200">
                 לא נמצאו לקוחות. לחץ על "הוסף לקוח" כדי להתחיל.
               </div>

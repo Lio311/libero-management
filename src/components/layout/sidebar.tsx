@@ -59,7 +59,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
   return (
     <>
       {/* Mobile Header */}
-      <div className={cn("md:hidden flex h-16 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative z-50", isAuthenticated ? "justify-between" : "justify-center")}>
+      <div className={cn("md:hidden flex h-[calc(4rem+env(safe-area-inset-top))] pt-[calc(1.5rem+env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative z-50", isAuthenticated ? "justify-between" : "justify-center")}>
         {isAuthenticated ? (
           <>
             <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
         "fixed inset-y-0 right-0 z-50 flex h-full w-64 flex-col glass-panel text-card-foreground shadow-sm transition-transform duration-300 md:relative md:translate-x-0",
         isOpen ? "translate-x-0" : "translate-x-full"
       )}>
-        <div className={cn("flex h-16 items-center px-6 border-b border-border/50 relative", isAuthenticated ? "justify-between" : "justify-center")}>
+        <div className={cn("flex h-[calc(4rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center px-6 border-b border-border/50 relative", isAuthenticated ? "justify-between" : "justify-center")}>
           <div className={cn("relative h-12 w-28 overflow-hidden", isAuthenticated && "-ml-2")}>
             <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
           </div>

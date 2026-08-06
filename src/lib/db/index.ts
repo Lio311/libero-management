@@ -10,5 +10,7 @@ neonConfig.fetchFunction = (url: any, options: any) => {
   return fetch(url, { ...options, cache: 'no-store' });
 };
 
-const sql = neon(process.env.DATABASE_URL || 'postgres://dummy:dummy@dummy.neon.tech/dummy');
+const connectionString = process.env.DATABASE_URL || 'postgres://dummy:dummy@dummy.neon.tech/dummy';
+const cleanUrl = connectionString.split('?')[0];
+const sql = neon(cleanUrl);
 export const db = drizzle(sql, { schema });

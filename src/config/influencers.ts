@@ -9,6 +9,7 @@ export interface InfluencerConfig {
   id: string;
   name: string;
   image?: string;
+  hasVat?: boolean;
   coupons: InfluencerCoupon[];
 }
 

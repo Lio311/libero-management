@@ -1,9 +1,13 @@
-import { db } from "./src/lib/db";
-import { bankOfTasks } from "./src/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { config } from 'dotenv';
+config({ path: '.env' });
+import { db } from './src/lib/db';
+import { creditCards, wholesaleCustomers } from './src/lib/db/schema';
 
 async function main() {
-  const items = await db.select().from(bankOfTasks).where(eq(bankOfTasks.taskName, 'Test Task from Script'));
-  console.log("Found:", items);
+  const cards = await db.select().from(creditCards);
+  console.log('Cards count:', cards.length);
+  const clients = await db.select().from(wholesaleCustomers);
+  console.log('Wholesale clients count:', clients.length);
+  process.exit(0);
 }
 main();
