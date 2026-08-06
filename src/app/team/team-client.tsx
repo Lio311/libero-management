@@ -95,7 +95,7 @@ function EmployeeCard({
             )}
           </div>
           {roleHolder.role && (
-            <p className="text-sm text-gray-500 mt-2 whitespace-pre-wrap">{roleHolder.role}</p>
+            <p className="text-sm text-gray-500 mt-2 whitespace-pre-wrap hidden">{roleHolder.role}</p>
           )}
         </div>
       )}
