@@ -193,15 +193,13 @@ export default function OdedCouponPage() {
                                 initial={{ scale: 0.8 }}
                                 animate={{ scale: 1 }}
                                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                                className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-8 border border-white/20 shadow-inner"
+                                className="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center mb-6 border border-white/20 shadow-inner overflow-hidden"
                             >
-                                <Activity className="text-white w-8 h-8" />
+                                <Image src="/oded.png" alt="Oded" width={80} height={80} className="w-full h-full object-cover" />
                             </motion.div>
                             
-                            <div className="relative h-16 w-36 overflow-hidden mb-2">
-                                <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center invert opacity-90" priority />
-                            </div>
-                            <p className="text-zinc-400 text-sm mb-10 tracking-widest uppercase text-center w-full block">Oded Report</p>
+                            <h2 className="text-white text-2xl font-bold tracking-wider mb-2 uppercase">עודד אלמקייס</h2>
+                            <p className="text-zinc-400 text-sm mb-10 tracking-widest uppercase text-center w-full block">ODED</p>
 
                             <form onSubmit={handleSubmit} className="w-full">
                                 <div className="relative mb-6" dir="rtl">
@@ -267,7 +265,7 @@ export default function OdedCouponPage() {
                             <Image src="/oded.png" alt="עודד" width={56} height={56} className="w-full h-full object-cover" />
                         </div>
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">דוח עודד — קופון OSVR10</h1>
+                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">עודד — קופון OSVR10</h1>
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                                 <p className="text-sm font-medium text-[#6d6d6d]">פירוט רכישות מלא מ-WooCommerce</p>

@@ -88,7 +88,7 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
     }
 
     const influencerConfig = influencersConfig[influencerId];
-    const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut'];
+    const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav'];
     const hasVat = !noVatAddBack.includes(influencerId);
     const influencerBrands = Array.from(new Set(influencerConfig?.coupons.map(c => c.brand) || []));
     
@@ -236,7 +236,7 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                 )}
                             </motion.div>
                             
-                            <h2 className="text-white text-2xl font-bold tracking-wider mb-2 uppercase">דוח {influencerName || 'משפיענית'}</h2>
+                            <h2 className="text-white text-2xl font-bold tracking-wider mb-2 uppercase">{influencerName || 'משפיענית'}</h2>
                             
                             {influencerBrands.length > 0 && (
                                 <div className="flex items-center justify-center gap-3 mt-4 mb-8">
@@ -318,7 +318,7 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                             )}
                         </div>
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">דוח {influencerName || 'משפיענית'}</h1>
+                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{influencerName || 'משפיענית'}</h1>
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                                 <p className="text-sm font-medium text-[#6d6d6d]">פירוט רכישות מלא מ-WooCommerce</p>

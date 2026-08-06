@@ -263,7 +263,7 @@ export async function GET(
                 total_discount: brandOrders.reduce((acc: number, o: any) => acc + o.discount_amount, 0),
                 total_items: brandOrders.reduce((acc: number, o: any) => acc + o.items_count, 0),
                 avg_order_value: brandOrders.length > 0 ? brandRevenue / brandOrders.length : 0,
-                commission: brandCommission
+                commission: Math.round(brandCommission * 100) / 100
             };
         }
 
@@ -274,7 +274,7 @@ export async function GET(
             total_discount: detailedOrders.reduce((acc: number, o: any) => acc + o.discount_amount, 0),
             total_items: detailedOrders.reduce((acc: number, o: any) => acc + o.items_count, 0),
             avg_order_value: detailedOrders.length > 0 ? totalRevenue / detailedOrders.length : 0,
-            commission: detailedOrders.reduce((acc: number, o: any) => {
+            commission: Math.round((detailedOrders.reduce((acc: number, o: any) => {
                 if (o.is_duduar_only) return acc; // Handled separately
                 
                 let commRate = 0.10;
@@ -283,12 +283,12 @@ export async function GET(
                 }
                 
                 let comm = (o.subtotal / 1.18) * commRate;
-                const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut'];
+                const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav'];
                 if (!noVatAddBack.includes(id)) {
                     comm = comm * 1.18;
                 }
                 return acc + comm;
-            }, 0) + duduar_commission,
+            }, 0) + duduar_commission) * 100) / 100,
             brand_summaries,
             ...(id === 'amit' ? { duduar_bottles, duduar_revenue, duduar_commission } : {})
         };
