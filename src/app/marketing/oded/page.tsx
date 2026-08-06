@@ -345,8 +345,9 @@ export default function OdedCouponPage() {
                                 <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.avg_order_value)}</p>
                             </div>
                             <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-purple-500/20">
-                                <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלה נטו</p>
+                                <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלה (כולל מע"מ)</p>
                                 <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission)}</p>
+                                <p className="text-sm font-medium text-white/70 mt-1" dir="ltr">{formatILS(summary.commission / 1.18)} לא כולל מע"מ</p>
                             </div>
                         </div>
                     )}
