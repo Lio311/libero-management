@@ -131,7 +131,7 @@ export async function GET(
         });
 
         const results = await Promise.all(fetchPromises);
-        let detailedOrders = results.flat().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        let detailedOrders: any[] = results.flat().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
         // --- Amit's Duduar Tracking Logic ---
         let duduar_bottles = 0;
