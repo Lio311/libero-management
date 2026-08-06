@@ -1,0 +1,331 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { MonthNavigator } from '@/components/MonthNavigator';
+import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
+import { Loader2, AlertCircle, RefreshCw, User, ShoppingBag, Tag, ChevronDown, ChevronUp, Package } from 'lucide-react';
+
+interface OrderItem {
+    name: string;
+    quantity: number;
+    price: number;
+    total: number;
+    sku: string;
+}
+
+interface OdedOrder {
+    order_id: number;
+    order_number: string;
+    date: string;
+    status: string;
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+    items: OrderItem[];
+    items_count: number;
+    subtotal: number;
+    discount_amount: number;
+    total: number;
+    payment_method: string;
+    shipping_city: string;
+}
+
+interface Summary {
+    total_orders: number;
+    total_revenue: number;
+    total_discount: number;
+    total_items: number;
+    avg_order_value: number;
+    commission: number;
+}
+
+const STATUS_MAP: Record<string, { label: string; className: string }> = {
+    'completed': { label: 'הושלמה', className: 'bg-emerald-100 text-emerald-700' },
+    'processing': { label: 'בטיפול', className: 'bg-blue-100 text-blue-700' },
+    'on-hold': { label: 'בהמתנה', className: 'bg-amber-100 text-amber-700' },
+    'cancelled': { label: 'בוטלה', className: 'bg-red-100 text-red-700' },
+    'refunded': { label: 'הוחזרה', className: 'bg-gray-100 text-gray-700' },
+};
+
+export default function OdedCouponPage() {
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [orders, setOrders] = useState<OdedOrder[]>([]);
+    const [summary, setSummary] = useState<Summary | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
+
+    const month = format(currentDate, 'yyyy-MM');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await fetch(`/api/oded-coupon?month=${month}`);
+                const text = await response.text();
+
+                try {
+                    const result = JSON.parse(text);
+                    if (result.error) throw new Error(result.error);
+                    setOrders(result.data || []);
+                    setSummary(result.summary || null);
+                } catch (jsonErr) {
+                    if (text.includes('<!DOCTYPE html>') || text.includes('<html>')) {
+                        throw new Error('שגיאת שרת: התקבלה תשובת HTML במקום JSON.');
+                    }
+                    throw new Error(`שגיאת פענוח: ${text.substring(0, 50)}...`);
+                }
+            } catch (err: any) {
+                console.error('Fetch error:', err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [month]);
+
+    const toggleOrder = (orderId: number) => {
+        setExpandedOrder(prev => prev === orderId ? null : orderId);
+    };
+
+    return (
+        <div className="space-y-8 animate-in fade-in duration-500" dir="rtl">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                            <User size={24} className="text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">דוח עודד — קופון OSVR10</h1>
+                            <div className="flex items-center gap-2 mt-1">
+                                <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                <p className="text-sm font-medium text-[#6d6d6d]">פירוט רכישות מלא מ-WooCommerce</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => window.location.reload()}
+                        disabled={loading}
+                        className="p-2.5 text-[#6d6d6d] hover:bg-black/[0.04] active:bg-black/[0.08] rounded-xl transition-all border border-black/[0.06] bg-white shadow-sm disabled:opacity-50"
+                        title="רענן נתונים"
+                    >
+                        <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                    </button>
+                    <MonthNavigator currentDate={currentDate} onDateChange={setCurrentDate} />
+                </div>
+            </div>
+
+            {error ? (
+                <div className="bg-white rounded-3xl border border-red-100 p-12 flex flex-col items-center justify-center text-center shadow-xl shadow-red-500/5">
+                    <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-6">
+                        <AlertCircle className="text-red-500" size={32} />
+                    </div>
+                    <h3 className="text-xl font-bold text-red-900">אופס! משהו השתבש</h3>
+                    <p className="text-red-600/70 max-w-md mt-2 font-medium">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="mt-8 px-6 py-2.5 bg-red-500 text-white rounded-xl text-sm font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95"
+                    >
+                        נסה שוב
+                    </button>
+                </div>
+            ) : loading ? (
+                <div className="bg-white rounded-3xl border border-black/[0.07] p-32 flex flex-col items-center justify-center shadow-sm">
+                    <div className="relative">
+                        <Loader2 className="animate-spin text-purple-500" size={48} />
+                        <div className="absolute inset-0 blur-xl opacity-20 bg-purple-500 animate-pulse" />
+                    </div>
+                    <p className="text-[#1d1d1f] font-bold mt-8 text-lg">מושך נתונים...</p>
+                    <p className="text-[#6d6d6d] text-sm mt-1">מחפש הזמנות עם קופון OSVR10</p>
+                </div>
+            ) : (
+                <>
+                    {/* Summary Cards */}
+                    {summary && (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">הזמנות</p>
+                                <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_orders}</p>
+                            </div>
+                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מוצרים</p>
+                                <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_items}</p>
+                            </div>
+                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות נטו</p>
+                                <p className="text-2xl font-black text-[#1d1d1f]">₪{summary.total_revenue.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</p>
+                            </div>
+                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ הנחות</p>
+                                <p className="text-2xl font-black text-red-500">₪{summary.total_discount.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</p>
+                            </div>
+                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">ממוצע להזמנה</p>
+                                <p className="text-2xl font-black text-[#1d1d1f]">₪{summary.avg_order_value.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</p>
+                            </div>
+                            <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-5 rounded-2xl shadow-lg shadow-purple-500/20">
+                                <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלה נטו</p>
+                                <p className="text-2xl font-black text-white">₪{summary.commission.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Orders List */}
+                    {orders.length === 0 ? (
+                        <div className="bg-white rounded-3xl border border-black/[0.07] p-24 flex flex-col items-center justify-center text-center shadow-sm">
+                            <div className="w-20 h-20 rounded-3xl bg-slate-50 flex items-center justify-center mb-6 border border-slate-100">
+                                <Tag className="text-slate-300" size={36} />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-800">לא נמצאו הזמנות</h3>
+                            <p className="text-slate-500 max-w-xs mt-2 font-medium">לא נמצאו הזמנות עם קופון OSVR10 בחודש הנבחר.</p>
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-3xl border border-black/[0.07] shadow-sm overflow-hidden">
+                            <div className="px-6 py-5 border-b border-slate-100">
+                                <h2 className="text-lg font-bold text-slate-900">
+                                    פירוט הזמנות — {format(currentDate, 'MMMM yyyy', { locale: he })}
+                                </h2>
+                                <p className="text-sm text-slate-500 mt-0.5">{orders.length} הזמנות עם קופון OSVR10</p>
+                            </div>
+
+                            <div className="divide-y divide-slate-100">
+                                {orders.map((order) => {
+                                    const isExpanded = expandedOrder === order.order_id;
+                                    const statusInfo = STATUS_MAP[order.status] || { label: order.status, className: 'bg-gray-100 text-gray-700' };
+                                    const orderDate = new Date(order.date);
+
+                                    return (
+                                        <div key={order.order_id}>
+                                            {/* Order Row */}
+                                            <button
+                                                onClick={() => toggleOrder(order.order_id)}
+                                                className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors text-right"
+                                            >
+                                                <div className="flex items-center gap-4 flex-1 min-w-0">
+                                                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                                        <ShoppingBag size={18} className="text-slate-500" />
+                                                    </div>
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="flex items-center gap-2 flex-wrap">
+                                                            <span className="font-bold text-slate-900">#{order.order_number}</span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${statusInfo.className}`}>
+                                                                {statusInfo.label}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 text-sm text-slate-500 mt-0.5">
+                                                            <span>{order.customer_name || 'אורח'}</span>
+                                                            <span>•</span>
+                                                            <span>{format(orderDate, 'dd/MM/yyyy HH:mm')}</span>
+                                                            {order.shipping_city && (
+                                                                <>
+                                                                    <span>•</span>
+                                                                    <span>{order.shipping_city}</span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-4 flex-shrink-0">
+                                                    <div className="text-left">
+                                                        <div className="font-bold text-slate-900">
+                                                            ₪{order.subtotal.toLocaleString('he-IL', { maximumFractionDigits: 0 })}
+                                                        </div>
+                                                        <div className="text-xs text-red-500 font-medium">
+                                                            -₪{order.discount_amount.toLocaleString('he-IL', { maximumFractionDigits: 0 })} הנחה
+                                                        </div>
+                                                    </div>
+                                                    {isExpanded ? (
+                                                        <ChevronUp size={18} className="text-slate-400" />
+                                                    ) : (
+                                                        <ChevronDown size={18} className="text-slate-400" />
+                                                    )}
+                                                </div>
+                                            </button>
+
+                                            {/* Expanded Details */}
+                                            {isExpanded && (
+                                                <div className="px-6 pb-5 bg-slate-50/50">
+                                                    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+                                                        {/* Customer Info */}
+                                                        <div className="px-5 py-3 bg-slate-50 border-b border-slate-100 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                                                            {order.customer_email && (
+                                                                <span className="text-slate-600">
+                                                                    <span className="font-semibold text-slate-800">אימייל:</span> {order.customer_email}
+                                                                </span>
+                                                            )}
+                                                            {order.customer_phone && (
+                                                                <span className="text-slate-600">
+                                                                    <span className="font-semibold text-slate-800">טלפון:</span> {order.customer_phone}
+                                                                </span>
+                                                            )}
+                                                            {order.payment_method && (
+                                                                <span className="text-slate-600">
+                                                                    <span className="font-semibold text-slate-800">תשלום:</span> {order.payment_method}
+                                                                </span>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Items Table */}
+                                                        <table className="w-full text-sm">
+                                                            <thead>
+                                                                <tr className="border-b border-slate-100 text-slate-500">
+                                                                    <th className="text-right px-5 py-2.5 font-semibold">מוצר</th>
+                                                                    <th className="text-center px-3 py-2.5 font-semibold">כמות</th>
+                                                                    <th className="text-center px-3 py-2.5 font-semibold">מחיר יחידה</th>
+                                                                    <th className="text-center px-5 py-2.5 font-semibold">סה"כ</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody className="divide-y divide-slate-50">
+                                                                {order.items.map((item, idx) => (
+                                                                    <tr key={idx} className="hover:bg-slate-50/50">
+                                                                        <td className="px-5 py-3">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Package size={14} className="text-slate-400 flex-shrink-0" />
+                                                                                <span className="font-medium text-slate-800 line-clamp-2">{item.name}</span>
+                                                                            </div>
+                                                                            {item.sku && <span className="text-xs text-slate-400 mr-6">SKU: {item.sku}</span>}
+                                                                        </td>
+                                                                        <td className="text-center px-3 py-3 text-slate-600">{item.quantity}</td>
+                                                                        <td className="text-center px-3 py-3 text-slate-600">₪{item.price.toLocaleString('he-IL')}</td>
+                                                                        <td className="text-center px-5 py-3 font-semibold text-slate-800">₪{item.total.toLocaleString('he-IL')}</td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+
+                                                        {/* Order Totals */}
+                                                        <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
+                                                            <div className="flex gap-6 text-sm">
+                                                                <span className="text-slate-600">
+                                                                    סה"כ מוצרים: <span className="font-bold text-slate-800">₪{order.subtotal.toLocaleString('he-IL', { minimumFractionDigits: 2 })}</span>
+                                                                </span>
+                                                                <span className="text-red-500">
+                                                                    הנחת קופון: <span className="font-bold">-₪{order.discount_amount.toLocaleString('he-IL', { minimumFractionDigits: 2 })}</span>
+                                                                </span>
+                                                            </div>
+                                                            <span className="font-bold text-lg text-purple-600">
+                                                                סה"כ: ₪{order.total.toLocaleString('he-IL', { minimumFractionDigits: 2 })}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
+        </div>
+    );
+}
