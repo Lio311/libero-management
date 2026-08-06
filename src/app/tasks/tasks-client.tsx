@@ -5,10 +5,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Plus, Search, CheckCircle2, Circle, Clock, Check, Edit2, X, Trash2, LayoutGrid, LayoutList } from "lucide-react";
+import { Plus, Search, CheckCircle2, Circle, Clock, Check, Edit2, X, Trash2, LayoutGrid, LayoutList, CalendarIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { updateBankOfTaskAction, createBankOfTaskAction, deleteBankOfTaskAction } from "../actions/bankOfTasks";
-import { isValid, isBefore, startOfDay } from 'date-fns';
+import { isValid, isBefore, startOfDay, format } from 'date-fns';
+import { he } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 type Task = {
   id: string;
@@ -31,6 +35,33 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
     (task.taskName?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
     (task.assignee?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
+
+  const formatDateForInput = (dateStr?: string | null) => {
+    if (!dateStr) return "";
+    let day, month, year;
+    if (dateStr.includes('-')) {
+      const parts = dateStr.split('-');
+      if (parts[0].length === 4) return dateStr;
+      day = parts[0]; month = parts[1]; year = parts[2];
+    } else if (dateStr.includes('.')) {
+      const parts = dateStr.split('.');
+      day = parts[0]; month = parts[1]; year = parts[2];
+    } else if (dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      day = parts[0]; month = parts[1]; year = parts[2];
+    } else {
+      return "";
+    }
+    if (year.length === 2) year = `20${year}`;
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  };
+
+  const formatDateForOutput = (dateStr: string) => {
+    if (!dateStr) return "";
+    const [year, month, day] = dateStr.split('-');
+    if (!day || !month || !year) return dateStr;
+    return `${day}.${month}.${year}`;
+  };
 
   
   const isOverdue = (dueDate?: string | null) => {
@@ -450,13 +481,35 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                       <td className="px-2 py-1 md:px-6 md:py-4 flex justify-between items-center md:table-cell">
                         <span className="md:hidden font-medium text-sm text-gray-500">תאריך</span>
                         {isEditing ? (
-                          <input 
-                            type="text"
-                            value={editForm.dueDate || ""}
-                            onChange={(e) => handleEditChange("dueDate", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-center"
-                            placeholder="DD.MM.YYYY"
-                          />
+                          <Popover>
+                            <PopoverTrigger
+                              className={cn(
+                                "w-full flex justify-between items-center p-2 border border-border rounded-md text-sm bg-background text-right",
+                                !editForm.dueDate && "text-muted-foreground"
+                              )}
+                            >
+                              {editForm.dueDate ? editForm.dueDate : <span>בחר תאריך</span>}
+                              <CalendarIcon className="h-4 w-4 mr-2 opacity-50" />
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start" dir="rtl">
+                              <Calendar
+                                mode="single"
+                                selected={
+                                  editForm.dueDate
+                                    ? (() => {
+                                        const [day, month, year] = editForm.dueDate.split(/[\.\-\/]/);
+                                        const parsed = new Date(parseInt(year.length === 2 ? `20${year}` : year), parseInt(month) - 1, parseInt(day));
+                                        return isValid(parsed) ? parsed : undefined;
+                                      })()
+                                    : undefined
+                                }
+                                onSelect={(date) => {
+                                  handleEditChange("dueDate", date ? format(date, "dd.MM.yyyy") : null);
+                                }}
+                                locale={he}
+                              />
+                            </PopoverContent>
+                          </Popover>
                         ) : (
                           <span className="text-sm text-muted-foreground">{task.dueDate || "-"}</span>
                         )}

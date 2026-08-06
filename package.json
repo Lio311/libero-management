@@ -11,6 +11,7 @@
   "dependencies": {
     "@base-ui/react": "^1.7.0",
     "@neondatabase/serverless": "^1.1.0",
+    "@supabase/supabase-js": "^2.112.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
@@ -23,6 +24,7 @@
     "pg": "^8.22.0",
     "qrcode": "^1.5.4",
     "react": "19.2.8",
+    "react-day-picker": "^10.0.1",
     "react-dom": "19.2.8",
     "react-xarrows": "^2.0.2",
     "recharts": "^3.10.1",
