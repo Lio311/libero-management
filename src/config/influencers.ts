@@ -146,15 +146,15 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     id: 'liz',
     name: "ליז",
     coupons: [
-      { brand: 'velour', code: 'laty10' },
-      { brand: 'velour', code: 'laty2' }
+      { brand: 'libero', code: 'laty10' },
+      { brand: 'libero', code: 'laty' }
     ]
   },
   yahav: {
     id: 'yahav',
     name: "יהב",
     coupons: [
-      { brand: 'velour', code: 'yahav10' }
+      { brand: 'libero', code: 'yahav10' }
     ]
   },
   oded: {
