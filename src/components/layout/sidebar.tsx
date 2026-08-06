@@ -20,7 +20,9 @@ const navigation: NavItem[] = [
   { name: "בנק משימות", href: "/tasks", icon: CheckSquare },
   { name: "שיווק ומשפיענים", icon: Megaphone, subItems: [
     { name: "לוח שיווק", href: "/marketing" },
-    ...Object.values(influencersConfig).map(inf => ({
+    ...Object.values(influencersConfig)
+      .sort((a, b) => a.name.localeCompare(b.name, 'he'))
+      .map(inf => ({
       name: inf.name,
       href: inf.id === 'oded' ? '/marketing/oded' : `/marketing/influencers/${inf.id}`
     }))

@@ -94,7 +94,9 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
           <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
           <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
             <option value="">לא מקושר</option>
-            {Object.entries(influencersConfig).map(([key, config]) => (
+            {Object.entries(influencersConfig)
+              .sort(([, a], [, b]) => a.name.localeCompare(b.name, 'he'))
+              .map(([key, config]) => (
               <option key={key} value={key}>{config.name}</option>
             ))}
           </select>
@@ -288,7 +290,9 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
           <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
           <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
             <option value="">לא מקושר</option>
-            {Object.entries(influencersConfig).map(([key, config]) => (
+            {Object.entries(influencersConfig)
+              .sort(([, a], [, b]) => a.name.localeCompare(b.name, 'he'))
+              .map(([key, config]) => (
               <option key={key} value={key}>{config.name}</option>
             ))}
           </select>
@@ -552,7 +556,9 @@ export default function MarketingClient({
               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
                 {isAddingInfluencer && <EditableInfluencerRow inf={{ isNew: true, onCancelNew: () => setIsAddingInfluencer(false) }} />}
                 {rawInfluencers && rawInfluencers.length > 0 ? (
-                  rawInfluencers.map((inf) => (
+                  [...rawInfluencers]
+                    .sort((a, b) => (a.influencerName || '').localeCompare(b.influencerName || '', 'he'))
+                    .map((inf) => (
                     <EditableInfluencerRow key={inf.id} inf={inf} />
                   ))
                 ) : (
@@ -618,7 +624,9 @@ export default function MarketingClient({
               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
                 {isAddingPayment && <EditablePaymentRow payment={{ isNew: true, paymentMonth: currentMonth, onCancelNew: () => setIsAddingPayment(false) }} rawInfluencers={rawInfluencers} />}
                 {combinedPayments && combinedPayments.length > 0 ? (
-                  combinedPayments.map((payment) => (
+                  [...combinedPayments]
+                    .sort((a, b) => (a.influencerName || '').localeCompare(b.influencerName || '', 'he'))
+                    .map((payment) => (
                     <EditablePaymentRow key={payment.id} payment={payment} rawInfluencers={rawInfluencers} />
                   ))
                 ) : (
