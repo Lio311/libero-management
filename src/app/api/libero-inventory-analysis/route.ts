@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-    const ck = process.env.LIBERO_WC_CK;
-    const cs = process.env.LIBERO_WC_CS;
+    // Try to get from env, strip quotes and whitespace if present, fallback to hardcoded if missing/invalid
+    let ck = process.env.LIBERO_WC_CK?.replace(/['"]+/g, '').trim() || '[REDACTED_CK]';
+    let cs = process.env.LIBERO_WC_CS?.replace(/['"]+/g, '').trim() || '[REDACTED_CS]';
     const baseUrl = 'https://libero-il.co.il';
 
     if (!ck || !cs) {
