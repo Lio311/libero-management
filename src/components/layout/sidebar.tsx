@@ -17,7 +17,7 @@ const navigation: NavItem[] = [
   { name: "כספים", href: "/finance", icon: DollarSign },
   { name: "בנק משימות", href: "/tasks", icon: CheckSquare },
   { name: "שיווק ומשפיענים", href: "/marketing", icon: Megaphone },
-  { name: "מלאי וספקים", href: "/inventory", icon: Package },
+  { name: "הזמנות וספקים", href: "/inventory", icon: Package },
   { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
   { name: "בעלי תפקידים", href: "/team", icon: Users },
   { name: "ניתוח מלאי חכם", href: "/inventory-analysis", icon: BarChart },

@@ -452,7 +452,7 @@ export default function InventoryClient({
   return (
     <div className="p-8 space-y-8 bg-gray-50/50 min-h-screen" dir="rtl">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900">מלאי וספקים</h2>
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900">הזמנות וספקים</h2>
         <p className="text-muted-foreground mt-2">בריאות המלאי, פריטים חסרים והזמנות רכש.</p>
       </div>
 
