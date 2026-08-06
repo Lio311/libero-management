@@ -90,7 +90,7 @@ export default function LoginPage() {
             </motion.div>
             
             <div className="relative h-16 w-36 overflow-hidden mb-2">
-              <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
+              <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center invert opacity-90" priority />
             </div>
             <p className="text-zinc-400 text-sm mb-10 tracking-widest uppercase">Management</p>
 
