@@ -11,6 +11,8 @@ export async function GET(request: Request) {
 
     const auth = Buffer.from(`${ck}:${cs}`).toString('base64');
 
+    let lastApiError = '';
+
     const apiFetch = async (endpoint: string, query: string = '') => {
         const url = `${baseUrl}/wp-json/wc/v3/${endpoint}?${query}`;
         const controller = new AbortController();
@@ -23,17 +25,22 @@ export async function GET(request: Request) {
                 headers: {
                     'Authorization': `Basic ${auth}`,
                     'Content-Type': 'application/json',
-                    'User-Agent': 'Vercel-Function'
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                 }
             });
             clearTimeout(timeoutId);
 
             if (!response.ok) {
+                const text = await response.text();
+                console.error(`WC API Error [${response.status}] on ${url}: ${text.substring(0, 200)}`);
+                lastApiError = `שגיאת שרת מ-WooCommerce: ${response.status}`;
                 return [];
             }
             return await response.json();
-        } catch (e) {
+        } catch (e: any) {
             clearTimeout(timeoutId);
+            console.error(`WC API Fetch Exception on ${url}:`, e.message);
+            lastApiError = `שגיאת תקשורת: ${e.message}`;
             return [];
         }
     };
@@ -67,7 +74,8 @@ export async function GET(request: Request) {
         const allOrders = orderResults.filter(Array.isArray).flat().filter(o => o && o.id);
 
         if (allProducts.length === 0) {
-            return NextResponse.json({ error: 'לא נמצאו מוצרים באתר' }, { status: 500 });
+            const errorMsg = lastApiError ? `לא נמצאו מוצרים באתר. פירוט שגיאה: ${lastApiError}` : 'לא נמצאו מוצרים באתר';
+            return NextResponse.json({ error: errorMsg }, { status: 500 });
         }
 
         // 2. Process KPIs
