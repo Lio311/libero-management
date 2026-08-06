@@ -20,7 +20,7 @@ const navigation: NavItem[] = [
   { name: "בנק משימות", href: "/tasks", icon: CheckSquare },
   { name: "שיווק ומשפיענים", icon: Megaphone, subItems: [
     { name: "לוח שיווק", href: "/marketing" },
-    { name: "עודד — OSVR10", href: "/marketing/oded" },
+    { name: "עודד", href: "/marketing/oded" },
     ...Object.values(influencersConfig).map(inf => ({
       name: inf.name,
       href: `/marketing/influencers/${inf.id}`
