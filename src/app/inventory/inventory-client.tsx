@@ -556,7 +556,7 @@ export default function InventoryClient({
       <Card className="bg-white border-none shadow-sm">
         <CardHeader>
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div>
                   <CardTitle>טבלת מלאי לפי מותגים</CardTitle>
@@ -571,7 +571,7 @@ export default function InventoryClient({
                 </button>
               </div>
               
-              <div className="relative w-full md:w-auto shrink-0 md:min-w-[300px]">
+              <div className="relative w-full lg:w-[300px] xl:w-[400px]">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
