@@ -37,7 +37,7 @@ const navigation: NavItem[] = [
   },
 ];
 
-export function Sidebar({ children }: { children?: React.ReactNode }) {
+export function Sidebar({ children, isAuthenticated = true }: { children?: React.ReactNode; isAuthenticated?: boolean }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<string[]>([]);
@@ -90,7 +90,10 @@ export function Sidebar({ children }: { children?: React.ReactNode }) {
             </button>
           </div>
         </div>
-        <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
+        <nav className={cn(
+          "flex-1 space-y-1 px-3 py-4 overflow-y-auto",
+          !isAuthenticated && "blur-sm pointer-events-none select-none opacity-50"
+        )}>
           {navigation.map((item) => {
             const hasSubItems = !!item.subItems;
             const isDropdownOpen = openDropdowns.includes(item.name);
@@ -172,7 +175,10 @@ export function Sidebar({ children }: { children?: React.ReactNode }) {
             );
           })}
         </nav>
-        <div className="p-4 border-t border-border/50">
+        <div className={cn(
+          "p-4 border-t border-border/50",
+          !isAuthenticated && "blur-sm opacity-50"
+        )}>
           <div className="flex items-center px-3 py-2 text-xs text-muted-foreground">
             <span>ניהול עסקי - B2B/B2C</span>
           </div>
