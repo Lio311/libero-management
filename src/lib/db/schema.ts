@@ -139,6 +139,8 @@ export const influencerPayments = pgTable("influencer_payments", {
   isDone: varchar("is_done", { length: 50 }),
   notes: text("notes"),
   paymentMonth: varchar("payment_month", { length: 7 }),
+  baseSalary: decimal("base_salary"),
+  influencerId: varchar("influencer_id", { length: 255 }),
 });
 
 export const wholesaleCustomers = pgTable("wholesale_customers", {
