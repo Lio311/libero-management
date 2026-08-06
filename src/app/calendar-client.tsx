@@ -201,6 +201,10 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               delayMonths = differenceInMonths(today, parsedDate);
            }
            
+           if (renderDate.getDay() === 5) {
+             renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 2);
+           }
+           
            const dateKey = format(renderDate, 'yyyy-MM-dd');
            if (!newTasks[dateKey]) newTasks[dateKey] = [];
            
