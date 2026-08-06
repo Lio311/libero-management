@@ -81,6 +81,7 @@ const formatILSNeg = (amount: number, fractionDigits = 0) => {
 export default function InfluencerCouponPage({ params }: { params: Promise<{ id: string }> }) {
     const { id: influencerId } = use(params);
     const influencerConfig = influencersConfig[influencerId];
+    const influencerBrands = Array.from(new Set(influencerConfig?.coupons.map(c => c.brand) || []));
     
     const [currentDate, setCurrentDate] = useState(new Date());
     const [orders, setOrders] = useState<InfluencerOrder[]>([]);
@@ -227,7 +228,18 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                             </motion.div>
                             
                             <h2 className="text-white text-2xl font-bold tracking-wider mb-2 uppercase">דוח {influencerName || 'משפיענית'}</h2>
-                            <p className="text-zinc-400 text-sm mb-10 tracking-widest text-center w-full block uppercase">{influencerId}</p>
+                            
+                            {influencerBrands.length > 0 && (
+                                <div className="flex items-center justify-center gap-3 mt-4 mb-8">
+                                    {influencerBrands.map(brand => (
+                                        <div key={brand} className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
+                                            <Image src={`/brands/${brand}.png`} alt={brand} width={48} height={48} className="w-full h-full object-contain p-1" />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <p className="text-zinc-400 text-sm mb-8 tracking-widest text-center w-full block uppercase">{influencerId}</p>
 
                             <form onSubmit={handleSubmit} className="w-full">
                                 <div className="relative mb-6" dir="rtl">
@@ -393,8 +405,8 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                     {Object.entries(summary.brand_summaries).map(([brand, bs]) => (
                                         <div key={brand} className="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 flex flex-col md:flex-row md:items-center gap-6">
                                             <div className="flex items-center gap-3 md:w-48 flex-shrink-0">
-                                                <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center border border-slate-200 font-black text-slate-700 text-lg">
-                                                    {brand.charAt(0).toUpperCase()}
+                                                <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center border border-slate-200 overflow-hidden">
+                                                    <Image src={`/brands/${brand}.png`} alt={brand} width={40} height={40} className="w-full h-full object-contain p-0.5" />
                                                 </div>
                                                 <h4 className="font-bold text-slate-800 text-lg">{BRAND_LABELS[brand] || brand}</h4>
                                             </div>
