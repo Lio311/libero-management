@@ -1,0 +1,590 @@
+commit 87b06c886e278943214157f969e6f06fcb02f361
+Author: Antigravity AI <antigravity@google.com>
+Date:   Thu Aug 6 14:44:59 2026 +0300
+
+    Update marketing cards and remove unlinked dash
+
+diff --git a/src/app/marketing/marketing-client.tsx b/src/app/marketing/marketing-client.tsx
+index a08874e..1195588 100644
+--- a/src/app/marketing/marketing-client.tsx
++++ b/src/app/marketing/marketing-client.tsx
+@@ -90,7 +90,7 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+         <td className="p-2 flex flex-col md:table-cell gap-1">
+           <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
+           <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
+-            <option value="">-- לא מקושר --</option>
++            <option value="">לא מקושר</option>
+             {Object.entries(influencersConfig).map(([key, config]) => (
+               <option key={key} value={key}>{config.name}</option>
+             ))}
+@@ -273,7 +273,7 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+         <td className="p-2 flex flex-col md:table-cell gap-1">
+           <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
+           <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
+-            <option value="">-- לא מקושר --</option>
++            <option value="">לא מקושר</option>
+             {Object.entries(influencersConfig).map(([key, config]) => (
+               <option key={key} value={key}>{config.name}</option>
+             ))}
+@@ -419,35 +419,15 @@ export default function MarketingClient({
+         <p className="text-muted-foreground mt-2">מעקב קמפיינים, משפיענים, והחזר השקעה.</p>
+       </div>
+ 
+-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
++      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+         <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+             <CardTitle className="text-sm font-medium">משפיענים במערכת</CardTitle>
+             <Users className="h-4 w-4 text-primary" />
+           </CardHeader>
+           <CardContent>
+-            <div className="text-2xl font-bold">{activeInfluencers}</div>
+-            <p className="text-xs text-muted-foreground">רשומים בבסיס הנתונים</p>
+-          </CardContent>
+-        </Card>
+-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+-            <CardTitle className="text-sm font-medium">הערכת חשיפה מצטברת</CardTitle>
+-            <Camera className="h-4 w-4 text-primary" />
+-          </CardHeader>
+-          <CardContent>
+-            <div className="text-2xl font-bold">{totalFollowersEstimate}</div>
+-            <p className="text-xs text-muted-foreground">עוקבים (הערכה כללית)</p>
+-          </CardContent>
+-        </Card>
+-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+-            <CardTitle className="text-sm font-medium">מוצרים שנשלחו</CardTitle>
+-            <TrendingUp className="h-4 w-4 text-primary" />
+-          </CardHeader>
+-          <CardContent>
+-            <div className="text-2xl font-bold">{totalProductsGiven}</div>
+-            <p className="text-xs text-muted-foreground">לפי תיעוד במערכת</p>
++            <div className="text-2xl font-bold">{new Set(filteredPayments.map(p => p.influencerName || p.influencerId)).size}</div>
++            <p className="text-xs text-muted-foreground">משפיענים בטבלת התשלומים החודש</p>
+           </CardContent>
+         </Card>
+         <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+
+commit 24cef8243a31c65d5d884b3841fcd013f55afec8
+Author: Antigravity AI <antigravity@google.com>
+Date:   Thu Aug 6 14:36:39 2026 +0300
+
+    Add Oded to influencers config and route his commission fetch in marketing client
+
+diff --git a/src/app/marketing/marketing-client.tsx b/src/app/marketing/marketing-client.tsx
+index 10eaf70..a08874e 100644
+--- a/src/app/marketing/marketing-client.tsx
++++ b/src/app/marketing/marketing-client.tsx
+@@ -186,7 +186,11 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+       if (monthIndex > 0) {
+         const monthParam = `${year}-${monthIndex.toString().padStart(2, '0')}`;
+         setIsLoadingCommission(true);
+-        fetch(`/api/influencer-coupon/${payment.influencerId}?month=${monthParam}`)
++        const apiUrl = payment.influencerId === 'oded' 
++          ? `/api/oded-coupon?month=${monthParam}`
++          : `/api/influencer-coupon/${payment.influencerId}?month=${monthParam}`;
++          
++        fetch(apiUrl)
+           .then(res => res.json())
+           .then(data => {
+             if (data && data.summary && data.summary.commission !== undefined) {
+
+commit ab2d18d4c18a55731a647f56920a1cf71f598158
+Author: Antigravity AI <antigravity@google.com>
+Date:   Thu Aug 6 14:32:16 2026 +0300
+
+    Update marketing dashboard with dynamic commissions, base salary, and unblock images in middleware
+
+diff --git a/src/app/marketing/marketing-client.tsx b/src/app/marketing/marketing-client.tsx
+index 581ddd3..10eaf70 100644
+--- a/src/app/marketing/marketing-client.tsx
++++ b/src/app/marketing/marketing-client.tsx
+@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
+ import { Users, Camera, TrendingUp, HandCoins } from "lucide-react";
+ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+ import { updateInfluencer, updateInfluencerPayment, createInfluencer, deleteInfluencer, createInfluencerPayment, deleteInfluencerPayment } from "@/app/actions/marketing";
+-import { Check, X, Edit2, ChevronRight, ChevronLeft, Trash2, Plus } from "lucide-react";
++import { Check, X, Edit2, ChevronRight, ChevronLeft, Trash2, Plus, Loader2 } from "lucide-react";
+ import { influencersConfig } from '@/config/influencers';
+ 
+ interface MarketingClientProps {
+@@ -164,6 +164,41 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+ 
+ function EditablePaymentRow({ payment }: { payment: any }) {
+   const [isEditing, setIsEditing] = useState(false);
++  const [commission, setCommission] = useState<number | null>(null);
++  const [isLoadingCommission, setIsLoadingCommission] = useState(false);
++
++  useEffect(() => {
++    if (payment.influencerId && payment.paymentMonth) {
++      const hebrewMonthsList = [
++        'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 
++        'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
++      ];
++      const match = String(payment.paymentMonth).match(/\d{4}/);
++      const year = match ? match[0] : new Date().getFullYear().toString();
++      let monthIndex = -1;
++      for (let i = 0; i < hebrewMonthsList.length; i++) {
++        if (String(payment.paymentMonth).includes(hebrewMonthsList[i])) {
++          monthIndex = i + 1;
++          break;
++        }
++      }
++      
++      if (monthIndex > 0) {
++        const monthParam = `${year}-${monthIndex.toString().padStart(2, '0')}`;
++        setIsLoadingCommission(true);
++        fetch(`/api/influencer-coupon/${payment.influencerId}?month=${monthParam}`)
++          .then(res => res.json())
++          .then(data => {
++            if (data && data.summary && data.summary.commission !== undefined) {
++               setCommission(data.summary.commission);
++            }
++          })
++          .catch(console.error)
++          .finally(() => setIsLoadingCommission(false));
++      }
++    }
++  }, [payment.influencerId, payment.paymentMonth]);
++
+   const [data, setData] = useState({
+     influencerName: payment.influencerName || '',
+     amount: payment.amount || 0,
+@@ -217,6 +252,8 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+       <tr className="bg-blue-50/30 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 rounded-lg md:rounded-none mb-4 md:mb-0">
+         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שם משפיענ/ית</span><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
+         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.amount} onChange={e => setData({...data, amount: e.target.value})} /></td>
++        <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">עמלת קופונים</span>-</td>
++        <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">סה"כ לתשלום</span>-</td>
+         <td className="p-2 flex flex-col md:table-cell gap-1">
+           <span className="md:hidden font-medium text-sm text-gray-500">בוצע?</span>
+           <select 
+@@ -249,6 +286,7 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+   }
+ 
+   const isCompleted = payment.isDone === 'כן' || payment.isDone === 'בוצע' || payment.isDone?.toLowerCase() === 'v';
++  const totalPayment = (Number(payment.amount) || 0) + (commission || 0);
+ 
+   return (
+     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
+@@ -258,7 +296,19 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+       </td>
+       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
+         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
+-        ₪{payment.amount || '0'}
++        <span dir="ltr">₪{payment.amount || '0'}</span>
++      </td>
++      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-blue-600">
++        <span className="md:hidden text-gray-500 text-sm">עמלת קופונים</span>
++        {isLoadingCommission ? (
++           <Loader2 className="animate-spin inline-block w-4 h-4 text-blue-400" />
++        ) : (
++           <span dir="ltr">₪{commission ? commission.toLocaleString('he-IL', { maximumFractionDigits: 0 }) : '0'}</span>
++        )}
++      </td>
++      <td className="py-1 md:py-3 px-2 font-bold flex justify-between items-center md:table-cell text-center text-emerald-600">
++        <span className="md:hidden text-gray-500 text-sm">סה"כ לתשלום</span>
++        <span dir="ltr">₪{totalPayment.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</span>
+       </td>
+       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
+         <span className="md:hidden text-gray-500 text-sm">בוצע?</span>
+@@ -495,6 +545,8 @@ export default function MarketingClient({
+                 <tr>
+                   <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם משפיענ/ית</th>
+                   <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
++                  <th className="py-3 px-2 font-medium text-center">עמלת קופונים</th>
++                  <th className="py-3 px-2 font-medium text-center">סה"כ לתשלום</th>
+                   <th className="py-3 px-2 font-medium text-center">בוצע?</th>
+                   <th className="py-3 px-2 font-medium text-right">הערות</th>
+                   <th className="py-3 px-2 font-medium text-center">קישור למשפיען</th>
+@@ -509,7 +561,7 @@ export default function MarketingClient({
+                   ))
+                 ) : (
+                   <tr>
+-                    <td colSpan={6} className="py-8 text-center text-muted-foreground">
++                    <td colSpan={8} className="py-8 text-center text-muted-foreground">
+                       לא נמצאו תשלומים לחודש זה.
+                     </td>
+                   </tr>
+
+commit d479439c3ca28c29662045d80454ed70f0fc38b0
+Author: Antigravity AI <antigravity@google.com>
+Date:   Thu Aug 6 14:17:57 2026 +0300
+
+    Update influencer management: consolidate base salary to influencer payments and update influencer report calculations
+
+diff --git a/src/app/marketing/marketing-client.tsx b/src/app/marketing/marketing-client.tsx
+index 7d8cf9f..581ddd3 100644
+--- a/src/app/marketing/marketing-client.tsx
++++ b/src/app/marketing/marketing-client.tsx
+@@ -35,7 +35,6 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+     videosUploaded: inf.videosUploaded || '',
+     activities: inf.activities || '',
+     notes: inf.notes || '',
+-    baseSalary: inf.baseSalary || '',
+     influencerId: inf.influencerId || ''
+   });
+ 
+@@ -63,7 +62,6 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+         videosUploaded: inf.videosUploaded || '',
+         activities: inf.activities || '',
+         notes: inf.notes || '',
+-        baseSalary: inf.baseSalary || '',
+         influencerId: inf.influencerId || ''
+       });
+       setIsEditing(false);
+@@ -89,7 +87,6 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">סרטונים שהועלו</span><input className="w-full p-1 border rounded text-sm text-right" value={data.videosUploaded} onChange={e => setData({...data, videosUploaded: e.target.value})} /></td>
+         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">פעילויות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.activities} onChange={e => setData({...data, activities: e.target.value})} /></td>
+         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">הערות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
+-        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.baseSalary} onChange={e => setData({...data, baseSalary: e.target.value})} placeholder="0" /></td>
+         <td className="p-2 flex flex-col md:table-cell gap-1">
+           <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
+           <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
+@@ -147,10 +144,6 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+         <span className="md:hidden text-gray-500 text-sm">הערות</span>
+         {inf.notes || '-'}
+       </td>
+-      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
+-        <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
+-        {inf.baseSalary ? `₪${Number(inf.baseSalary).toLocaleString()}` : '-'}
+-      </td>
+       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
+         <span className="md:hidden text-gray-500 text-sm">קישור למשפיען</span>
+         {inf.influencerId ? (influencersConfig[inf.influencerId]?.name || inf.influencerId) : '-'}
+@@ -176,7 +169,8 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+     amount: payment.amount || 0,
+     isDone: payment.isDone || '',
+     paymentMonth: payment.paymentMonth || '',
+-    notes: payment.notes || ''
++    notes: payment.notes || '',
++    influencerId: payment.influencerId || ''
+   });
+ 
+   const handleSave = async () => {
+@@ -204,7 +198,8 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+         amount: payment.amount || 0,
+         isDone: payment.isDone || '',
+         paymentMonth: payment.paymentMonth || '',
+-        notes: payment.notes || ''
++        notes: payment.notes || '',
++        influencerId: payment.influencerId || ''
+       });
+       setIsEditing(false);
+     }
+@@ -221,7 +216,7 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+     return (
+       <tr className="bg-blue-50/30 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 rounded-lg md:rounded-none mb-4 md:mb-0">
+         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שם משפיענ/ית</span><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
+-        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">סכום</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.amount} onChange={e => setData({...data, amount: e.target.value})} /></td>
++        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.amount} onChange={e => setData({...data, amount: e.target.value})} /></td>
+         <td className="p-2 flex flex-col md:table-cell gap-1">
+           <span className="md:hidden font-medium text-sm text-gray-500">בוצע?</span>
+           <select 
+@@ -234,6 +229,15 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+           </select>
+         </td>
+         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">הערות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
++        <td className="p-2 flex flex-col md:table-cell gap-1">
++          <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
++          <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
++            <option value="">-- לא מקושר --</option>
++            {Object.entries(influencersConfig).map(([key, config]) => (
++              <option key={key} value={key}>{config.name}</option>
++            ))}
++          </select>
++        </td>
+         <td className="p-2 flex justify-end md:table-cell mt-2 md:mt-0">
+           <div className="flex gap-2 justify-end">
+             <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 rounded bg-green-50 md:bg-transparent"><Check className="h-5 w-5 md:h-4 md:w-4" /></button>
+@@ -253,7 +257,7 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+         {payment.influencerName || '-'}
+       </td>
+       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
+-        <span className="md:hidden text-gray-500 text-sm">סכום</span>
++        <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
+         ₪{payment.amount || '0'}
+       </td>
+       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
+@@ -266,6 +270,14 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+         <span className="md:hidden text-gray-500 text-sm">הערות</span>
+         {payment.notes || '-'}
+       </td>
++      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
++        <span className="md:hidden text-gray-500 text-sm">קישור למשפיען</span>
++        {payment.influencerId ? (
++          <a href={`/marketing/influencers/${payment.influencerId}`} className="text-blue-600 hover:underline font-medium" target="_blank">
++            {influencersConfig[payment.influencerId]?.name || payment.influencerId}
++          </a>
++        ) : '-'}
++      </td>
+       <td className="py-2 md:py-3 px-2 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
+         <div className="flex gap-1 justify-end md:justify-center">
+           <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors bg-blue-50 md:bg-transparent">
+@@ -421,7 +433,6 @@ export default function MarketingClient({
+                   <th className="py-3 px-2 font-medium text-center">סרטונים<br/>שהועלו</th>
+                   <th className="py-3 px-2 font-medium text-right">פעילויות</th>
+                   <th className="py-3 px-2 font-medium text-right">הערות</th>
+-                  <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
+                   <th className="py-3 px-2 font-medium text-center">קישור למשפיען</th>
+                   <th className="py-3 px-2 font-medium rounded-tl-md rounded-bl-md text-center">פעולות</th>
+                 </tr>
+@@ -434,7 +445,7 @@ export default function MarketingClient({
+                   ))
+                 ) : (
+                   <tr>
+-                    <td colSpan={12} className="py-8 text-center text-muted-foreground">
++                    <td colSpan={11} className="py-8 text-center text-muted-foreground">
+                       לא נמצאו משפיענים.
+                     </td>
+                   </tr>
+@@ -483,9 +494,10 @@ export default function MarketingClient({
+               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group text-xs md:text-sm">
+                 <tr>
+                   <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם משפיענ/ית</th>
+-                  <th className="py-3 px-2 font-medium text-center">סכום</th>
++                  <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
+                   <th className="py-3 px-2 font-medium text-center">בוצע?</th>
+                   <th className="py-3 px-2 font-medium text-right">הערות</th>
++                  <th className="py-3 px-2 font-medium text-center">קישור למשפיען</th>
+                   <th className="py-3 px-2 font-medium rounded-tl-md rounded-bl-md text-center">פעולות</th>
+                 </tr>
+               </thead>
+@@ -497,7 +509,7 @@ export default function MarketingClient({
+                   ))
+                 ) : (
+                   <tr>
+-                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
++                    <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                       לא נמצאו תשלומים לחודש זה.
+                     </td>
+                   </tr>
+
+commit e089940c6371416560c6647c4fbdef797b928bd8
+Author: Antigravity AI <antigravity@google.com>
+Date:   Thu Aug 6 13:59:54 2026 +0300
+
+    feat: add base salary and influencer link to marketing dashboard and reports
+    
+    - Added baseSalary and influencerId fields to influencers DB schema
+    - Updated marketing table UI with salary and influencer link columns
+    - Added getInfluencerBaseSalary server action
+    - Influencer report now shows base salary + total monthly salary (base + commission)
+    - Total monthly salary displayed in green gradient card
+
+diff --git a/src/app/marketing/marketing-client.tsx b/src/app/marketing/marketing-client.tsx
+index 8fce00d..7d8cf9f 100644
+--- a/src/app/marketing/marketing-client.tsx
++++ b/src/app/marketing/marketing-client.tsx
+@@ -10,6 +10,7 @@ import { Users, Camera, TrendingUp, HandCoins } from "lucide-react";
+ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+ import { updateInfluencer, updateInfluencerPayment, createInfluencer, deleteInfluencer, createInfluencerPayment, deleteInfluencerPayment } from "@/app/actions/marketing";
+ import { Check, X, Edit2, ChevronRight, ChevronLeft, Trash2, Plus } from "lucide-react";
++import { influencersConfig } from '@/config/influencers';
+ 
+ interface MarketingClientProps {
+   activeInfluencers: number;
+@@ -33,7 +34,9 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+     productsGiven: inf.productsGiven || '',
+     videosUploaded: inf.videosUploaded || '',
+     activities: inf.activities || '',
+-    notes: inf.notes || ''
++    notes: inf.notes || '',
++    baseSalary: inf.baseSalary || '',
++    influencerId: inf.influencerId || ''
+   });
+ 
+   const handleSave = async () => {
+@@ -59,7 +62,9 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+         productsGiven: inf.productsGiven || '',
+         videosUploaded: inf.videosUploaded || '',
+         activities: inf.activities || '',
+-        notes: inf.notes || ''
++        notes: inf.notes || '',
++        baseSalary: inf.baseSalary || '',
++        influencerId: inf.influencerId || ''
+       });
+       setIsEditing(false);
+     }
+@@ -84,6 +89,16 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">סרטונים שהועלו</span><input className="w-full p-1 border rounded text-sm text-right" value={data.videosUploaded} onChange={e => setData({...data, videosUploaded: e.target.value})} /></td>
+         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">פעילויות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.activities} onChange={e => setData({...data, activities: e.target.value})} /></td>
+         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">הערות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
++        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.baseSalary} onChange={e => setData({...data, baseSalary: e.target.value})} placeholder="0" /></td>
++        <td className="p-2 flex flex-col md:table-cell gap-1">
++          <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
++          <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
++            <option value="">-- לא מקושר --</option>
++            {Object.entries(influencersConfig).map(([key, config]) => (
++              <option key={key} value={key}>{config.name}</option>
++            ))}
++          </select>
++        </td>
+         <td className="p-2 flex justify-end md:table-cell mt-2 md:mt-0">
+           <div className="flex gap-2">
+             <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 rounded bg-green-50 md:bg-transparent"><Check className="h-5 w-5 md:h-4 md:w-4" /></button>
+@@ -96,44 +111,52 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+ 
+   return (
+     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
+-      <td className="py-1 md:py-3 px-4 font-medium md:whitespace-nowrap flex justify-between items-center md:table-cell">
++      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-right">
+         <span className="md:hidden text-gray-500 text-sm">שם</span>
+         {inf.influencerName || '-'}
+       </td>
+-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap flex justify-between items-center md:table-cell">
++      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-right">
+         <span className="md:hidden text-gray-500 text-sm">מותג</span>
+         {inf.brand || '-'}
+       </td>
+-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap flex justify-between items-center md:table-cell">
++      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
+         <span className="md:hidden text-gray-500 text-sm">בתשלום?</span>
+         {inf.isPaid || '-'}
+       </td>
+-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap flex justify-between items-center md:table-cell">
+-        <span className="md:hidden text-gray-500 text-sm">מספר סרטונים</span>
++      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
++        <span className="md:hidden text-gray-500 text-sm">סרטונים</span>
+         {inf.videoCount || '-'}
+       </td>
+-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap flex justify-between items-center md:table-cell">
+-        <span className="md:hidden text-gray-500 text-sm">מספר פוסטים</span>
++      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
++        <span className="md:hidden text-gray-500 text-sm">פוסטים</span>
+         {inf.postCount || '-'}
+       </td>
+-      <td className="py-1 md:py-3 px-4 text-muted-foreground md:whitespace-nowrap flex justify-between items-center md:table-cell">
++      <td className="py-1 md:py-3 px-2 text-muted-foreground flex justify-between items-center md:table-cell text-center">
+         <span className="md:hidden text-gray-500 text-sm">מוצרים שניתנו</span>
+         {inf.productsGiven || '-'}
+       </td>
+-      <td className="py-1 md:py-3 px-4 text-muted-foreground md:whitespace-nowrap flex justify-between items-center md:table-cell">
++      <td className="py-1 md:py-3 px-2 text-muted-foreground flex justify-between items-center md:table-cell text-center">
+         <span className="md:hidden text-gray-500 text-sm">סרטונים שהועלו</span>
+         {inf.videosUploaded || '-'}
+       </td>
+-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap max-w-[200px] truncate flex justify-between items-center md:table-cell" title={inf.activities}>
++      <td className="py-1 md:py-3 px-2 max-w-[150px] truncate flex justify-between items-center md:table-cell text-right" title={inf.activities}>
+         <span className="md:hidden text-gray-500 text-sm">פעילויות</span>
+         {inf.activities || '-'}
+       </td>
+-      <td className="py-1 md:py-3 px-4 text-muted-foreground md:whitespace-nowrap max-w-[200px] truncate flex justify-between items-center md:table-cell" title={inf.notes}>
++      <td className="py-1 md:py-3 px-2 text-muted-foreground max-w-[150px] truncate flex justify-between items-center md:table-cell text-right" title={inf.notes}>
+         <span className="md:hidden text-gray-500 text-sm">הערות</span>
+         {inf.notes || '-'}
+       </td>
+-      <td className="py-2 md:py-3 px-4 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
+-        <div className="flex gap-2 justify-end">
++      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
++        <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
++        {inf.baseSalary ? `₪${Number(inf.baseSalary).toLocaleString()}` : '-'}
++      </td>
++      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
++        <span className="md:hidden text-gray-500 text-sm">קישור למשפיען</span>
++        {inf.influencerId ? (influencersConfig[inf.influencerId]?.name || inf.influencerId) : '-'}
++      </td>
++      <td className="py-2 md:py-3 px-2 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
++        <div className="flex gap-1 justify-end md:justify-center">
+           <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors bg-blue-50 md:bg-transparent">
+             <Edit2 className="h-5 w-5 md:h-4 md:w-4" />
+           </button>
+@@ -225,26 +248,26 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+ 
+   return (
+     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
+-      <td className="py-1 md:py-3 px-4 font-medium md:whitespace-nowrap flex justify-between items-center md:table-cell">
++      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-right">
+         <span className="md:hidden text-gray-500 text-sm">שם משפיענ/ית</span>
+         {payment.influencerName || '-'}
+       </td>
+-      <td className="py-1 md:py-3 px-4 font-medium md:whitespace-nowrap flex justify-between items-center md:table-cell">
++      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
+         <span className="md:hidden text-gray-500 text-sm">סכום</span>
+         ₪{payment.amount || '0'}
+       </td>
+-      <td className="py-1 md:py-3 px-4 md:whitespace-nowrap flex justify-between items-center md:table-cell">
++      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
+         <span className="md:hidden text-gray-500 text-sm">בוצע?</span>
+         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isCompleted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+           {isCompleted ? 'בוצע' : 'לא בוצע'}
+         </span>
+       </td>
+-      <td className="py-1 md:py-3 px-4 text-muted-foreground flex justify-between items-center md:table-cell">
++      <td className="py-1 md:py-3 px-2 text-muted-foreground flex justify-between items-center md:table-cell text-right max-w-[200px] truncate" title={payment.notes}>
+         <span className="md:hidden text-gray-500 text-sm">הערות</span>
+         {payment.notes || '-'}
+       </td>
+-      <td className="py-2 md:py-3 px-4 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
+-        <div className="flex gap-2 justify-end">
++      <td className="py-2 md:py-3 px-2 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
++        <div className="flex gap-1 justify-end md:justify-center">
+           <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors bg-blue-50 md:bg-transparent">
+             <Edit2 className="h-5 w-5 md:h-4 md:w-4" />
+           </button>
+@@ -386,19 +409,21 @@ export default function MarketingClient({
+         </CardHeader>
+         <CardContent>
+           <div className="md:overflow-x-auto pb-2">
+-            <table className="w-full text-sm text-center whitespace-normal md:whitespace-nowrap">
+-              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
++            <table className="w-full text-sm text-center">
++              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group text-xs md:text-sm">
+                 <tr>
+-                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">מותג</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">בתשלום?</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">מספר סרטונים</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">מספר פוסטים</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">מוצרים שניתנו</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">סרטונים שהועלו</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">פעילויות</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
+-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">פעולות</th>
++                  <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם</th>
++                  <th className="py-3 px-2 font-medium text-right">מותג</th>
++                  <th className="py-3 px-2 font-medium text-center">בתשלום?</th>
++                  <th className="py-3 px-2 font-medium text-center">סרטונים<br/>שסוכמו</th>
++                  <th className="py-3 px-2 font-medium text-center">פוסטים<br/>שסוכמו</th>
++                  <th className="py-3 px-2 font-medium text-center">מוצרים<br/>שניתנו</th>
++                  <th className="py-3 px-2 font-medium text-center">סרטונים<br/>שהועלו</th>
++                  <th className="py-3 px-2 font-medium text-right">פעילויות</th>
++                  <th className="py-3 px-2 font-medium text-right">הערות</th>
++                  <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
++                  <th className="py-3 px-2 font-medium text-center">קישור למשפיען</th>
++                  <th className="py-3 px-2 font-medium rounded-tl-md rounded-bl-md text-center">פעולות</th>
+                 </tr>
+               </thead>
+               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
+@@ -409,7 +434,7 @@ export default function MarketingClient({
+                   ))
+                 ) : (
+                   <tr>
+-                    <td colSpan={10} className="py-8 text-center text-muted-foreground">
++                    <td colSpan={12} className="py-8 text-center text-muted-foreground">
+                       לא נמצאו משפיענים.
+                     </td>
+                   </tr>
+@@ -454,14 +479,14 @@ export default function MarketingClient({
+         </CardHeader>
+         <CardContent>
+           <div className="md:overflow-x-auto pb-2">
+-            <table className="w-full text-sm text-center whitespace-normal md:whitespace-nowrap">
+-              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
++            <table className="w-full text-sm text-center">
++              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group text-xs md:text-sm">
+                 <tr>
+-                  <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם משפיענ/ית</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">סכום</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">בוצע?</th>
+-                  <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
+-                  <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">פעולות</th>
++                  <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם משפיענ/ית</th>
++                  <th className="py-3 px-2 font-medium text-center">סכום</th>
++                  <th className="py-3 px-2 font-medium text-center">בוצע?</th>
++                  <th className="py-3 px-2 font-medium text-right">הערות</th>
++                  <th className="py-3 px-2 font-medium rounded-tl-md rounded-bl-md text-center">פעולות</th>
+                 </tr>
+               </thead>
+               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
