@@ -37,13 +37,19 @@ export async function deleteInfluencerPayment(id: string) {
   revalidatePath('/marketing');
 }
 
-export async function getInfluencerBaseSalary(influencerId: string): Promise<number> {
-  const result = await db.select({ baseSalary: influencers.baseSalary })
-    .from(influencers)
-    .where(eq(influencers.influencerId, influencerId))
+export async function getInfluencerBaseSalary(influencerId: string, month: string): Promise<number> {
+  const { and } = await import("drizzle-orm");
+  const result = await db.select({ amount: influencerPayments.amount })
+    .from(influencerPayments)
+    .where(
+      and(
+        eq(influencerPayments.influencerId, influencerId),
+        eq(influencerPayments.paymentMonth, month)
+      )
+    )
     .limit(1);
-  if (result.length > 0 && result[0].baseSalary) {
-    return parseFloat(result[0].baseSalary);
+  if (result.length > 0 && result[0].amount) {
+    return parseFloat(result[0].amount as string);
   }
   return 0;
 }

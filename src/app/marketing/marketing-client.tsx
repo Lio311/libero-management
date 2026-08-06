@@ -35,7 +35,6 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
     videosUploaded: inf.videosUploaded || '',
     activities: inf.activities || '',
     notes: inf.notes || '',
-    baseSalary: inf.baseSalary || '',
     influencerId: inf.influencerId || ''
   });
 
@@ -63,7 +62,6 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
         videosUploaded: inf.videosUploaded || '',
         activities: inf.activities || '',
         notes: inf.notes || '',
-        baseSalary: inf.baseSalary || '',
         influencerId: inf.influencerId || ''
       });
       setIsEditing(false);
@@ -89,7 +87,6 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">סרטונים שהועלו</span><input className="w-full p-1 border rounded text-sm text-right" value={data.videosUploaded} onChange={e => setData({...data, videosUploaded: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">פעילויות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.activities} onChange={e => setData({...data, activities: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">הערות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
-        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.baseSalary} onChange={e => setData({...data, baseSalary: e.target.value})} placeholder="0" /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
           <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
@@ -147,10 +144,6 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
         <span className="md:hidden text-gray-500 text-sm">הערות</span>
         {inf.notes || '-'}
       </td>
-      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
-        <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
-        {inf.baseSalary ? `₪${Number(inf.baseSalary).toLocaleString()}` : '-'}
-      </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">קישור למשפיען</span>
         {inf.influencerId ? (influencersConfig[inf.influencerId]?.name || inf.influencerId) : '-'}
@@ -176,7 +169,8 @@ function EditablePaymentRow({ payment }: { payment: any }) {
     amount: payment.amount || 0,
     isDone: payment.isDone || '',
     paymentMonth: payment.paymentMonth || '',
-    notes: payment.notes || ''
+    notes: payment.notes || '',
+    influencerId: payment.influencerId || ''
   });
 
   const handleSave = async () => {
@@ -204,7 +198,8 @@ function EditablePaymentRow({ payment }: { payment: any }) {
         amount: payment.amount || 0,
         isDone: payment.isDone || '',
         paymentMonth: payment.paymentMonth || '',
-        notes: payment.notes || ''
+        notes: payment.notes || '',
+        influencerId: payment.influencerId || ''
       });
       setIsEditing(false);
     }
@@ -221,7 +216,7 @@ function EditablePaymentRow({ payment }: { payment: any }) {
     return (
       <tr className="bg-blue-50/30 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 rounded-lg md:rounded-none mb-4 md:mb-0">
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שם משפיענ/ית</span><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
-        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">סכום</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.amount} onChange={e => setData({...data, amount: e.target.value})} /></td>
+        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.amount} onChange={e => setData({...data, amount: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-sm text-gray-500">בוצע?</span>
           <select 
@@ -234,6 +229,15 @@ function EditablePaymentRow({ payment }: { payment: any }) {
           </select>
         </td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">הערות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
+        <td className="p-2 flex flex-col md:table-cell gap-1">
+          <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
+          <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
+            <option value="">-- לא מקושר --</option>
+            {Object.entries(influencersConfig).map(([key, config]) => (
+              <option key={key} value={key}>{config.name}</option>
+            ))}
+          </select>
+        </td>
         <td className="p-2 flex justify-end md:table-cell mt-2 md:mt-0">
           <div className="flex gap-2 justify-end">
             <button onClick={handleSave} className="p-1 text-green-600 hover:bg-green-50 rounded bg-green-50 md:bg-transparent"><Check className="h-5 w-5 md:h-4 md:w-4" /></button>
@@ -253,7 +257,7 @@ function EditablePaymentRow({ payment }: { payment: any }) {
         {payment.influencerName || '-'}
       </td>
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
-        <span className="md:hidden text-gray-500 text-sm">סכום</span>
+        <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
         ₪{payment.amount || '0'}
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
@@ -265,6 +269,14 @@ function EditablePaymentRow({ payment }: { payment: any }) {
       <td className="py-1 md:py-3 px-2 text-muted-foreground flex justify-between items-center md:table-cell text-right max-w-[200px] truncate" title={payment.notes}>
         <span className="md:hidden text-gray-500 text-sm">הערות</span>
         {payment.notes || '-'}
+      </td>
+      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
+        <span className="md:hidden text-gray-500 text-sm">קישור למשפיען</span>
+        {payment.influencerId ? (
+          <a href={`/marketing/influencers/${payment.influencerId}`} className="text-blue-600 hover:underline font-medium" target="_blank">
+            {influencersConfig[payment.influencerId]?.name || payment.influencerId}
+          </a>
+        ) : '-'}
       </td>
       <td className="py-2 md:py-3 px-2 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
         <div className="flex gap-1 justify-end md:justify-center">
@@ -421,7 +433,6 @@ export default function MarketingClient({
                   <th className="py-3 px-2 font-medium text-center">סרטונים<br/>שהועלו</th>
                   <th className="py-3 px-2 font-medium text-right">פעילויות</th>
                   <th className="py-3 px-2 font-medium text-right">הערות</th>
-                  <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
                   <th className="py-3 px-2 font-medium text-center">קישור למשפיען</th>
                   <th className="py-3 px-2 font-medium rounded-tl-md rounded-bl-md text-center">פעולות</th>
                 </tr>
@@ -434,7 +445,7 @@ export default function MarketingClient({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={12} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={11} className="py-8 text-center text-muted-foreground">
                       לא נמצאו משפיענים.
                     </td>
                   </tr>
@@ -483,9 +494,10 @@ export default function MarketingClient({
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group text-xs md:text-sm">
                 <tr>
                   <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם משפיענ/ית</th>
-                  <th className="py-3 px-2 font-medium text-center">סכום</th>
+                  <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
                   <th className="py-3 px-2 font-medium text-center">בוצע?</th>
                   <th className="py-3 px-2 font-medium text-right">הערות</th>
+                  <th className="py-3 px-2 font-medium text-center">קישור למשפיען</th>
                   <th className="py-3 px-2 font-medium rounded-tl-md rounded-bl-md text-center">פעולות</th>
                 </tr>
               </thead>
@@ -497,7 +509,7 @@ export default function MarketingClient({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={6} className="py-8 text-center text-muted-foreground">
                       לא נמצאו תשלומים לחודש זה.
                     </td>
                   </tr>

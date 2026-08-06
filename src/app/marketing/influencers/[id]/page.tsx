@@ -197,8 +197,8 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
 
     useEffect(() => {
         if (!isAuthenticated) return;
-        getInfluencerBaseSalary(influencerId).then(salary => setBaseSalary(salary));
-    }, [isAuthenticated, influencerId]);
+        getInfluencerBaseSalary(influencerId, month).then(salary => setBaseSalary(salary));
+    }, [isAuthenticated, influencerId, month]);
 
     const toggleOrder = (orderKey: string) => {
         setExpandedOrder(prev => prev === orderKey ? null : orderKey);
