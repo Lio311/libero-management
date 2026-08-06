@@ -54,16 +54,29 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden flex h-16 items-center justify-between px-4 border-b border-border/50 glass-panel shrink-0">
-        <div className="flex items-center gap-3">
-          <button onClick={toggleSidebar} className="p-1 -mr-1 text-foreground">
-            <Menu className="h-6 w-6" />
-          </button>
-          <div className="relative h-12 w-28 overflow-hidden -ml-2">
-            <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
-          </div>
-        </div>
-        <div>{children}</div>
+      <div className={cn("md:hidden flex h-16 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative", isAuthenticated ? "justify-between" : "justify-center")}>
+        {isAuthenticated ? (
+          <>
+            <div className="flex items-center gap-3">
+              <button onClick={toggleSidebar} className="p-1 -mr-1 text-foreground">
+                <Menu className="h-6 w-6" />
+              </button>
+              <div className="relative h-12 w-28 overflow-hidden -ml-2">
+                <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
+              </div>
+            </div>
+            <div>{children}</div>
+          </>
+        ) : (
+          <>
+            <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4">
+              <Menu className="h-6 w-6" />
+            </button>
+            <div className="relative h-12 w-28 overflow-hidden">
+              <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Backdrop */}
@@ -79,16 +92,23 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
         "fixed inset-y-0 right-0 z-50 flex h-full w-64 flex-col glass-panel text-card-foreground shadow-sm transition-transform duration-300 md:relative md:translate-x-0",
         isOpen ? "translate-x-0" : "translate-x-full"
       )}>
-        <div className="flex h-16 items-center justify-between px-6 border-b border-border/50">
-          <div className="relative h-12 w-28 overflow-hidden -ml-2">
+        <div className={cn("flex h-16 items-center px-6 border-b border-border/50 relative", isAuthenticated ? "justify-between" : "justify-center")}>
+          <div className={cn("relative h-12 w-28 overflow-hidden", isAuthenticated && "-ml-2")}>
             <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
           </div>
-          <div className="flex items-center gap-2">
-            <div className="hidden md:block">{children}</div>
-            <button onClick={closeSidebar} className="md:hidden p-2 -ml-2 text-foreground">
+          
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <div className="hidden md:block">{children}</div>
+              <button onClick={closeSidebar} className="md:hidden p-2 -ml-2 text-foreground">
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+          ) : (
+            <button onClick={closeSidebar} className="md:hidden p-2 text-foreground absolute left-4">
               <X className="h-6 w-6" />
             </button>
-          </div>
+          )}
         </div>
         <nav className={cn(
           "flex-1 space-y-1 px-3 py-4 overflow-y-auto",
