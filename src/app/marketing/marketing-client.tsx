@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Users, Camera, TrendingUp, HandCoins } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { updateInfluencer, updateInfluencerPayment, createInfluencer, deleteInfluencer, createInfluencerPayment, deleteInfluencerPayment } from "@/app/actions/marketing";
-import { Check, X, Edit2, ChevronRight, ChevronLeft, Trash2, Plus } from "lucide-react";
+import { Check, X, Edit2, ChevronRight, ChevronLeft, Trash2, Plus, Loader2 } from "lucide-react";
 import { influencersConfig } from '@/config/influencers';
 
 interface MarketingClientProps {
@@ -164,6 +164,41 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
 
 function EditablePaymentRow({ payment }: { payment: any }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [commission, setCommission] = useState<number | null>(null);
+  const [isLoadingCommission, setIsLoadingCommission] = useState(false);
+
+  useEffect(() => {
+    if (payment.influencerId && payment.paymentMonth) {
+      const hebrewMonthsList = [
+        'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 
+        'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
+      ];
+      const match = String(payment.paymentMonth).match(/\d{4}/);
+      const year = match ? match[0] : new Date().getFullYear().toString();
+      let monthIndex = -1;
+      for (let i = 0; i < hebrewMonthsList.length; i++) {
+        if (String(payment.paymentMonth).includes(hebrewMonthsList[i])) {
+          monthIndex = i + 1;
+          break;
+        }
+      }
+      
+      if (monthIndex > 0) {
+        const monthParam = `${year}-${monthIndex.toString().padStart(2, '0')}`;
+        setIsLoadingCommission(true);
+        fetch(`/api/influencer-coupon/${payment.influencerId}?month=${monthParam}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data && data.summary && data.summary.commission !== undefined) {
+               setCommission(data.summary.commission);
+            }
+          })
+          .catch(console.error)
+          .finally(() => setIsLoadingCommission(false));
+      }
+    }
+  }, [payment.influencerId, payment.paymentMonth]);
+
   const [data, setData] = useState({
     influencerName: payment.influencerName || '',
     amount: payment.amount || 0,
@@ -217,6 +252,8 @@ function EditablePaymentRow({ payment }: { payment: any }) {
       <tr className="bg-blue-50/30 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 rounded-lg md:rounded-none mb-4 md:mb-0">
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שם משפיענ/ית</span><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.amount} onChange={e => setData({...data, amount: e.target.value})} /></td>
+        <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">עמלת קופונים</span>-</td>
+        <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">סה"כ לתשלום</span>-</td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-sm text-gray-500">בוצע?</span>
           <select 
@@ -249,6 +286,7 @@ function EditablePaymentRow({ payment }: { payment: any }) {
   }
 
   const isCompleted = payment.isDone === 'כן' || payment.isDone === 'בוצע' || payment.isDone?.toLowerCase() === 'v';
+  const totalPayment = (Number(payment.amount) || 0) + (commission || 0);
 
   return (
     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
@@ -258,7 +296,19 @@ function EditablePaymentRow({ payment }: { payment: any }) {
       </td>
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
-        ₪{payment.amount || '0'}
+        <span dir="ltr">₪{payment.amount || '0'}</span>
+      </td>
+      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-blue-600">
+        <span className="md:hidden text-gray-500 text-sm">עמלת קופונים</span>
+        {isLoadingCommission ? (
+           <Loader2 className="animate-spin inline-block w-4 h-4 text-blue-400" />
+        ) : (
+           <span dir="ltr">₪{commission ? commission.toLocaleString('he-IL', { maximumFractionDigits: 0 }) : '0'}</span>
+        )}
+      </td>
+      <td className="py-1 md:py-3 px-2 font-bold flex justify-between items-center md:table-cell text-center text-emerald-600">
+        <span className="md:hidden text-gray-500 text-sm">סה"כ לתשלום</span>
+        <span dir="ltr">₪{totalPayment.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</span>
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">בוצע?</span>
@@ -495,6 +545,8 @@ export default function MarketingClient({
                 <tr>
                   <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם משפיענ/ית</th>
                   <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
+                  <th className="py-3 px-2 font-medium text-center">עמלת קופונים</th>
+                  <th className="py-3 px-2 font-medium text-center">סה"כ לתשלום</th>
                   <th className="py-3 px-2 font-medium text-center">בוצע?</th>
                   <th className="py-3 px-2 font-medium text-right">הערות</th>
                   <th className="py-3 px-2 font-medium text-center">קישור למשפיען</th>
@@ -509,7 +561,7 @@ export default function MarketingClient({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={8} className="py-8 text-center text-muted-foreground">
                       לא נמצאו תשלומים לחודש זה.
                     </td>
                   </tr>
