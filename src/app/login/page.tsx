@@ -5,6 +5,7 @@ import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Activity, ChevronRight } from 'lucide-react';
 import { login } from './actions';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [token, setToken] = useState('');
@@ -88,7 +89,9 @@ export default function LoginPage() {
               <Activity className="text-white w-8 h-8" />
             </motion.div>
             
-            <h1 className="text-3xl font-light text-white mb-2 tracking-wide">Libero</h1>
+            <div className="relative h-16 w-36 overflow-hidden mb-2">
+              <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
+            </div>
             <p className="text-zinc-400 text-sm mb-10 tracking-widest uppercase">Management</p>
 
             <form onSubmit={handleSubmit} className="w-full">

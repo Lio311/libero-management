@@ -59,7 +59,7 @@ export function Sidebar({ children }: { children?: React.ReactNode }) {
           <button onClick={toggleSidebar} className="p-1 -mr-1 text-foreground">
             <Menu className="h-6 w-6" />
           </button>
-          <div className="relative h-8 w-24 overflow-hidden -ml-2">
+          <div className="relative h-12 w-28 overflow-hidden -ml-2">
             <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
           </div>
         </div>
@@ -80,7 +80,7 @@ export function Sidebar({ children }: { children?: React.ReactNode }) {
         isOpen ? "translate-x-0" : "translate-x-full"
       )}>
         <div className="flex h-16 items-center justify-between px-6 border-b border-border/50">
-          <div className="relative h-8 w-24 overflow-hidden -ml-2">
+          <div className="relative h-12 w-28 overflow-hidden -ml-2">
             <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
           </div>
           <div className="flex items-center gap-2">

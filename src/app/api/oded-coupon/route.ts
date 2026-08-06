@@ -20,6 +20,38 @@ export async function GET(request: Request) {
     const before = new Date(Date.UTC(year, monthIdx + 1, 0, 23, 59, 59)).toISOString();
 
     const COUPON_CODE = 'osvr10';
+    const HOUSE_BRAND_CATEGORY_ID = 268;
+
+    const fetchHouseBrandIds = async () => {
+        let page = 1;
+        let hasMore = true;
+        const ids = new Set<number>();
+
+        while (hasMore) {
+            const url = `${baseUrl}/wp-json/wc/v3/products?category=${HOUSE_BRAND_CATEGORY_ID}&per_page=100&page=${page}&fields=id`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Basic ${auth}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                console.error(`Failed to fetch house brands page ${page}`);
+                break;
+            }
+
+            const products = await response.json();
+            if (products.length === 0) {
+                hasMore = false;
+            } else {
+                products.forEach((p: any) => ids.add(p.id));
+                page++;
+            }
+        }
+        return ids;
+    };
 
     const fetchOrdersPage = async (page = 1) => {
         const query = `after=${after}&before=${before}&per_page=100&page=${page}&status=processing,completed`;
@@ -41,6 +73,7 @@ export async function GET(request: Request) {
     };
 
     try {
+        const houseBrandIds = await fetchHouseBrandIds();
         let allOrders: any[] = [];
         let page = 1;
         let hasMore = true;
@@ -82,6 +115,8 @@ export async function GET(request: Request) {
                 })),
                 items_count: (order.line_items || []).reduce((acc: number, li: any) => acc + li.quantity, 0),
                 subtotal: itemsTotal,
+                house_brand_subtotal: (order.line_items || []).reduce((acc: number, li: any) => acc + (houseBrandIds.has(li.product_id) ? parseFloat(li.total || 0) : 0), 0),
+                other_brand_subtotal: (order.line_items || []).reduce((acc: number, li: any) => acc + (!houseBrandIds.has(li.product_id) ? parseFloat(li.total || 0) : 0), 0),
                 discount_amount: parseFloat(couponLine?.discount || 0),
                 total: parseFloat(order.total || 0),
                 payment_method: order.payment_method_title || '',
@@ -90,13 +125,19 @@ export async function GET(request: Request) {
         });
 
         // Summary statistics
+        const totalRevenue = detailedOrders.reduce((acc: number, o: any) => acc + o.subtotal, 0);
+        const houseBrandRevenue = detailedOrders.reduce((acc: number, o: any) => acc + o.house_brand_subtotal, 0);
+        const otherBrandRevenue = detailedOrders.reduce((acc: number, o: any) => acc + o.other_brand_subtotal, 0);
+        
         const summary = {
             total_orders: detailedOrders.length,
-            total_revenue: detailedOrders.reduce((acc: number, o: any) => acc + o.subtotal, 0),
+            total_revenue: totalRevenue,
+            house_brand_revenue: houseBrandRevenue,
+            other_brand_revenue: otherBrandRevenue,
             total_discount: detailedOrders.reduce((acc: number, o: any) => acc + o.discount_amount, 0),
             total_items: detailedOrders.reduce((acc: number, o: any) => acc + o.items_count, 0),
             avg_order_value: detailedOrders.length > 0
-                ? detailedOrders.reduce((acc: number, o: any) => acc + o.subtotal, 0) / detailedOrders.length
+                ? totalRevenue / detailedOrders.length
                 : 0,
             commission: detailedOrders.reduce((acc: number, o: any) => acc + (o.subtotal / 1.18 * 0.1), 0),
         };
