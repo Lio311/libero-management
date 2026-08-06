@@ -35,6 +35,8 @@ interface OdedOrder {
 interface Summary {
     total_orders: number;
     total_revenue: number;
+    house_brand_revenue: number;
+    other_brand_revenue: number;
     total_discount: number;
     total_items: number;
     avg_order_value: number;
@@ -160,7 +162,7 @@ export default function OdedCouponPage() {
                 <>
                     {/* Summary Cards */}
                     {summary && (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                 <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">הזמנות</p>
                                 <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_orders}</p>
@@ -170,7 +172,15 @@ export default function OdedCouponPage() {
                                 <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_items}</p>
                             </div>
                             <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות נטו</p>
+                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות מותגי הבית</p>
+                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.house_brand_revenue)}</p>
+                            </div>
+                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות שאר המוצרים</p>
+                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.other_brand_revenue)}</p>
+                            </div>
+                            <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ מכירות</p>
                                 <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.total_revenue)}</p>
                             </div>
                             <div className="bg-white p-5 rounded-2xl border border-black/[0.06] shadow-sm">
