@@ -328,7 +328,13 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-right">
         <span className="md:hidden text-gray-500 text-sm">שם משפיענ/ית</span>
-        {payment.influencerName || '-'}
+        {payment.influencerId ? (
+          <a href={payment.influencerId === 'oded' ? '/marketing/oded' : `/marketing/influencers/${payment.influencerId}`} className="hover:underline text-blue-600 transition-colors" target="_blank" title={`למעבר לדוח של ${payment.influencerName}`}>
+            {payment.influencerName || '-'}
+          </a>
+        ) : (
+          payment.influencerName || '-'
+        )}
       </td>
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-blue-600">
         <span className="md:hidden text-gray-500 text-sm">עמלת קופונים</span>
