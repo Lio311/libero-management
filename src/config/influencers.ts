@@ -108,6 +108,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
   shaked: {
     id: 'shaked',
     name: "שקד לנקרי",
+    image: "/influencers/shaked.png",
     coupons: [
       { brand: 'labura', code: 'shaked15' }
     ]
@@ -115,6 +116,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
   hf: {
     id: 'hf',
     name: "הדר פדידה",
+    image: "/influencers/hf.png",
     coupons: [
       { brand: 'labura', code: 'hf15' }
     ]
@@ -130,6 +132,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
   reut: {
     id: 'reut',
     name: "ראות סטורלוביץ",
+    image: "/influencers/reut.jpg",
     coupons: [
       { brand: 'labura', code: 'reut' }
     ]

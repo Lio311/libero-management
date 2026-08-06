@@ -42,6 +42,9 @@ interface Summary {
     total_items: number;
     avg_order_value: number;
     commission: number;
+    duduar_bottles?: number;
+    duduar_revenue?: number;
+    duduar_commission?: number;
 }
 
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
@@ -347,9 +350,26 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                 <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.avg_order_value)}</p>
                             </div>
                             <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-blue-500/20">
-                                <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלה נטו (10%)</p>
+                                <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ עמלה</p>
                                 <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission)}</p>
                             </div>
+                            
+                            {summary.duduar_bottles !== undefined && (
+                                <>
+                                    <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                        <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">בקבוקי דודואר</p>
+                                        <p className="text-2xl font-black text-[#1d1d1f]">{summary.duduar_bottles}</p>
+                                    </div>
+                                    <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                        <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות דודואר</p>
+                                        <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.duduar_revenue || 0)}</p>
+                                    </div>
+                                    <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-purple-500/20">
+                                        <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלת דודואר</p>
+                                        <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.duduar_commission || 0)}</p>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
 

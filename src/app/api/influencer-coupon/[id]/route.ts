@@ -131,7 +131,97 @@ export async function GET(
         });
 
         const results = await Promise.all(fetchPromises);
-        const detailedOrders = results.flat().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        let detailedOrders = results.flat().sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        // --- Amit's Duduar Tracking Logic ---
+        let duduar_bottles = 0;
+        let duduar_revenue = 0;
+        let duduar_commission = 0;
+
+        if (id === 'amit') {
+            const liberoConfig = BRAND_CONFIG['libero'];
+            const liberoAuth = Buffer.from(`${liberoConfig.ck}:${liberoConfig.cs}`).toString('base64');
+            
+            const fetchLiberoPage = async (page = 1) => {
+                const query = `after=${after}&before=${before}&per_page=100&page=${page}&status=processing,completed`;
+                const url = `${liberoConfig.baseUrl}/wp-json/wc/v3/orders?${query}`;
+                
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Basic ${liberoAuth}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) return [];
+                return await response.json();
+            };
+
+            let allLiberoOrders: any[] = [];
+            let p = 1;
+            let hasMoreLibero = true;
+            while (hasMoreLibero && p <= 10) {
+                const orders = await fetchLiberoPage(p);
+                allLiberoOrders = allLiberoOrders.concat(orders);
+                if (orders.length < 100) hasMoreLibero = false;
+                else p++;
+            }
+
+            allLiberoOrders.forEach(order => {
+                let orderDuduarBottles = 0;
+                let orderDuduarRevenue = 0;
+                const duduarItems: any[] = [];
+
+                order.line_items?.forEach((li: any) => {
+                    const name = (li.name || '').toLowerCase();
+                    if (name.includes('duduar') || name.includes('דודואר')) {
+                        orderDuduarBottles += li.quantity;
+                        orderDuduarRevenue += parseFloat(li.total || 0);
+                        duduarItems.push({
+                            name: li.name,
+                            quantity: li.quantity,
+                            price: parseFloat(li.price || 0),
+                            total: parseFloat(li.total || 0),
+                            sku: li.sku || ''
+                        });
+                    }
+                });
+
+                if (orderDuduarBottles > 0) {
+                    duduar_bottles += orderDuduarBottles;
+                    duduar_revenue += orderDuduarRevenue;
+                    duduar_commission += orderDuduarBottles * 25; // 25 NIS per bottle
+                    
+                    // Add the Duduar order to detailed orders if it's not already there
+                    const existingOrderIndex = detailedOrders.findIndex(o => o.order_id === order.id && o.brand === 'libero');
+                    if (existingOrderIndex === -1) {
+                        detailedOrders.push({
+                            brand: 'libero',
+                            order_id: order.id,
+                            order_number: order.number,
+                            date: order.date_created,
+                            status: order.status,
+                            customer_name: `${order.billing?.first_name || ''} ${order.billing?.last_name || ''}`.trim(),
+                            customer_email: order.billing?.email || '',
+                            customer_phone: order.billing?.phone || '',
+                            items: duduarItems,
+                            items_count: orderDuduarBottles,
+                            subtotal: orderDuduarRevenue,
+                            discount_amount: 0, // Not tied to his coupon necessarily
+                            total: parseFloat(order.total || 0),
+                            payment_method: order.payment_method_title || '',
+                            shipping_city: order.shipping?.city || order.billing?.city || '',
+                            coupon_used: 'DUDUAR_SALE',
+                            is_duduar_only: true
+                        });
+                    }
+                }
+            });
+            
+            // Re-sort after adding Duduar orders
+            detailedOrders = detailedOrders.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        }
 
         const totalRevenue = detailedOrders.reduce((acc: number, o: any) => acc + o.subtotal, 0);
 
@@ -142,6 +232,8 @@ export async function GET(
             total_items: detailedOrders.reduce((acc: number, o: any) => acc + o.items_count, 0),
             avg_order_value: detailedOrders.length > 0 ? totalRevenue / detailedOrders.length : 0,
             commission: detailedOrders.reduce((acc: number, o: any) => {
+                if (o.is_duduar_only) return acc; // Handled separately
+                
                 let commRate = 0.10;
                 if (id === 'reut') {
                     commRate = 0.15;
@@ -149,7 +241,8 @@ export async function GET(
                     commRate = 0.15;
                 }
                 return acc + (o.subtotal / 1.18 * commRate);
-            }, 0),
+            }, 0) + duduar_commission,
+            ...(id === 'amit' ? { duduar_bottles, duduar_revenue, duduar_commission } : {})
         };
 
         return NextResponse.json({ data: detailedOrders, summary, influencerName: influencer.name, influencerImage: influencer.image || null, error: null }, { status: 200 });
