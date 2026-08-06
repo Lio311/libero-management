@@ -556,7 +556,7 @@ export default function InventoryClient({
       <Card className="bg-white border-none shadow-sm">
         <CardHeader>
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div>
                   <CardTitle>טבלת מלאי לפי מותגים</CardTitle>
@@ -571,7 +571,7 @@ export default function InventoryClient({
                 </button>
               </div>
               
-              <div className="relative w-full lg:w-[300px] xl:w-[400px]">
+              <div className="relative w-full sm:w-auto sm:flex-1 sm:max-w-[400px]">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
                   type="text"
@@ -583,7 +583,7 @@ export default function InventoryClient({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div className="flex flex-wrap items-center gap-2 pb-2">
               <button
                 onClick={() => setSelectedBrand("all")}
                 className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
