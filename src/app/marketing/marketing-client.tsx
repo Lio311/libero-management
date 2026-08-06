@@ -270,9 +270,9 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       if (payment.hasRealPayment !== false) {
         await deleteInfluencerPayment(payment.id);
       } else if (payment.id && payment.id.startsWith('pseudo-')) {
-        const infIdToDelete = payment.id.replace('pseudo-', '');
-        if (infIdToDelete.startsWith('config-')) {
-          alert('לא ניתן למחוק משפיען זה מהמערכת.');
+        const infIdToDelete = payment.pseudoKey;
+        if (!infIdToDelete || influencersConfig[infIdToDelete]) {
+          alert('לא ניתן למחוק משפיען זה מהמערכת דרך מסך זה (המשפיען מוגדר בקוד או שאין לו מזהה).');
         } else {
           await deleteInfluencer(infIdToDelete);
         }
@@ -334,7 +334,7 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-right">
         <span className="md:hidden text-gray-500 text-sm">שם משפיענ/ית</span>
         {payment.influencerId ? (
-          <a href={payment.influencerId === 'oded' ? '/marketing/oded' : `/marketing/influencers/${payment.influencerId}`} className="hover:underline text-blue-600 transition-colors" target="_blank" title={`למעבר לדוח של ${payment.influencerName}`}>
+          <a href={payment.influencerId === 'oded' ? '/marketing/oded' : `/marketing/influencers/${payment.influencerId}`} className="hover:underline text-blue-600 transition-colors" target="_blank" title={`למעבר לעמוד של ${payment.influencerName}`}>
             {payment.influencerName || '-'}
           </a>
         ) : (
@@ -518,6 +518,7 @@ export default function MarketingClient({
       } else {
         resultRows.push({
           id: `pseudo-${key}-${currentMonth}`,
+          pseudoKey: key,
           influencerId: infInfo.influencerId,
           influencerName: infInfo.influencerName,
           amount: 0,
