@@ -35,7 +35,8 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
     videosUploaded: inf.videosUploaded || '',
     activities: inf.activities || '',
     notes: inf.notes || '',
-    influencerId: inf.influencerId || ''
+    influencerId: inf.influencerId || '',
+    baseSalary: inf.baseSalary || 0
   });
 
   const handleSave = async () => {
@@ -62,7 +63,8 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
         videosUploaded: inf.videosUploaded || '',
         activities: inf.activities || '',
         notes: inf.notes || '',
-        influencerId: inf.influencerId || ''
+        influencerId: inf.influencerId || '',
+        baseSalary: inf.baseSalary || 0
       });
       setIsEditing(false);
     }
@@ -81,6 +83,7 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שם</span><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">מותג</span><input className="w-full p-1 border rounded text-sm text-right" value={data.brand} onChange={e => setData({...data, brand: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">בתשלום?</span><input className="w-full p-1 border rounded text-sm text-right" value={data.isPaid} onChange={e => setData({...data, isPaid: e.target.value})} /></td>
+        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" value={data.baseSalary} onChange={e => setData({...data, baseSalary: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">מספר סרטונים</span><input className="w-full p-1 border rounded text-sm text-right" value={data.videoCount} onChange={e => setData({...data, videoCount: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">מספר פוסטים</span><input className="w-full p-1 border rounded text-sm text-right" value={data.postCount} onChange={e => setData({...data, postCount: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">מוצרים שניתנו</span><input className="w-full p-1 border rounded text-sm text-right" value={data.productsGiven} onChange={e => setData({...data, productsGiven: e.target.value})} /></td>
@@ -121,6 +124,10 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
         {inf.isPaid || '-'}
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
+        <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
+        {inf.baseSalary ? `₪${Number(inf.baseSalary).toLocaleString()}` : '-'}
+      </td>
+      <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">סרטונים</span>
         {inf.videoCount || '-'}
       </td>
@@ -146,7 +153,11 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">קישור למשפיען</span>
-        {inf.influencerId ? (influencersConfig[inf.influencerId]?.name || inf.influencerId) : '-'}
+        {inf.influencerId ? (
+          <a href={`/marketing/influencers/${inf.influencerId}`} className="text-blue-600 hover:underline font-medium" target="_blank">
+            {influencersConfig[inf.influencerId]?.name || inf.influencerId}
+          </a>
+        ) : '-'}
       </td>
       <td className="py-2 md:py-3 px-2 flex justify-end md:table-cell mt-2 md:mt-0 border-t md:border-none">
         <div className="flex gap-1 justify-end md:justify-center">
@@ -162,7 +173,7 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
   );
 }
 
-function EditablePaymentRow({ payment }: { payment: any }) {
+function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfluencers: any[] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [commission, setCommission] = useState<number | null>(null);
   const [isLoadingCommission, setIsLoadingCommission] = useState(false);
@@ -255,8 +266,8 @@ function EditablePaymentRow({ payment }: { payment: any }) {
     return (
       <tr className="bg-blue-50/30 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 rounded-lg md:rounded-none mb-4 md:mb-0">
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שם משפיענ/ית</span><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
-        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" dir="ltr" value={data.amount} onChange={e => setData({...data, amount: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">עמלת קופונים</span>-</td>
+        <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span>-</td>
         <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">סה"כ לתשלום</span>-</td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-sm text-gray-500">בוצע?</span>
@@ -290,17 +301,17 @@ function EditablePaymentRow({ payment }: { payment: any }) {
   }
 
   const isCompleted = payment.isDone === 'כן' || payment.isDone === 'בוצע' || payment.isDone?.toLowerCase() === 'v';
-  const totalPayment = (Number(payment.amount) || 0) + (commission || 0);
+  
+  const currentInfluencerId = data.influencerId || payment.influencerId;
+  const selectedInfluencer = rawInfluencers?.find((i: any) => i.influencerId === currentInfluencerId);
+  const baseSalary = selectedInfluencer?.baseSalary ? Number(selectedInfluencer.baseSalary) : 0;
+  const totalPayment = (commission || 0) + baseSalary;
 
   return (
     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-right">
         <span className="md:hidden text-gray-500 text-sm">שם משפיענ/ית</span>
         {payment.influencerName || '-'}
-      </td>
-      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center">
-        <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
-        <span dir="ltr">₪{payment.amount || '0'}</span>
       </td>
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-blue-600">
         <span className="md:hidden text-gray-500 text-sm">עמלת קופונים</span>
@@ -309,6 +320,10 @@ function EditablePaymentRow({ payment }: { payment: any }) {
         ) : (
            <span dir="ltr">₪{commission ? commission.toLocaleString('he-IL', { maximumFractionDigits: 0 }) : '0'}</span>
         )}
+      </td>
+      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-purple-600">
+        <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
+        <span dir="ltr">₪{baseSalary.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</span>
       </td>
       <td className="py-1 md:py-3 px-2 font-bold flex justify-between items-center md:table-cell text-center text-emerald-600">
         <span className="md:hidden text-gray-500 text-sm">סה"כ לתשלום</span>
@@ -398,7 +413,10 @@ export default function MarketingClient({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-  }, []);
+    if (currentMonthIndex === -1 && allMonths.length > 0) {
+      setCurrentMonthIndex(allMonths.length - 1);
+    }
+  }, [allMonths.length, currentMonthIndex]);
 
   if (!mounted) return null;
 
@@ -426,8 +444,8 @@ export default function MarketingClient({
             <Users className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{new Set(filteredPayments.map(p => p.influencerName || p.influencerId)).size}</div>
-            <p className="text-xs text-muted-foreground">משפיענים בטבלת התשלומים החודש</p>
+            <div className="text-2xl font-bold">{rawInfluencers ? rawInfluencers.length : 0}</div>
+            <p className="text-xs text-muted-foreground">משפיענים פעילים במערכת</p>
           </CardContent>
         </Card>
         <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
@@ -461,6 +479,7 @@ export default function MarketingClient({
                   <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם</th>
                   <th className="py-3 px-2 font-medium text-right">מותג</th>
                   <th className="py-3 px-2 font-medium text-center">בתשלום?</th>
+                  <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
                   <th className="py-3 px-2 font-medium text-center">סרטונים<br/>שסוכמו</th>
                   <th className="py-3 px-2 font-medium text-center">פוסטים<br/>שסוכמו</th>
                   <th className="py-3 px-2 font-medium text-center">מוצרים<br/>שניתנו</th>
@@ -528,8 +547,8 @@ export default function MarketingClient({
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group text-xs md:text-sm">
                 <tr>
                   <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם משפיענ/ית</th>
-                  <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
                   <th className="py-3 px-2 font-medium text-center">עמלת קופונים</th>
+                  <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
                   <th className="py-3 px-2 font-medium text-center">סה"כ לתשלום</th>
                   <th className="py-3 px-2 font-medium text-center">בוצע?</th>
                   <th className="py-3 px-2 font-medium text-right">הערות</th>
@@ -538,14 +557,14 @@ export default function MarketingClient({
                 </tr>
               </thead>
               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
-                {isAddingPayment && <EditablePaymentRow payment={{ isNew: true, paymentMonth: currentMonth, onCancelNew: () => setIsAddingPayment(false) }} />}
+                {isAddingPayment && <EditablePaymentRow payment={{ isNew: true, paymentMonth: currentMonth, onCancelNew: () => setIsAddingPayment(false) }} rawInfluencers={rawInfluencers} />}
                 {filteredPayments && filteredPayments.length > 0 ? (
                   filteredPayments.map((payment) => (
-                    <EditablePaymentRow key={payment.id} payment={payment} />
+                    <EditablePaymentRow key={payment.id} payment={payment} rawInfluencers={rawInfluencers} />
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={7} className="py-8 text-center text-muted-foreground">
                       לא נמצאו תשלומים לחודש זה.
                     </td>
                   </tr>

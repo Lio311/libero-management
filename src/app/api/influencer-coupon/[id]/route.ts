@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getInfluencerById, Brand, InfluencerCoupon } from '@/config/influencers';
+import { db } from '@/lib/db';
+import { influencers } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 const BRAND_CONFIG: Record<Brand, { ck: string; cs: string; baseUrl: string }> = {
     velour: {
@@ -41,6 +44,16 @@ export async function GET(
     const monthIdx = parseInt(monthStr, 10) - 1;
     const after = new Date(Date.UTC(year, monthIdx, 1)).toISOString();
     const before = new Date(Date.UTC(year, monthIdx + 1, 0, 23, 59, 59)).toISOString();
+
+    let baseSalary = 0;
+    try {
+        const dbInfluencers = await db.select().from(influencers).where(eq(influencers.influencerId, id));
+        if (dbInfluencers.length > 0 && dbInfluencers[0].baseSalary) {
+            baseSalary = Number(dbInfluencers[0].baseSalary);
+        }
+    } catch (e) {
+        console.error("Error fetching base salary from db:", e);
+    }
 
     const fetchOrdersForBrand = async (brand: Brand, coupons: string[]) => {
         const config = BRAND_CONFIG[brand];
@@ -255,6 +268,7 @@ export async function GET(
         }
 
         const summary = {
+            base_salary: baseSalary,
             total_orders: detailedOrders.length,
             total_revenue: totalRevenue,
             total_discount: detailedOrders.reduce((acc: number, o: any) => acc + o.discount_amount, 0),
