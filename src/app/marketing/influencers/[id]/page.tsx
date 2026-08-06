@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, use } from 'react';
+import { redirect } from 'next/navigation';
 import { MonthNavigator } from '@/components/MonthNavigator';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
@@ -81,6 +82,11 @@ const formatILSNeg = (amount: number, fractionDigits = 0) => {
 
 export default function InfluencerCouponPage({ params }: { params: Promise<{ id: string }> }) {
     const { id: influencerId } = use(params);
+    
+    if (influencerId === 'oded') {
+        redirect('/marketing/oded');
+    }
+
     const influencerConfig = influencersConfig[influencerId];
     const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut'];
     const hasVat = !noVatAddBack.includes(influencerId);
