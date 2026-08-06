@@ -16,7 +16,10 @@ const navigation: NavItem[] = [
   { name: "לוז חודשי", href: "/", icon: Calendar },
   { name: "כספים", href: "/finance", icon: DollarSign },
   { name: "בנק משימות", href: "/tasks", icon: CheckSquare },
-  { name: "שיווק ומשפיענים", href: "/marketing", icon: Megaphone },
+  { name: "שיווק ומשפיענים", icon: Megaphone, subItems: [
+    { name: "לוח שיווק", href: "/marketing" },
+    { name: "עודד — OSVR10", href: "/marketing/oded" },
+  ] },
   { name: "הזמנות וספקים", href: "/inventory", icon: Package },
   { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
   { name: "בעלי תפקידים", href: "/team", icon: Users },
