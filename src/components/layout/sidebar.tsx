@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { influencersConfig } from "@/config/influencers";
 
 type NavItem = {
   name: string;
@@ -20,6 +21,10 @@ const navigation: NavItem[] = [
   { name: "שיווק ומשפיענים", icon: Megaphone, subItems: [
     { name: "לוח שיווק", href: "/marketing" },
     { name: "עודד — OSVR10", href: "/marketing/oded" },
+    ...Object.values(influencersConfig).map(inf => ({
+      name: inf.name,
+      href: `/marketing/influencers/${inf.id}`
+    }))
   ] },
   { name: "הזמנות וספקים", href: "/inventory", icon: Package },
   { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
