@@ -10,6 +10,7 @@ export interface InfluencerConfig {
   name: string;
   image?: string;
   hasVat?: boolean;
+  baseSalary?: number;
   coupons: InfluencerCoupon[];
 }
 
@@ -34,6 +35,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     id: 'ayala',
     name: "איילה אריאל",
     image: "/influencers/ayala.jpg",
+    baseSalary: 2000,
     coupons: [
       { brand: 'velour', code: 'ayala10' }
     ]
@@ -58,6 +60,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     id: 'noa',
     name: "נועה בן דוד",
     image: "/influencers/noa.jpg",
+    baseSalary: 3000,
     coupons: [
       { brand: 'velour', code: 'noa10' },
       { brand: 'labura', code: 'noa15' },
@@ -77,6 +80,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     id: 'liya',
     name: "ליה מזרחי",
     image: "/influencers/liya.jpg",
+    baseSalary: 2500,
     coupons: [
       { brand: 'labura', code: 'liya15' }
     ]
@@ -93,6 +97,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     id: 'oded',
     name: "עודד",
     image: "/oded.png",
+    baseSalary: 11000,
     coupons: [
       { brand: 'libero', code: 'osvr10' }
     ]

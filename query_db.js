@@ -10,12 +10,7 @@ const pool = new Pool({
 async function run() {
   try {
     const res = await pool.query(`SELECT * FROM monthly_schedule WHERE task = 'פגישת מלאי'`);
-    if (res.rows.length === 0) {
-      await pool.query(`INSERT INTO monthly_schedule (task, status, week_number) VALUES ('פגישת מלאי', 'לא התחיל', 15)`);
-      console.log('Added פגישת מלאי');
-    } else {
-      console.log('Already exists');
-    }
+    console.log(res.rows);
   } catch (err) {
     console.error(err);
   } finally {
