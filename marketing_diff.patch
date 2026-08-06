@@ -1,0 +1,61 @@
+diff --git a/src/app/marketing/marketing-client.tsx b/src/app/marketing/marketing-client.tsx
+index a08874e..1195588 100644
+--- a/src/app/marketing/marketing-client.tsx
++++ b/src/app/marketing/marketing-client.tsx
+@@ -90,7 +90,7 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
+         <td className="p-2 flex flex-col md:table-cell gap-1">
+           <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
+           <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
+-            <option value="">-- לא מקושר --</option>
++            <option value="">לא מקושר</option>
+             {Object.entries(influencersConfig).map(([key, config]) => (
+               <option key={key} value={key}>{config.name}</option>
+             ))}
+@@ -273,7 +273,7 @@ function EditablePaymentRow({ payment }: { payment: any }) {
+         <td className="p-2 flex flex-col md:table-cell gap-1">
+           <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
+           <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
+-            <option value="">-- לא מקושר --</option>
++            <option value="">לא מקושר</option>
+             {Object.entries(influencersConfig).map(([key, config]) => (
+               <option key={key} value={key}>{config.name}</option>
+             ))}
+@@ -419,35 +419,15 @@ export default function MarketingClient({
+         <p className="text-muted-foreground mt-2">מעקב קמפיינים, משפיענים, והחזר השקעה.</p>
+       </div>
+ 
+-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
++      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+         <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+             <CardTitle className="text-sm font-medium">משפיענים במערכת</CardTitle>
+             <Users className="h-4 w-4 text-primary" />
+           </CardHeader>
+           <CardContent>
+-            <div className="text-2xl font-bold">{activeInfluencers}</div>
+-            <p className="text-xs text-muted-foreground">רשומים בבסיס הנתונים</p>
+-          </CardContent>
+-        </Card>
+-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+-            <CardTitle className="text-sm font-medium">הערכת חשיפה מצטברת</CardTitle>
+-            <Camera className="h-4 w-4 text-primary" />
+-          </CardHeader>
+-          <CardContent>
+-            <div className="text-2xl font-bold">{totalFollowersEstimate}</div>
+-            <p className="text-xs text-muted-foreground">עוקבים (הערכה כללית)</p>
+-          </CardContent>
+-        </Card>
+-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+-            <CardTitle className="text-sm font-medium">מוצרים שנשלחו</CardTitle>
+-            <TrendingUp className="h-4 w-4 text-primary" />
+-          </CardHeader>
+-          <CardContent>
+-            <div className="text-2xl font-bold">{totalProductsGiven}</div>
+-            <p className="text-xs text-muted-foreground">לפי תיעוד במערכת</p>
++            <div className="text-2xl font-bold">{new Set(filteredPayments.map(p => p.influencerName || p.influencerId)).size}</div>
++            <p className="text-xs text-muted-foreground">משפיענים בטבלת התשלומים החודש</p>
+           </CardContent>
+         </Card>
+         <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
