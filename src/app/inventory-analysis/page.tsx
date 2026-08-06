@@ -115,7 +115,7 @@ export default function InventoryAnalysisPage() {
     const categoryData = Object.entries(catMap).map(([name, value]) => ({ name, value })).sort((a: any, b: any) => (b.value as number) - (a.value as number)).slice(0, 8);
 
     return (
-        <div className="space-y-12 pb-20 animate-in fade-in duration-700" dir="rtl">
+        <div className="px-6 md:px-12 pt-8 pb-20 max-w-7xl mx-auto space-y-12 animate-in fade-in duration-700" dir="rtl">
             {/* Header */}
             <div className="flex justify-between items-end">
                 <div>
