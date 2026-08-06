@@ -210,7 +210,6 @@ function EditablePaymentRow({ payment }: { payment: any }) {
             <option value="בוצע">בוצע</option>
           </select>
         </td>
-        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">חודש</span><input className="w-full p-1 border rounded text-sm text-right" placeholder="MM-YYYY" value={data.paymentMonth} onChange={e => setData({...data, paymentMonth: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">הערות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
         <td className="p-2 flex justify-end md:table-cell mt-2 md:mt-0">
           <div className="flex gap-2 justify-end">
@@ -239,10 +238,6 @@ function EditablePaymentRow({ payment }: { payment: any }) {
         <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isCompleted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
           {isCompleted ? 'בוצע' : 'לא בוצע'}
         </span>
-      </td>
-      <td className="py-1 md:py-3 px-4 text-muted-foreground md:whitespace-nowrap flex justify-between items-center md:table-cell">
-        <span className="md:hidden text-gray-500 text-sm">חודש</span>
-        {payment.paymentMonth || '-'}
       </td>
       <td className="py-1 md:py-3 px-4 text-muted-foreground flex justify-between items-center md:table-cell">
         <span className="md:hidden text-gray-500 text-sm">הערות</span>
@@ -465,7 +460,6 @@ export default function MarketingClient({
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">שם משפיענ/ית</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סכום</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">בוצע?</th>
-                  <th className="py-3 px-4 font-medium whitespace-nowrap">חודש</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">הערות</th>
                   <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap">פעולות</th>
                 </tr>
@@ -478,7 +472,7 @@ export default function MarketingClient({
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
                       לא נמצאו תשלומים לחודש זה.
                     </td>
                   </tr>
