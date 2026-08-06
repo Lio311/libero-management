@@ -16,7 +16,6 @@ type NavItem = {
 
 const navigation: NavItem[] = [
   { name: "לוז חודשי", href: "/", icon: Calendar },
-  { name: "כספים", href: "/finance", icon: DollarSign },
   { name: "בנק משימות", href: "/tasks", icon: CheckSquare },
   { name: "שיווק ומשפיענים", icon: Megaphone, subItems: [
     { name: "לוח שיווק", href: "/marketing" },
@@ -27,11 +26,6 @@ const navigation: NavItem[] = [
       href: inf.id === 'oded' ? '/marketing/oded' : `/marketing/influencers/${inf.id}`
     }))
   ] },
-  { name: "הזמנות וספקים", href: "/inventory", icon: Package },
-  { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
-  { name: "בעלי תפקידים", href: "/team", icon: Users },
-  { name: "ניתוח מלאי חכם", href: "/inventory-analysis", icon: BarChart },
-  { name: "מעקב בונוסים", href: "/bonus", icon: Award },
   { 
     name: "קופונים", 
     icon: Ticket, 
@@ -41,6 +35,12 @@ const navigation: NavItem[] = [
       { name: "לה בורה", href: "/coupons/labura" },
     ]
   },
+  { name: "הזמנות וספקים", href: "/inventory", icon: Package },
+  { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
+  { name: "ניתוח מלאי חכם", href: "/inventory-analysis", icon: BarChart },
+  { name: "כספים", href: "/finance", icon: DollarSign },
+  { name: "בעלי תפקידים", href: "/team", icon: Users },
+  { name: "מעקב בונוסים", href: "/bonus", icon: Award },
 ];
 
 export function Sidebar({ children, isAuthenticated = true }: { children?: React.ReactNode; isAuthenticated?: boolean }) {
