@@ -230,12 +230,19 @@ export async function GET(
             const brandOrders = detailedOrders.filter(o => o.brand === brand && !o.is_duduar_only);
             const brandRevenue = brandOrders.reduce((acc: number, o: any) => acc + o.subtotal, 0);
             
-            let commRate = 0.10;
-            if (id === 'reut' && brand === 'labura') {
-                commRate = 0.15;
-            } else if (id === 'noa' && brand === 'labura') {
-                commRate = 0.15;
-            }
+            const brandCommission = brandOrders.reduce((acc: number, o: any) => {
+                let commRate = 0.10;
+                if (o.coupon_used.toLowerCase().includes('15') || id === 'reut') {
+                    commRate = 0.15;
+                }
+                
+                let comm = (o.subtotal / 1.18) * commRate;
+                const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut'];
+                if (!noVatAddBack.includes(id)) {
+                    comm = comm * 1.18;
+                }
+                return acc + comm;
+            }, 0);
 
             brand_summaries[brand] = {
                 total_orders: brandOrders.length,
@@ -243,7 +250,7 @@ export async function GET(
                 total_discount: brandOrders.reduce((acc: number, o: any) => acc + o.discount_amount, 0),
                 total_items: brandOrders.reduce((acc: number, o: any) => acc + o.items_count, 0),
                 avg_order_value: brandOrders.length > 0 ? brandRevenue / brandOrders.length : 0,
-                commission: brandOrders.reduce((acc: number, o: any) => acc + (o.subtotal / 1.18 * commRate), 0)
+                commission: brandCommission
             };
         }
 
@@ -257,12 +264,16 @@ export async function GET(
                 if (o.is_duduar_only) return acc; // Handled separately
                 
                 let commRate = 0.10;
-                if (id === 'reut') {
-                    commRate = 0.15;
-                } else if (id === 'noa' && o.brand === 'labura') {
+                if (o.coupon_used.toLowerCase().includes('15') || id === 'reut') {
                     commRate = 0.15;
                 }
-                return acc + (o.subtotal / 1.18 * commRate);
+                
+                let comm = (o.subtotal / 1.18) * commRate;
+                const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut'];
+                if (!noVatAddBack.includes(id)) {
+                    comm = comm * 1.18;
+                }
+                return acc + comm;
             }, 0) + duduar_commission,
             brand_summaries,
             ...(id === 'amit' ? { duduar_bottles, duduar_revenue, duduar_commission } : {})
