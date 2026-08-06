@@ -225,6 +225,28 @@ export async function GET(
 
         const totalRevenue = detailedOrders.reduce((acc: number, o: any) => acc + o.subtotal, 0);
 
+        const brand_summaries: Record<string, any> = {};
+        for (const brand of Object.keys(couponsByBrand)) {
+            const brandOrders = detailedOrders.filter(o => o.brand === brand && !o.is_duduar_only);
+            const brandRevenue = brandOrders.reduce((acc: number, o: any) => acc + o.subtotal, 0);
+            
+            let commRate = 0.10;
+            if (id === 'reut' && brand === 'labura') {
+                commRate = 0.15;
+            } else if (id === 'noa' && brand === 'labura') {
+                commRate = 0.15;
+            }
+
+            brand_summaries[brand] = {
+                total_orders: brandOrders.length,
+                total_revenue: brandRevenue,
+                total_discount: brandOrders.reduce((acc: number, o: any) => acc + o.discount_amount, 0),
+                total_items: brandOrders.reduce((acc: number, o: any) => acc + o.items_count, 0),
+                avg_order_value: brandOrders.length > 0 ? brandRevenue / brandOrders.length : 0,
+                commission: brandOrders.reduce((acc: number, o: any) => acc + (o.subtotal / 1.18 * commRate), 0)
+            };
+        }
+
         const summary = {
             total_orders: detailedOrders.length,
             total_revenue: totalRevenue,
@@ -242,6 +264,7 @@ export async function GET(
                 }
                 return acc + (o.subtotal / 1.18 * commRate);
             }, 0) + duduar_commission,
+            brand_summaries,
             ...(id === 'amit' ? { duduar_bottles, duduar_revenue, duduar_commission } : {})
         };
 

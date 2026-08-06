@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, use } from 'react';
 import { MonthNavigator } from '@/components/MonthNavigator';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Loader2, AlertCircle, RefreshCw, ShoppingBag, Tag, ChevronDown, ChevronUp, Package, Activity, ChevronRight, User } from 'lucide-react';
 import Image from 'next/image';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { influencersConfig } from '@/config/influencers';
 
 interface OrderItem {
     name: string;
@@ -45,6 +46,14 @@ interface Summary {
     duduar_bottles?: number;
     duduar_revenue?: number;
     duduar_commission?: number;
+    brand_summaries?: Record<string, {
+        total_orders: number;
+        total_revenue: number;
+        total_discount: number;
+        total_items: number;
+        avg_order_value: number;
+        commission: number;
+    }>;
 }
 
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
@@ -69,15 +78,15 @@ const formatILSNeg = (amount: number, fractionDigits = 0) => {
     return `₪-${Math.abs(amount).toLocaleString('he-IL', { minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits })}`;
 };
 
-import { use } from 'react';
-
 export default function InfluencerCouponPage({ params }: { params: Promise<{ id: string }> }) {
     const { id: influencerId } = use(params);
+    const influencerConfig = influencersConfig[influencerId];
+    
     const [currentDate, setCurrentDate] = useState(new Date());
     const [orders, setOrders] = useState<InfluencerOrder[]>([]);
     const [summary, setSummary] = useState<Summary | null>(null);
-    const [influencerName, setInfluencerName] = useState<string>('');
-    const [influencerImage, setInfluencerImage] = useState<string | null>(null);
+    const [influencerName, setInfluencerName] = useState<string>(influencerConfig?.name || '');
+    const [influencerImage, setInfluencerImage] = useState<string | null>(influencerConfig?.image || null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [expandedOrder, setExpandedOrder] = useState<string | null>(null); // changed to string to accommodate brand prefix
@@ -208,12 +217,16 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                 initial={{ scale: 0.8 }}
                                 animate={{ scale: 1 }}
                                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                                className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-8 border border-white/20 shadow-inner"
+                                className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-8 border border-white/20 shadow-inner overflow-hidden"
                             >
-                                <User className="text-white w-8 h-8" />
+                                {influencerImage ? (
+                                    <Image src={influencerImage} alt={influencerName} width={64} height={64} className="w-full h-full object-cover" />
+                                ) : (
+                                    <User className="text-white w-8 h-8" />
+                                )}
                             </motion.div>
                             
-                            <h2 className="text-white text-2xl font-bold tracking-wider mb-2 uppercase">דוח משפיענית</h2>
+                            <h2 className="text-white text-2xl font-bold tracking-wider mb-2 uppercase">דוח {influencerName || 'משפיענית'}</h2>
                             <p className="text-zinc-400 text-sm mb-10 tracking-widest text-center w-full block uppercase">{influencerId}</p>
 
                             <form onSubmit={handleSubmit} className="w-full">
@@ -332,43 +345,80 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                 <>
                     {/* Summary Cards */}
                     {summary && (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">הזמנות</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_orders}</p>
+                        <div className="space-y-8">
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+                                <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                    <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">הזמנות</p>
+                                    <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_orders}</p>
+                                </div>
+                                <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                    <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מוצרים</p>
+                                    <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_items}</p>
+                                </div>
+                                <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                    <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ מכירות</p>
+                                    <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.total_revenue)}</p>
+                                </div>
+                                <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                    <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">ממוצע להזמנה</p>
+                                    <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.avg_order_value)}</p>
+                                </div>
+                                <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-blue-500/20">
+                                    <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ עמלה</p>
+                                    <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission)}</p>
+                                </div>
+                                
+                                {summary.duduar_bottles !== undefined && (
+                                    <>
+                                        <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                            <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">בקבוקי דודואר</p>
+                                            <p className="text-2xl font-black text-[#1d1d1f]">{summary.duduar_bottles}</p>
+                                        </div>
+                                        <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                            <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות דודואר</p>
+                                            <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.duduar_revenue || 0)}</p>
+                                        </div>
+                                        <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-purple-500/20">
+                                            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלת דודואר</p>
+                                            <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.duduar_commission || 0)}</p>
+                                        </div>
+                                    </>
+                                )}
                             </div>
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מוצרים</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_items}</p>
-                            </div>
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ מכירות</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.total_revenue)}</p>
-                            </div>
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">ממוצע להזמנה</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.avg_order_value)}</p>
-                            </div>
-                            <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-blue-500/20">
-                                <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ עמלה</p>
-                                <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission)}</p>
-                            </div>
-                            
-                            {summary.duduar_bottles !== undefined && (
-                                <>
-                                    <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                        <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">בקבוקי דודואר</p>
-                                        <p className="text-2xl font-black text-[#1d1d1f]">{summary.duduar_bottles}</p>
-                                    </div>
-                                    <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                        <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות דודואר</p>
-                                        <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.duduar_revenue || 0)}</p>
-                                    </div>
-                                    <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-purple-500/20">
-                                        <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלת דודואר</p>
-                                        <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.duduar_commission || 0)}</p>
-                                    </div>
-                                </>
+
+                            {/* Brand Summaries */}
+                            {summary.brand_summaries && Object.keys(summary.brand_summaries).length > 1 && (
+                                <div className="mt-8 space-y-4 pt-4 border-t border-black/[0.05]">
+                                    <h3 className="text-lg font-bold text-slate-800 mb-2">פירוט לפי מותג</h3>
+                                    {Object.entries(summary.brand_summaries).map(([brand, bs]) => (
+                                        <div key={brand} className="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 flex flex-col md:flex-row md:items-center gap-6">
+                                            <div className="flex items-center gap-3 md:w-48 flex-shrink-0">
+                                                <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center border border-slate-200 font-black text-slate-700 text-lg">
+                                                    {brand.charAt(0).toUpperCase()}
+                                                </div>
+                                                <h4 className="font-bold text-slate-800 text-lg">{BRAND_LABELS[brand] || brand}</h4>
+                                            </div>
+                                            <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                                                <div className="bg-white p-3 rounded-xl border border-slate-100/50 shadow-sm">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">הזמנות</p>
+                                                    <p className="text-lg font-black text-slate-800">{bs.total_orders}</p>
+                                                </div>
+                                                <div className="bg-white p-3 rounded-xl border border-slate-100/50 shadow-sm">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">מוצרים</p>
+                                                    <p className="text-lg font-black text-slate-800">{bs.total_items}</p>
+                                                </div>
+                                                <div className="bg-white p-3 rounded-xl border border-slate-100/50 shadow-sm">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">מכירות</p>
+                                                    <p className="text-lg font-black text-slate-800" dir="ltr">{formatILS(bs.total_revenue)}</p>
+                                                </div>
+                                                <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100/50 shadow-sm">
+                                                    <p className="text-[10px] font-bold text-blue-500/80 uppercase tracking-wider mb-0.5">עמלה</p>
+                                                    <p className="text-lg font-black text-blue-600" dir="ltr">{formatILS(bs.commission)}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     )}
