@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef } from 'react';
-import { Camera, Upload, ArrowRight, Loader2, CheckCircle2, Clock } from 'lucide-react';
+import { Camera, Upload, ArrowRight, Loader2, CheckCircle2, Clock, UserPlus, Plus, X } from 'lucide-react';
 import { useBonus } from '@/hooks/useBonus';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
@@ -9,16 +9,39 @@ export default function AddBonusPage() {
     const router = useRouter();
     // Default to the logged-in user if available, otherwise 0
     const initialEmployeeId = typeof window !== 'undefined' ? parseInt(localStorage.getItem('userId') || '0') : 0;
-    const { uploadInvoice, addBonus, employees, fetchEmployees } = useBonus();
+    const { uploadInvoice, addBonus, employees, fetchEmployees, addEmployee } = useBonus();
 
     const [saleDate, setSaleDate] = useState(format(new Date(), 'yyyy-MM-dd'));
     const [amount, setAmount] = useState('');
     const [selectedEmployeeId, setSelectedEmployeeId] = useState<number>(initialEmployeeId);
     const [file, setFile] = useState<File | null>(null);
 
+    const [isAddingEmployee, setIsAddingEmployee] = useState(false);
+    const [newEmployeeName, setNewEmployeeName] = useState('');
+    const [isSavingEmployee, setIsSavingEmployee] = useState(false);
+
     React.useEffect(() => {
         fetchEmployees();
     }, []);
+
+    const handleCreateEmployee = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newEmployeeName.trim() || isSavingEmployee) return;
+
+        setIsSavingEmployee(true);
+        try {
+            const created = await addEmployee({ full_name: newEmployeeName.trim(), username: '' });
+            if (created) {
+                setSelectedEmployeeId(created.id);
+                setNewEmployeeName('');
+                setIsAddingEmployee(false);
+            }
+        } catch (err) {
+            console.error('Failed to create employee:', err);
+        } finally {
+            setIsSavingEmployee(false);
+        }
+    };
 
     const [preview, setPreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -99,10 +122,26 @@ export default function AddBonusPage() {
                     <div className="space-y-6">
                         {/* Employee Selection */}
                         <div className="space-y-2">
-                            <label className="block text-sm font-semibold text-slate-700">שם העובד</label>
+                            <div className="flex justify-between items-center">
+                                <label className="block text-sm font-semibold text-slate-700">שם העובד</label>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAddingEmployee(true)}
+                                    className="text-xs text-blue-600 font-bold hover:text-blue-700 hover:underline flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-full transition-all"
+                                >
+                                    <UserPlus size={14} />
+                                    <span>+ הוסף עובד חדש</span>
+                                </button>
+                            </div>
                             <select
                                 value={selectedEmployeeId || ''}
-                                onChange={(e) => setSelectedEmployeeId(Number(e.target.value))}
+                                onChange={(e) => {
+                                    if (e.target.value === 'ADD_NEW') {
+                                        setIsAddingEmployee(true);
+                                    } else {
+                                        setSelectedEmployeeId(Number(e.target.value));
+                                    }
+                                }}
                                 className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-lg font-medium"
                                 required
                             >
@@ -112,8 +151,75 @@ export default function AddBonusPage() {
                                         {emp.full_name}
                                     </option>
                                 ))}
+                                <option value="ADD_NEW" className="font-bold text-blue-600">
+                                    + הוסף עובד חדש למערכת...
+                                </option>
                             </select>
                         </div>
+
+                        {/* Add Employee Modal */}
+                        {isAddingEmployee && (
+                            <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+                                <div className="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl space-y-6 relative border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsAddingEmployee(false)}
+                                        className="absolute left-5 top-5 text-slate-400 hover:text-slate-600 p-1.5 bg-slate-100 rounded-full transition-colors"
+                                    >
+                                        <X size={18} />
+                                    </button>
+
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                                            <UserPlus size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold text-slate-900">הוספת עובד חדש</h3>
+                                            <p className="text-xs text-slate-500">העובד יתווסף ישירות למערכת</p>
+                                        </div>
+                                    </div>
+
+                                    <form onSubmit={handleCreateEmployee} className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="block text-xs font-bold text-slate-700">שם מלא של העובד</label>
+                                            <input
+                                                type="text"
+                                                value={newEmployeeName}
+                                                onChange={(e) => setNewEmployeeName(e.target.value)}
+                                                placeholder="לדוגמה: ישראל ישראלי"
+                                                className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-base"
+                                                autoFocus
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="flex gap-3 pt-2">
+                                            <button
+                                                type="submit"
+                                                disabled={isSavingEmployee || !newEmployeeName.trim()}
+                                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                            >
+                                                {isSavingEmployee ? (
+                                                    <Loader2 size={18} className="animate-spin" />
+                                                ) : (
+                                                    <>
+                                                        <Plus size={18} />
+                                                        <span>שמור ובחר עובד</span>
+                                                    </>
+                                                )}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsAddingEmployee(false)}
+                                                className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-xl transition-colors"
+                                            >
+                                                ביטול
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Sale Date */}
                         <div className="space-y-2">
