@@ -342,7 +342,7 @@ export default function OperationsClient({
             <Building2 className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{rawWholesaleCustomers.length}</div>
+            <div className="text-2xl font-bold">{rawWholesaleCustomers?.filter(c => c.storeName?.toLowerCase().includes('la essence')).length || 0}</div>
             <p className="text-xs text-muted-foreground">לקוחות סיטונאים בניהול שוטף</p>
           </CardContent>
         </Card>
