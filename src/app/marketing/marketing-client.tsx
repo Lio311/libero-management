@@ -186,7 +186,11 @@ function EditablePaymentRow({ payment }: { payment: any }) {
       if (monthIndex > 0) {
         const monthParam = `${year}-${monthIndex.toString().padStart(2, '0')}`;
         setIsLoadingCommission(true);
-        fetch(`/api/influencer-coupon/${payment.influencerId}?month=${monthParam}`)
+        const apiUrl = payment.influencerId === 'oded' 
+          ? `/api/oded-coupon?month=${monthParam}`
+          : `/api/influencer-coupon/${payment.influencerId}?month=${monthParam}`;
+          
+        fetch(apiUrl)
           .then(res => res.json())
           .then(data => {
             if (data && data.summary && data.summary.commission !== undefined) {

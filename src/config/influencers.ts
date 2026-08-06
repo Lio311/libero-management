@@ -136,6 +136,14 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     coupons: [
       { brand: 'labura', code: 'reut' }
     ]
+  },
+  oded: {
+    id: 'oded',
+    name: "עודד",
+    image: "/oded.png",
+    coupons: [
+      { brand: 'libero', code: 'osvr10' }
+    ]
   }
 };
 
