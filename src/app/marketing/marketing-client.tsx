@@ -451,6 +451,14 @@ export default function MarketingClient({
     }
   }, [allMonths.length, currentMonthIndex]);
 
+  if (!mounted) {
+    return (
+      <div className="p-8 space-y-8 bg-gray-50/50 min-h-screen flex items-center justify-center" dir="rtl">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   const currentMonth = currentMonthIndex >= 0 ? allMonths[currentMonthIndex] : '';
   const filteredPayments = currentMonth ? rawPayments.filter(p => p.paymentMonth === currentMonth) : rawPayments;
 
