@@ -232,8 +232,8 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                             {influencerBrands.length > 0 && (
                                 <div className="flex items-center justify-center gap-3 mt-4 mb-8">
                                     {influencerBrands.map(brand => (
-                                        <div key={brand} className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg border border-white/20 overflow-hidden">
-                                            <Image src={`/brands/${brand}.png`} alt={brand} width={48} height={48} className="w-full h-full object-contain p-1" />
+                                        <div key={brand} className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg overflow-hidden">
+                                            <Image src={`/brands/${brand}.png`} alt={brand} width={48} height={48} className="w-full h-full object-cover" />
                                         </div>
                                     ))}
                                 </div>
@@ -405,8 +405,8 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                     {Object.entries(summary.brand_summaries).map(([brand, bs]) => (
                                         <div key={brand} className="bg-slate-50/70 p-5 rounded-2xl border border-slate-100 flex flex-col md:flex-row md:items-center gap-6">
                                             <div className="flex items-center gap-3 md:w-48 flex-shrink-0">
-                                                <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center border border-slate-200 overflow-hidden">
-                                                    <Image src={`/brands/${brand}.png`} alt={brand} width={40} height={40} className="w-full h-full object-contain p-0.5" />
+                                                <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm overflow-hidden">
+                                                    <Image src={`/brands/${brand}.png`} alt={brand} width={40} height={40} className="w-full h-full object-cover" />
                                                 </div>
                                                 <h4 className="font-bold text-slate-800 text-lg">{BRAND_LABELS[brand] || brand}</h4>
                                             </div>
