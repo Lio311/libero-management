@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PackageSearch, AlertTriangle, Truck, Archive, Search, Edit2, Trash2, Plus, X, Check } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
-import { addInventoryItem, updateInventoryItem, deleteInventoryItem, updateSupplier } from "./actions";
+import { addInventoryItem, updateInventoryItem, deleteInventoryItem, updateSupplier, deleteSupplier } from "./actions";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface InventoryClientProps {
@@ -50,6 +50,14 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
       notes: supplier.notes || ''
     });
     setIsEditing(false);
+  };
+
+  const handleDelete = () => {
+    if (confirm('האם אתה בטוח שברצונך למחוק ספק זה?')) {
+      startTransition(async () => {
+        await deleteSupplier(supplier.id);
+      });
+    }
   };
 
   if (isEditing) {
@@ -154,9 +162,14 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
                 <div className="text-sm text-gray-500">מותג</div>
                 <div className="font-medium text-base">{supplier.brandName || '-'}</div>
               </div>
-              <button onClick={() => setIsEditing(true)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md bg-blue-50 transition-colors">
-                <Edit2 className="w-4 h-4" />
-              </button>
+              <div className="flex gap-2">
+                <button onClick={() => setIsEditing(true)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md bg-blue-50 transition-colors" title="ערוך">
+                  <Edit2 className="w-4 h-4" />
+                </button>
+                <button onClick={handleDelete} disabled={isPending} className="p-2 text-red-600 hover:bg-red-50 rounded-md bg-red-50 transition-colors" title="מחק">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
             
             <div className="grid grid-cols-2 gap-3">
@@ -213,14 +226,24 @@ function EditableSupplierRow({ supplier }: { supplier: any }) {
         <td className="py-3 px-4 text-muted-foreground">
           {supplier.notes || '-'}
         </td>
-        <td className="py-3 px-4 text-left whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-          <button
-            onClick={() => setIsEditing(true)}
-            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
-            title="ערוך ספק"
-          >
-            <Edit2 className="w-4 h-4" />
-          </button>
+        <td className="py-3 px-4 text-left whitespace-nowrap transition-opacity">
+          <div className="flex items-center justify-end gap-2">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+              title="ערוך ספק"
+            >
+              <Edit2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={isPending}
+              className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+              title="מחק ספק"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
         </td>
       </tr>
     </>
