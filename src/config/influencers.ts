@@ -100,6 +100,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
   liya: {
     id: 'liya',
     name: "ליה מזרחי",
+    image: "/influencers/liya.jpg",
     coupons: [
       { brand: 'labura', code: 'liya15' }
     ]
