@@ -227,38 +227,38 @@ export default function OdedCouponPage() {
                                             {/* Order Row */}
                                             <button
                                                 onClick={() => toggleOrder(order.order_id)}
-                                                className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors text-right"
+                                                className="w-full px-4 md:px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors text-right gap-2"
                                             >
-                                                <div className="flex items-center gap-4 flex-1 min-w-0">
-                                                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                                                <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                                                    <div className="hidden sm:flex w-10 h-10 rounded-xl bg-slate-100 items-center justify-center flex-shrink-0">
                                                         <ShoppingBag size={18} className="text-slate-500" />
                                                     </div>
                                                     <div className="min-w-0 flex-1">
                                                         <div className="flex items-center gap-2 flex-wrap">
-                                                            <span className="font-bold text-slate-900">#{order.order_number}</span>
-                                                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${statusInfo.className}`}>
+                                                            <span className="font-bold text-slate-900 text-sm md:text-base">#{order.order_number}</span>
+                                                            <span className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold ${statusInfo.className}`}>
                                                                 {statusInfo.label}
                                                             </span>
                                                         </div>
-                                                        <div className="flex items-center gap-3 text-sm text-slate-500 mt-0.5">
-                                                            <span>{order.customer_name || 'אורח'}</span>
-                                                            <span>•</span>
-                                                            <span>{format(orderDate, 'dd/MM/yyyy HH:mm')}</span>
+                                                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] md:text-sm text-slate-500 mt-1">
+                                                            <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">{order.customer_name || 'אורח'}</span>
+                                                            <span className="text-slate-300">•</span>
+                                                            <span className="whitespace-nowrap">{format(orderDate, 'dd/MM/yy HH:mm')}</span>
                                                             {order.shipping_city && (
                                                                 <>
-                                                                    <span>•</span>
-                                                                    <span>{order.shipping_city}</span>
+                                                                    <span className="text-slate-300">•</span>
+                                                                    <span className="truncate max-w-[60px] sm:max-w-[100px] md:max-w-none">{order.shipping_city}</span>
                                                                 </>
                                                             )}
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-4 flex-shrink-0">
+                                                <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
                                                     <div className="text-left">
-                                                        <div className="font-bold text-slate-900" dir="ltr">
+                                                        <div className="font-bold text-slate-900 text-sm md:text-base" dir="ltr">
                                                             {formatILS(order.subtotal)}
                                                         </div>
-                                                        <div className="text-xs text-red-500 font-medium" dir="ltr">
+                                                        <div className="text-[10px] md:text-xs text-red-500 font-medium" dir="ltr">
                                                             {formatILSNeg(order.discount_amount)} הנחה
                                                         </div>
                                                     </div>
@@ -272,12 +272,12 @@ export default function OdedCouponPage() {
 
                                             {/* Expanded Details */}
                                             {isExpanded && (
-                                                <div className="px-6 pb-5 bg-slate-50/50">
-                                                    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+                                                <div className="px-3 md:px-6 pb-5 bg-slate-50/50">
+                                                    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
                                                         {/* Customer Info */}
-                                                        <div className="px-5 py-3 bg-slate-50 border-b border-slate-100 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                                                        <div className="px-4 md:px-5 py-3 bg-slate-50 border-b border-slate-100 flex flex-wrap gap-x-4 md:gap-x-6 gap-y-1.5 text-xs md:text-sm">
                                                             {order.customer_email && (
-                                                                <span className="text-slate-600">
+                                                                <span className="text-slate-600 break-all">
                                                                     <span className="font-semibold text-slate-800">אימייל:</span> {order.customer_email}
                                                                 </span>
                                                             )}
@@ -294,46 +294,51 @@ export default function OdedCouponPage() {
                                                         </div>
 
                                                         {/* Items Table */}
-                                                        <table className="w-full text-sm">
-                                                            <thead>
-                                                                <tr className="border-b border-slate-100 text-slate-500">
-                                                                    <th className="text-right px-5 py-2.5 font-semibold">מוצר</th>
-                                                                    <th className="text-center px-3 py-2.5 font-semibold">כמות</th>
-                                                                    <th className="text-center px-3 py-2.5 font-semibold">מחיר יחידה</th>
-                                                                    <th className="text-center px-5 py-2.5 font-semibold">סה"כ</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody className="divide-y divide-slate-50">
-                                                                {order.items.map((item, idx) => (
-                                                                    <tr key={idx} className="hover:bg-slate-50/50">
-                                                                        <td className="px-5 py-3">
-                                                                            <div className="flex items-center gap-2">
-                                                                                <Package size={14} className="text-slate-400 flex-shrink-0" />
-                                                                                <span className="font-medium text-slate-800 line-clamp-2">{item.name}</span>
-                                                                            </div>
-                                                                            {item.sku && <span className="text-xs text-slate-400 mr-6">SKU: {item.sku}</span>}
-                                                                        </td>
-                                                                        <td className="text-center px-3 py-3 text-slate-600">{item.quantity}</td>
-                                                                        <td className="text-center px-3 py-3 text-slate-600" dir="ltr">{formatILS(item.price)}</td>
-                                                                        <td className="text-center px-5 py-3 font-semibold text-slate-800" dir="ltr">{formatILS(item.total)}</td>
+                                                        <div className="overflow-x-auto">
+                                                            <table className="w-full text-xs md:text-sm min-w-[400px]">
+                                                                <thead>
+                                                                    <tr className="border-b border-slate-100 text-slate-500">
+                                                                        <th className="text-right px-4 md:px-5 py-2.5 font-semibold">מוצר</th>
+                                                                        <th className="text-center px-2 md:px-3 py-2.5 font-semibold">כמות</th>
+                                                                        <th className="text-center px-2 md:px-3 py-2.5 font-semibold">מחיר</th>
+                                                                        <th className="text-center px-4 md:px-5 py-2.5 font-semibold">סה"כ</th>
                                                                     </tr>
-                                                                ))}
-                                                            </tbody>
-                                                        </table>
+                                                                </thead>
+                                                                <tbody className="divide-y divide-slate-50">
+                                                                    {order.items.map((item, idx) => (
+                                                                        <tr key={idx} className="hover:bg-slate-50/50">
+                                                                            <td className="px-4 md:px-5 py-3">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Package size={14} className="text-slate-400 flex-shrink-0 hidden md:block" />
+                                                                                    <span className="font-medium text-slate-800 line-clamp-2 leading-snug">{item.name}</span>
+                                                                                </div>
+                                                                                {item.sku && <span className="text-[10px] md:text-xs text-slate-400 mr-0 md:mr-6 mt-0.5 block">SKU: {item.sku}</span>}
+                                                                            </td>
+                                                                            <td className="text-center px-2 md:px-3 py-3 text-slate-600">{item.quantity}</td>
+                                                                            <td className="text-center px-2 md:px-3 py-3 text-slate-600" dir="ltr">{formatILS(item.price)}</td>
+                                                                            <td className="text-center px-4 md:px-5 py-3 font-semibold text-slate-800" dir="ltr">{formatILS(item.total)}</td>
+                                                                        </tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
 
                                                         {/* Order Totals */}
-                                                        <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex justify-between items-center">
-                                                            <div className="flex gap-6 text-sm">
-                                                                <span className="text-slate-600">
-                                                                    סה"כ מוצרים: <span className="font-bold text-slate-800" dir="ltr">{formatILS(order.subtotal, 2)}</span>
+                                                        <div className="px-4 md:px-5 py-3 md:py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                                            <div className="flex flex-col sm:flex-row gap-1 sm:gap-6 text-xs md:text-sm w-full sm:w-auto">
+                                                                <span className="text-slate-600 flex justify-between sm:justify-start">
+                                                                    <span>סה"כ מוצרים:</span>
+                                                                    <span className="font-bold text-slate-800 sm:mr-2" dir="ltr">{formatILS(order.subtotal, 2)}</span>
                                                                 </span>
-                                                                <span className="text-red-500">
-                                                                    הנחת קופון: <span className="font-bold" dir="ltr">{formatILSNeg(order.discount_amount, 2)}</span>
+                                                                <span className="text-red-500 flex justify-between sm:justify-start">
+                                                                    <span>הנחת קופון:</span>
+                                                                    <span className="font-bold sm:mr-2" dir="ltr">{formatILSNeg(order.discount_amount, 2)}</span>
                                                                 </span>
                                                             </div>
-                                                            <span className="font-bold text-lg text-purple-600" dir="ltr">
-                                                                סה"כ: {formatILS(order.total, 2)}
-                                                            </span>
+                                                            <div className="font-bold text-base md:text-lg text-purple-600 w-full sm:w-auto flex justify-between sm:justify-start border-t border-slate-200 sm:border-0 pt-2 sm:pt-0 mt-1 sm:mt-0" dir="rtl">
+                                                                <span>סה"כ:</span>
+                                                                <span className="mr-2" dir="ltr">{formatILS(order.total, 2)}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
