@@ -5,6 +5,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+
+const formatCurrency = (num: number | string) => {
+  const parsed = Number(num) || 0;
+  return parsed.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Camera, TrendingUp, HandCoins } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
@@ -127,7 +132,7 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
-        {inf.baseSalary ? `₪${Number(inf.baseSalary).toLocaleString()}` : '-'}
+        {inf.baseSalary ? `₪${formatCurrency(inf.baseSalary)}` : '-'}
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">סרטונים</span>
@@ -341,16 +346,16 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         {isLoadingCommission ? (
            <Loader2 className="animate-spin inline-block w-4 h-4 text-blue-400" />
         ) : (
-           <span dir="ltr">₪{commission ? commission.toLocaleString('he-IL', { maximumFractionDigits: 0 }) : '0'}</span>
+           <span dir="ltr">₪{commission ? formatCurrency(commission) : '0'}</span>
         )}
       </td>
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-purple-600">
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
-        <span dir="ltr">₪{baseSalary.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</span>
+        <span dir="ltr">₪{formatCurrency(baseSalary)}</span>
       </td>
       <td className="py-1 md:py-3 px-2 font-bold flex justify-between items-center md:table-cell text-center text-emerald-600">
         <span className="md:hidden text-gray-500 text-sm">סה"כ לתשלום</span>
-        <span dir="ltr">₪{totalPayment.toLocaleString('he-IL', { maximumFractionDigits: 0 })}</span>
+        <span dir="ltr">₪{formatCurrency(totalPayment)}</span>
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">בוצע?</span>
@@ -440,14 +445,11 @@ export default function MarketingClient({
   const [isAddingPayment, setIsAddingPayment] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     if (currentMonthIndex === -1 && allMonths.length > 0) {
       setCurrentMonthIndex(allMonths.length - 1);
     }
   }, [allMonths.length, currentMonthIndex]);
-
-  if (!mounted) return null;
 
   const currentMonth = currentMonthIndex >= 0 ? allMonths[currentMonthIndex] : '';
   const filteredPayments = currentMonth ? rawPayments.filter(p => p.paymentMonth === currentMonth) : rawPayments;
@@ -572,7 +574,7 @@ export default function MarketingClient({
             <HandCoins className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₪{totalInfluencerPayments.toLocaleString()}</div>
+            <div className="text-2xl font-bold">₪{formatCurrency(totalInfluencerPayments)}</div>
             <p className="text-xs text-muted-foreground">סך תשלומים מתועדים</p>
           </CardContent>
         </Card>
@@ -608,7 +610,7 @@ export default function MarketingClient({
                   <th className="py-3 px-2 font-medium rounded-tl-md rounded-bl-md text-center">פעולות</th>
                 </tr>
               </thead>
-              <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
+              <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100" suppressHydrationWarning>
                 {isAddingInfluencer && <EditableInfluencerRow inf={{ isNew: true, onCancelNew: () => setIsAddingInfluencer(false) }} />}
                 {rawInfluencers && rawInfluencers.length > 0 ? (
                   [...rawInfluencers]
@@ -649,7 +651,7 @@ export default function MarketingClient({
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
-                <span className="font-medium min-w-[80px] text-center text-sm">{currentMonth || 'הכל'}</span>
+                <span className="font-medium min-w-[80px] text-center text-sm" suppressHydrationWarning>{currentMonth || 'הכל'}</span>
                 <button 
                   onClick={handleNextMonth} 
                   disabled={currentMonthIndex === allMonths.length - 1}
@@ -676,7 +678,7 @@ export default function MarketingClient({
                   <th className="py-3 px-2 font-medium rounded-tl-md rounded-bl-md text-center">פעולות</th>
                 </tr>
               </thead>
-              <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
+              <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100" suppressHydrationWarning>
                 {isAddingPayment && <EditablePaymentRow payment={{ isNew: true, paymentMonth: currentMonth, onCancelNew: () => setIsAddingPayment(false) }} rawInfluencers={rawInfluencers} />}
                 {combinedPayments && combinedPayments.length > 0 ? (
                   [...combinedPayments]
