@@ -8,7 +8,10 @@ import React, { useState, useEffect } from 'react';
 
 const formatCurrency = (num: number | string) => {
   const parsed = Number(num) || 0;
-  return parsed.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const rounded = Math.round(parsed * 100) / 100;
+  const parts = rounded.toString().split('.');
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join('.');
 };
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Camera, TrendingUp, HandCoins } from "lucide-react";
@@ -78,7 +81,12 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm('האם למחוק שורה זו?')) {
-      await deleteInfluencer(inf.id);
+      try {
+        await deleteInfluencer(inf.id);
+      } catch (err: any) {
+        console.error('Delete influencer error:', err);
+        alert('שגיאה במחיקת משפיען: ' + (err?.message || 'שגיאה לא ידועה'));
+      }
     }
   };
 
@@ -212,7 +220,7 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
           .then(res => res.json())
           .then(data => {
             if (data && data.summary && data.summary.commission !== undefined) {
-               setCommission(data.summary.commission);
+               setCommission(Math.round(Number(data.summary.commission) * 100) / 100);
             }
           })
           .catch(console.error)
@@ -267,15 +275,22 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm('האם למחוק שורה זו?')) {
-      if (payment.hasRealPayment !== false) {
-        await deleteInfluencerPayment(payment.id);
-      } else if (payment.id && payment.id.startsWith('pseudo-')) {
-        const infIdToDelete = payment.pseudoKey;
-        if (!infIdToDelete || influencersConfig[infIdToDelete]) {
-          alert('לא ניתן למחוק משפיען זה מהמערכת דרך מסך זה (המשפיען מוגדר בקוד או שאין לו מזהה).');
-        } else {
-          await deleteInfluencer(infIdToDelete);
+      try {
+        if (payment.hasRealPayment !== false) {
+          await deleteInfluencerPayment(payment.id);
+        } else if (payment.id && payment.id.startsWith('pseudo-')) {
+          // pseudo row - influencer exists in config or DB but has no payment record for this month
+          if (payment.influencerId && influencersConfig[payment.influencerId]) {
+            alert('לא ניתן למחוק משפיען שמוגדר בקוד. ניתן למחוק רק משפיענים שנוספו ידנית.');
+          } else if (payment.dbId) {
+            await deleteInfluencer(payment.dbId);
+          } else {
+            alert('לא ניתן למחוק שורה זו - לא נמצא מזהה בבסיס הנתונים.');
+          }
         }
+      } catch (err: any) {
+        console.error('Delete error:', err);
+        alert('שגיאה במחיקה: ' + (err?.message || 'שגיאה לא ידועה'));
       }
     }
   };
@@ -463,7 +478,7 @@ export default function MarketingClient({
   const filteredPayments = currentMonth ? rawPayments.filter(p => p.paymentMonth === currentMonth) : rawPayments;
 
   const combinedPayments = currentMonth ? (() => {
-    const influencerMap = new Map<string, { influencerId?: string; influencerName: string; baseSalary: number }>();
+    const influencerMap = new Map<string, { influencerId?: string; influencerName: string; baseSalary: number; dbId?: string }>();
 
     // From influencersConfig
     Object.entries(influencersConfig).forEach(([key, config]) => {
@@ -481,7 +496,8 @@ export default function MarketingClient({
         influencerMap.set(key, {
           influencerId: inf.influencerId || undefined,
           influencerName: inf.influencerName || '',
-          baseSalary: Number(inf.baseSalary) || 0
+          baseSalary: Number(inf.baseSalary) || 0,
+          dbId: inf.id // the actual UUID from the influencers table
         });
       }
     });
@@ -493,7 +509,8 @@ export default function MarketingClient({
         influencerMap.set(key, {
           influencerId: p.influencerId || undefined,
           influencerName: p.influencerName || '',
-          baseSalary: Number(p.baseSalary) || 0
+          baseSalary: Number(p.baseSalary) || 0,
+          dbId: p.id // the actual UUID from the influencer_payments table
         });
       }
     });
@@ -519,6 +536,7 @@ export default function MarketingClient({
         resultRows.push({
           id: `pseudo-${key}-${currentMonth}`,
           pseudoKey: key,
+          dbId: infInfo.dbId,
           influencerId: infInfo.influencerId,
           influencerName: infInfo.influencerName,
           amount: 0,
