@@ -169,7 +169,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             <div className="hidden md:flex items-center gap-2">
               <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "all")}>
                 <SelectTrigger className="w-[140px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-                  <SelectValue placeholder="מצב מלאי" />
+                  <SelectValue placeholder="מצב מלאי">
+                    {stockFilter === 'all' ? 'הכל' : stockFilter === 'in_stock' ? 'במלאי' : 'אזל מהמלאי'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent align="end" dir="rtl">
                   <SelectItem value="all">הכל</SelectItem>
@@ -180,7 +182,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
 
               <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
                 <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-                  <SelectValue placeholder="כל הקטגוריות" />
+                  <SelectValue placeholder="כל הקטגוריות">
+                    {categoryFilter === 'all' ? 'הכל' : categoryFilter}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent align="end" dir="rtl">
                   <SelectItem value="all">הכל</SelectItem>
@@ -192,7 +196,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
 
               <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
                 <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-                  <SelectValue placeholder="כל הצבעים" />
+                  <SelectValue placeholder="כל הצבעים">
+                    {colorOptions.find(c => c.value === colorFilter)?.label}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent align="end" dir="rtl">
                   {colorOptions.map(c => (
@@ -219,7 +225,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           <div className={`mt-3 space-y-3 ${showFilters ? "block" : "hidden md:hidden"}`}>
             <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "all")}>
               <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-                <SelectValue placeholder="מצב מלאי" />
+                <SelectValue placeholder="מצב מלאי">
+                  {stockFilter === 'all' ? 'הכל' : stockFilter === 'in_stock' ? 'במלאי' : 'אזל מהמלאי'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
                 <SelectItem value="all">הכל</SelectItem>
@@ -230,7 +238,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
 
             <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
               <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-                <SelectValue placeholder="כל הקטגוריות" />
+                <SelectValue placeholder="כל הקטגוריות">
+                  {categoryFilter === 'all' ? 'הכל' : categoryFilter}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
                 <SelectItem value="all">הכל</SelectItem>
@@ -242,7 +252,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
 
             <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
               <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-                <SelectValue placeholder="כל הצבעים" />
+                <SelectValue placeholder="כל הצבעים">
+                  {colorOptions.find(c => c.value === colorFilter)?.label}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
                 {colorOptions.map(c => (
