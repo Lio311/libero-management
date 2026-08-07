@@ -225,6 +225,8 @@ export const qcProducts = pgTable("qc_products", {
   productSku: text("product_sku"),
   productImage: text("product_image"),
   notes: text("notes"),
+  priceStatus: text("price_status"),
+  priceStatusDate: timestamp("price_status_date", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

@@ -39,6 +39,7 @@ const navigation: NavItem[] = [
   { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
   { name: "ניתוח מלאי חכם", href: "/inventory-analysis", icon: BarChart },
   { name: "בקרת מוצרים", href: "/qc", icon: ClipboardCheck },
+  { name: "בקרת מלאי", href: "/qc-inventory", icon: ClipboardCheck },
   { name: "כספים", href: "/finance", icon: DollarSign },
   { name: "בעלי תפקידים", href: "/team", icon: Users },
   { name: "מעקב בונוסים", href: "/bonus", icon: Award },

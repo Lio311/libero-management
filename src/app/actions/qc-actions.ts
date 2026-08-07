@@ -29,6 +29,21 @@ export async function updateProductNotes(productId: string, notes: string) {
   }
 }
 
+export async function updateProductPriceStatus(productId: string, priceStatus: string | null) {
+  try {
+    const updateData = {
+      priceStatus,
+      priceStatusDate: priceStatus ? new Date() : null,
+      updatedAt: new Date()
+    };
+    await db.update(qcProducts).set(updateData).where(eq(qcProducts.id, productId));
+    revalidatePath('/qc');
+  } catch (error: any) {
+    console.error('updateProductPriceStatus error:', error);
+    throw new Error(`שגיאה בעדכון סטטוס תמחור: ${error?.message || 'שגיאה לא ידועה'}`);
+  }
+}
+
 export async function getQcProducts() {
   try {
     const products = await db.select().from(qcProducts).orderBy(qcProducts.productName);
