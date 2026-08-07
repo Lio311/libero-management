@@ -123,8 +123,21 @@ export function NotificationsBell({ scheduleData, bankTasksData, qcPendingCount 
       }
     });
     
+    if (qcPendingCount > 0) {
+      notifications.push({
+        dateKey: format(today, 'yyyy-MM-dd'),
+        task: {
+          id: 'qc-pending-task',
+          title: `בקרת מוצרים: נשארו ${qcPendingCount} מוצרים לבקרה`,
+          category: { name: 'בקרת איכות', color: 'bg-green-400' },
+          isCompleted: false,
+          source: 'schedule'
+        }
+      });
+    }
+    
     return notifications.sort((a, b) => new Date(a.dateKey).getTime() - new Date(b.dateKey).getTime());
-  }, [scheduleData, bankTasksData, currentDate]);
+  }, [scheduleData, bankTasksData, currentDate, qcPendingCount]);
 
   useEffect(() => {
     const showPush = async () => {
