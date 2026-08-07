@@ -7,12 +7,6 @@ import { desc } from "drizzle-orm";
 export async function getQcInventoryProducts() {
   try {
     const products = await db.select().from(qcProducts).orderBy(qcProducts.productName);
-    const wcProds = await db.select({
-      id: wcProducts.id,
-      dateCreated: wcProducts.dateCreated
-    }).from(wcProducts);
-    
-    const wcProdMap = new Map(wcProds.map(p => [p.id, p.dateCreated]));
     
     const allInspections = await db.select().from(qcInspections).orderBy(desc(qcInspections.inspectedAt));
     const latestInspections = new Map<string, Date>();
@@ -24,7 +18,7 @@ export async function getQcInventoryProducts() {
     }
     
     const inventoryProducts = products.map((product) => {
-      const dateCreated = wcProdMap.get(product.wooProductId) || product.createdAt;
+      const dateCreated = product.dateAddedToSite || product.createdAt;
       
       const now = new Date();
       const createdDate = new Date(dateCreated);
