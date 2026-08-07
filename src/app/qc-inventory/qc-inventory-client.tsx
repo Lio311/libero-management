@@ -52,7 +52,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   }, [products]);
 
   const colorOptions = [
-    { value: "all", label: "כל הצבעים" },
+    { value: "all", label: "הכל" },
     { value: "green", label: "ירוק (פחות משבועיים)" },
     { value: "yellow", label: "צהוב (14-30 ימים)" },
     { value: "orange", label: "כתום (30-45 ימים)" },
@@ -172,7 +172,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                   <SelectValue placeholder="מצב מלאי" />
                 </SelectTrigger>
                 <SelectContent align="end" dir="rtl">
-                  <SelectItem value="all">כל המלאי</SelectItem>
+                  <SelectItem value="all">הכל</SelectItem>
                   <SelectItem value="in_stock">במלאי</SelectItem>
                   <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
                 </SelectContent>
@@ -183,7 +183,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                   <SelectValue placeholder="כל הקטגוריות" />
                 </SelectTrigger>
                 <SelectContent align="end" dir="rtl">
-                  <SelectItem value="all">כל הקטגוריות</SelectItem>
+                  <SelectItem value="all">הכל</SelectItem>
                   {uniqueCategories.map(c => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
                   ))}
@@ -222,7 +222,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                 <SelectValue placeholder="מצב מלאי" />
               </SelectTrigger>
               <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-                <SelectItem value="all">כל המלאי</SelectItem>
+                <SelectItem value="all">הכל</SelectItem>
                 <SelectItem value="in_stock">במלאי</SelectItem>
                 <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
               </SelectContent>
@@ -233,7 +233,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                 <SelectValue placeholder="כל הקטגוריות" />
               </SelectTrigger>
               <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-                <SelectItem value="all">כל הקטגוריות</SelectItem>
+                <SelectItem value="all">הכל</SelectItem>
                 {uniqueCategories.map(c => (
                   <SelectItem key={c} value={c}>{c}</SelectItem>
                 ))}
