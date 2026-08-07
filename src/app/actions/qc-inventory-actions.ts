@@ -31,16 +31,13 @@ export async function getQcInventoryProducts() {
       
       let categoryStr = "אחר";
       if (wp.categories && Array.isArray(wp.categories) && wp.categories.length > 0) {
-        const targetCategories = ["מותגי הבית", "פרימיום", "חדירה"];
-        const foundTarget = wp.categories.find((c: any) => 
-          c.name && targetCategories.some(tc => c.name.includes(tc))
-        );
+        const ignoredCats = ["כללי", "חדש באתר", "מבצעים", "הנמכרים ביותר", "חדש בליברו"];
+        const meaningfulCat = wp.categories.find((c: any) => c.name && !ignoredCats.includes(c.name));
         
-        if (foundTarget) {
-          const matchedTarget = targetCategories.find(tc => foundTarget.name.includes(tc));
-          if (matchedTarget) {
-            categoryStr = matchedTarget;
-          }
+        if (meaningfulCat) {
+          categoryStr = meaningfulCat.name;
+        } else if (wp.categories[0]?.name) {
+          categoryStr = wp.categories[0].name;
         }
       }
       categoryMap.set(wp.id, categoryStr);
