@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpDown, Search } from "lucide-react";
+import { ArrowUpDown, Search, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 type SortKey = 
   | "totalAllTime" 
@@ -27,6 +28,20 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("totalLastMonth");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [isSyncing, setIsSyncing] = useState(false);
+  const router = useRouter();
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
+      await fetch('/api/sync/wc-data?manual=true&mode=incremental');
+      router.refresh();
+    } catch (error) {
+      console.error('Failed to sync', error);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat("he-IL", {
@@ -95,14 +110,25 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
           <p className="text-sm text-slate-500 mt-1">סה״כ: {filteredAndSorted.length} לקוחות</p>
         </div>
         
-        <div className="relative w-full md:w-72">
-          <Search className="absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
-          <Input
-            placeholder="חיפוש לפי שם, אימייל, או טלפון..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-4 pr-10 border-slate-200 bg-white/80 focus-visible:ring-indigo-500 shadow-sm"
-          />
+        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          <Button 
+            onClick={handleSync} 
+            disabled={isSyncing}
+            variant="outline" 
+            className="w-full md:w-auto bg-white/50"
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
+            {isSyncing ? "מסנכרן..." : "סנכרן לקוחות מ-WooCommerce"}
+          </Button>
+          <div className="relative w-full md:w-72">
+            <Search className="absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="חיפוש לפי שם, אימייל, או טלפון..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-4 pr-10 border-slate-200 bg-white/80 focus-visible:ring-indigo-500 shadow-sm"
+            />
+          </div>
         </div>
       </CardHeader>
       
