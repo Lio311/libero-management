@@ -3,6 +3,10 @@
     {
       "path": "/api/qc-sync",
       "schedule": "0 5 * * 0"
+    },
+    {
+      "path": "/api/qc-notify",
+      "schedule": "0 5 * * 2"
     }
   ]
 }
