@@ -94,10 +94,10 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   }, [initialData, searchQuery, sortKey, sortOrder]);
 
   const SortHeader = ({ label, sortKey: key }: { label: string, sortKey: SortKey }) => (
-    <TableHead className="text-center whitespace-nowrap px-2 cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort(key)}>
-      <div className="flex items-center justify-center gap-1">
-        <ArrowUpDown className={`h-4 w-4 ${sortKey === key ? "text-indigo-600" : "text-slate-400"}`} />
-        <span className={sortKey === key ? "font-bold text-indigo-700" : ""}>{label}</span>
+    <TableHead className="text-center px-1 cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort(key)}>
+      <div className="flex flex-col items-center justify-center gap-1 text-xs">
+        <span className={sortKey === key ? "font-bold text-indigo-700 leading-tight" : "leading-tight"}>{label}</span>
+        <ArrowUpDown className={`h-3 w-3 ${sortKey === key ? "text-indigo-600" : "text-slate-400"}`} />
       </div>
     </TableHead>
   );
@@ -137,13 +137,13 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
           <TableHeader className="bg-slate-50/80 sticky top-0 z-10 border-b border-slate-200 shadow-sm">
             <TableRow className="hover:bg-transparent">
               <SortHeader label="שם מלא" sortKey="fullName" />
-              <TableHead className="text-center font-semibold text-slate-700 px-2 whitespace-nowrap">אימייל</TableHead>
-              <TableHead className="text-center font-semibold text-slate-700 px-2 whitespace-nowrap">טלפון</TableHead>
-              <SortHeader label='מותגי הבית (חודש אחרון)' sortKey="homeBrandsLastMonth" />
-              <SortHeader label='מותגי הבית (שנה אחרונה)' sortKey="homeBrandsLastYear" />
-              <SortHeader label="רכישות (חודש אחרון)" sortKey="totalLastMonth" />
-              <SortHeader label="רכישות (שנה אחרונה)" sortKey="totalLastYear" />
-              <SortHeader label="רכישות (כל הזמן)" sortKey="totalAllTime" />
+              <TableHead className="text-center font-semibold text-slate-700 px-1 text-xs align-middle">אימייל</TableHead>
+              <TableHead className="text-center font-semibold text-slate-700 px-1 text-xs align-middle">טלפון</TableHead>
+              <SortHeader label="מותגי בית (חודש)" sortKey="homeBrandsLastMonth" />
+              <SortHeader label="מותגי בית (שנה)" sortKey="homeBrandsLastYear" />
+              <SortHeader label="רכישות (חודש)" sortKey="totalLastMonth" />
+              <SortHeader label="רכישות (שנה)" sortKey="totalLastYear" />
+              <SortHeader label="רכישות (הכל)" sortKey="totalAllTime" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -155,15 +155,15 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
               </TableRow>
             ) : (
               filteredAndSorted.map((customer) => (
-                <TableRow key={customer.id} className="hover:bg-slate-50/80 transition-colors group">
-                  <TableCell className="px-2 text-center font-medium text-slate-800 whitespace-nowrap">{customer.fullName}</TableCell>
-                  <TableCell className="px-2 text-center text-slate-600 whitespace-nowrap">{customer.email}</TableCell>
-                  <TableCell className="px-2 text-center text-slate-600 whitespace-nowrap" dir="ltr">{customer.phone}</TableCell>
-                  <TableCell className="px-2 text-center font-semibold text-emerald-600">{formatCurrency(customer.homeBrandsLastMonth)}</TableCell>
-                  <TableCell className="px-2 text-center text-slate-700">{formatCurrency(customer.homeBrandsLastYear)}</TableCell>
-                  <TableCell className="px-2 text-center font-semibold text-indigo-600">{formatCurrency(customer.totalLastMonth)}</TableCell>
-                  <TableCell className="px-2 text-center text-slate-700">{formatCurrency(customer.totalLastYear)}</TableCell>
-                  <TableCell className="px-2 text-center text-slate-700">{formatCurrency(customer.totalAllTime)}</TableCell>
+                <TableRow key={customer.id} className="hover:bg-slate-50/80 transition-colors group text-xs">
+                  <TableCell className="px-1 text-center font-medium text-slate-800">{customer.fullName}</TableCell>
+                  <TableCell className="px-1 text-center text-slate-600 break-words max-w-[120px]">{customer.email}</TableCell>
+                  <TableCell className="px-1 text-center text-slate-600 whitespace-nowrap" dir="ltr">{customer.phone}</TableCell>
+                  <TableCell className="px-1 text-center font-semibold text-emerald-600 whitespace-nowrap">{formatCurrency(customer.homeBrandsLastMonth)}</TableCell>
+                  <TableCell className="px-1 text-center text-slate-700 whitespace-nowrap">{formatCurrency(customer.homeBrandsLastYear)}</TableCell>
+                  <TableCell className="px-1 text-center font-semibold text-indigo-600 whitespace-nowrap">{formatCurrency(customer.totalLastMonth)}</TableCell>
+                  <TableCell className="px-1 text-center text-slate-700 whitespace-nowrap">{formatCurrency(customer.totalLastYear)}</TableCell>
+                  <TableCell className="px-1 text-center text-slate-700 whitespace-nowrap">{formatCurrency(customer.totalAllTime)}</TableCell>
                 </TableRow>
               ))
             )}
