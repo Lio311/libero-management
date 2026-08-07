@@ -389,9 +389,15 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">בוצע?</span>
-        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isCompleted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-          {isCompleted ? 'בוצע' : 'לא בוצע'}
-        </span>
+        {totalPayment === 0 ? (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-black">
+            אין צורך
+          </span>
+        ) : (
+          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isCompleted ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+            {isCompleted ? 'בוצע' : 'לא בוצע'}
+          </span>
+        )}
       </td>
       <td className="py-1 md:py-3 px-2 text-muted-foreground flex justify-between items-center md:table-cell text-right max-w-[200px] truncate" title={payment.notes}>
         <span className="md:hidden text-gray-500 text-sm">הערות</span>
