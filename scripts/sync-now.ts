@@ -13,7 +13,7 @@ async function fetchAllProducts() {
   const auth = Buffer.from(`${LIBERO_CONFIG.ck}:${LIBERO_CONFIG.cs}`).toString('base64');
   let allProducts: any[] = [];
 
-  const firstPageUrl = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/products?per_page=100&page=1&status=publish&_fields=id,name,sku,images`;
+  const firstPageUrl = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/products?per_page=100&page=1&status=publish&_fields=id,name,sku,images,date_created`;
   const response = await fetch(firstPageUrl, {
     method: 'GET',
     headers: {
@@ -35,7 +35,7 @@ async function fetchAllProducts() {
   console.log(`Total Pages: ${totalPages}`);
 
   const fetchPage = async (p: number) => {
-    const url = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/products?per_page=100&page=${p}&status=publish&_fields=id,name,sku,images`;
+    const url = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/products?per_page=100&page=${p}&status=publish&_fields=id,name,sku,images,date_created`;
     try {
       const res = await fetch(url, {
         method: 'GET',
@@ -91,6 +91,7 @@ async function run() {
         productName: product.name,
         productSku: product.sku || null,
         productImage: imageUrl,
+        dateAddedToSite: product.date_created ? new Date(product.date_created) : new Date(),
         updatedAt: new Date(),
       };
     });
@@ -104,6 +105,7 @@ async function run() {
             productName: sql`EXCLUDED.product_name`,
             productSku: sql`EXCLUDED.product_sku`,
             productImage: sql`EXCLUDED.product_image`,
+            dateAddedToSite: sql`EXCLUDED.date_added_to_site`,
             updatedAt: sql`EXCLUDED.updated_at`,
           }
         });

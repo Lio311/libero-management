@@ -230,7 +230,6 @@ function ProductRow({ product }: { product: QcProduct }) {
                 });
               }}
               disabled={isPending}
-              dir="rtl"
             >
               <SelectTrigger className="w-[140px] mx-auto h-8 text-xs bg-white border-gray-200 focus:ring-0 focus:ring-offset-0">
                 <SelectValue placeholder="בחר סטטוס" />
@@ -362,7 +361,6 @@ function ProductRow({ product }: { product: QcProduct }) {
                     });
                   }}
                   disabled={isPending}
-                  dir="rtl"
                 >
                   <SelectTrigger className="w-[140px] h-7 text-[11px] bg-white border-gray-200 focus:ring-0 focus:ring-offset-0">
                     <SelectValue placeholder="בחר סטטוס" />
