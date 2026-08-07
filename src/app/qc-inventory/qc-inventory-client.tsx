@@ -39,6 +39,25 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const [searchQuery, setSearchQuery] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("color_desc");
   const [showFilters, setShowFilters] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [colorFilter, setColorFilter] = useState<string>("all");
+
+  const uniqueCategories = useMemo(() => {
+    const cats = new Set<string>();
+    products.forEach(p => {
+      if (p.categories) cats.add(p.categories);
+    });
+    return Array.from(cats).sort();
+  }, [products]);
+
+  const colorOptions = [
+    { value: "all", label: "כל הצבעים" },
+    { value: "green", label: "ירוק (פחות משבועיים)" },
+    { value: "yellow", label: "צהוב (14-30 ימים)" },
+    { value: "orange", label: "כתום (30-45 ימים)" },
+    { value: "dark_orange", label: "כתום כהה (45-90 ימים)" },
+    { value: "red", label: "אדום (מעל 90 יום)" },
+  ];
 
   const sortLabels: Record<SortMode, string> = {
     color_desc: "צבע: אדום לירוק",
@@ -61,6 +80,14 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           p.productName.toLowerCase().includes(q) ||
           (p.productSku && p.productSku.toLowerCase().includes(q))
       );
+    }
+
+    if (categoryFilter !== "all") {
+      result = result.filter(p => p.categories === categoryFilter);
+    }
+    
+    if (colorFilter !== "all") {
+      result = result.filter(p => getAgeCategory(p.ageDays).category === colorFilter);
     }
 
     result.sort((a, b) => {
@@ -133,13 +160,36 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             </button>
 
             <div className="hidden md:flex items-center gap-2">
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
+                  <SelectValue placeholder="כל הקטגוריות" />
+                </SelectTrigger>
+                <SelectContent align="end" dir="rtl">
+                  <SelectItem value="all">כל הקטגוריות</SelectItem>
+                  {uniqueCategories.map(c => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={colorFilter} onValueChange={setColorFilter}>
+                <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
+                  <SelectValue placeholder="כל הצבעים" />
+                </SelectTrigger>
+                <SelectContent align="end" dir="rtl">
+                  {colorOptions.map(c => (
+                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-                <SelectTrigger className="w-[200px] h-10 border-gray-200 bg-white">
+                <SelectTrigger className="w-[180px] h-10 border-gray-200 bg-white text-right" dir="rtl">
                   <SelectValue placeholder="בחר מיון">
                     {sortLabels[sortMode]}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent align="end">
+                <SelectContent align="end" dir="rtl">
                   {Object.entries(sortLabels).map(([key, label]) => (
                     <SelectItem key={key} value={key}>{label}</SelectItem>
                   ))}
@@ -148,14 +198,37 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             </div>
           </div>
 
-          <div className={`mt-3 ${showFilters ? "block" : "hidden md:hidden"}`}>
+          <div className={`mt-3 space-y-3 ${showFilters ? "block" : "hidden md:hidden"}`}>
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
+                <SelectValue placeholder="כל הקטגוריות" />
+              </SelectTrigger>
+              <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
+                <SelectItem value="all">כל הקטגוריות</SelectItem>
+                {uniqueCategories.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={colorFilter} onValueChange={setColorFilter}>
+              <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
+                <SelectValue placeholder="כל הצבעים" />
+              </SelectTrigger>
+              <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
+                {colorOptions.map(c => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-              <SelectTrigger className="w-full h-10 border-gray-200 bg-white">
+              <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
                 <SelectValue placeholder="בחר מיון">
                   {sortLabels[sortMode]}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent align="center" className="w-[calc(100vw-3rem)]">
+              <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
                 {Object.entries(sortLabels).map(([key, label]) => (
                   <SelectItem key={key} value={key}>{label}</SelectItem>
                 ))}
