@@ -11,6 +11,14 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpDown, Search } from "lucide-react";
 
@@ -28,6 +36,8 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("totalLastMonth");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [currentPage, setCurrentPage] = useState(1);
 
 
   const formatCurrency = (val: number) => {
@@ -54,6 +64,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
       setSortKey(key);
       setSortOrder("desc");
     }
+    setCurrentPage(1);
   };
 
   const filteredAndSorted = useMemo(() => {
@@ -95,6 +106,13 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
     return result;
   }, [initialData, searchQuery, sortKey, sortOrder]);
 
+  const totalPages = Math.ceil(filteredAndSorted.length / itemsPerPage);
+  
+  const paginatedData = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredAndSorted.slice(start, start + itemsPerPage);
+  }, [filteredAndSorted, currentPage, itemsPerPage]);
+
   const SortHeader = ({ label, sortKey: key, className }: { label: string, sortKey: SortKey, className?: string }) => (
     <TableHead className={`text-center px-0.5 cursor-pointer hover:bg-slate-100/50 transition-colors ${className || ''}`} onClick={() => handleSort(key)}>
       <div className="flex flex-col items-center justify-center gap-0.5 text-[11px]">
@@ -112,13 +130,57 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
           <p className="text-sm text-slate-500 mt-1">סה״כ: {filteredAndSorted.length} לקוחות</p>
         </div>
         
-        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
+          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-md p-1 shadow-sm">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 h-8 text-xs font-medium"
+            >
+              הקודם
+            </Button>
+            <div className="text-xs font-medium text-slate-500 px-2 min-w-[70px] text-center" dir="rtl">
+              עמוד {currentPage} מתוך {totalPages || 1}
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage >= totalPages || totalPages === 0}
+              className="px-3 h-8 text-xs font-medium"
+            >
+              הבא
+            </Button>
+          </div>
+
+          <Select 
+            value={itemsPerPage.toString()} 
+            onValueChange={(val) => {
+              setItemsPerPage(Number(val));
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[120px] h-10 bg-white/80 border-slate-200 shadow-sm text-sm" dir="rtl">
+              <SelectValue placeholder="תוצאות..." />
+            </SelectTrigger>
+            <SelectContent dir="rtl">
+              <SelectItem value="50">50 בעמוד</SelectItem>
+              <SelectItem value="100">100 בעמוד</SelectItem>
+              <SelectItem value="200">200 בעמוד</SelectItem>
+            </SelectContent>
+          </Select>
+
           <div className="relative w-full md:w-72">
             <Search className="absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input
               placeholder="חיפוש לפי שם, אימייל, או טלפון..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="pl-4 pr-10 border-slate-200 bg-white/80 focus-visible:ring-indigo-500 shadow-sm"
             />
           </div>
@@ -142,14 +204,14 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredAndSorted.length === 0 ? (
+            {paginatedData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={10} className="h-32 text-center text-slate-500">
                   לא נמצאו לקוחות.
                 </TableCell>
               </TableRow>
             ) : (
-              filteredAndSorted.map((customer) => (
+              paginatedData.map((customer) => (
                 <TableRow key={customer.id} className="hover:bg-slate-50/80 transition-colors group text-xs">
                   <TableCell className="px-0.5 text-center font-medium text-slate-800 text-[11px] max-w-[70px] truncate" title={customer.fullName}>{customer.fullName}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-600 text-[10px] truncate max-w-[80px]" title={customer.email}>{customer.email}</TableCell>
