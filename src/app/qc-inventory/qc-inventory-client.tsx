@@ -13,10 +13,16 @@ interface InventoryProduct {
   productName: string;
   productSku: string | null;
   productImage: string | null;
+  categories: string;
   lastInspectionDate: Date | null;
   lastPriceStatusDate: Date | null;
   dateAddedToSite: Date;
   ageDays: number;
+  currentStock: number;
+  salesLastWeek: number;
+  salesLastMonth: number;
+  salesMonthBeforeLast: number;
+  totalSales: number;
 }
 
 type SortMode = "name_asc" | "name_desc" | "inspection_asc" | "inspection_desc" | "price_asc" | "price_desc" | "color_asc" | "color_desc";
@@ -164,6 +170,11 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md">שם המוצר</th>
+                  <th className="py-3 px-4 font-medium text-right">קטגוריה</th>
+                  <th className="py-3 px-4 font-medium text-center">מכר שבוע אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center">מכר חודש אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center">מכר חודש לפני אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center">התקדמות</th>
                   <th className="py-3 px-4 font-medium text-center">תאריך בקרת מוצר אחרון</th>
                   <th className="py-3 px-4 font-medium text-center">תאריך תמחור אחרון</th>
                   <th className="py-3 px-4 font-medium text-center rounded-tl-md">זמן חיי מדף</th>
@@ -192,6 +203,35 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                             </div>
                           </div>
                         </td>
+                        <td className="py-3 px-4 text-right">
+                          <span className="text-gray-600 text-sm">{product.categories || "—"}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center text-gray-700">
+                          {product.salesLastWeek}
+                        </td>
+                        <td className="py-3 px-4 text-center text-gray-700">
+                          {product.salesLastMonth}
+                        </td>
+                        <td className="py-3 px-4 text-center text-gray-700">
+                          {product.salesMonthBeforeLast}
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <div className="w-full max-w-[100px] mx-auto bg-gray-200 rounded-full h-2 mb-1 relative">
+                            {(() => {
+                              const totalOrdered = product.currentStock + product.totalSales;
+                              const progress = totalOrdered > 0 ? (product.totalSales / totalOrdered) * 100 : 0;
+                              return (
+                                <div 
+                                  className="bg-blue-500 h-2 rounded-full transition-all duration-500" 
+                                  style={{ width: `${Math.min(progress, 100)}%` }}
+                                ></div>
+                              );
+                            })()}
+                          </div>
+                          <span className="text-[10px] text-gray-500 whitespace-nowrap">
+                            {product.totalSales} / {product.currentStock + product.totalSales}
+                          </span>
+                        </td>
                         <td className="py-3 px-4 text-center">
                           {product.lastInspectionDate ? format(new Date(product.lastInspectionDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
                         </td>
@@ -213,7 +253,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                   })
                 ) : (
                   <tr>
-                    <td colSpan={4} className="py-12 text-center text-gray-400">
+                    <td colSpan={9} className="py-12 text-center text-gray-400">
                       <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
                       <p>לא נמצאו מוצרים</p>
                     </td>
@@ -225,7 +265,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                   const style = getAgeCategory(product.ageDays);
                   return (
                     <tr key={`mobile-${product.id}`} className="md:hidden border-b-0">
-                      <td colSpan={4} className="p-0 border-b-0">
+                      <td colSpan={9} className="p-0 border-b-0">
                         <div className={`m-2 rounded-xl shadow-sm border border-r-4 ${style.border} ${style.bg.split(' ')[0]}`}>
                           <div className="p-3 flex items-start gap-3 border-b border-gray-100">
                             {product.productImage ? (
@@ -240,6 +280,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                                 {product.productName}
                               </a>
                               {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
+                              {product.categories && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.categories}</p>}
                             </div>
                           </div>
                           <div className="p-3 space-y-2 text-[12px]">
@@ -250,6 +291,38 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                             <div className="flex justify-between items-center">
                               <span className="text-gray-500">תמחור אחרון:</span>
                               <span>{product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : "—"}</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-gray-50 text-center">
+                              <div>
+                                <span className="block text-gray-500 text-[10px]">מכר 7 ימים</span>
+                                <span className="font-medium text-[13px]">{product.salesLastWeek}</span>
+                              </div>
+                              <div>
+                                <span className="block text-gray-500 text-[10px]">מכר 30 יום</span>
+                                <span className="font-medium text-[13px]">{product.salesLastMonth}</span>
+                              </div>
+                              <div>
+                                <span className="block text-gray-500 text-[10px]">חודש שעבר</span>
+                                <span className="font-medium text-[13px]">{product.salesMonthBeforeLast}</span>
+                              </div>
+                            </div>
+                            <div className="mt-2 pt-2 border-t border-gray-50">
+                              <div className="flex justify-between items-center text-[10px] text-gray-500 mb-1">
+                                <span>התקדמות מכר/מלאי</span>
+                                <span>{product.totalSales} / {product.currentStock + product.totalSales}</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                {(() => {
+                                  const totalOrdered = product.currentStock + product.totalSales;
+                                  const progress = totalOrdered > 0 ? (product.totalSales / totalOrdered) * 100 : 0;
+                                  return (
+                                    <div 
+                                      className="bg-blue-500 h-1.5 rounded-full transition-all duration-500" 
+                                      style={{ width: `${Math.min(progress, 100)}%` }}
+                                    ></div>
+                                  );
+                                })()}
+                              </div>
                             </div>
                             <div className="flex justify-between items-center pt-2 border-t border-gray-50">
                               <span className="text-gray-500">חיי מדף:</span>
