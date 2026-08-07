@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { wcProducts, wcOrders } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 const LIBERO_CONFIG = {
   ck: 'ck_c551947f6cd4c709b527cab0f18651cf19433b51',
@@ -12,32 +12,49 @@ const LIBERO_CONFIG = {
 async function fetchFromWooCommerce(endpoint: string, queryParams: string = '') {
   const auth = Buffer.from(`${LIBERO_CONFIG.ck}:${LIBERO_CONFIG.cs}`).toString('base64');
   let allData: any[] = [];
-  let page = 1;
-  let hasMore = true;
+  
+  const firstUrl = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/${endpoint}?per_page=100&page=1${queryParams ? `&${queryParams}` : ''}`;
+  console.log(`Fetching: ${firstUrl}`);
+  const firstRes = await fetch(firstUrl, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Basic ${auth}`,
+      'Content-Type': 'application/json',
+    },
+  });
 
-  while (hasMore && page <= 50) { // Safety limit
-    const url = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/${endpoint}?per_page=100&page=${page}${queryParams ? `&${queryParams}` : ''}`;
-    console.log(`Fetching: ${url}`);
-    const response = await fetch(url, {
+  if (!firstRes.ok) {
+    console.error(`WooCommerce API error: ${firstRes.status}`);
+    return [];
+  }
+
+  const totalPages = parseInt(firstRes.headers.get('x-wp-totalpages') || '1', 10);
+  const firstData = await firstRes.json();
+  allData = allData.concat(firstData);
+
+  const pagesToFetch = Math.min(totalPages, 150); // limit to 15,000 items max
+
+  const fetchPage = async (p: number) => {
+    const url = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/${endpoint}?per_page=100&page=${p}${queryParams ? `&${queryParams}` : ''}`;
+    const res = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Authorization': `Basic ${auth}`,
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/json' },
     });
+    if (!res.ok) return [];
+    return res.json();
+  };
 
-    if (!response.ok) {
-      console.error(`WooCommerce API error: ${response.status}`);
-      break;
+  // Fetch remaining pages in batches of 10
+  const batchSize = 10;
+  for (let i = 2; i <= pagesToFetch; i += batchSize) {
+    const promises = [];
+    for (let j = i; j < i + batchSize && j <= pagesToFetch; j++) {
+      promises.push(fetchPage(j));
     }
-
-    const data = await response.json();
-    allData = allData.concat(data);
-
-    if (data.length < 100) {
-      hasMore = false;
-    } else {
-      page++;
+    console.log(`Fetching pages ${i} to ${Math.min(i + batchSize - 1, pagesToFetch)} for ${endpoint}...`);
+    const results = await Promise.all(promises);
+    for (const data of results) {
+      allData = allData.concat(data);
     }
   }
 
@@ -71,15 +88,20 @@ export async function GET(request: Request) {
   }
 
   try {
+    // Helper for chunking arrays
+    const chunkArray = <T>(array: T[], size: number): T[][] => {
+      const result = [];
+      for (let i = 0; i < array.length; i += size) {
+        result.push(array.slice(i, i + size));
+      }
+      return result;
+    };
+
     // 1. Fetch & Sync Products
     const products = await fetchFromWooCommerce('products', queryParams + '&status=any&_fields=id,name,sku,price,stock_quantity,date_created,categories,status');
-    let productsAdded = 0;
-    let productsUpdated = 0;
-
-    for (const p of products) {
-      const existing = await db.select().from(wcProducts).where(eq(wcProducts.id, p.id)).limit(1);
-      
-      const insertData = {
+    
+    if (products.length > 0) {
+      const productValues = products.map((p: any) => ({
         id: p.id,
         name: p.name,
         sku: p.sku || '',
@@ -89,26 +111,32 @@ export async function GET(request: Request) {
         status: p.status || 'publish',
         categories: p.categories || [],
         updatedAt: new Date(),
-      };
+      }));
 
-      if (existing.length === 0) {
-        await db.insert(wcProducts).values(insertData);
-        productsAdded++;
-      } else {
-        await db.update(wcProducts).set(insertData).where(eq(wcProducts.id, p.id));
-        productsUpdated++;
+      const productChunks = chunkArray(productValues, 500);
+      for (const chunk of productChunks) {
+        await db.insert(wcProducts).values(chunk)
+          .onConflictDoUpdate({
+            target: wcProducts.id,
+            set: {
+              name: sql`EXCLUDED.name`,
+              sku: sql`EXCLUDED.sku`,
+              price: sql`EXCLUDED.price`,
+              stockQuantity: sql`EXCLUDED.stock_quantity`,
+              dateCreated: sql`EXCLUDED.date_created`,
+              status: sql`EXCLUDED.status`,
+              categories: sql`EXCLUDED.categories`,
+              updatedAt: sql`EXCLUDED.updated_at`,
+            }
+          });
       }
     }
 
     // 2. Fetch & Sync Orders
     const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed&_fields=id,total,date_created,line_items,customer_id,status,billing');
-    let ordersAdded = 0;
-    let ordersUpdated = 0;
-
-    for (const o of orders) {
-      const existing = await db.select().from(wcOrders).where(eq(wcOrders.id, o.id)).limit(1);
-      
-      const insertData = {
+    
+    if (orders.length > 0) {
+      const orderValues = orders.map((o: any) => ({
         id: o.id,
         total: o.total ? o.total.toString() : '0',
         customerId: o.customer_id || 0,
@@ -117,14 +145,23 @@ export async function GET(request: Request) {
         lineItems: o.line_items || [],
         billing: o.billing || null,
         updatedAt: new Date(),
-      };
+      }));
 
-      if (existing.length === 0) {
-        await db.insert(wcOrders).values(insertData);
-        ordersAdded++;
-      } else {
-        await db.update(wcOrders).set(insertData).where(eq(wcOrders.id, o.id));
-        ordersUpdated++;
+      const orderChunks = chunkArray(orderValues, 500);
+      for (const chunk of orderChunks) {
+        await db.insert(wcOrders).values(chunk)
+          .onConflictDoUpdate({
+            target: wcOrders.id,
+            set: {
+              total: sql`EXCLUDED.total`,
+              customerId: sql`EXCLUDED.customer_id`,
+              dateCreated: sql`EXCLUDED.date_created`,
+              status: sql`EXCLUDED.status`,
+              lineItems: sql`EXCLUDED.line_items`,
+              billing: sql`EXCLUDED.billing`,
+              updatedAt: sql`EXCLUDED.updated_at`,
+            }
+          });
       }
     }
 
@@ -132,14 +169,12 @@ export async function GET(request: Request) {
       success: true,
       mode,
       products: {
-        added: productsAdded,
-        updated: productsUpdated,
         totalFetched: products.length,
+        upserted: products.length,
       },
       orders: {
-        added: ordersAdded,
-        updated: ordersUpdated,
         totalFetched: orders.length,
+        upserted: orders.length,
       }
     });
 
