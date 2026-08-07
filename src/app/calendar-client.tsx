@@ -661,7 +661,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                       await updateBankOfTaskAction(taskToMove.dbId, { dueDate: format(targetDay, 'dd.MM.yyyy') });
                     }
                   }}
-                  className={`h-[120px] md:h-[160px] p-2 md:p-3 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer overflow-hidden flex flex-col
+                  className={`h-[85px] md:h-[110px] p-1.5 md:p-2 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer overflow-hidden flex flex-col
                     ${!isCurrentMonth ? 'bg-transparent opacity-60' : 'bg-transparent'}
                     ${dayIdx % 7 === 6 ? 'border-l-0' : ''}
                   `}
