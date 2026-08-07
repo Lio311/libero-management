@@ -66,7 +66,7 @@ export async function GET(request: Request) {
     const afterDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     queryParams = `modified_after=${afterDate}`;
   } else if (mode === 'full') {
-    const afterDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString();
+    const afterDate = new Date(Date.now() - 730 * 24 * 60 * 60 * 1000).toISOString();
     queryParams = `after=${afterDate}`;
   }
 

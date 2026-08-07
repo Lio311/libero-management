@@ -131,7 +131,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
             className="w-full md:w-auto"
           >
             <RefreshCw className={`mr-2 h-4 w-4 ${isFullSyncing ? "animate-spin" : ""}`} />
-            {isFullSyncing ? "מושך..." : "סנכרון מלא (שנה)"}
+            {isFullSyncing ? "מושך..." : "סנכרון מלא (שנתיים)"}
           </Button>
           <Button 
             onClick={handleSync} 
