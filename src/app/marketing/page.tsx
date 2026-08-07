@@ -3,7 +3,7 @@
  
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { db } from "@/lib/db";
-import { influencers, influencerPayments } from "@/lib/db/schema";
+import { influencers, influencerPayments, inventoryItems } from "@/lib/db/schema";
 import MarketingClient from "./marketing-client";
 
 export const dynamic = "force-dynamic";
@@ -35,10 +35,14 @@ export default async function MarketingDashboard() {
 
   let allInfluencers: any[] = [];
   let payments: any[] = [];
+  let uniqueBrands: string[] = [];
 
   try {
     allInfluencers = await db.select().from(influencers);
     payments = await db.select().from(influencerPayments);
+    const items = await db.select().from(inventoryItems);
+
+    uniqueBrands = Array.from(new Set(items.map(i => i.brand))).filter(Boolean) as string[];
 
     activeInfluencers = new Set(payments.map(p => p.influencerName || p.influencerId).filter(Boolean)).size;
 
@@ -67,6 +71,7 @@ export default async function MarketingDashboard() {
       influencerPerformance={influencerPerformance}
       rawInfluencers={allInfluencers}
       rawPayments={payments}
+      uniqueBrands={uniqueBrands}
     />
   );
 }

@@ -30,9 +30,10 @@ interface MarketingClientProps {
   influencerPerformance: any[];
   rawInfluencers: any[];
   rawPayments: any[];
+  uniqueBrands?: string[];
 }
 
-function EditableInfluencerRow({ inf }: { inf: any }) {
+function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBrands?: string[] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [data, setData] = useState({
     influencerName: inf.influencerName || '',
@@ -95,7 +96,20 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
     return (
       <tr className="bg-blue-50/30 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 rounded-lg md:rounded-none mb-4 md:mb-0">
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שם</span><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
-        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">מותג</span><input className="w-full p-1 border rounded text-sm text-right" value={data.brand} onChange={e => setData({...data, brand: e.target.value})} /></td>
+        <td className="p-2 flex flex-col md:table-cell gap-1">
+          <span className="md:hidden font-medium text-sm text-gray-500">מותג</span>
+          <Select value={data.brand} onValueChange={val => setData({...data, brand: val})}>
+            <SelectTrigger dir="rtl" className="w-full p-1 border rounded text-sm text-right bg-white h-auto py-[0.4rem]">
+              <SelectValue placeholder="בחר מותג" />
+            </SelectTrigger>
+            <SelectContent align="end" side="bottom">
+              <SelectItem value="">בחר מותג</SelectItem>
+              {uniqueBrands?.map((b) => (
+                <SelectItem key={b} value={b}>{b}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">בתשלום?</span><input className="w-full p-1 border rounded text-sm text-right" value={data.isPaid} onChange={e => setData({...data, isPaid: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" value={data.baseSalary} onChange={e => setData({...data, baseSalary: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">מספר סרטונים</span><input className="w-full p-1 border rounded text-sm text-right" value={data.videoCount} onChange={e => setData({...data, videoCount: e.target.value})} /></td>
@@ -433,7 +447,8 @@ export default function MarketingClient({
   monthlyGrowth,
   influencerPerformance,
   rawInfluencers,
-  rawPayments
+  rawPayments,
+  uniqueBrands
 }: MarketingClientProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -659,12 +674,12 @@ export default function MarketingClient({
                 </tr>
               </thead>
               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100" suppressHydrationWarning>
-                {isAddingInfluencer && <EditableInfluencerRow inf={{ isNew: true, onCancelNew: () => setIsAddingInfluencer(false) }} />}
+                {isAddingInfluencer && <EditableInfluencerRow inf={{ isNew: true, onCancelNew: () => setIsAddingInfluencer(false) }} uniqueBrands={uniqueBrands} />}
                 {rawInfluencers && rawInfluencers.length > 0 ? (
                   [...rawInfluencers]
                     .sort((a, b) => (a.influencerName || '') > (b.influencerName || '') ? 1 : -1)
                     .map((inf) => (
-                    <EditableInfluencerRow key={inf.id} inf={inf} />
+                    <EditableInfluencerRow key={inf.id} inf={inf} uniqueBrands={uniqueBrands} />
                   ))
                 ) : (
                   <tr>
