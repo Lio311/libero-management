@@ -21,6 +21,7 @@ type SortKey =
   | "homeBrandsAllTime"
   | "homeBrandsLastYear" 
   | "homeBrandsLastMonth"
+  | "lastPurchaseDate"
   | "fullName";
 
 export default function CustomerControlClient({ initialData }: { initialData: CustomerControlData[] }) {
@@ -35,6 +36,15 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
       currency: "ILS",
       maximumFractionDigits: 0
     }).format(val);
+  };
+
+  const formatDate = (date: Date | null) => {
+    if (!date) return "-";
+    return new Intl.DateTimeFormat("he-IL", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "2-digit"
+    }).format(date);
   };
 
   const handleSort = (key: SortKey) => {
@@ -62,6 +72,12 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
     result.sort((a, b) => {
       const valA = a[sortKey];
       const valB = b[sortKey];
+
+      if (valA instanceof Date || valB instanceof Date) {
+        const timeA = valA instanceof Date ? valA.getTime() : 0;
+        const timeB = valB instanceof Date ? valB.getTime() : 0;
+        return sortOrder === "asc" ? timeA - timeB : timeB - timeA;
+      }
 
       if (typeof valA === "string" && typeof valB === "string") {
         return sortOrder === "asc" 
@@ -116,6 +132,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
               <SortHeader label="שם מלא" sortKey="fullName" className="w-[70px]" />
               <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">אימייל</TableHead>
               <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">טלפון</TableHead>
+              <SortHeader label="רכישה אחרונה" sortKey="lastPurchaseDate" />
               <SortHeader label="מותגי הבית(חודש)" sortKey="homeBrandsLastMonth" />
               <SortHeader label="מותגי הבית(שנה)" sortKey="homeBrandsLastYear" />
               <SortHeader label="מותגי הבית(הכל)" sortKey="homeBrandsAllTime" />
@@ -127,7 +144,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
           <TableBody>
             {filteredAndSorted.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="h-32 text-center text-slate-500">
+                <TableCell colSpan={10} className="h-32 text-center text-slate-500">
                   לא נמצאו לקוחות.
                 </TableCell>
               </TableRow>
@@ -137,6 +154,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
                   <TableCell className="px-0.5 text-center font-medium text-slate-800 text-[11px] max-w-[70px] truncate" title={customer.fullName}>{customer.fullName}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-600 text-[10px] truncate max-w-[80px]" title={customer.email}>{customer.email}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-600 text-[11px] truncate max-w-[80px]" dir="ltr" title={customer.phone}>{customer.phone}</TableCell>
+                  <TableCell className="px-0.5 text-center text-slate-500 whitespace-nowrap text-[11px]">{formatDate(customer.lastPurchaseDate)}</TableCell>
                   <TableCell className="px-0.5 text-center font-semibold text-emerald-600 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastMonth)}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastYear)}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsAllTime)}</TableCell>

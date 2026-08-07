@@ -17,6 +17,7 @@ export type CustomerControlData = {
   homeBrandsAllTime: number;
   homeBrandsLastYear: number;
   homeBrandsLastMonth: number;
+  lastPurchaseDate: Date | null;
 };
 
 export async function getCustomerControlData(): Promise<CustomerControlData[]> {
@@ -72,6 +73,7 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
         homeBrandsAllTime: 0,
         homeBrandsLastYear: 0,
         homeBrandsLastMonth: 0,
+        lastPurchaseDate: null,
       });
     }
 
@@ -80,6 +82,10 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
     // Use proper date objects
     const orderDate = order.dateCreated ? new Date(order.dateCreated) : new Date(0);
     const orderTotal = parseFloat(order.total?.toString() || '0');
+
+    if (!customer.lastPurchaseDate || orderDate > customer.lastPurchaseDate) {
+      customer.lastPurchaseDate = orderDate;
+    }
 
     // Add to overall totals
     customer.totalAllTime += orderTotal;
