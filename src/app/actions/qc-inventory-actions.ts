@@ -30,8 +30,14 @@ export async function getQcInventoryProducts() {
       stockMap.set(wp.id, wp.stockQuantity || 0);
       
       let categoryStr = "";
-      if (wp.categories && Array.isArray(wp.categories)) {
-        categoryStr = wp.categories.map((c: any) => c.name).join(", ");
+      if (wp.categories && Array.isArray(wp.categories) && wp.categories.length > 0) {
+        // Try to find a subcategory (parent !== 0) or fallback to the last category
+        const subCat = wp.categories.find((c: any) => c.parent && c.parent !== 0);
+        if (subCat) {
+          categoryStr = subCat.name;
+        } else {
+          categoryStr = wp.categories[wp.categories.length - 1].name;
+        }
       }
       categoryMap.set(wp.id, categoryStr);
     }
