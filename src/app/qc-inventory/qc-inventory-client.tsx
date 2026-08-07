@@ -41,7 +41,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const [showFilters, setShowFilters] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [colorFilter, setColorFilter] = useState<string>("all");
-  const [stockFilter, setStockFilter] = useState<string>("all");
+  const [stockFilter, setStockFilter] = useState<string>("in_stock");
 
   const uniqueCategories = useMemo(() => {
     const cats = new Set<string>();
