@@ -70,7 +70,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
     } else if (diffMonths >= 3) {
       return "bg-yellow-100/60 hover:bg-yellow-100 transition-colors group text-xs";
     }
-    return "hover:bg-slate-50/80 transition-colors group text-xs";
+    return "bg-green-100/60 hover:bg-green-100 transition-colors group text-xs";
   };
 
   const handleSort = (key: SortKey) => {
