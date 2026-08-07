@@ -26,38 +26,6 @@ import { markProductInspected, updateProductNotes } from "@/app/actions/qc-actio
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
-// Helper component for count-up animation
-function AnimatedCounter({ value }: { value: number }) {
-  const [count, setCount] = useState(0);
-
-  React.useEffect(() => {
-    if (value === 0) {
-      setCount(0);
-      return;
-    }
-    
-    let startTime: number;
-    const duration = 1000; // 1 second
-    
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      
-      // Easing function: easeOutQuart
-      const easeProgress = 1 - Math.pow(1 - progress, 4);
-      setCount(Math.floor(easeProgress * value));
-      
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-    
-    requestAnimationFrame(animate);
-  }, [value]);
-
-  return <span>{count}</span>;
-}
-
 interface QcProduct {
   id: string;
   wooProductId: number;

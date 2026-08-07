@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useMemo, useEffect } from "react";
-import { Bell, CheckCircle2 } from "lucide-react";
+import { Bell } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, isBefore, isToday, startOfDay, differenceInMonths, isValid } from "date-fns";
 import { he } from "date-fns/locale";
@@ -167,7 +167,6 @@ export function NotificationsBell({ scheduleData, bankTasksData, qcPendingCount 
               if (!shown) {
                 new Notification(isTuesday && qcPendingCount > 0 ? '📋 יום בקרת מוצרים' : 'משימות לביצוע', { body });
               }
-              // eslint-disable-next-line react-hooks/set-state-in-effect
               setHasShownPush(true);
             }
           }
