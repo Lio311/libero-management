@@ -22,7 +22,7 @@ import {
   X,
   Loader2,
 } from "lucide-react";
-import { markProductInspected, updateProductNotes } from "@/app/actions/qc-actions";
+import { markProductInspected, updateProductNotes, updateProductPriceStatus } from "@/app/actions/qc-actions";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
@@ -33,6 +33,8 @@ interface QcProduct {
   productSku: string | null;
   productImage: string | null;
   notes: string | null;
+  priceStatus: string | null;
+  priceStatusDate: Date | null;
   createdAt: Date;
   updatedAt: Date;
   inspections: { id: string; inspectedAt: Date; inspectedBy: string | null }[];
@@ -216,6 +218,38 @@ function ProductRow({ product }: { product: QcProduct }) {
           </div>
         </td>
 
+        {/* Price Status */}
+        <td className="py-3 px-4 text-center">
+          <div className="flex flex-col items-center gap-1">
+            <Select
+              value={product.priceStatus || "none"}
+              onValueChange={(val) => {
+                const newStatus = val === "none" ? null : val;
+                startTransition(async () => {
+                  await updateProductPriceStatus(product.id, newStatus);
+                });
+              }}
+              disabled={isPending}
+              dir="rtl"
+            >
+              <SelectTrigger className="w-[140px] mx-auto h-8 text-xs bg-white border-gray-200 focus:ring-0 focus:ring-offset-0">
+                <SelectValue placeholder="בחר סטטוס" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">טרם נבדק</SelectItem>
+                <SelectItem value="בוצע שינוי תמחור">בוצע שינוי תמחור</SelectItem>
+                <SelectItem value="לא בוצע שינוי תמחור">לא בוצע שינוי תמחור</SelectItem>
+                <SelectItem value="המחיר הושאר זהה">המחיר הושאר זהה</SelectItem>
+              </SelectContent>
+            </Select>
+            {product.priceStatusDate && (
+              <span className="text-[10px] text-gray-400">
+                {format(new Date(product.priceStatusDate), "dd/MM/yy HH:mm", { locale: he })}
+              </span>
+            )}
+          </div>
+        </td>
+
         {/* Notes */}
         <td className="py-3 px-4 text-right">
           {isEditingNotes ? (
@@ -313,6 +347,39 @@ function ProductRow({ product }: { product: QcProduct }) {
                 {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : justInspected ? <CheckCircle2 className="w-3 h-3" /> : <ClipboardCheck className="w-3 h-3" />}
                 {justInspected ? "בוצע!" : "בצע בקרה"}
               </button>
+            </div>
+
+            {/* Mobile Price Status */}
+            <div className="px-3 pb-2 pt-2 border-t border-gray-100/50 flex flex-col gap-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] text-gray-500 font-medium">תמחור:</span>
+                <Select
+                  value={product.priceStatus || "none"}
+                  onValueChange={(val) => {
+                    const newStatus = val === "none" ? null : val;
+                    startTransition(async () => {
+                      await updateProductPriceStatus(product.id, newStatus);
+                    });
+                  }}
+                  disabled={isPending}
+                  dir="rtl"
+                >
+                  <SelectTrigger className="w-[140px] h-7 text-[11px] bg-white border-gray-200 focus:ring-0 focus:ring-offset-0">
+                    <SelectValue placeholder="בחר סטטוס" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">טרם נבדק</SelectItem>
+                    <SelectItem value="בוצע שינוי תמחור">בוצע שינוי תמחור</SelectItem>
+                    <SelectItem value="לא בוצע שינוי תמחור">לא בוצע שינוי תמחור</SelectItem>
+                    <SelectItem value="המחיר הושאר זהה">המחיר הושאר זהה</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {product.priceStatusDate && (
+                <div className="text-[10px] text-gray-400 text-left">
+                  עודכן: {format(new Date(product.priceStatusDate), "dd/MM/yy HH:mm", { locale: he })}
+                </div>
+              )}
             </div>
 
             {/* Mobile Notes */}
@@ -664,6 +731,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   <th className="py-3 px-4 font-medium text-center">סטטוס</th>
                   <th className="py-3 px-4 font-medium text-center">בקרה</th>
                   <th className="py-3 px-4 font-medium text-center">תאריך בקרה אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center">תמחור</th>
                   <th className="py-3 px-4 font-medium text-right rounded-tl-md">הערות</th>
                 </tr>
               </thead>
