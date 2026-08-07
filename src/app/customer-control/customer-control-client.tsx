@@ -12,9 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpDown, Search, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { ArrowUpDown, Search } from "lucide-react";
 
 type SortKey = 
   | "totalAllTime" 
@@ -29,33 +27,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("totalLastMonth");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [isFullSyncing, setIsFullSyncing] = useState(false);
-  const router = useRouter();
 
-  const handleSync = async () => {
-    setIsSyncing(true);
-    try {
-      await fetch('/api/sync/wc-data?manual=true&mode=incremental');
-      router.refresh();
-    } catch (error) {
-      console.error('Failed to sync', error);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  const handleFullSync = async () => {
-    setIsFullSyncing(true);
-    try {
-      await fetch('/api/sync/wc-data?manual=true&mode=full');
-      router.refresh();
-    } catch (error) {
-      console.error('Failed to full sync', error);
-    } finally {
-      setIsFullSyncing(false);
-    }
-  };
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat("he-IL", {
@@ -125,24 +97,6 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
         </div>
         
         <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-          <Button 
-            onClick={handleFullSync} 
-            disabled={isFullSyncing || isSyncing}
-            variant="default" 
-            className="w-full md:w-auto"
-          >
-            <RefreshCw className={`mr-2 h-4 w-4 ${isFullSyncing ? "animate-spin" : ""}`} />
-            {isFullSyncing ? "מושך..." : "סנכרון מלא (שנתיים)"}
-          </Button>
-          <Button 
-            onClick={handleSync} 
-            disabled={isSyncing || isFullSyncing}
-            variant="outline" 
-            className="w-full md:w-auto bg-white/50"
-          >
-            <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? "animate-spin" : ""}`} />
-            {isSyncing ? "מסנכרן..." : "סנכרון מהיר (שבוע)"}
-          </Button>
           <div className="relative w-full md:w-72">
             <Search className="absolute right-3 top-2.5 h-4 w-4 text-slate-400" />
             <Input
@@ -162,12 +116,12 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
               <SortHeader label="שם מלא" sortKey="fullName" className="w-[70px]" />
               <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">אימייל</TableHead>
               <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">טלפון</TableHead>
-              <SortHeader label="בית(חודש)" sortKey="homeBrandsLastMonth" />
-              <SortHeader label="בית(שנה)" sortKey="homeBrandsLastYear" />
-              <SortHeader label="בית(הכל)" sortKey="homeBrandsAllTime" />
-              <SortHeader label="קניות(חודש)" sortKey="totalLastMonth" />
-              <SortHeader label="קניות(שנה)" sortKey="totalLastYear" />
-              <SortHeader label="קניות(הכל)" sortKey="totalAllTime" />
+              <SortHeader label="מותגי הבית(חודש)" sortKey="homeBrandsLastMonth" />
+              <SortHeader label="מותגי הבית(שנה)" sortKey="homeBrandsLastYear" />
+              <SortHeader label="מותגי הבית(הכל)" sortKey="homeBrandsAllTime" />
+              <SortHeader label="רכישות באתר(חודש)" sortKey="totalLastMonth" />
+              <SortHeader label="רכישות באתר(שנה)" sortKey="totalLastYear" />
+              <SortHeader label="רכישות באתר(הכל)" sortKey="totalAllTime" />
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -181,8 +135,8 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
               filteredAndSorted.map((customer) => (
                 <TableRow key={customer.id} className="hover:bg-slate-50/80 transition-colors group text-xs">
                   <TableCell className="px-0.5 text-center font-medium text-slate-800 text-[11px] max-w-[70px] truncate" title={customer.fullName}>{customer.fullName}</TableCell>
-                  <TableCell className="px-0.5 text-center text-slate-600 text-[10px] break-words max-w-[100px]">{customer.email}</TableCell>
-                  <TableCell className="px-0.5 text-center text-slate-600 whitespace-nowrap text-[11px]" dir="ltr">{customer.phone}</TableCell>
+                  <TableCell className="px-0.5 text-center text-slate-600 text-[10px] truncate max-w-[80px]" title={customer.email}>{customer.email}</TableCell>
+                  <TableCell className="px-0.5 text-center text-slate-600 text-[11px] truncate max-w-[80px]" dir="ltr" title={customer.phone}>{customer.phone}</TableCell>
                   <TableCell className="px-0.5 text-center font-semibold text-emerald-600 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastMonth)}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastYear)}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsAllTime)}</TableCell>
