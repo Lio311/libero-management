@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, integer, timestamp, date, decimal, serial } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, boolean, integer, timestamp, date, decimal, serial, jsonb } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const categories = pgTable("categories", {
@@ -246,3 +246,26 @@ export const qcInspectionsRelations = relations(qcInspections, ({ one }) => ({
     references: [qcProducts.id],
   }),
 }));
+
+// Cached WooCommerce Data for fast dashboard rendering
+export const wcProducts = pgTable("wc_products", {
+  id: integer("id").primaryKey(),
+  name: text("name").notNull(),
+  sku: text("sku"),
+  price: decimal("price"),
+  stockQuantity: integer("stock_quantity"),
+  dateCreated: timestamp("date_created", { withTimezone: true }),
+  status: varchar("status", { length: 50 }),
+  categories: jsonb("categories"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const wcOrders = pgTable("wc_orders", {
+  id: integer("id").primaryKey(),
+  total: decimal("total"),
+  customerId: integer("customer_id"),
+  dateCreated: timestamp("date_created", { withTimezone: true }),
+  status: varchar("status", { length: 50 }),
+  lineItems: jsonb("line_items"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});

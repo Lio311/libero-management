@@ -49,34 +49,45 @@ export async function GET(request: Request) {
     try {
         console.log('Starting Fast Smart Inventory Analysis for Vercel...');
 
-        // 1. Fetch initial product pages in parallel (up to 15 pages = 1500 items max for speed)
-        const productPromises = Array.from({ length: 10 }, (_, i) =>
-            apiFetch('products', `per_page=100&status=any&_fields=id,name,sku,price,stock_quantity,date_created,categories,status&page=${i + 1}`)
-        );
-
-        // Fetch parallel resources: reports + orders pages
-        const orderPromises = Array.from({ length: 4 }, (_, i) =>
-            apiFetch('orders', `per_page=100&status=processing,completed&_fields=id,total,date_created,line_items,customer_id&page=${i + 1}`)
-        );
-
         const customerReportPromise = apiFetch('reports/customers/totals');
         const salesTrendPromise = apiFetch('reports/sales', `date_min=${new Date(Date.now() - 24 * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}`);
         const couponReportPromise = apiFetch('reports/coupons/totals', 'per_page=10');
 
-        const [productResults, orderResults, customerTotalsVal, salesTrendVal, couponReportVal] = await Promise.all([
-            Promise.all(productPromises),
-            Promise.all(orderPromises),
+        const [customerTotalsVal, salesTrendVal, couponReportVal] = await Promise.all([
             customerReportPromise,
             salesTrendPromise,
             couponReportPromise
         ]);
 
-        const allProducts = productResults.filter(Array.isArray).flat().filter(p => p && p.id);
-        const allOrders = orderResults.filter(Array.isArray).flat().filter(o => o && o.id);
+        const db = (await import('@/lib/db')).db;
+        const { wcProducts, wcOrders } = await import('@/lib/db/schema');
+
+        const allProductsData = await db.select().from(wcProducts);
+        const allOrdersData = await db.select().from(wcOrders);
+
+        // Map them back to the expected format
+        const allProducts = allProductsData.map(p => ({
+            id: p.id,
+            name: p.name,
+            sku: p.sku,
+            price: p.price,
+            stock_quantity: p.stockQuantity,
+            date_created: p.dateCreated,
+            categories: p.categories,
+            status: p.status
+        }));
+
+        const allOrders = allOrdersData.map(o => ({
+            id: o.id,
+            total: o.total,
+            customer_id: o.customerId,
+            date_created: o.dateCreated,
+            status: o.status,
+            line_items: o.lineItems
+        }));
 
         if (allProducts.length === 0) {
-            const errorMsg = lastApiError ? `לא נמצאו מוצרים באתר. פירוט שגיאה: ${lastApiError}` : 'לא נמצאו מוצרים באתר';
-            return NextResponse.json({ error: errorMsg }, { status: 500 });
+            return NextResponse.json({ error: 'לא נמצאו מוצרים באתר. יש להריץ סנכרון ראשוני.' }, { status: 500 });
         }
 
         // 2. Process KPIs

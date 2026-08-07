@@ -145,7 +145,7 @@ function ProductRow({ product }: { product: QcProduct }) {
             <div className="min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">{product.productName}</p>
               {product.productSku && (
-                <p className="text-[11px] text-gray-400">SKU: {product.productSku}</p>
+                <p className="text-[11px] text-gray-400">מק״ט: {product.productSku}</p>
               )}
             </div>
           </div>
@@ -272,7 +272,7 @@ function ProductRow({ product }: { product: QcProduct }) {
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">{product.productName}</p>
-                {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">SKU: {product.productSku}</p>}
+                {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
                 <div className="mt-1.5">{getStatusBadge(status)}</div>
               </div>
             </div>
@@ -578,7 +578,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   <SelectValue placeholder="בחר מיון" />
                 </SelectTrigger>
                 <SelectContent align="end">
-                  <SelectItem value="default">מיון: ברירת מחדל</SelectItem>
+                  <SelectItem value="default">ברירת מחדל</SelectItem>
                   <SelectItem value="last_inspection_asc">תאריך בקרה: ישן ← חדש</SelectItem>
                   <SelectItem value="last_inspection_desc">תאריך בקרה: חדש ← ישן</SelectItem>
                   <SelectItem value="name_asc">שם: א ← ת</SelectItem>
@@ -618,7 +618,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   <SelectValue placeholder="בחר מיון" />
                 </SelectTrigger>
                 <SelectContent align="center" className="w-[calc(100vw-3rem)]">
-                  <SelectItem value="default">מיון: ברירת מחדל</SelectItem>
+                  <SelectItem value="default">ברירת מחדל</SelectItem>
                   <SelectItem value="last_inspection_asc">תאריך בקרה: ישן ← חדש</SelectItem>
                   <SelectItem value="last_inspection_desc">תאריך בקרה: חדש ← ישן</SelectItem>
                   <SelectItem value="name_asc">שם: א ← ת</SelectItem>
