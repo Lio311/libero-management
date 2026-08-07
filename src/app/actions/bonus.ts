@@ -112,7 +112,7 @@ export async function getBonusEmployees() {
 
         // If no employees exist yet, seed standard team employees
         if (data.length === 0) {
-            const defaultNames = ["ליאור", "רותי", "ישראל", "עודד", "עמית"];
+            const defaultNames = ["יוליה", "אבישי", "אריאל"];
             for (const name of defaultNames) {
                 await db.insert(bonusEmployees).values({
                     username: name.toLowerCase().replace(/\s+/g, '_'),
