@@ -33,21 +33,23 @@ export async function getQcProducts() {
   try {
     const products = await db.select().from(qcProducts).orderBy(qcProducts.productName);
     
-    const productsWithInspections = await Promise.all(
-      products.map(async (product) => {
-        const inspections = await db
-          .select()
-          .from(qcInspections)
-          .where(eq(qcInspections.productId, product.id))
-          .orderBy(desc(qcInspections.inspectedAt));
-        
-        return {
-          ...product,
-          inspections,
-          lastInspection: inspections.length > 0 ? inspections[0].inspectedAt : null,
-        };
-      })
-    );
+    const allInspections = await db.select().from(qcInspections).orderBy(desc(qcInspections.inspectedAt));
+    const inspectionsByProduct = new Map<string, typeof allInspections>();
+    
+    for (const insp of allInspections) {
+      const arr = inspectionsByProduct.get(insp.productId) || [];
+      arr.push(insp);
+      inspectionsByProduct.set(insp.productId, arr);
+    }
+    
+    const productsWithInspections = products.map((product) => {
+      const inspections = inspectionsByProduct.get(product.id) || [];
+      return {
+        ...product,
+        inspections,
+        lastInspection: inspections.length > 0 ? inspections[0].inspectedAt : null,
+      };
+    });
     
     return productsWithInspections;
   } catch (error: any) {
@@ -66,17 +68,22 @@ export async function getQcStats() {
     let needsReinspectionCount = 0;
     let neverInspectedCount = 0;
     
+    const allInspections = await db.select().from(qcInspections);
+    const latestInspections = new Map<string, Date>();
+    
+    for (const insp of allInspections) {
+      const current = latestInspections.get(insp.productId);
+      if (!current || insp.inspectedAt > current) {
+        latestInspections.set(insp.productId, insp.inspectedAt);
+      }
+    }
+    
     for (const product of products) {
-      const inspections = await db
-        .select()
-        .from(qcInspections)
-        .where(eq(qcInspections.productId, product.id))
-        .orderBy(desc(qcInspections.inspectedAt))
-        .limit(1);
+      const latest = latestInspections.get(product.id);
       
-      if (inspections.length === 0) {
+      if (!latest) {
         neverInspectedCount++;
-      } else if (inspections[0].inspectedAt < threeMonthsAgo) {
+      } else if (latest < threeMonthsAgo) {
         needsReinspectionCount++;
       } else {
         inspectedCount++;
