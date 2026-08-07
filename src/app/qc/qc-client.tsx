@@ -467,6 +467,14 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
     { key: "inspected", label: "תקינים", count: stats.inspected },
   ];
 
+  const sortLabels: Record<SortMode, string> = {
+    default: "ברירת מחדל",
+    last_inspection_asc: "תאריך בקרה: ישן ← חדש",
+    last_inspection_desc: "תאריך בקרה: חדש ← ישן",
+    name_asc: "שם: א ← ת",
+    name_desc: "שם: ת ← א",
+  };
+
   return (
     <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen" dir="rtl">
       {/* Header */}
@@ -587,11 +595,13 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
             {/* Sort (Desktop) */}
             <div className="hidden md:flex items-center gap-2">
-              <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+              <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)} dir="rtl">
                 <SelectTrigger className="w-[200px] h-10 border-gray-200 bg-white">
-                  <SelectValue placeholder="בחר מיון" />
+                  <SelectValue placeholder="בחר מיון">
+                    {sortLabels[sortMode]}
+                  </SelectValue>
                 </SelectTrigger>
-                <SelectContent align="end">
+                <SelectContent align="end" position="popper">
                   <SelectItem value="default">ברירת מחדל</SelectItem>
                   <SelectItem value="last_inspection_asc">תאריך בקרה: ישן ← חדש</SelectItem>
                   <SelectItem value="last_inspection_desc">תאריך בקרה: חדש ← ישן</SelectItem>
@@ -627,11 +637,13 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
             {/* Mobile Sort */}
             <div className="md:hidden">
-              <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+              <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)} dir="rtl">
                 <SelectTrigger className="w-full h-10 border-gray-200 bg-white">
-                  <SelectValue placeholder="בחר מיון" />
+                  <SelectValue placeholder="בחר מיון">
+                    {sortLabels[sortMode]}
+                  </SelectValue>
                 </SelectTrigger>
-                <SelectContent align="center" className="w-[calc(100vw-3rem)]">
+                <SelectContent align="center" className="w-[calc(100vw-3rem)]" position="popper">
                   <SelectItem value="default">ברירת מחדל</SelectItem>
                   <SelectItem value="last_inspection_asc">תאריך בקרה: ישן ← חדש</SelectItem>
                   <SelectItem value="last_inspection_desc">תאריך בקרה: חדש ← ישן</SelectItem>
