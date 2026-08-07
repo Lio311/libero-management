@@ -20,6 +20,7 @@ import { updateInfluencer, updateInfluencerPayment, createInfluencer, deleteInfl
 import { Check, X, Edit2, ChevronRight, ChevronLeft, Trash2, Plus, Loader2 } from "lucide-react";
 import { influencersConfig } from '@/config/influencers';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface MarketingClientProps {
   activeInfluencers: number;
@@ -98,17 +99,39 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שם</span><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-sm text-gray-500">מותג</span>
-          <Select value={data.brand} onValueChange={val => setData({...data, brand: val})}>
-            <SelectTrigger dir="rtl" className="w-full p-1 border rounded text-sm text-right bg-white h-auto py-[0.4rem]">
-              <SelectValue placeholder="בחר מותג" />
-            </SelectTrigger>
-            <SelectContent align="end" side="bottom">
-              <SelectItem value="">בחר מותג</SelectItem>
-              {uniqueBrands?.map((b) => (
-                <SelectItem key={b} value={b}>{b}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger dir="rtl" className="w-full p-1 border rounded text-sm text-right bg-white h-auto py-[0.4rem] min-h-[34px] flex items-center justify-between text-muted-foreground hover:bg-gray-50 truncate">
+              <span className="truncate">{data.brand || 'בחר מותג'}</span>
+            </PopoverTrigger>
+            <PopoverContent align="end" side="bottom" className="w-56 max-h-64 overflow-y-auto p-1" dir="rtl">
+              <div className="flex flex-col gap-1">
+                {uniqueBrands?.map((b) => {
+                  const currentBrands = data.brand ? data.brand.split(',').map((br: string) => br.trim()).filter(Boolean) : [];
+                  const isSelected = currentBrands.includes(b);
+                  return (
+                    <label key={b} className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded cursor-pointer text-sm">
+                      <input 
+                        type="checkbox" 
+                        checked={isSelected}
+                        onChange={() => {
+                          if (isSelected) {
+                            setData({ ...data, brand: currentBrands.filter((br: string) => br !== b).join(', ') });
+                          } else {
+                            setData({ ...data, brand: [...currentBrands, b].join(', ') });
+                          }
+                        }}
+                        className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
+                      />
+                      <span className="truncate">{b}</span>
+                    </label>
+                  );
+                })}
+                {(!uniqueBrands || uniqueBrands.length === 0) && (
+                  <div className="p-2 text-sm text-muted-foreground text-center">אין מותגים</div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
         </td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">בתשלום?</span><input className="w-full p-1 border rounded text-sm text-right" value={data.isPaid} onChange={e => setData({...data, isPaid: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" value={data.baseSalary} onChange={e => setData({...data, baseSalary: e.target.value})} /></td>
