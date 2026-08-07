@@ -4,6 +4,13 @@ import { Camera, Upload, ArrowRight, Loader2, CheckCircle2, Clock, UserPlus, Plu
 import { useBonus } from '@/hooks/useBonus';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 export default function AddBonusPage() {
     const router = useRouter();
@@ -133,28 +140,31 @@ export default function AddBonusPage() {
                                     <span>+ הוסף עובד חדש</span>
                                 </button>
                             </div>
-                            <select
-                                value={selectedEmployeeId || ''}
-                                onChange={(e) => {
-                                    if (e.target.value === 'ADD_NEW') {
+                            <Select
+                                value={selectedEmployeeId ? selectedEmployeeId.toString() : ''}
+                                onValueChange={(value) => {
+                                    if (value === 'ADD_NEW') {
                                         setIsAddingEmployee(true);
                                     } else {
-                                        setSelectedEmployeeId(Number(e.target.value));
+                                        setSelectedEmployeeId(Number(value));
                                     }
                                 }}
-                                className="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-lg font-medium"
                                 required
                             >
-                                <option value="" disabled>בחר עובד</option>
-                                {employees.map((emp) => (
-                                    <option key={emp.id} value={emp.id}>
-                                        {emp.full_name}
-                                    </option>
-                                ))}
-                                <option value="ADD_NEW" className="font-bold text-blue-600">
-                                    + הוסף עובד חדש למערכת...
-                                </option>
-                            </select>
+                                <SelectTrigger className="w-full h-auto px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-lg font-medium [&>svg]:text-slate-400 [&>svg]:size-5 [&>span]:w-full [&>span]:text-start">
+                                    <SelectValue placeholder="בחר עובד" />
+                                </SelectTrigger>
+                                <SelectContent alignItemWithTrigger={false} side="bottom" align="center">
+                                    {employees.map((emp) => (
+                                        <SelectItem key={emp.id} value={emp.id.toString()}>
+                                            {emp.full_name}
+                                        </SelectItem>
+                                    ))}
+                                    <SelectItem value="ADD_NEW" className="font-bold text-blue-600">
+                                        + הוסף עובד חדש למערכת...
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
                         {/* Add Employee Modal */}

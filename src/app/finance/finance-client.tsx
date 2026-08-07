@@ -11,6 +11,7 @@ import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend, ResponsiveCont
 import { updateImportPayment, createImportPayment, deleteImportPayment, createChinaOrder, updateChinaOrder, deleteChinaOrder } from "@/app/actions/finance";
 import { Trash2, Plus } from "lucide-react";
 import { Check, X, Edit2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CreditCardData {
   id: string;
@@ -435,12 +436,16 @@ function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payme
         <div className="flex flex-col gap-3">
           <div>
             <span className="text-[11px] text-gray-500 font-medium mb-1 block">מותג</span>
-            <select name="brand" value={formData.brand} onChange={handleChange} autoFocus className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-right outline-none transition-all" dir="rtl">
-              <option value="">בחר מותג</option>
-              {uniqueBrands.map(b => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
+            <Select value={formData.brand} onValueChange={(value) => handleChange({ target: { name: 'brand', value } } as any)}>
+              <SelectTrigger className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-right outline-none transition-all" dir="rtl">
+                <SelectValue placeholder="בחר מותג" />
+              </SelectTrigger>
+              <SelectContent align="end">
+                {uniqueBrands.map(b => (
+                  <SelectItem key={b} value={b}>{b}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -473,12 +478,16 @@ function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payme
       
       {/* Desktop Edit View */}
       <td className="hidden md:table-cell p-2 align-middle">
-        <select name="brand" value={formData.brand} onChange={handleChange} autoFocus className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-right outline-none" dir="rtl">
-          <option value="">בחר מותג</option>
-          {uniqueBrands.map(b => (
-            <option key={b} value={b}>{b}</option>
-          ))}
-        </select>
+        <Select value={formData.brand} onValueChange={(value) => handleChange({ target: { name: 'brand', value } } as any)}>
+          <SelectTrigger className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-right outline-none" dir="rtl">
+            <SelectValue placeholder="בחר מותג" />
+          </SelectTrigger>
+          <SelectContent align="end">
+            {uniqueBrands.map(b => (
+              <SelectItem key={b} value={b}>{b}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </td>
       <td className="hidden md:table-cell p-2 align-middle">
         <input type="number" name="orderAmountForeign" value={formData.orderAmountForeign} onChange={handleChange} className="w-full p-1.5 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-md text-sm text-left outline-none" dir="ltr" />

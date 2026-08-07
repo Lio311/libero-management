@@ -16,6 +16,13 @@ import {
     X,
     Image as ImageIcon
 } from 'lucide-react';
+import { 
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue
+} from "@/components/ui/select";
 import { useBonus } from '@/hooks/useBonus';
 import type { Bonus, BonusEmployee } from '@/hooks/useBonus';
 import { format } from 'date-fns';
@@ -218,16 +225,17 @@ export default function AdminBonusPage() {
                         </div>
                         <div className="flex items-center gap-2">
                             <Filter size={18} className="text-slate-400" />
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none"
-                            >
-                                <option value="all">כל הסטטוסים</option>
-                                <option value="pending">ממתין לאישור</option>
-                                <option value="approved">ממתין לתשלום</option>
-                                <option value="paid">שולם</option>
-                            </select>
+                            <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || 'all')}>
+                                <SelectTrigger className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none min-w-[140px]">
+                                    <SelectValue placeholder="כל הסטטוסים" />
+                                </SelectTrigger>
+                                <SelectContent align="end">
+                                    <SelectItem value="all">כל הסטטוסים</SelectItem>
+                                    <SelectItem value="pending">ממתין לאישור</SelectItem>
+                                    <SelectItem value="approved">ממתין לתשלום</SelectItem>
+                                    <SelectItem value="paid">שולם</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
 
@@ -268,20 +276,26 @@ export default function AdminBonusPage() {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center justify-center gap-4">
-                                                    <select
+                                                    <Select
                                                         value={bonus.status}
-                                                        onChange={(e) => updateBonus(bonus.id, { status: e.target.value as Bonus['status'] })}
-                                                        className={clsx(
-                                                            "border text-sm font-semibold rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none w-32 cursor-pointer transition-colors text-center shadow-sm",
-                                                            bonus.status === 'pending' ? "bg-amber-50 border-amber-200 text-amber-700 font-bold" :
-                                                            bonus.status === 'approved' ? "bg-emerald-50 border-emerald-200 text-emerald-700 font-bold" :
-                                                            "bg-blue-50 border-blue-200 text-blue-700 font-bold"
-                                                        )}
+                                                        onValueChange={(val) => updateBonus(bonus.id, { status: val as Bonus['status'] })}
                                                     >
-                                                        <option value="pending">ממתין לאישור</option>
-                                                        <option value="approved">ממתין לתשלום</option>
-                                                        <option value="paid">שולם</option>
-                                                    </select>
+                                                        <SelectTrigger
+                                                            className={clsx(
+                                                                "border text-sm font-semibold rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none w-32 cursor-pointer transition-colors text-center shadow-sm",
+                                                                bonus.status === 'pending' ? "bg-amber-50 border-amber-200 text-amber-700 font-bold" :
+                                                                bonus.status === 'approved' ? "bg-emerald-50 border-emerald-200 text-emerald-700 font-bold" :
+                                                                "bg-blue-50 border-blue-200 text-blue-700 font-bold"
+                                                            )}
+                                                        >
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent align="center">
+                                                            <SelectItem value="pending">ממתין לאישור</SelectItem>
+                                                            <SelectItem value="approved">ממתין לתשלום</SelectItem>
+                                                            <SelectItem value="paid">שולם</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
                                                     
                                                     <div className="flex items-center gap-1 border-r border-slate-100 pr-4">
                                                         <button
@@ -336,20 +350,26 @@ export default function AdminBonusPage() {
                                             </a>
                                         )}
                                         <div className="flex items-center gap-2 flex-1">
-                                            <select
+                                            <Select
                                                 value={bonus.status}
-                                                onChange={(e) => updateBonus(bonus.id, { status: e.target.value as Bonus['status'] })}
-                                                className={clsx(
-                                                    "border text-sm font-semibold rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer transition-colors w-full",
-                                                    bonus.status === 'pending' ? "bg-amber-50 border-amber-200 text-amber-700" :
-                                                    bonus.status === 'approved' ? "bg-emerald-50 border-emerald-200 text-emerald-700" :
-                                                    "bg-blue-50 border-blue-200 text-blue-700"
-                                                )}
+                                                onValueChange={(val) => updateBonus(bonus.id, { status: val as Bonus['status'] })}
                                             >
-                                                <option value="pending">ממתין לאישור</option>
-                                                <option value="approved">ממתין לתשלום</option>
-                                                <option value="paid">שולם</option>
-                                            </select>
+                                                <SelectTrigger
+                                                    className={clsx(
+                                                        "border text-sm font-semibold rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer transition-colors w-full",
+                                                        bonus.status === 'pending' ? "bg-amber-50 border-amber-200 text-amber-700" :
+                                                        bonus.status === 'approved' ? "bg-emerald-50 border-emerald-200 text-emerald-700" :
+                                                        "bg-blue-50 border-blue-200 text-blue-700"
+                                                    )}
+                                                >
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent align="center">
+                                                    <SelectItem value="pending">ממתין לאישור</SelectItem>
+                                                    <SelectItem value="approved">ממתין לתשלום</SelectItem>
+                                                    <SelectItem value="paid">שולם</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <button

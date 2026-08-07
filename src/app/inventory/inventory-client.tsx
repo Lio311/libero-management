@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { addInventoryItem, updateInventoryItem, deleteInventoryItem, updateSupplier, deleteSupplier } from "./actions";
 import { AnimatePresence, motion } from "framer-motion";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 interface InventoryClientProps {
   totalInventoryValue: number;
@@ -90,45 +91,54 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
             <div className="bg-white rounded-lg shadow-sm border p-4 mb-4 space-y-3">
               <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-500">מותג</span>
-                <select
-                  className="w-full text-right p-2 border rounded-md"
+                <Select
                   value={data.brandName}
-                  onChange={(e) => setData({ ...data, brandName: e.target.value })}
-                  dir="rtl"
+                  onValueChange={(value) => setData({ ...data, brandName: value })}
                 >
-                  <option value="">בחר מותג</option>
-                  {uniqueBrands.map(b => (
-                    <option key={b} value={b}>{b}</option>
-                  ))}
-                </select>
+                  <SelectTrigger dir="rtl" className="w-full text-right p-2 border rounded-md">
+                    <SelectValue placeholder="בחר מותג" />
+                  </SelectTrigger>
+                  <SelectContent alignItemWithTrigger={false} align="end">
+                    <SelectItem value="">בחר מותג</SelectItem>
+                    {uniqueBrands.map(b => (
+                      <SelectItem key={b} value={b}>{b}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-500">סטטוס מלאי</span>
-                <select
-                  className="w-full text-right p-2 border rounded-md"
+                <Select
                   value={data.inventoryStatus}
-                  onChange={(e) => setData({ ...data, inventoryStatus: e.target.value })}
-                  dir="rtl"
+                  onValueChange={(value) => setData({ ...data, inventoryStatus: value })}
                 >
-                  <option value="">-</option>
-                  <option value="יש מלאי">יש מלאי</option>
-                  <option value="מלאי חלקי">מלאי חלקי</option>
-                  <option value="אין מלאי">אין מלאי</option>
-                </select>
+                  <SelectTrigger dir="rtl" className="w-full text-right p-2 border rounded-md">
+                    <SelectValue placeholder="-" />
+                  </SelectTrigger>
+                  <SelectContent alignItemWithTrigger={false} align="end">
+                    <SelectItem value="">-</SelectItem>
+                    <SelectItem value="יש מלאי">יש מלאי</SelectItem>
+                    <SelectItem value="מלאי חלקי">מלאי חלקי</SelectItem>
+                    <SelectItem value="אין מלאי">אין מלאי</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-500">סטטוס חשבון</span>
-                <select
-                  className="w-full text-right p-2 border rounded-md"
+                <Select
                   value={data.planningStatus}
-                  onChange={(e) => setData({ ...data, planningStatus: e.target.value })}
-                  dir="rtl"
+                  onValueChange={(value) => setData({ ...data, planningStatus: value })}
                 >
-                  <option value="">-</option>
-                  <option value="שולם">שולם</option>
-                  <option value="ממתין לחשבונית">ממתין לחשבונית</option>
-                  <option value="טרם שולם">טרם שולם</option>
-                </select>
+                  <SelectTrigger dir="rtl" className="w-full text-right p-2 border rounded-md">
+                    <SelectValue placeholder="-" />
+                  </SelectTrigger>
+                  <SelectContent alignItemWithTrigger={false} align="end">
+                    <SelectItem value="">-</SelectItem>
+                    <SelectItem value="שולם">שולם</SelectItem>
+                    <SelectItem value="ממתין לחשבונית">ממתין לחשבונית</SelectItem>
+                    <SelectItem value="טרם שולם">טרם שולם</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1">
                 <span className="text-sm font-medium text-gray-500">סטטוס קשר</span>
@@ -164,43 +174,52 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
         {/* Desktop View */}
         <tr className="hidden md:table-row hover:bg-gray-50/50 transition-colors">
           <td className="py-2 px-4">
-            <select
-              className="w-full text-right p-1.5 border rounded"
+            <Select
               value={data.brandName}
-              onChange={(e) => setData({ ...data, brandName: e.target.value })}
-              dir="rtl"
+              onValueChange={(value) => setData({ ...data, brandName: value })}
             >
-              <option value="">בחר מותג</option>
-              {uniqueBrands.map(b => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
+              <SelectTrigger dir="rtl" className="w-full text-right p-1.5 border rounded">
+                <SelectValue placeholder="בחר מותג" />
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false} align="end">
+                <SelectItem value="">בחר מותג</SelectItem>
+                {uniqueBrands.map(b => (
+                  <SelectItem key={b} value={b}>{b}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </td>
           <td className="py-2 px-4">
-            <select
-              className="w-full text-right p-1.5 border rounded"
+            <Select
               value={data.inventoryStatus}
-              onChange={(e) => setData({ ...data, inventoryStatus: e.target.value })}
-              dir="rtl"
+              onValueChange={(value) => setData({ ...data, inventoryStatus: value })}
             >
-              <option value="">-</option>
-              <option value="יש מלאי">יש מלאי</option>
-              <option value="מלאי חלקי">מלאי חלקי</option>
-              <option value="אין מלאי">אין מלאי</option>
-            </select>
+              <SelectTrigger dir="rtl" className="w-full text-right p-1.5 border rounded">
+                <SelectValue placeholder="-" />
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false} align="end">
+                <SelectItem value="">-</SelectItem>
+                <SelectItem value="יש מלאי">יש מלאי</SelectItem>
+                <SelectItem value="מלאי חלקי">מלאי חלקי</SelectItem>
+                <SelectItem value="אין מלאי">אין מלאי</SelectItem>
+              </SelectContent>
+            </Select>
           </td>
           <td className="py-2 px-4">
-            <select
-              className="w-full text-right p-1.5 border rounded"
+            <Select
               value={data.planningStatus}
-              onChange={(e) => setData({ ...data, planningStatus: e.target.value })}
-              dir="rtl"
+              onValueChange={(value) => setData({ ...data, planningStatus: value })}
             >
-              <option value="">-</option>
-              <option value="שולם">שולם</option>
-              <option value="ממתין לחשבונית">ממתין לחשבונית</option>
-              <option value="טרם שולם">טרם שולם</option>
-            </select>
+              <SelectTrigger dir="rtl" className="w-full text-right p-1.5 border rounded">
+                <SelectValue placeholder="-" />
+              </SelectTrigger>
+              <SelectContent alignItemWithTrigger={false} align="end">
+                <SelectItem value="">-</SelectItem>
+                <SelectItem value="שולם">שולם</SelectItem>
+                <SelectItem value="ממתין לחשבונית">ממתין לחשבונית</SelectItem>
+                <SelectItem value="טרם שולם">טרם שולם</SelectItem>
+              </SelectContent>
+            </Select>
           </td>
           <td className="py-2 px-4">
             <input
@@ -893,18 +912,21 @@ export default function InventoryClient({
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">מותג / קטגוריה</label>
-                      <select
+                      <Select
                         required
                         value={formData.brand}
-                        onChange={e => setFormData({...formData, brand: e.target.value})}
-                        className="w-full px-3 py-2 border rounded-md bg-white"
-                        dir="rtl"
+                        onValueChange={value => setFormData({...formData, brand: value || ''})}
                       >
-                        <option value="">בחר מותג</option>
-                        {uniqueBrands.map((b, i) => (
-                          <option key={i} value={b as string}>{b as string}</option>
-                        ))}
-                      </select>
+                        <SelectTrigger dir="rtl" className="w-full px-3 py-2 border rounded-md bg-white">
+                          <SelectValue placeholder="בחר מותג" />
+                        </SelectTrigger>
+                        <SelectContent alignItemWithTrigger={false} align="end">
+                          <SelectItem value="">בחר מותג</SelectItem>
+                          {uniqueBrands.map((b, i) => (
+                            <SelectItem key={i} value={b as string}>{b as string}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   

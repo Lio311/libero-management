@@ -9,6 +9,7 @@ import { Plus, Search, CheckCircle2, Circle, Clock, Check, Edit2, X, Trash2, Lay
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { updateBankOfTaskAction, createBankOfTaskAction, deleteBankOfTaskAction } from "../actions/bankOfTasks";
 import { isValid, isBefore, startOfDay, format } from 'date-fns';
 import { he } from "date-fns/locale";
@@ -471,15 +472,19 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                       <td className="px-2 py-1 md:px-6 md:py-4 flex justify-between items-center md:table-cell">
                         <span className="md:hidden font-medium text-sm text-gray-500">סטטוס ביצוע</span>
                         {isEditing ? (
-                          <select 
+                          <Select 
                             value={editForm.status || "לא התחיל"}
-                            onChange={(e) => handleEditChange("status", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-center"
+                            onValueChange={(value) => handleEditChange("status", value)}
                           >
-                            <option value="בוצע">בוצע</option>
-                            <option value="בתהליך">בתהליך</option>
-                            <option value="לא התחיל">לא התחיל</option>
-                          </select>
+                            <SelectTrigger className="w-full p-2 border border-border rounded-md text-sm bg-background text-center">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent align="center">
+                              <SelectItem value="בוצע">בוצע</SelectItem>
+                              <SelectItem value="בתהליך">בתהליך</SelectItem>
+                              <SelectItem value="לא התחיל">לא התחיל</SelectItem>
+                            </SelectContent>
+                          </Select>
                         ) : (
                           <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium ${getStatusBadge(task.status)}`}>
                             {getStatusIcon(task.status)}
