@@ -96,7 +96,7 @@ export async function GET(request: Request) {
         const uniqueCustomers = new Set();
 
         allOrders.forEach(order => {
-            totalSales += parseFloat(order.total || 0);
+            totalSales += parseFloat(order.total || "0");
             if (order.customer_id && order.customer_id > 0) {
                 uniqueCustomers.add(order.customer_id);
             }
@@ -134,11 +134,12 @@ export async function GET(request: Request) {
         const now = new Date();
         const analyzedProducts = allProducts.map(p => {
             const sales = salesMap[p.id] || { quantity: 0, total: 0 };
-            const calculatedAge = Math.floor((now.getTime() - new Date(p.date_created).getTime()) / (1000 * 60 * 60 * 24)) || 1;
+            const stockQuantity = p.stock_quantity ?? 0;
+            const calculatedAge = Math.floor((now.getTime() - new Date(p.date_created || now).getTime()) / (1000 * 60 * 60 * 24)) || 1;
             const velocityAgeDays = Math.min(calculatedAge, 90);
 
             const salesVelocity = sales.quantity / (velocityAgeDays > 30 ? (velocityAgeDays / 30) : 1);
-            const dos = salesVelocity > 0 ? (p.stock_quantity || 0) / (salesVelocity / 30) : (p.stock_quantity > 0 ? 9999 : 0);
+            const dos = salesVelocity > 0 ? stockQuantity / (salesVelocity / 30) : (stockQuantity > 0 ? 9999 : 0);
 
             const categoryName = (Array.isArray(p.categories) && p.categories[0]) ? p.categories[0].name : 'אחר';
 
@@ -146,8 +147,8 @@ export async function GET(request: Request) {
                 id: p.id,
                 name: p.name,
                 sku: p.sku || '',
-                price: parseFloat(p.price) || 0,
-                stock: p.stock_quantity || 0,
+                price: parseFloat(p.price || "0") || 0,
+                stock: stockQuantity,
                 date_created: p.date_created,
                 age_days: calculatedAge,
                 total_sales_qty: Math.round(sales.quantity * (calculatedAge / velocityAgeDays)),
@@ -174,9 +175,9 @@ export async function GET(request: Request) {
                 trendMap[monthStr] = 0;
             }
             allOrders.forEach(o => {
-                const month = (o.date_created || '').substring(0, 7);
+                const month = o.date_created ? o.date_created.toISOString().substring(0, 7) : '';
                 if (trendMap[month] !== undefined) {
-                    trendMap[month] += parseFloat(o.total || 0);
+                    trendMap[month] += parseFloat(o.total || "0");
                 }
             });
             finalSalesTrend = Object.entries(trendMap)
