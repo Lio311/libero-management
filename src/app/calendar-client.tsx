@@ -563,7 +563,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
   // But we can add them to localTasks if needed. For now we just use the monthly schedule.
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] selection:bg-[#0071E3]/30 font-sans pb-20 md:pb-0 page-animate">
+    <div dir="rtl" className="h-[100dvh] overflow-hidden flex flex-col bg-[#F5F5F7] text-[#1D1D1F] selection:bg-[#0071E3]/30 font-sans pb-20 md:pb-0 page-animate">
       {/* Premium Header */}
       <header className="sticky top-0 z-40 glass-panel border-b border-white/20 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -585,10 +585,10 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-4 md:p-8">
+      <main className="max-w-7xl w-full mx-auto p-2 md:p-6 flex-1 flex flex-col min-h-0">
         {/* Month Navigation */}
-        <div className="flex items-center justify-between mb-8 mt-4">
-          <h2 className="text-3xl md:text-5xl font-light flex gap-3 items-baseline text-gray-900">
+        <div className="flex items-center justify-between mb-4 shrink-0">
+          <h2 className="text-2xl md:text-4xl font-light flex gap-3 items-baseline text-gray-900">
             {format(currentDate, 'MMMM', { locale: he })} <span className="text-gray-400 font-serif italic text-2xl md:text-4xl">{format(currentDate, 'yyyy')}</span>
           </h2>
           <div className="flex gap-2">
@@ -602,9 +602,9 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         </div>
 
         {/* Calendar Grid */}
-        <div className="glass-panel rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-white/40">
+        <div className="glass-panel rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-white/40 flex-1 flex flex-col min-h-0">
           {/* Days of week */}
-          <div className="grid grid-cols-7 border-b border-gray-200/50 bg-white/30">
+          <div className="grid grid-cols-7 border-b border-gray-200/50 bg-white/30 shrink-0">
             {weekDays.map(day => (
               <div key={day} className="py-4 text-center text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
                 {day}
@@ -613,7 +613,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
           </div>
 
           {/* Days grid */}
-          <div className="grid grid-cols-7 auto-rows-fr">
+          <div className="grid grid-cols-7 auto-rows-fr flex-1 min-h-0">
             {days.map((day, dayIdx) => {
               const dateKey = format(day, 'yyyy-MM-dd');
               const dayTasks = localTasks[dateKey] || [];
@@ -661,7 +661,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                       await updateBankOfTaskAction(taskToMove.dbId, { dueDate: format(targetDay, 'dd.MM.yyyy') });
                     }
                   }}
-                  className={`h-[85px] md:h-[110px] p-1.5 md:p-2 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer overflow-hidden flex flex-col
+                  className={`p-1.5 md:p-2 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer overflow-hidden flex flex-col min-h-0
                     ${!isCurrentMonth ? 'bg-transparent opacity-60' : 'bg-transparent'}
                     ${dayIdx % 7 === 6 ? 'border-l-0' : ''}
                   `}
