@@ -57,6 +57,22 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
     }).format(date);
   };
 
+  const getRowColorClass = (date: Date | null) => {
+    if (!date) return "hover:bg-slate-50/80 transition-colors group text-xs";
+    const now = new Date();
+    const diffTime = now.getTime() - date.getTime();
+    const diffMonths = diffTime / (1000 * 60 * 60 * 24 * 30.44);
+    
+    if (diffMonths >= 9) {
+      return "bg-red-100/60 hover:bg-red-100 transition-colors group text-xs";
+    } else if (diffMonths >= 6) {
+      return "bg-orange-100/60 hover:bg-orange-100 transition-colors group text-xs";
+    } else if (diffMonths >= 3) {
+      return "bg-yellow-100/60 hover:bg-yellow-100 transition-colors group text-xs";
+    }
+    return "hover:bg-slate-50/80 transition-colors group text-xs";
+  };
+
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -212,7 +228,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
               </TableRow>
             ) : (
               paginatedData.map((customer) => (
-                <TableRow key={customer.id} className="hover:bg-slate-50/80 transition-colors group text-xs">
+                <TableRow key={customer.id} className={getRowColorClass(customer.lastPurchaseDate)}>
                   <TableCell className="px-0.5 text-center font-medium text-slate-800 text-[11px] max-w-[70px] truncate" title={customer.fullName}>{customer.fullName}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-600 text-[10px] truncate max-w-[80px]" title={customer.email}>{customer.email}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-600 text-[11px] truncate max-w-[80px]" dir="ltr" title={customer.phone}>{customer.phone}</TableCell>
