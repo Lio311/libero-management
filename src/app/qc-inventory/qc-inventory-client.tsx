@@ -41,6 +41,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const [showFilters, setShowFilters] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [colorFilter, setColorFilter] = useState<string>("all");
+  const [stockFilter, setStockFilter] = useState<string>("all");
 
   const uniqueCategories = useMemo(() => {
     const cats = new Set<string>();
@@ -88,6 +89,12 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     
     if (colorFilter !== "all") {
       result = result.filter(p => getAgeCategory(p.ageDays).category === colorFilter);
+    }
+
+    if (stockFilter === "in_stock") {
+      result = result.filter(p => p.currentStock > 0);
+    } else if (stockFilter === "out_of_stock") {
+      result = result.filter(p => p.currentStock <= 0);
     }
 
     result.sort((a, b) => {
@@ -160,6 +167,17 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             </button>
 
             <div className="hidden md:flex items-center gap-2">
+              <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "all")}>
+                <SelectTrigger className="w-[140px] h-10 border-gray-200 bg-white text-right" dir="rtl">
+                  <SelectValue placeholder="מצב מלאי" />
+                </SelectTrigger>
+                <SelectContent align="end" dir="rtl">
+                  <SelectItem value="all">כל המלאי</SelectItem>
+                  <SelectItem value="in_stock">במלאי</SelectItem>
+                  <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
                 <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
                   <SelectValue placeholder="כל הקטגוריות" />
@@ -199,6 +217,17 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           </div>
 
           <div className={`mt-3 space-y-3 ${showFilters ? "block" : "hidden md:hidden"}`}>
+            <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "all")}>
+              <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
+                <SelectValue placeholder="מצב מלאי" />
+              </SelectTrigger>
+              <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
+                <SelectItem value="all">כל המלאי</SelectItem>
+                <SelectItem value="in_stock">במלאי</SelectItem>
+                <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
               <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
                 <SelectValue placeholder="כל הקטגוריות" />
