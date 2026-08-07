@@ -222,9 +222,9 @@ function ProductRow({ product }: { product: QcProduct }) {
         <td className="py-3 px-4 text-center">
           <div className="flex flex-col items-center gap-1">
             <Select
-              value={product.priceStatus || "none"}
+              value={product.priceStatus || "טרם נבדק"}
               onValueChange={(val) => {
-                const newStatus = val === "none" ? null : val;
+                const newStatus = val === "טרם נבדק" ? null : val;
                 startTransition(async () => {
                   await updateProductPriceStatus(product.id, newStatus);
                 });
@@ -235,7 +235,7 @@ function ProductRow({ product }: { product: QcProduct }) {
                 <SelectValue placeholder="בחר סטטוס" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">טרם נבדק</SelectItem>
+                <SelectItem value="טרם נבדק">טרם נבדק</SelectItem>
                 <SelectItem value="בוצע שינוי תמחור">בוצע שינוי תמחור</SelectItem>
                 <SelectItem value="לא בוצע שינוי תמחור">לא בוצע שינוי תמחור</SelectItem>
                 <SelectItem value="המחיר הושאר זהה">המחיר הושאר זהה</SelectItem>
@@ -353,9 +353,9 @@ function ProductRow({ product }: { product: QcProduct }) {
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[11px] text-gray-500 font-medium">תמחור:</span>
                 <Select
-                  value={product.priceStatus || "none"}
+                  value={product.priceStatus || "טרם נבדק"}
                   onValueChange={(val) => {
-                    const newStatus = val === "none" ? null : val;
+                    const newStatus = val === "טרם נבדק" ? null : val;
                     startTransition(async () => {
                       await updateProductPriceStatus(product.id, newStatus);
                     });
@@ -366,7 +366,7 @@ function ProductRow({ product }: { product: QcProduct }) {
                     <SelectValue placeholder="בחר סטטוס" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">טרם נבדק</SelectItem>
+                    <SelectItem value="טרם נבדק">טרם נבדק</SelectItem>
                     <SelectItem value="בוצע שינוי תמחור">בוצע שינוי תמחור</SelectItem>
                     <SelectItem value="לא בוצע שינוי תמחור">לא בוצע שינוי תמחור</SelectItem>
                     <SelectItem value="המחיר הושאר זהה">המחיר הושאר זהה</SelectItem>
