@@ -160,7 +160,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             </button>
 
             <div className="hidden md:flex items-center gap-2">
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
                 <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
                   <SelectValue placeholder="כל הקטגוריות" />
                 </SelectTrigger>
@@ -172,7 +172,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                 </SelectContent>
               </Select>
 
-              <Select value={colorFilter} onValueChange={setColorFilter}>
+              <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
                 <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
                   <SelectValue placeholder="כל הצבעים" />
                 </SelectTrigger>
@@ -199,7 +199,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           </div>
 
           <div className={`mt-3 space-y-3 ${showFilters ? "block" : "hidden md:hidden"}`}>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
               <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
                 <SelectValue placeholder="כל הקטגוריות" />
               </SelectTrigger>
@@ -211,7 +211,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
               </SelectContent>
             </Select>
 
-            <Select value={colorFilter} onValueChange={setColorFilter}>
+            <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
               <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
                 <SelectValue placeholder="כל הצבעים" />
               </SelectTrigger>
