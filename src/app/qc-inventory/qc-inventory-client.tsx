@@ -131,7 +131,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     });
 
     return result;
-  }, [products, searchQuery, sortMode]);
+  }, [products, searchQuery, sortMode, categoryFilter, colorFilter, stockFilter]);
 
   return (
     <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen" dir="rtl">
