@@ -29,14 +29,18 @@ export async function getQcInventoryProducts() {
     for (const wp of allWcProducts) {
       stockMap.set(wp.id, wp.stockQuantity || 0);
       
-      let categoryStr = "";
+      let categoryStr = "אחר";
       if (wp.categories && Array.isArray(wp.categories) && wp.categories.length > 0) {
-        // Try to find a subcategory (parent !== 0) or fallback to the last category
-        const subCat = wp.categories.find((c: any) => c.parent && c.parent !== 0);
-        if (subCat) {
-          categoryStr = subCat.name;
-        } else {
-          categoryStr = wp.categories[wp.categories.length - 1].name;
+        const targetCategories = ["מותגי הבית", "פרימיום", "חדירה"];
+        const foundTarget = wp.categories.find((c: any) => 
+          c.name && targetCategories.some(tc => c.name.includes(tc))
+        );
+        
+        if (foundTarget) {
+          const matchedTarget = targetCategories.find(tc => foundTarget.name.includes(tc));
+          if (matchedTarget) {
+            categoryStr = matchedTarget;
+          }
         }
       }
       categoryMap.set(wp.id, categoryStr);
