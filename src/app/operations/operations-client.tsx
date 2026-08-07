@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Briefcase, Building2, Contact, CheckCircle2, Clock, AlertCircle, LayoutList, LayoutGrid, Check, X, Edit2 } from "lucide-react";
 import { updateWholesaleCustomer, createWholesaleCustomer, deleteWholesaleCustomer } from "@/app/actions/operations";
 import { Trash2, Plus } from "lucide-react";
@@ -87,13 +88,18 @@ function EditableB2BCard({ customer, onCancelNew }: { customer: any, onCancelNew
         <input className="w-full text-right p-2 border rounded-lg bg-white/80 font-semibold" placeholder="שם חנות" value={data.storeName} onChange={(e) => setData({ ...data, storeName: e.target.value })} autoFocus />
         <div className="grid grid-cols-2 gap-2">
           <input className="w-full text-right p-2 border rounded-lg bg-white/80 text-sm" placeholder="עיר / אזור" value={data.city} onChange={(e) => setData({ ...data, city: e.target.value })} />
-          <select className="w-full text-right p-2 border rounded-lg bg-white/80 text-sm" value={data.interest} onChange={(e) => setData({ ...data, interest: e.target.value })} dir="rtl">
-            <option value="">בחר רמת עניין</option>
-            <option value="גבוה">גבוה</option>
-            <option value="בינוני">בינוני</option>
-            <option value="נמוך">נמוך</option>
-            <option value="לא מעוניין">לא מעוניין</option>
-          </select>
+          <Select value={data.interest || "unselected"} onValueChange={(value) => setData({ ...data, interest: value === "unselected" ? "" : value })}>
+            <SelectTrigger className="w-full text-right p-2 border rounded-lg bg-white/80 text-sm h-auto justify-between">
+              <SelectValue placeholder="בחר רמת עניין" />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectItem value="unselected">בחר רמת עניין</SelectItem>
+              <SelectItem value="גבוה">גבוה</SelectItem>
+              <SelectItem value="בינוני">בינוני</SelectItem>
+              <SelectItem value="נמוך">נמוך</SelectItem>
+              <SelectItem value="לא מעוניין">לא מעוניין</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <input className="w-full text-right p-2 border rounded-lg bg-white/80 text-sm" placeholder="תאריך הזמנה אחרונה" value={data.lastOrderDate} onChange={(e) => setData({ ...data, lastOrderDate: e.target.value })} />
@@ -204,43 +210,63 @@ function EditableWholesaleRow({ customer, onCancelNew }: { customer: any, onCanc
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">כתובת</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.address} onChange={(e) => setData({ ...data, address: e.target.value })} /></td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">שיחת טלפון</span>
-          <select className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.phoneCall} onChange={(e) => setData({ ...data, phoneCall: e.target.value })} dir="rtl">
-            <option value="">-</option>
-            <option value="בוצע">בוצע</option>
-            <option value="לא בוצע">לא בוצע</option>
-            <option value="בתהליך">בתהליך</option>
-            <option value="לא זמין">לא זמין</option>
-          </select>
+          <Select value={data.phoneCall || "unselected"} onValueChange={(value) => setData({ ...data, phoneCall: value === "unselected" ? "" : value })}>
+            <SelectTrigger className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80 h-auto justify-between">
+              <SelectValue placeholder="-" />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectItem value="unselected">-</SelectItem>
+              <SelectItem value="בוצע">בוצע</SelectItem>
+              <SelectItem value="לא בוצע">לא בוצע</SelectItem>
+              <SelectItem value="בתהליך">בתהליך</SelectItem>
+              <SelectItem value="לא זמין">לא זמין</SelectItem>
+            </SelectContent>
+          </Select>
         </td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">ביקור</span>
-          <select className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.visit} onChange={(e) => setData({ ...data, visit: e.target.value })} dir="rtl">
-            <option value="">-</option>
-            <option value="בוצע">בוצע</option>
-            <option value="לא בוצע">לא בוצע</option>
-            <option value="נקבע">נקבע</option>
-            <option value="לא רלוונטי">לא רלוונטי</option>
-          </select>
+          <Select value={data.visit || "unselected"} onValueChange={(value) => setData({ ...data, visit: value === "unselected" ? "" : value })}>
+            <SelectTrigger className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80 h-auto justify-between">
+              <SelectValue placeholder="-" />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectItem value="unselected">-</SelectItem>
+              <SelectItem value="בוצע">בוצע</SelectItem>
+              <SelectItem value="לא בוצע">לא בוצע</SelectItem>
+              <SelectItem value="נקבע">נקבע</SelectItem>
+              <SelectItem value="לא רלוונטי">לא רלוונטי</SelectItem>
+            </SelectContent>
+          </Select>
         </td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">פוטנציאל</span>
-          <select className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.potential} onChange={(e) => setData({ ...data, potential: e.target.value })} dir="rtl">
-            <option value="">-</option>
-            <option value="גבוה">גבוה</option>
-            <option value="בינוני">בינוני</option>
-            <option value="נמוך">נמוך</option>
-            <option value="אין פוטנציאל">אין פוטנציאל</option>
-          </select>
+          <Select value={data.potential || "unselected"} onValueChange={(value) => setData({ ...data, potential: value === "unselected" ? "" : value })}>
+            <SelectTrigger className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80 h-auto justify-between">
+              <SelectValue placeholder="-" />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectItem value="unselected">-</SelectItem>
+              <SelectItem value="גבוה">גבוה</SelectItem>
+              <SelectItem value="בינוני">בינוני</SelectItem>
+              <SelectItem value="נמוך">נמוך</SelectItem>
+              <SelectItem value="אין פוטנציאל">אין פוטנציאל</SelectItem>
+            </SelectContent>
+          </Select>
         </td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">עניין</span>
-          <select className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.interest} onChange={(e) => setData({ ...data, interest: e.target.value })} dir="rtl">
-            <option value="">-</option>
-            <option value="גבוה">גבוה</option>
-            <option value="בינוני">בינוני</option>
-            <option value="נמוך">נמוך</option>
-            <option value="לא מעוניין">לא מעוניין</option>
-          </select>
+          <Select value={data.interest || "unselected"} onValueChange={(value) => setData({ ...data, interest: value === "unselected" ? "" : value })}>
+            <SelectTrigger className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80 h-auto justify-between">
+              <SelectValue placeholder="-" />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              <SelectItem value="unselected">-</SelectItem>
+              <SelectItem value="גבוה">גבוה</SelectItem>
+              <SelectItem value="בינוני">בינוני</SelectItem>
+              <SelectItem value="נמוך">נמוך</SelectItem>
+              <SelectItem value="לא מעוניין">לא מעוניין</SelectItem>
+            </SelectContent>
+          </Select>
         </td>
         <td className="p-0 md:p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-xs text-gray-500 uppercase tracking-wider">הערות</span><input className="w-full text-right p-2 md:p-1 border rounded-lg md:rounded bg-white/80" value={data.notes} onChange={(e) => setData({ ...data, notes: e.target.value })} /></td>
         <td className="p-0 md:p-2 flex justify-end md:table-cell mt-2 md:mt-0 pt-3 md:pt-0 border-t border-blue-200/50 md:border-none">

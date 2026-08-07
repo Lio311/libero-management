@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import clsx from 'clsx';
 import { Trash2, Plus, Loader2, ChevronDown } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Column<T> {
     header: string;
@@ -281,15 +282,19 @@ export const Table = <T extends { id: number | string }>({
                                     >
                                         {col.editable && typeof col.accessor === 'string' && !col.shouldDisable?.(row) ? (
                                             col.type === 'select' ? (
-                                                <select
+                                                <Select
                                                     value={String(row[col.accessor as keyof T] ?? '')}
-                                                    onChange={(e) => handleChange(row.id, col.accessor as keyof T, e.target.value)}
-                                                    onBlur={flushSave}
-                                                    className={inputBase}
+                                                    onValueChange={(val) => handleChange(row.id, col.accessor as keyof T, val || '')}
                                                 >
-                                                    <option value="">בחר...</option>
-                                                    {col.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                                                </select>
+                                                    <SelectTrigger className={inputBase} onBlur={flushSave}>
+                                                        <SelectValue placeholder="בחר..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent alignItemWithTrigger={false}>
+                                                        {col.options?.map(opt => (
+                                                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
                                             ) : col.type === 'multiselect' ? (
                                                 <MultiSelectCell
                                                     value={String(row[col.accessor as keyof T] ?? '')}

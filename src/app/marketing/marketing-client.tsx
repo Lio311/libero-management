@@ -19,6 +19,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsToolti
 import { updateInfluencer, updateInfluencerPayment, createInfluencer, deleteInfluencer, createInfluencerPayment, deleteInfluencerPayment } from "@/app/actions/marketing";
 import { Check, X, Edit2, ChevronRight, ChevronLeft, Trash2, Plus, Loader2 } from "lucide-react";
 import { influencersConfig } from '@/config/influencers';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface MarketingClientProps {
   activeInfluencers: number;
@@ -105,14 +106,19 @@ function EditableInfluencerRow({ inf }: { inf: any }) {
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">הערות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
-          <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
-            <option value="">לא מקושר</option>
-            {Object.entries(influencersConfig)
-              .sort(([, a], [, b]) => a.name > b.name ? 1 : -1)
-              .map(([key, config]) => (
-              <option key={key} value={key}>{config.name}</option>
-            ))}
-          </select>
+          <Select value={data.influencerId || "unlinked"} onValueChange={val => setData({...data, influencerId: val === "unlinked" ? "" : val})}>
+            <SelectTrigger className="w-full p-1 border rounded text-sm text-right bg-white h-auto py-[0.4rem]">
+              <SelectValue placeholder="לא מקושר" />
+            </SelectTrigger>
+            <SelectContent side="bottom" align="end">
+              <SelectItem value="unlinked">לא מקושר</SelectItem>
+              {Object.entries(influencersConfig)
+                .sort(([, a], [, b]) => a.name > b.name ? 1 : -1)
+                .map(([key, config]) => (
+                <SelectItem key={key} value={key}>{config.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </td>
         <td className="p-2 flex justify-end md:table-cell mt-2 md:mt-0">
           <div className="flex gap-2">
@@ -304,26 +310,35 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">סה"כ לתשלום</span>-</td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-sm text-gray-500">בוצע?</span>
-          <select 
-            className="w-full p-1 border rounded text-sm text-right bg-white" 
+          <Select 
             value={data.isDone === 'v' || data.isDone === 'V' || data.isDone === 'כן' || data.isDone === 'בוצע' ? 'בוצע' : 'לא בוצע'} 
-            onChange={e => setData({...data, isDone: e.target.value})}
+            onValueChange={val => setData({...data, isDone: val})}
           >
-            <option value="לא בוצע">לא בוצע</option>
-            <option value="בוצע">בוצע</option>
-          </select>
+            <SelectTrigger className="w-full p-1 border rounded text-sm text-right bg-white h-auto py-[0.4rem]">
+              <SelectValue placeholder="לא בוצע" />
+            </SelectTrigger>
+            <SelectContent side="bottom" align="end">
+              <SelectItem value="לא בוצע">לא בוצע</SelectItem>
+              <SelectItem value="בוצע">בוצע</SelectItem>
+            </SelectContent>
+          </Select>
         </td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">הערות</span><input className="w-full p-1 border rounded text-sm text-right" value={data.notes} onChange={e => setData({...data, notes: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-sm text-gray-500">קישור למשפיען</span>
-          <select className="w-full p-1 border rounded text-sm text-right bg-white" value={data.influencerId} onChange={e => setData({...data, influencerId: e.target.value})}>
-            <option value="">לא מקושר</option>
-            {Object.entries(influencersConfig)
-              .sort(([, a], [, b]) => a.name > b.name ? 1 : -1)
-              .map(([key, config]) => (
-              <option key={key} value={key}>{config.name}</option>
-            ))}
-          </select>
+          <Select value={data.influencerId || "unlinked"} onValueChange={val => setData({...data, influencerId: val === "unlinked" ? "" : val})}>
+            <SelectTrigger className="w-full p-1 border rounded text-sm text-right bg-white h-auto py-[0.4rem]">
+              <SelectValue placeholder="לא מקושר" />
+            </SelectTrigger>
+            <SelectContent side="bottom" align="end">
+              <SelectItem value="unlinked">לא מקושר</SelectItem>
+              {Object.entries(influencersConfig)
+                .sort(([, a], [, b]) => a.name > b.name ? 1 : -1)
+                .map(([key, config]) => (
+                <SelectItem key={key} value={key}>{config.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </td>
         <td className="p-2 flex justify-end md:table-cell mt-2 md:mt-0">
           <div className="flex gap-2 justify-end">

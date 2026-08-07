@@ -3,6 +3,7 @@
 
 import React, { useState, useTransition, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CheckCircle2,
   ClipboardCheck,
@@ -24,6 +25,38 @@ import {
 import { markProductInspected, updateProductNotes } from "@/app/actions/qc-actions";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+
+// Helper component for count-up animation
+function AnimatedCounter({ value }: { value: number }) {
+  const [count, setCount] = useState(0);
+
+  React.useEffect(() => {
+    if (value === 0) {
+      setCount(0);
+      return;
+    }
+    
+    let startTime: number;
+    const duration = 1000; // 1 second
+    
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      
+      // Easing function: easeOutQuart
+      const easeProgress = 1 - Math.pow(1 - progress, 4);
+      setCount(Math.floor(easeProgress * value));
+      
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+    
+    requestAnimationFrame(animate);
+  }, [value]);
+
+  return <span>{count}</span>;
+}
 
 interface QcProduct {
   id: string;
@@ -159,23 +192,28 @@ function ProductRow({ product }: { product: QcProduct }) {
         <td className="py-3 px-4 text-center">
           <button
             onClick={handleInspect}
-            disabled={isPending || justInspected}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-              justInspected
-                ? "bg-emerald-100 text-emerald-700 cursor-default"
-                : status === "ok"
-                ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:shadow-sm active:scale-95"
-                : "bg-blue-600 text-white hover:bg-blue-700 shadow-sm hover:shadow-md active:scale-95"
+            disabled={isPending || justInspected || status === "ok"}
+            className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+              isPending
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : justInspected || status === "ok"
+                ? "bg-green-100 text-green-700 cursor-default shadow-inner"
+                : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 shadow-sm hover:shadow active:scale-95"
             }`}
           >
             {isPending ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : justInspected ? (
-              <CheckCircle2 className="w-3.5 h-3.5" />
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : justInspected || status === "ok" ? (
+              <>
+                <CheckCircle2 className={`w-4 h-4 ${justInspected ? "animate-in zoom-in spin-in-180" : ""}`} />
+                <span className={justInspected ? "animate-in fade-in slide-in-from-right-2" : ""}>בוצע</span>
+              </>
             ) : (
-              <ClipboardCheck className="w-3.5 h-3.5" />
+              <>
+                <Check className="w-4 h-4" />
+                בצע בקרה
+              </>
             )}
-            {justInspected ? "בוצע!" : "בצע בקרה"}
           </button>
         </td>
 
@@ -567,18 +605,18 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
             {/* Sort (Desktop) */}
             <div className="hidden md:flex items-center gap-2">
-              <select
-                value={sortMode}
-                onChange={(e) => setSortMode(e.target.value as SortMode)}
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white text-right cursor-pointer"
-                dir="rtl"
-              >
-                <option value="default">מיון: ברירת מחדל</option>
-                <option value="last_inspection_asc">תאריך בקרה: ישן → חדש</option>
-                <option value="last_inspection_desc">תאריך בקרה: חדש → ישן</option>
-                <option value="name_asc">שם: א → ת</option>
-                <option value="name_desc">שם: ת → א</option>
-              </select>
+              <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+                <SelectTrigger className="w-[200px] h-10 border-gray-200 bg-white">
+                  <SelectValue placeholder="בחר מיון" />
+                </SelectTrigger>
+                <SelectContent align="end">
+                  <SelectItem value="default">מיון: ברירת מחדל</SelectItem>
+                  <SelectItem value="last_inspection_asc">תאריך בקרה: ישן ← חדש</SelectItem>
+                  <SelectItem value="last_inspection_desc">תאריך בקרה: חדש ← ישן</SelectItem>
+                  <SelectItem value="name_asc">שם: א ← ת</SelectItem>
+                  <SelectItem value="name_desc">שם: ת ← א</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -607,18 +645,18 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
             {/* Mobile Sort */}
             <div className="md:hidden">
-              <select
-                value={sortMode}
-                onChange={(e) => setSortMode(e.target.value as SortMode)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white text-right"
-                dir="rtl"
-              >
-                <option value="default">מיון: ברירת מחדל</option>
-                <option value="last_inspection_asc">תאריך בקרה: ישן → חדש</option>
-                <option value="last_inspection_desc">תאריך בקרה: חדש → ישן</option>
-                <option value="name_asc">שם: א → ת</option>
-                <option value="name_desc">שם: ת → א</option>
-              </select>
+              <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+                <SelectTrigger className="w-full h-10 border-gray-200 bg-white">
+                  <SelectValue placeholder="בחר מיון" />
+                </SelectTrigger>
+                <SelectContent align="center" className="w-[calc(100vw-3rem)]">
+                  <SelectItem value="default">מיון: ברירת מחדל</SelectItem>
+                  <SelectItem value="last_inspection_asc">תאריך בקרה: ישן ← חדש</SelectItem>
+                  <SelectItem value="last_inspection_desc">תאריך בקרה: חדש ← ישן</SelectItem>
+                  <SelectItem value="name_asc">שם: א ← ת</SelectItem>
+                  <SelectItem value="name_desc">שם: ת ← א</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardHeader>
