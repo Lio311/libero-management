@@ -14,6 +14,7 @@ export type CustomerControlData = {
   totalAllTime: number;
   totalLastYear: number;
   totalLastMonth: number;
+  homeBrandsAllTime: number;
   homeBrandsLastYear: number;
   homeBrandsLastMonth: number;
 };
@@ -68,6 +69,7 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
         totalAllTime: 0,
         totalLastYear: 0,
         totalLastMonth: 0,
+        homeBrandsAllTime: 0,
         homeBrandsLastYear: 0,
         homeBrandsLastMonth: 0,
       });
@@ -103,6 +105,7 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
         }
       });
 
+      customer.homeBrandsAllTime += homeBrandsTotal;
       if (orderDate >= oneYearAgo) {
         customer.homeBrandsLastYear += homeBrandsTotal;
       }
