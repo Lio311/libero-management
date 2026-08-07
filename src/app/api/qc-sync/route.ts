@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { qcProducts } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
-export const maxDuration = 60; // Allow up to 60 seconds for WooCommerce sync
+
 
 const LIBERO_CONFIG = {
   ck: '[REDACTED_CK]',
