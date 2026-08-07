@@ -80,9 +80,11 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           if (!b.lastPriceStatusDate) return -1;
           return new Date(b.lastPriceStatusDate).getTime() - new Date(a.lastPriceStatusDate).getTime();
         case "color_asc":
-          return a.ageDays - b.ageDays;
+          if (a.ageDays !== b.ageDays) return a.ageDays - b.ageDays;
+          return new Date(b.dateAddedToSite).getTime() - new Date(a.dateAddedToSite).getTime();
         case "color_desc":
-          return b.ageDays - a.ageDays;
+          if (a.ageDays !== b.ageDays) return b.ageDays - a.ageDays;
+          return new Date(a.dateAddedToSite).getTime() - new Date(b.dateAddedToSite).getTime();
         default:
           return 0;
       }
