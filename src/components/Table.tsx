@@ -172,12 +172,15 @@ export const Table = <T extends { id: number | string }>({
         };
     }, []); // empty deps — runs once on mount, cleanup runs on unmount
 
-    useEffect(() => {
+    const [prevData, setPrevData] = useState(data);
+
+    if (data !== prevData) {
+        setPrevData(data);
         setLocalData(data);
         if (pendingEdit) {
             setPendingEdit(false);
         }
-    }, [data]);
+    }
 
     const triggerAutoSave = useCallback((newData: T[]) => {
         if (!onSave) return;
