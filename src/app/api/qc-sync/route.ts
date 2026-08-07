@@ -3,6 +3,8 @@ import { db } from '@/lib/db';
 import { qcProducts } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
+export const maxDuration = 60; // Allow up to 60 seconds for WooCommerce sync
+
 const LIBERO_CONFIG = {
   ck: 'ck_c551947f6cd4c709b527cab0f18651cf19433b51',
   cs: 'cs_c32883b9954569200ebea224812180dad9cc01dc',
@@ -16,7 +18,7 @@ async function fetchAllProducts() {
   let hasMore = true;
 
   while (hasMore && page <= 20) {
-    const url = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/products?per_page=100&page=${page}&status=publish`;
+    const url = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/products?per_page=100&page=${page}&status=publish&_fields=id,name,sku,images`;
     const response = await fetch(url, {
       method: 'GET',
       headers: {
