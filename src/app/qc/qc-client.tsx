@@ -143,7 +143,14 @@ function ProductRow({ product }: { product: QcProduct }) {
               </div>
             )}
             <div className="min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate max-w-[200px]">{product.productName}</p>
+              <a 
+                href={`https://libero-il.co.il/?p=${product.wooProductId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[200px] block"
+              >
+                {product.productName}
+              </a>
               {product.productSku && (
                 <p className="text-[11px] text-gray-400">מק״ט: {product.productSku}</p>
               )}
@@ -271,7 +278,14 @@ function ProductRow({ product }: { product: QcProduct }) {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">{product.productName}</p>
+                <a 
+                  href={`https://libero-il.co.il/?p=${product.wooProductId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline truncate block"
+                >
+                  {product.productName}
+                </a>
                 {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
                 <div className="mt-1.5">{getStatusBadge(status)}</div>
               </div>
