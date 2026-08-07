@@ -98,7 +98,7 @@ export async function GET(request: Request) {
     }
 
     // 2. Fetch & Sync Orders
-    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed&_fields=id,total,date_created,line_items,customer_id,status');
+    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed&_fields=id,total,date_created,line_items,customer_id,status,billing');
     let ordersAdded = 0;
     let ordersUpdated = 0;
 
@@ -112,6 +112,7 @@ export async function GET(request: Request) {
         dateCreated: o.date_created ? new Date(o.date_created) : new Date(),
         status: o.status || 'processing',
         lineItems: o.line_items || [],
+        billing: o.billing || null,
         updatedAt: new Date(),
       };
 
