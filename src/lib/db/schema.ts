@@ -216,3 +216,33 @@ export const bonusesRelations = relations(bonuses, ({ one }) => ({
     references: [bonusEmployees.id],
   }),
 }));
+
+// QC (Quality Control) Tables
+export const qcProducts = pgTable("qc_products", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  wooProductId: integer("woo_product_id").unique().notNull(),
+  productName: text("product_name").notNull(),
+  productSku: text("product_sku"),
+  productImage: text("product_image"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const qcInspections = pgTable("qc_inspections", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  productId: uuid("product_id").references(() => qcProducts.id, { onDelete: 'cascade' }).notNull(),
+  inspectedAt: timestamp("inspected_at", { withTimezone: true }).defaultNow().notNull(),
+  inspectedBy: text("inspected_by"),
+});
+
+export const qcProductsRelations = relations(qcProducts, ({ many }) => ({
+  inspections: many(qcInspections),
+}));
+
+export const qcInspectionsRelations = relations(qcInspections, ({ one }) => ({
+  product: one(qcProducts, {
+    fields: [qcInspections.productId],
+    references: [qcProducts.id],
+  }),
+}));

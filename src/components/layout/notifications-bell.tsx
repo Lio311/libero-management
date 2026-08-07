@@ -19,7 +19,7 @@ interface Task {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleData: any[], bankTasksData: any[] }) {
+export function NotificationsBell({ scheduleData, bankTasksData, qcPendingCount = 0 }: { scheduleData: any[], bankTasksData: any[], qcPendingCount?: number }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [hasShownPush, setHasShownPush] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -128,23 +128,35 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
 
   useEffect(() => {
     const showPush = async () => {
-      if (activeNotifications.length > 0 && !hasShownPush && typeof window !== 'undefined' && 'Notification' in window) {
+      if (!hasShownPush && typeof window !== 'undefined' && 'Notification' in window) {
         try {
           if (Notification.permission === 'granted') {
-            const body = `יש לך ${activeNotifications.length} משימות לביצוע שלא הושלמו.`;
-            let shown = false;
-            if ('serviceWorker' in navigator) {
-              const reg = await navigator.serviceWorker.getRegistration();
-              if (reg && reg.showNotification) {
-                await reg.showNotification('משימות לביצוע', { body });
-                shown = true;
+            const isTuesday = new Date().getDay() === 2;
+            const messages: string[] = [];
+
+            if (activeNotifications.length > 0) {
+              messages.push(`יש לך ${activeNotifications.length} משימות לביצוע שלא הושלמו.`);
+            }
+            if (isTuesday && qcPendingCount > 0) {
+              messages.push(`📋 היום יום בקרה! ${qcPendingCount} מוצרים ממתינים לבקרת איכות.`);
+            }
+
+            if (messages.length > 0) {
+              const body = messages.join('\n');
+              let shown = false;
+              if ('serviceWorker' in navigator) {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg && reg.showNotification) {
+                  await reg.showNotification(isTuesday && qcPendingCount > 0 ? '📋 יום בקרת מוצרים' : 'משימות לביצוע', { body });
+                  shown = true;
+                }
               }
+              if (!shown) {
+                new Notification(isTuesday && qcPendingCount > 0 ? '📋 יום בקרת מוצרים' : 'משימות לביצוע', { body });
+              }
+              // eslint-disable-next-line react-hooks/set-state-in-effect
+              setHasShownPush(true);
             }
-            if (!shown) {
-              new Notification('משימות לביצוע', { body });
-            }
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setHasShownPush(true);
           }
         } catch (e) {
           console.error('Failed to show push notification', e);
@@ -152,7 +164,7 @@ export function NotificationsBell({ scheduleData, bankTasksData }: { scheduleDat
       }
     };
     showPush();
-  }, [activeNotifications, hasShownPush]);
+  }, [activeNotifications, hasShownPush, qcPendingCount]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
