@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { qcProducts, qcInspections, wcProducts } from "@/lib/db/schema";
+import { qcProducts, qcInspections, wcProducts, wcOrders } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
 
 export async function getQcInventoryProducts() {
@@ -16,14 +16,84 @@ export async function getQcInventoryProducts() {
         latestInspections.set(insp.productId, insp.inspectedAt);
       }
     }
+
+    // Fetch stock quantities and categories from wcProducts
+    const allWcProducts = await db.select({
+      id: wcProducts.id,
+      stockQuantity: wcProducts.stockQuantity,
+      categories: wcProducts.categories,
+    }).from(wcProducts);
+    
+    const stockMap = new Map<number, number>();
+    const categoryMap = new Map<number, string>();
+    for (const wp of allWcProducts) {
+      stockMap.set(wp.id, wp.stockQuantity || 0);
+      
+      let categoryStr = "";
+      if (wp.categories && Array.isArray(wp.categories)) {
+        categoryStr = wp.categories.map((c: any) => c.name).join(", ");
+      }
+      categoryMap.set(wp.id, categoryStr);
+    }
+
+    // Fetch orders to calculate sales metrics
+    const allWcOrders = await db.select({
+      lineItems: wcOrders.lineItems,
+      dateCreated: wcOrders.dateCreated,
+      status: wcOrders.status,
+    }).from(wcOrders);
+
+    const metricsMap = new Map<number, { salesLastWeek: number; salesLastMonth: number; salesMonthBeforeLast: number; totalSales: number }>();
+
+    for (const product of products) {
+      metricsMap.set(product.wooProductId, { salesLastWeek: 0, salesLastMonth: 0, salesMonthBeforeLast: 0, totalSales: 0 });
+    }
+
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+    for (const order of allWcOrders) {
+      if (order.status !== 'completed' && order.status !== 'processing') continue;
+      if (!order.lineItems) continue;
+      
+      let orderDate = order.dateCreated ? new Date(order.dateCreated) : new Date(0);
+      
+      const items = order.lineItems as any[];
+      if (!Array.isArray(items)) continue;
+
+      for (const item of items) {
+        const productId = item.product_id;
+        if (!productId || !metricsMap.has(productId)) continue;
+        
+        const qty = item.quantity || 0;
+        const metrics = metricsMap.get(productId)!;
+        
+        metrics.totalSales += qty;
+        
+        if (orderDate >= sevenDaysAgo) {
+          metrics.salesLastWeek += qty;
+        }
+        if (orderDate >= thirtyDaysAgo) {
+          metrics.salesLastMonth += qty;
+        }
+        if (orderDate >= sixtyDaysAgo && orderDate < thirtyDaysAgo) {
+          metrics.salesMonthBeforeLast += qty;
+        }
+      }
+    }
     
     const inventoryProducts = products.map((product) => {
       const dateCreated = product.dateAddedToSite || product.createdAt;
       
-      const now = new Date();
       const createdDate = new Date(dateCreated);
       const diffTime = Math.abs(now.getTime() - createdDate.getTime());
       const ageDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      const metrics = metricsMap.get(product.wooProductId) || { salesLastWeek: 0, salesLastMonth: 0, salesMonthBeforeLast: 0, totalSales: 0 };
+      const currentStock = stockMap.get(product.wooProductId) || 0;
+      const categories = categoryMap.get(product.wooProductId) || "";
       
       return {
         id: product.id,
@@ -31,10 +101,16 @@ export async function getQcInventoryProducts() {
         productName: product.productName,
         productSku: product.productSku,
         productImage: product.productImage,
+        categories: categories,
         lastInspectionDate: latestInspections.get(product.id) || null,
         lastPriceStatusDate: product.priceStatusDate || null,
         dateAddedToSite: dateCreated,
         ageDays: ageDays,
+        currentStock: currentStock,
+        salesLastWeek: metrics.salesLastWeek,
+        salesLastMonth: metrics.salesLastMonth,
+        salesMonthBeforeLast: metrics.salesMonthBeforeLast,
+        totalSales: metrics.totalSales,
       };
     });
     
