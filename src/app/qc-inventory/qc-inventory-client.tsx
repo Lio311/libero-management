@@ -279,6 +279,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         </CardHeader>
 
         <CardContent className="p-0 md:px-6 md:pb-6">
+          <div className="px-4 py-2 text-sm text-gray-500 font-medium">
+            סה״כ מוצרים: {filteredAndSorted.length}
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
