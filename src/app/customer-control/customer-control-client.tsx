@@ -94,8 +94,8 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   }, [initialData, searchQuery, sortKey, sortOrder]);
 
   const SortHeader = ({ label, sortKey: key }: { label: string, sortKey: SortKey }) => (
-    <TableHead className="text-right whitespace-nowrap px-4 cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort(key)}>
-      <div className="flex items-center justify-start gap-2">
+    <TableHead className="text-center whitespace-nowrap px-4 cursor-pointer hover:bg-slate-100/50 transition-colors" onClick={() => handleSort(key)}>
+      <div className="flex items-center justify-center gap-2">
         <ArrowUpDown className={`h-4 w-4 ${sortKey === key ? "text-indigo-600" : "text-slate-400"}`} />
         <span className={sortKey === key ? "font-bold text-indigo-700" : ""}>{label}</span>
       </div>
@@ -137,8 +137,8 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
           <TableHeader className="bg-slate-50/80 sticky top-0 z-10 border-b border-slate-200 shadow-sm">
             <TableRow className="hover:bg-transparent">
               <SortHeader label="שם מלא" sortKey="fullName" />
-              <TableHead className="text-right font-semibold text-slate-700 px-4 whitespace-nowrap">אימייל</TableHead>
-              <TableHead className="text-right font-semibold text-slate-700 px-4 whitespace-nowrap">טלפון</TableHead>
+              <TableHead className="text-center font-semibold text-slate-700 px-4 whitespace-nowrap">אימייל</TableHead>
+              <TableHead className="text-center font-semibold text-slate-700 px-4 whitespace-nowrap">טלפון</TableHead>
               <SortHeader label='מותגי הבית (חודש אחרון)' sortKey="homeBrandsLastMonth" />
               <SortHeader label='מותגי הבית (שנה אחרונה)' sortKey="homeBrandsLastYear" />
               <SortHeader label="רכישות (חודש אחרון)" sortKey="totalLastMonth" />
@@ -156,14 +156,14 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
             ) : (
               filteredAndSorted.map((customer) => (
                 <TableRow key={customer.id} className="hover:bg-slate-50/80 transition-colors group">
-                  <TableCell className="px-4 font-medium text-slate-800 whitespace-nowrap">{customer.fullName}</TableCell>
-                  <TableCell className="px-4 text-slate-600 whitespace-nowrap">{customer.email}</TableCell>
-                  <TableCell className="px-4 text-slate-600 whitespace-nowrap" dir="ltr">{customer.phone}</TableCell>
-                  <TableCell className="px-4 font-semibold text-emerald-600">{formatCurrency(customer.homeBrandsLastMonth)}</TableCell>
-                  <TableCell className="px-4 text-slate-700">{formatCurrency(customer.homeBrandsLastYear)}</TableCell>
-                  <TableCell className="px-4 font-semibold text-indigo-600">{formatCurrency(customer.totalLastMonth)}</TableCell>
-                  <TableCell className="px-4 text-slate-700">{formatCurrency(customer.totalLastYear)}</TableCell>
-                  <TableCell className="px-4 text-slate-700">{formatCurrency(customer.totalAllTime)}</TableCell>
+                  <TableCell className="px-4 text-center font-medium text-slate-800 whitespace-nowrap">{customer.fullName}</TableCell>
+                  <TableCell className="px-4 text-center text-slate-600 whitespace-nowrap">{customer.email}</TableCell>
+                  <TableCell className="px-4 text-center text-slate-600 whitespace-nowrap" dir="ltr">{customer.phone}</TableCell>
+                  <TableCell className="px-4 text-center font-semibold text-emerald-600">{formatCurrency(customer.homeBrandsLastMonth)}</TableCell>
+                  <TableCell className="px-4 text-center text-slate-700">{formatCurrency(customer.homeBrandsLastYear)}</TableCell>
+                  <TableCell className="px-4 text-center font-semibold text-indigo-600">{formatCurrency(customer.totalLastMonth)}</TableCell>
+                  <TableCell className="px-4 text-center text-slate-700">{formatCurrency(customer.totalLastYear)}</TableCell>
+                  <TableCell className="px-4 text-center text-slate-700">{formatCurrency(customer.totalAllTime)}</TableCell>
                 </TableRow>
               ))
             )}
