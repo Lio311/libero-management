@@ -563,7 +563,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
   // But we can add them to localTasks if needed. For now we just use the monthly schedule.
 
   return (
-    <div dir="rtl" className="h-[100dvh] overflow-hidden flex flex-col bg-[#F5F5F7] text-[#1D1D1F] selection:bg-[#0071E3]/30 font-sans pb-20 md:pb-0 page-animate">
+    <div dir="rtl" className="h-full overflow-hidden flex flex-col bg-[#F5F5F7] text-[#1D1D1F] selection:bg-[#0071E3]/30 font-sans pb-20 md:pb-0 page-animate">
       {/* Premium Header */}
       <header className="sticky top-0 z-40 glass-panel border-b border-white/20 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
