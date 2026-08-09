@@ -15,7 +15,7 @@ type NavItem = {
 };
 
 const navigation: NavItem[] = [
-  { name: "בנק משימות", href: "/", icon: Calendar },
+  { name: "לוח שנה", href: "/", icon: Calendar },
   { name: "בנק משימות", href: "/tasks", icon: CheckSquare },
   { name: "שיווק ומשפיענים", icon: Megaphone, subItems: [
     { name: "לוח שיווק", href: "/marketing" },

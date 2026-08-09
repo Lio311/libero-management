@@ -571,7 +571,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
             <CalendarIcon className="w-5 h-5 text-gray-700" />
           </div>
           <div>
-            <h1 className="text-xl font-medium tracking-wide">בנק משימות</h1>
+            <h1 className="text-xl font-medium tracking-wide">לוח שנה</h1>
             <p className="text-xs text-gray-500 uppercase tracking-widest">ניהול שוטף</p>
           </div>
         </div>
