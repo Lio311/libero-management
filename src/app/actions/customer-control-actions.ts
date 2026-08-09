@@ -18,6 +18,8 @@ export type CustomerControlData = {
   homeBrandsLastYear: number;
   homeBrandsLastMonth: number;
   lastPurchaseDate: Date | null;
+  averageCartValue: number;
+  orderCount: number;
 };
 
 export async function getCustomerControlData(): Promise<CustomerControlData[]> {
@@ -74,6 +76,8 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
         homeBrandsLastYear: 0,
         homeBrandsLastMonth: 0,
         lastPurchaseDate: null,
+        averageCartValue: 0,
+        orderCount: 0,
       });
     }
 
@@ -86,6 +90,9 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
     if (!customer.lastPurchaseDate || orderDate > customer.lastPurchaseDate) {
       customer.lastPurchaseDate = orderDate;
     }
+
+    // Track order count for average calculation
+    customer.orderCount += 1;
 
     // Add to overall totals
     customer.totalAllTime += orderTotal;
@@ -121,5 +128,11 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
     }
   });
 
-  return Array.from(customerMap.values());
+  // Calculate average cart value
+  const results = Array.from(customerMap.values());
+  results.forEach(c => {
+    c.averageCartValue = c.orderCount > 0 ? c.totalAllTime / c.orderCount : 0;
+  });
+
+  return results;
 }

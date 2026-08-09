@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ArrowUpDown, Search } from "lucide-react";
 
 type SortKey = 
@@ -30,6 +30,7 @@ type SortKey =
   | "homeBrandsLastYear" 
   | "homeBrandsLastMonth"
   | "lastPurchaseDate"
+  | "averageCartValue"
   | "fullName";
 
 export default function CustomerControlClient({ initialData }: { initialData: CustomerControlData[] }) {
@@ -142,7 +143,6 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
     <Card className="w-full bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-xl overflow-hidden">
       <CardHeader className="bg-slate-50/50 border-b border-slate-100 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center p-6">
         <div>
-          <CardTitle className="text-2xl font-bold text-slate-800">לקוחות מיוחדים</CardTitle>
           <p className="text-sm text-slate-500 mt-1">סה״כ: {filteredAndSorted.length} לקוחות</p>
         </div>
         
@@ -211,6 +211,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
               <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">אימייל</TableHead>
               <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">טלפון</TableHead>
               <SortHeader label="רכישה אחרונה" sortKey="lastPurchaseDate" />
+              <SortHeader label="ערך סל ממוצע" sortKey="averageCartValue" />
               <SortHeader label="מותגי הבית(חודש)" sortKey="homeBrandsLastMonth" />
               <SortHeader label="מותגי הבית(שנה)" sortKey="homeBrandsLastYear" />
               <SortHeader label="מותגי הבית(הכל)" sortKey="homeBrandsAllTime" />
@@ -222,7 +223,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
           <TableBody>
             {paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="h-32 text-center text-slate-500">
+                <TableCell colSpan={11} className="h-32 text-center text-slate-500">
                   לא נמצאו לקוחות.
                 </TableCell>
               </TableRow>
@@ -233,6 +234,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
                   <TableCell className="px-0.5 text-center text-slate-600 text-[10px] truncate max-w-[80px]" title={customer.email}>{customer.email}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-600 text-[11px] truncate max-w-[80px]" dir="ltr" title={customer.phone}>{customer.phone}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-500 whitespace-nowrap text-[11px]">{formatDate(customer.lastPurchaseDate)}</TableCell>
+                  <TableCell className="px-0.5 text-center font-semibold text-violet-600 whitespace-nowrap text-[11px]">{formatCurrency(customer.averageCartValue)}</TableCell>
                   <TableCell className="px-0.5 text-center font-semibold text-emerald-600 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastMonth)}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastYear)}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsAllTime)}</TableCell>
