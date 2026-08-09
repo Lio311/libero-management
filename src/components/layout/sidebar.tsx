@@ -15,7 +15,7 @@ type NavItem = {
 };
 
 const navigation: NavItem[] = [
-  { name: "לוז חודשי", href: "/", icon: Calendar },
+  { name: "בנק משימות", href: "/", icon: Calendar },
   { name: "בנק משימות", href: "/tasks", icon: CheckSquare },
   { name: "שיווק ומשפיענים", icon: Megaphone, subItems: [
     { name: "לוח שיווק", href: "/marketing" },
@@ -63,7 +63,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
   return (
     <>
       {/* Mobile Header */}
-      <div className={cn("md:hidden flex h-[calc(4rem+env(safe-area-inset-top))] pt-[calc(1.5rem+env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative z-50", isAuthenticated ? "justify-between" : "justify-center")}>
+      <div className={cn("md:hidden flex h-[calc(4rem_+_env(safe-area-inset-top))] pt-[calc(1.5rem_+_env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative z-50", isAuthenticated ? "justify-between" : "justify-center")}>
         {isAuthenticated ? (
           <>
             <div className="flex items-center gap-3">
