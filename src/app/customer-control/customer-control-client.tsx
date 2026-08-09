@@ -31,6 +31,7 @@ type SortKey =
   | "homeBrandsLastMonth"
   | "lastPurchaseDate"
   | "averageCartValue"
+  | "orderCount"
   | "fullName";
 
 export default function CustomerControlClient({ initialData }: { initialData: CustomerControlData[] }) {
@@ -212,6 +213,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
               <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">טלפון</TableHead>
               <SortHeader label="רכישה אחרונה" sortKey="lastPurchaseDate" />
               <SortHeader label="ערך סל ממוצע" sortKey="averageCartValue" />
+              <SortHeader label="כמות הזמנות" sortKey="orderCount" />
               <SortHeader label="מותגי הבית(חודש)" sortKey="homeBrandsLastMonth" />
               <SortHeader label="מותגי הבית(שנה)" sortKey="homeBrandsLastYear" />
               <SortHeader label="מותגי הבית(הכל)" sortKey="homeBrandsAllTime" />
@@ -223,7 +225,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
           <TableBody>
             {paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={11} className="h-32 text-center text-slate-500">
+                <TableCell colSpan={12} className="h-32 text-center text-slate-500">
                   לא נמצאו לקוחות.
                 </TableCell>
               </TableRow>
@@ -235,6 +237,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
                   <TableCell className="px-0.5 text-center text-slate-600 text-[11px] truncate max-w-[80px]" dir="ltr" title={customer.phone}>{customer.phone}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-500 whitespace-nowrap text-[11px]">{formatDate(customer.lastPurchaseDate)}</TableCell>
                   <TableCell className="px-0.5 text-center font-semibold text-violet-600 whitespace-nowrap text-[11px]">{formatCurrency(customer.averageCartValue)}</TableCell>
+                  <TableCell className="px-0.5 text-center font-semibold text-slate-700 whitespace-nowrap text-[11px]">{customer.orderCount}</TableCell>
                   <TableCell className="px-0.5 text-center font-semibold text-emerald-600 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastMonth)}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastYear)}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsAllTime)}</TableCell>
