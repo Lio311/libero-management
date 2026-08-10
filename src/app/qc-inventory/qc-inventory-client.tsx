@@ -412,7 +412,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       {/* Main Content */}
       <div className="px-4 md:px-8 pb-8">
         {/* Sticky Header - ratings + filters - direct child of scroll flow */}
-        <div ref={topSectionRef} className="sticky top-0 z-[60] bg-white p-4 md:p-6 border border-gray-100 border-b-0 rounded-t-xl shadow-sm flex flex-col gap-4">
+        <div ref={topSectionRef} className="sticky top-0 z-30 bg-white p-4 md:p-6 border border-gray-100 border-b-0 rounded-t-xl shadow-sm flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="font-medium text-gray-500">דירוג:</span>
             <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">מצוין (8.5-10)</span>
@@ -426,7 +426,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         </div>
 
         {/* Table header - sticky just below the filters */}
-        <div className="hidden md:block sticky z-[55] bg-white border-x border-gray-100" style={{ top: `${Math.max(0, headerHeight)}px` }}>
+        <div className="hidden md:block sticky z-20 bg-white border-x border-gray-100" style={{ top: `${Math.max(0, headerHeight)}px` }}>
           <div className="border-b border-gray-200 flex text-sm font-medium text-gray-700">
             <div className="py-3 px-4 text-right flex-[2]">שם המוצר</div>
             <div className="py-3 px-4 text-right flex-[1.2]">קטגוריה</div>
