@@ -17,8 +17,13 @@ export const config = {
      * Match all request paths except for the ones starting with:
      * - login (auth page)
      * - api/webhooks (public API endpoints)
+     * - api/sync (cron sync)
+     * - api/qc-sync (cron QC sync)
+     * - api/qc-notify (cron QC notify)
      * - api/oded-coupon (public Oded report API)
+     * - api/influencer-coupon (public influencer report API)
      * - marketing/oded (public Oded report page)
+     * - marketing/influencers (public influencers report page)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
@@ -29,6 +34,6 @@ export const config = {
      * - influencers (influencer images)
      * - brands (brand images)
      */
-    '/((?!login|api/webhooks|api/oded-coupon|api/influencer-coupon|marketing/oded|marketing/influencers|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-d.png|oded.png|influencers|brands).*)',
+    '/((?!login|api/webhooks|api/sync|api/qc-sync|api/qc-notify|api/oded-coupon|api/influencer-coupon|marketing/oded|marketing/influencers|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-d.png|oded.png|influencers|brands).*)',
   ],
 };
