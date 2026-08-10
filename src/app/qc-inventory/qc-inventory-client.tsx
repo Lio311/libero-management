@@ -56,6 +56,20 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const [colorFilter, setColorFilter] = useState<string>("all");
   const [stockFilter, setStockFilter] = useState<string>("in_stock");
 
+  const topSectionRef = React.useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  React.useEffect(() => {
+    if (!topSectionRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setHeaderHeight(entry.contentRect.height);
+      }
+    });
+    observer.observe(topSectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   const uniqueCategories = useMemo(() => {
     const cats = new Set<string>();
     products.forEach(p => {
@@ -344,7 +358,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   return (
     <div className="bg-gray-50/50 min-h-screen flex flex-col" dir="rtl">
       {/* Sticky Top Section */}
-      <div className="sticky top-0 z-[60] bg-gray-50/95 backdrop-blur-sm pb-4 pt-4 md:pt-8 px-4 md:px-8 space-y-6 shadow-sm border-b border-gray-200">
+      <div ref={topSectionRef} className="sticky top-0 z-[60] bg-gray-50/95 backdrop-blur-sm pb-4 pt-4 md:pt-8 px-4 md:px-8 space-y-6 shadow-sm border-b border-gray-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">בקרת מלאי</h2>
@@ -415,18 +429,18 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             <table className="w-full text-sm border-separate border-spacing-0">
               <thead className="hidden md:table-header-group">
                 <tr className="bg-white [&>th]:border-b [&>th]:border-b-gray-200">
-                  <th className="py-3 px-4 font-medium text-right rounded-tr-md bg-white z-50">שם המוצר</th>
-                  <th className="py-3 px-4 font-medium text-right bg-white z-50">קטגוריה</th>
-                  <th className="py-3 px-4 font-medium text-right bg-white z-50">קבוצת קומרס</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-50">דירוג</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-50">מכר חודש לפני אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-50">מכר חודש אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-50">מכר שבוע אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-50">התקדמות</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-50">תאריך בקרת מוצר אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-50">תאריך תמחור אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-50">תאריך מכירה אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center rounded-tl-md bg-white z-50">זמן חיי מדף</th>
+                  <th className="py-3 px-4 font-medium text-right rounded-tr-md bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>שם המוצר</th>
+                  <th className="py-3 px-4 font-medium text-right bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>קטגוריה</th>
+                  <th className="py-3 px-4 font-medium text-right bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>קבוצת קומרס</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>דירוג</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>מכר חודש לפני אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>מכר חודש אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>מכר שבוע אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>התקדמות</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>תאריך בקרת מוצר אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>תאריך תמחור אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>תאריך מכירה אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center rounded-tl-md bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>זמן חיי מדף</th>
                 </tr>
               </thead>
               <tbody>
