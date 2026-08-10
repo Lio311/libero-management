@@ -23,16 +23,19 @@ export async function getQcInventoryProducts() {
       stockQuantity: wcProducts.stockQuantity,
       categories: wcProducts.categories,
       updatedAt: wcProducts.updatedAt,
+      dateCreated: wcProducts.dateCreated,
     }).from(wcProducts);
     
     const stockMap = new Map<number, number>();
     const updatedAtMap = new Map<number, Date>();
+    const wcDateCreatedMap = new Map<number, Date | null>();
     const categoryMap = new Map<number, string>();
     const commerceGroupsList = ["חדירה זול", "חדירה יקר", "בסיס זול", "בסיס יקר", "פרימיום יקר", "פרימיום זול", "מותגי הבית"];
     const commerceGroupMap = new Map<number, string>();
     for (const wp of allWcProducts) {
       stockMap.set(wp.id, wp.stockQuantity || 0);
       updatedAtMap.set(wp.id, wp.updatedAt);
+      wcDateCreatedMap.set(wp.id, wp.dateCreated);
       
       let categoryStr = "אחר";
       let commerceGroupStr = "";
@@ -108,8 +111,8 @@ export async function getQcInventoryProducts() {
     }
     
     const inventoryProducts = products.map((product) => {
-      const wooUpdatedAt = updatedAtMap.get(product.wooProductId);
-      const dateCreated = product.lastRestockDate || wooUpdatedAt || product.dateAddedToSite || product.createdAt;
+      const wcDateCreated = wcDateCreatedMap.get(product.wooProductId);
+      const dateCreated = product.lastRestockDate || wcDateCreated || product.dateAddedToSite || product.createdAt;
       
       const createdDate = new Date(dateCreated);
       const diffTime = Math.abs(now.getTime() - createdDate.getTime());
