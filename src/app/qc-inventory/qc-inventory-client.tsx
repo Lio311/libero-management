@@ -38,6 +38,16 @@ function getAgeCategory(days: number) {
   return { category: "green", label: "פחות משבועיים", bg: "bg-emerald-50/70 hover:bg-emerald-100/70", text: "text-emerald-700", border: "border-emerald-400", badgeBg: "bg-emerald-100" };
 }
 
+function getRatingColor(rating: number | undefined) {
+  if (rating === undefined) return "text-gray-400";
+  if (rating >= 8.5) return "text-emerald-600 font-medium";
+  if (rating >= 7) return "text-green-500 font-medium";
+  if (rating >= 5) return "text-yellow-600 font-medium";
+  if (rating >= 3.5) return "text-orange-500 font-medium";
+  if (rating >= 2) return "text-red-500 font-medium";
+  return "text-red-700 font-medium";
+}
+
 export default function QcInventoryClient({ products }: { products: InventoryProduct[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("color_desc");
@@ -385,10 +395,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                           <span className="text-gray-600 text-sm">{product.commerceGroup || "—"}</span>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <div className="flex items-baseline justify-center gap-1">
-                            <span className="font-bold text-lg text-blue-700">{product.rating?.toFixed(1) || "-"}</span>
-                            <span className="text-gray-400 text-xs">/ 10</span>
-                          </div>
+                          <span className={getRatingColor(product.rating)}>{product.rating?.toFixed(1) || "-"}</span>
                         </td>
                         <td className="py-3 px-4 text-center text-gray-700">
                           {product.salesMonthBeforeLast}
@@ -470,9 +477,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                               {product.categories && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.categories}</p>}
                               {product.commerceGroup && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.commerceGroup}</p>}
                             </div>
-                            <div className="flex flex-col items-center justify-center bg-blue-50 px-3 py-1.5 rounded-lg mr-2">
-                              <span className="font-bold text-lg text-blue-700 leading-none">{product.rating?.toFixed(1) || "-"}</span>
-                              <span className="text-blue-400 text-[10px] font-medium mt-0.5">דירוג</span>
+                            <div className="flex flex-col items-center justify-center bg-gray-50/80 px-3 py-1.5 rounded-lg mr-2">
+                              <span className={`text-base leading-none ${getRatingColor(product.rating)}`}>{product.rating?.toFixed(1) || "-"}</span>
+                              <span className="text-gray-500 text-[10px] font-medium mt-0.5">דירוג</span>
                             </div>
                           </div>
                           <div className="p-3 space-y-2 text-[12px]">
