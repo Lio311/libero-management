@@ -359,7 +359,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           <div className="relative border rounded-md">
             <table className="w-full text-sm">
               <thead className="hidden md:table-header-group sticky top-0 z-50 shadow-sm border-b bg-white">
-                <tr className="bg-white">
+                <tr className="bg-white border-r-4 border-white">
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md bg-white z-50">שם המוצר</th>
                   <th className="py-3 px-4 font-medium text-right bg-white z-50">קטגוריה</th>
                   <th className="py-3 px-4 font-medium text-right bg-white z-50">קבוצת קומרס</th>
