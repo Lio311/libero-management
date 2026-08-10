@@ -21,6 +21,7 @@ import { Check, X, Edit2, ChevronRight, ChevronLeft, Trash2, Plus, Loader2 } fro
 import { influencersConfig } from '@/config/influencers';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { toast } from "sonner";
 
 interface MarketingClientProps {
   activeInfluencers: number;
@@ -86,9 +87,10 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
     if (confirm('האם למחוק שורה זו?')) {
       try {
         await deleteInfluencer(inf.id);
+        toast.success('משפיען נמחק בהצלחה');
       } catch (err: any) {
         console.error('Delete influencer error:', err);
-        alert('שגיאה במחיקת משפיען: ' + (err?.message || 'שגיאה לא ידועה'));
+        toast.error('שגיאה במחיקת משפיען: ' + (err?.message || 'שגיאה לא ידועה'));
       }
     }
   };
@@ -324,16 +326,17 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         } else if (payment.id && payment.id.startsWith('pseudo-')) {
           // pseudo row - influencer exists in config or DB but has no payment record for this month
           if (payment.influencerId && influencersConfig[payment.influencerId]) {
-            alert('לא ניתן למחוק משפיען שמוגדר בקוד. ניתן למחוק רק משפיענים שנוספו ידנית.');
+            toast.error('לא ניתן למחוק משפיען שמוגדר בקוד. ניתן למחוק רק משפיענים שנוספו ידנית.');
           } else if (payment.dbId) {
             await deleteInfluencer(payment.dbId);
+            toast.success('משפיען נמחק בהצלחה');
           } else {
-            alert('לא ניתן למחוק שורה זו - לא נמצא מזהה בבסיס הנתונים.');
+            toast.error('לא ניתן למחוק שורה זו - לא נמצא מזהה בבסיס הנתונים.');
           }
         }
       } catch (err: any) {
         console.error('Delete error:', err);
-        alert('שגיאה במחיקה: ' + (err?.message || 'שגיאה לא ידועה'));
+        toast.error('שגיאה במחיקה: ' + (err?.message || 'שגיאה לא ידועה'));
       }
     }
   };

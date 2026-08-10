@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { 
     getBonuses, 
     getEmployeeBonuses, 
@@ -198,7 +199,7 @@ export function useBonus() {
             return url;
         } catch (err) {
             console.error('Unexpected upload error:', err);
-            alert("שגיאה בהעלאת התמונה. ודא שמשתני הסביבה של Vercel Blob מוגדרים.");
+            toast.error("שגיאה בהעלאת התמונה. ודא שמשתני הסביבה של Vercel Blob מוגדרים.");
             return null;
         }
     };

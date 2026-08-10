@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ArrowUpDown, Search, Users, UserCheck, ShoppingCart, TrendingUp, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 type SortKey = 
   | "totalAllTime" 
@@ -43,7 +44,6 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(new Set());
   const [isGeneratingLabels, setIsGeneratingLabels] = useState(false);
-  const [generatedLabels, setGeneratedLabels] = useState<{name: string, url: string}[]>([]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -177,30 +177,16 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
       
       const data = await res.json();
       
-      const labels: {name: string, url: string}[] = [];
-      if (data.results) {
-        data.results.forEach((r: any) => {
-          if (r.success && r.data?.label) {
-            const cust = selectedCustomers.find(c => c.id === r.customerId);
-            labels.push({ name: cust?.fullName || "לקוח", url: r.data.label });
-          }
-        });
-      }
-      
-      if (labels.length > 0) {
-        setGeneratedLabels(labels);
-      }
-      
       if (!res.ok || !data.allSuccessful) {
-        alert("חלק מהמשלוחים או כולם נכשלו. אנא בדוק בקונסול או במערכת LionWheel.");
+        toast.error("חלק מהמשלוחים או כולם נכשלו. אנא בדוק בקונסול או במערכת LionWheel.");
         console.error("LionWheel results:", data);
       } else {
-        alert("משלוחים נוצרו בהצלחה ב-LionWheel!");
+        toast.success("משלוחים נוצרו בהצלחה ב-LionWheel!");
         setSelectedCustomerIds(new Set()); // Clear selection on success
       }
     } catch (err) {
       console.error(err);
-      alert("שגיאה בתקשורת עם השרת.");
+      toast.error("שגיאה בתקשורת עם השרת.");
     } finally {
       setIsGeneratingLabels(false);
     }
@@ -239,7 +225,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 md:hidden">בקרת לקוחות</h2>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 md:hidden">מאגר לקוחות</h2>
           <div className="flex flex-wrap gap-2 text-xs mt-3">
             <span className="font-medium px-2 py-1">מקרא זמן מאז רכישה אחרונה:</span>
             <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">ירוק: עד 3 חודשים</span>
@@ -249,31 +235,6 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
           </div>
         </div>
       </div>
-
-      {generatedLabels.length > 0 && (
-        <div className="bg-green-50 border border-green-200 p-4 rounded-xl shadow-sm mb-6 animate-in fade-in slide-in-from-top-4">
-          <div className="flex justify-between items-start mb-3">
-            <h3 className="text-green-800 font-bold text-lg">משלוחים נוצרו בהצלחה! להלן המדבקות (PDF):</h3>
-            <Button variant="ghost" size="sm" onClick={() => setGeneratedLabels([])} className="text-slate-500 hover:text-slate-700 h-8">
-              סגור
-            </Button>
-          </div>
-          <ul className="flex flex-wrap gap-3">
-            {generatedLabels.map((lbl, idx) => (
-              <li key={idx}>
-                <a 
-                  href={lbl.url} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-green-200 hover:border-green-400 hover:shadow-sm transition-all text-indigo-600 hover:text-indigo-700 font-medium rounded-lg text-sm"
-                >
-                  📄 מדבקה - {lbl.name}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-sm">

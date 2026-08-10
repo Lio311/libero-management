@@ -24,6 +24,8 @@ import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { Sidebar } from "@/components/layout/sidebar";
 import { GlobalNotifications } from "@/components/layout/global-notifications";
 
+import { Toaster } from 'sonner';
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -43,6 +45,7 @@ export default async function RootLayout({
         }>
           {children}
         </LayoutWrapper>
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );

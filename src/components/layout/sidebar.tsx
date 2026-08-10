@@ -41,10 +41,10 @@ const navigation: NavItem[] = [
   { name: "בקרת מוצרים", href: "/qc", icon: ClipboardCheck },
   { name: "בקרת מלאי", href: "/qc-inventory", icon: ClipboardCheck },
   { 
-    name: "בקרת לקוחות", 
+    name: "לקוחות", 
     icon: UserCog,
     subItems: [
-      { name: "לוח בקרה", href: "/customer-control" },
+      { name: "מאגר לקוחות", href: "/customer-control" },
       { name: "מדבקות למשלוח", href: "/shipping-labels" },
     ]
   },
