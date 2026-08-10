@@ -42,6 +42,7 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(new Set());
   const [isGeneratingLabels, setIsGeneratingLabels] = useState(false);
+  const [generatedLabels, setGeneratedLabels] = useState<{name: string, url: string}[]>([]);
 
 
   const formatCurrency = (val: number) => {
@@ -171,6 +172,20 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
       
       const data = await res.json();
       
+      const labels: {name: string, url: string}[] = [];
+      if (data.results) {
+        data.results.forEach((r: any) => {
+          if (r.success && r.data?.label) {
+            const cust = selectedCustomers.find(c => c.id === r.customerId);
+            labels.push({ name: cust?.fullName || "לקוח", url: r.data.label });
+          }
+        });
+      }
+      
+      if (labels.length > 0) {
+        setGeneratedLabels(labels);
+      }
+      
       if (!res.ok || !data.allSuccessful) {
         alert("חלק מהמשלוחים או כולם נכשלו. אנא בדוק בקונסול או במערכת LionWheel.");
         console.error("LionWheel results:", data);
@@ -221,6 +236,31 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
           </div>
         </div>
       </div>
+
+      {generatedLabels.length > 0 && (
+        <div className="bg-green-50 border border-green-200 p-4 rounded-xl shadow-sm mb-6 animate-in fade-in slide-in-from-top-4">
+          <div className="flex justify-between items-start mb-3">
+            <h3 className="text-green-800 font-bold text-lg">משלוחים נוצרו בהצלחה! להלן המדבקות (PDF):</h3>
+            <Button variant="ghost" size="sm" onClick={() => setGeneratedLabels([])} className="text-slate-500 hover:text-slate-700 h-8">
+              סגור
+            </Button>
+          </div>
+          <ul className="flex flex-wrap gap-3">
+            {generatedLabels.map((lbl, idx) => (
+              <li key={idx}>
+                <a 
+                  href={lbl.url} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-green-200 hover:border-green-400 hover:shadow-sm transition-all text-indigo-600 hover:text-indigo-700 font-medium rounded-lg text-sm"
+                >
+                  📄 מדבקה - {lbl.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-sm">
