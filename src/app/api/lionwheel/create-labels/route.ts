@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { generatedShippingLabels } from '@/lib/db/schema';
 
 const LIONWHEEL_API_KEY = (process.env.LIONWHEEL_API_KEY || "c_key_ea2313a9-c33a-436a-bd4b-ed2978e51a70").replace(/['"]/g, '').trim();
 const LIONWHEEL_ENDPOINT = "https://members.lionwheel.com/api/v1/tasks/create";
@@ -48,6 +50,19 @@ export async function POST(request: Request) {
       } else {
         const data = await response.json();
         results.push({ customerId: customer.id, success: true, data });
+        
+        try {
+          await db.insert(generatedShippingLabels).values({
+            orderId: payload.original_order_id,
+            customerId: customer.id?.toString() || "",
+            customerName: customer.fullName || "לא ידוע",
+            labelUrl: data.pdf_link || data.label_url || "",
+            trackingUrl: data.tracking_url || "",
+            barcode: data.barcode || data.tracking_number || "",
+          });
+        } catch (dbError) {
+          console.error(`Failed to save shipping label for customer ${customer.id} to db:`, dbError);
+        }
       }
     }
 

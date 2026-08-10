@@ -274,3 +274,14 @@ export const wcOrders = pgTable("wc_orders", {
   billing: jsonb("billing"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const generatedShippingLabels = pgTable("generated_shipping_labels", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  orderId: text("order_id"),
+  customerId: text("customer_id"),
+  customerName: text("customer_name"),
+  labelUrl: text("label_url"),
+  trackingUrl: text("tracking_url"),
+  barcode: text("barcode"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
