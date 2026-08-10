@@ -8,6 +8,7 @@ import { CheckCircle2, Cable, Trash2, Edit2, Check, X, Plus } from "lucide-react
 import Xarrow, { Xwrapper, useXarrow } from "react-xarrows";
 import { updateRoleHolder, addTeamTaskConnection, removeTeamTaskConnection, createRoleHolder, deleteRoleHolder, createTeamTask, updateTeamTask, deleteTeamTask } from "@/app/actions/team";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface TeamClientProps {
   roleHolders: any[];
@@ -38,6 +39,7 @@ function EmployeeCard({
   onTaskUpdate: (id: string, description: string) => void;
   onTaskDelete: (id: string) => void;
 }) {
+  const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: roleHolder.name || '', role: roleHolder.role || '' });
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
@@ -85,7 +87,11 @@ function EmployeeCard({
             {!roleHolder.isTemp && (
               <div className="flex gap-2">
                 <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="ערוך"><Edit2 className="w-4 h-4" /></button>
-                <button onClick={() => { if(confirm('האם למחוק איש צוות?')) onDelete(roleHolder.id); }} className="p-1.5 text-red-600 hover:bg-red-50 rounded" title="מחק"><Trash2 className="w-4 h-4" /></button>
+                <button onClick={async () => { 
+                  if (await confirm({ title: 'מחיקת איש צוות', message: 'האם למחוק איש צוות?', confirmText: 'מחק', variant: 'destructive' })) { 
+                    onDelete(roleHolder.id); 
+                  } 
+                }} className="p-1.5 text-red-600 hover:bg-red-50 rounded" title="מחק"><Trash2 className="w-4 h-4" /></button>
               </div>
             )}
           </div>
@@ -139,7 +145,12 @@ function EmployeeCard({
                   {!connectMode && (
                     <div className="absolute left-2 top-2 z-30 flex gap-1 opacity-0 group-hover/task:opacity-100 transition-opacity">
                       <button onClick={(e) => { e.stopPropagation(); setTaskEditValue(task.description); setEditingTaskId(task.id); }} className="p-1 text-blue-600 hover:bg-blue-100 rounded bg-white/80" title="ערוך משימה"><Edit2 className="w-3 h-3" /></button>
-                      <button onClick={(e) => { e.stopPropagation(); if(confirm('האם למחוק משימה זו?')) onTaskDelete(task.id); }} className="p-1 text-red-600 hover:bg-red-100 rounded bg-white/80" title="מחק משימה"><Trash2 className="w-3 h-3" /></button>
+                      <button onClick={async (e) => { 
+                        e.stopPropagation(); 
+                        if (await confirm({ title: 'מחיקת משימה', message: 'האם למחוק משימה זו?', confirmText: 'מחק', variant: 'destructive' })) { 
+                          onTaskDelete(task.id); 
+                        } 
+                      }} className="p-1 text-red-600 hover:bg-red-100 rounded bg-white/80" title="מחק משימה"><Trash2 className="w-3 h-3" /></button>
                     </div>
                   )}
                 </>
@@ -182,6 +193,7 @@ export default function TeamClient({
   groupedTasks,
   connections
 }: TeamClientProps) {
+  const confirm = useConfirm();
   const [mounted, setMounted] = useState(false);
   const [connectMode, setConnectMode] = useState(false);
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
@@ -212,7 +224,7 @@ export default function TeamClient({
 
   const handleRemoveConnection = async (e: React.MouseEvent, connectionId: string) => {
     e.stopPropagation();
-    if (confirm('האם להסיר את הקשר בין המשימות?')) {
+    if (await confirm({ title: 'הסרת קשר', message: 'האם להסיר את הקשר בין המשימות?', confirmText: 'הסר', variant: 'destructive' })) {
       await removeTeamTaskConnection(connectionId);
     }
   };

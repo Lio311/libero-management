@@ -12,6 +12,7 @@ import { updateImportPayment, createImportPayment, deleteImportPayment, createCh
 import { Trash2, Plus } from "lucide-react";
 import { Check, X, Edit2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface CreditCardData {
   id: string;
@@ -310,6 +311,7 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
 }
 
 function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payment: any, onCancelNew?: () => void, uniqueBrands?: string[] }) {
+  const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(payment.isNew || false);
   const [formData, setFormData] = useState({
     brand: payment.brand || '',
@@ -362,7 +364,7 @@ function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payme
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('האם למחוק שורה זו?')) {
+    if (await confirm({ title: 'מחיקת שורה', message: 'האם למחוק שורה זו?', confirmText: 'מחק', variant: 'destructive' } as any)) {
       await deleteImportPayment(payment.id);
     }
   };
@@ -513,6 +515,7 @@ function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payme
 
 
 function EditableChinaOrderRow({ order, onCancelNew }: { order: any, onCancelNew?: () => void }) {
+  const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(order.isNew || false);
   const [formData, setFormData] = useState({
     products: order.products || '',
@@ -553,7 +556,7 @@ function EditableChinaOrderRow({ order, onCancelNew }: { order: any, onCancelNew
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('האם למחוק שורה זו?')) {
+    if (await confirm({ title: 'מחיקת שורה', message: 'האם למחוק שורה זו?', confirmText: 'מחק', variant: 'destructive' } as any)) {
       await deleteChinaOrder(order.id);
     }
   };

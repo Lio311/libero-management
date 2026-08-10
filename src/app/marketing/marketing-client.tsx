@@ -22,6 +22,7 @@ import { influencersConfig } from '@/config/influencers';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface MarketingClientProps {
   activeInfluencers: number;
@@ -36,6 +37,7 @@ interface MarketingClientProps {
 }
 
 function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBrands?: string[] }) {
+  const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(false);
   const [data, setData] = useState({
     influencerName: inf.influencerName || '',
@@ -84,7 +86,7 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('האם למחוק שורה זו?')) {
+    if (await confirm({ title: 'מחיקת משפיען', message: 'האם למחוק שורה זו?', confirmText: 'מחק', variant: 'destructive' })) {
       try {
         await deleteInfluencer(inf.id);
         toast.success('משפיען נמחק בהצלחה');
@@ -234,6 +236,7 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
 }
 
 function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfluencers: any[] }) {
+  const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(false);
   const [commission, setCommission] = useState<number | null>(null);
   const [isLoadingCommission, setIsLoadingCommission] = useState(false);
@@ -319,7 +322,7 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm('האם למחוק שורה זו?')) {
+    if (await confirm({ title: 'מחיקת תשלום', message: 'האם למחוק שורה זו?', confirmText: 'מחק', variant: 'destructive' })) {
       try {
         if (payment.hasRealPayment !== false) {
           await deleteInfluencerPayment(payment.id);

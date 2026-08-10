@@ -25,6 +25,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { GlobalNotifications } from "@/components/layout/global-notifications";
 
 import { Toaster } from 'sonner';
+import { ConfirmProvider } from '@/hooks/useConfirm';
 
 export default async function RootLayout({
   children,
@@ -38,14 +39,16 @@ export default async function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row`}>
-        <LayoutWrapper sidebar={
-          <Sidebar isAuthenticated={isAuthenticated}>
-            <GlobalNotifications />
-          </Sidebar>
-        }>
-          {children}
-        </LayoutWrapper>
-        <Toaster richColors position="top-center" />
+        <ConfirmProvider>
+          <LayoutWrapper sidebar={
+            <Sidebar isAuthenticated={isAuthenticated}>
+              <GlobalNotifications />
+            </Sidebar>
+          }>
+            {children}
+          </LayoutWrapper>
+          <Toaster richColors position="top-center" />
+        </ConfirmProvider>
       </body>
     </html>
   );

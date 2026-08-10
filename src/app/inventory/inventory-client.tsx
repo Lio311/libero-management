@@ -12,6 +12,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
 import { addInventoryItem, updateInventoryItem, deleteInventoryItem, updateSupplier, deleteSupplier } from "./actions";
 import { AnimatePresence, motion } from "framer-motion";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface InventoryClientProps {
   totalInventoryValue: number;
@@ -46,6 +47,7 @@ const getContactStatusColor = (status: string | null) => {
 };
 
 function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, uniqueBrands?: string[] }) {
+  const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [data, setData] = useState({
@@ -74,8 +76,8 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
     setIsEditing(false);
   };
 
-  const handleDelete = () => {
-    if (confirm('האם אתה בטוח שברצונך למחוק ספק זה?')) {
+  const handleDelete = async () => {
+    if (await confirm({ title: 'מחיקת ספק', message: 'האם אתה בטוח שברצונך למחוק ספק זה?', confirmText: 'מחק', variant: 'destructive' } as any)) {
       startTransition(async () => {
         await deleteSupplier(supplier.id);
       });
@@ -377,6 +379,7 @@ export default function InventoryClient({
   inventoryItems,
   suppliers
 }: InventoryClientProps) {
+  const confirm = useConfirm();
   const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("all");
@@ -440,7 +443,7 @@ export default function InventoryClient({
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('האם אתה בטוח שברצונך למחוק פריט זה?')) {
+    if (await confirm({ title: 'מחיקת פריט', message: 'האם אתה בטוח שברצונך למחוק פריט זה?', confirmText: 'מחק', variant: 'destructive' } as any)) {
       await deleteInventoryItem(id);
     }
   };

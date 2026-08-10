@@ -15,11 +15,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, ExternalLink, Download, Trash2, Loader2, Package, Truck, CheckCircle2, Clock } from "lucide-react";
 import { deleteShippingLabel } from "./actions";
+import { useConfirm } from "@/hooks/useConfirm";
 
 export default function ShippingLabelsClient({ initialLabels, initialStatuses = {} }: { initialLabels: any[], initialStatuses?: Record<string, string> }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const confirm = useConfirm();
 
   const filteredLabels = initialLabels.filter((label) => 
     label.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -43,8 +45,14 @@ export default function ShippingLabelsClient({ initialLabels, initialStatuses = 
     return status === 'DELIVERED';
   }).length;
 
-  const handleDelete = (id: string) => {
-    if (confirm("האם אתה בטוח שברצונך למחוק מדבקה זו? (פעולה זו תמחק את הרשומה מהמערכת בלבד)")) {
+  const handleDelete = async (id: string) => {
+    const isConfirmed = await confirm({
+      title: "מחיקת מדבקה",
+      message: "האם אתה בטוח שברצונך למחוק מדבקה זו? (פעולה זו תמחק את הרשומה מהמערכת בלבד)",
+      confirmText: "מחק מדבקה"
+    });
+    
+    if (isConfirmed) {
       setDeletingId(id);
       startTransition(async () => {
         await deleteShippingLabel(id);

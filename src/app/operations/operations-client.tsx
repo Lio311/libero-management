@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Briefcase, Building2, Contact, CheckCircle2, Clock, AlertCircle, LayoutList, LayoutGrid, Check, X, Edit2 } from "lucide-react";
 import { updateWholesaleCustomer, createWholesaleCustomer, deleteWholesaleCustomer } from "@/app/actions/operations";
 import { Trash2, Plus } from "lucide-react";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface OperationsClientProps {
   wholesaleClients: { name: string; contact: string; totalOrders: number; revenue: number; interest: string }[];
@@ -27,6 +28,7 @@ const getStatusColor = (status: string | null) => {
 
 
 function EditableB2BCard({ customer, onCancelNew }: { customer: any, onCancelNew?: () => void }) {
+  const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(customer.isNew || false);
   const [isPending, startTransition] = useTransition();
   const [data, setData] = useState({
@@ -74,8 +76,8 @@ function EditableB2BCard({ customer, onCancelNew }: { customer: any, onCancelNew
     }
   };
 
-  const handleDelete = () => {
-    if (confirm('האם אתה בטוח שברצונך למחוק לקוח זה?')) {
+  const handleDelete = async () => {
+    if (await confirm({ title: 'מחיקת לקוח', message: 'האם אתה בטוח שברצונך למחוק לקוח זה?', confirmText: 'מחק', variant: 'destructive' })) {
       startTransition(async () => {
         await deleteWholesaleCustomer(customer.id);
       });
@@ -147,6 +149,7 @@ function EditableB2BCard({ customer, onCancelNew }: { customer: any, onCancelNew
 }
 
 function EditableWholesaleRow({ customer, onCancelNew }: { customer: any, onCancelNew?: () => void }) {
+  const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(customer.isNew || false);
   const [isPending, startTransition] = useTransition();
   const [data, setData] = useState({
@@ -194,8 +197,8 @@ function EditableWholesaleRow({ customer, onCancelNew }: { customer: any, onCanc
     }
   };
 
-  const handleDelete = () => {
-    if (confirm('האם אתה בטוח שברצונך למחוק שורה זו?')) {
+  const handleDelete = async () => {
+    if (await confirm({ title: 'מחיקת שורה', message: 'האם אתה בטוח שברצונך למחוק שורה זו?', confirmText: 'מחק', variant: 'destructive' })) {
       startTransition(async () => {
         await deleteWholesaleCustomer(customer.id);
       });

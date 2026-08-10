@@ -14,6 +14,7 @@ import { updateBankOfTaskAction, createBankOfTaskAction, deleteBankOfTaskAction 
 import { isValid, isBefore, startOfDay, format } from 'date-fns';
 import { he } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { useConfirm } from "@/hooks/useConfirm";
 
 type Task = {
   id: string;
@@ -25,6 +26,7 @@ type Task = {
 };
 
 export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) {
+  const confirm = useConfirm();
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
   const [searchQuery, setSearchQuery] = useState("");
@@ -174,8 +176,9 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
     startEditing(newTask);
   };
 
-  const handleDelete = (id: string) => {
-    if (!confirm("האם אתה בטוח שברצונך למחוק משימה זו?")) return;
+  const handleDelete = async (id: string) => {
+    const isConfirmed = await confirm({ title: 'מחיקת משימה', message: "האם אתה בטוח שברצונך למחוק משימה זו?", confirmText: 'מחק', variant: 'destructive' });
+    if (!isConfirmed) return;
     
     startTransition(async () => {
       // Optimistic delete

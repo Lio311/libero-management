@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import clsx from 'clsx';
 import { Trash2, Plus, Loader2, ChevronDown } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useConfirm } from "@/hooks/useConfirm";
 
 interface Column<T> {
     header: string;
@@ -150,6 +151,7 @@ const ToggleCell = ({ value, options, onChange }: {
 export const Table = <T extends { id: number | string }>({
     title, data, columns, rowClassName, onSave, onAdd, onDelete, onRowClick, headerExtra, onDataChange
 }: TableProps<T>) => {
+    const confirm = useConfirm();
     const [localData, setLocalData] = useState<T[]>(data);
     const [saving, setSaving] = useState(false);
     const [pendingEdit, setPendingEdit] = useState(false);
@@ -364,9 +366,11 @@ export const Table = <T extends { id: number | string }>({
                                 {onDelete && (
                                     <td className="px-3 py-2.5 text-center">
                                         <button
-                                            onClick={(e) => {
+                                            onClick={async (e) => {
                                                 e.stopPropagation();
-                                                if (confirm('האם אתה בטוח שברצונך למחוק שורה זו?')) onDelete(row.id);
+                                                if (await confirm({ title: 'מחיקת שורה', message: 'האם אתה בטוח שברצונך למחוק שורה זו?', confirmText: 'מחק', variant: 'destructive' })) {
+                                                    onDelete(row.id);
+                                                }
                                             }}
                                             className="text-[#1d1d1f]/20 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50"
                                         >
