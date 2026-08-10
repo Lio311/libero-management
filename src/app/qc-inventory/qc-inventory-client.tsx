@@ -27,7 +27,7 @@ interface InventoryProduct {
   lastSaleDate?: Date | null;
 }
 
-type SortMode = "name_asc" | "name_desc" | "inspection_asc" | "inspection_desc" | "price_asc" | "price_desc" | "color_asc" | "color_desc";
+type SortMode = "name_asc" | "name_desc" | "inspection_asc" | "inspection_desc" | "price_asc" | "price_desc" | "color_asc" | "color_desc" | "last_sale_date_asc" | "last_sale_date_desc";
 
 function getAgeCategory(days: number) {
   if (days > 90) return { category: "red", label: "מעל 90 יום", bg: "bg-red-50/70 hover:bg-red-100/70", text: "text-red-700", border: "border-red-400", badgeBg: "bg-red-100" };
@@ -42,7 +42,6 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const [sortMode, setSortMode] = useState<SortMode>("color_desc");
   const [showFilters, setShowFilters] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const [commerceGroupFilter, setCommerceGroupFilter] = useState<string>("all");
   const [colorFilter, setColorFilter] = useState<string>("all");
   const [stockFilter, setStockFilter] = useState<string>("in_stock");
 
@@ -52,14 +51,6 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       if (p.categories) cats.add(p.categories);
     });
     return Array.from(cats).sort();
-  }, [products]);
-
-  const uniqueCommerceGroups = useMemo(() => {
-    const groups = new Set<string>();
-    products.forEach(p => {
-      if (p.commerceGroup) groups.add(p.commerceGroup);
-    });
-    return Array.from(groups).sort();
   }, [products]);
 
   const colorOptions = [
@@ -80,6 +71,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     inspection_desc: "תאריך בקרה: חדש ← ישן",
     price_asc: "תאריך תמחור: ישן ← חדש",
     price_desc: "תאריך תמחור: חדש ← ישן",
+    last_sale_date_desc: "תאריך מכירה: חדש ← ישן",
+    last_sale_date_asc: "תאריך מכירה: ישן ← חדש",
   };
 
   const filteredAndSorted = useMemo(() => {
@@ -96,10 +89,6 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
 
     if (categoryFilter !== "all") {
       result = result.filter(p => p.categories === categoryFilter);
-    }
-    
-    if (commerceGroupFilter !== "all") {
-      result = result.filter(p => p.commerceGroup === commerceGroupFilter);
     }
 
     if (colorFilter !== "all") {
@@ -140,13 +129,21 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         case "color_desc":
           if (a.ageDays !== b.ageDays) return b.ageDays - a.ageDays;
           return new Date(a.dateAddedToSite).getTime() - new Date(b.dateAddedToSite).getTime();
+        case "last_sale_date_asc":
+          if (!a.lastSaleDate) return -1;
+          if (!b.lastSaleDate) return 1;
+          return new Date(a.lastSaleDate).getTime() - new Date(b.lastSaleDate).getTime();
+        case "last_sale_date_desc":
+          if (!a.lastSaleDate) return 1;
+          if (!b.lastSaleDate) return -1;
+          return new Date(b.lastSaleDate).getTime() - new Date(a.lastSaleDate).getTime();
         default:
           return 0;
       }
     });
 
     return result;
-  }, [products, searchQuery, sortMode, categoryFilter, commerceGroupFilter, colorFilter, stockFilter]);
+  }, [products, searchQuery, sortMode, categoryFilter, colorFilter, stockFilter]);
 
   return (
     <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen" dir="rtl">
@@ -216,20 +213,6 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                 </SelectContent>
               </Select>
 
-              <Select value={commerceGroupFilter} onValueChange={(v) => setCommerceGroupFilter(v || "all")}>
-                <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-                  <SelectValue placeholder="קבוצת קומרס">
-                    {commerceGroupFilter === 'all' ? 'כל קבוצות הקומרס' : commerceGroupFilter}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent align="end" dir="rtl">
-                  <SelectItem value="all">הכל</SelectItem>
-                  {uniqueCommerceGroups.map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
               <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
                 <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
                   <SelectValue placeholder="כל הצבעים">
@@ -281,20 +264,6 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
               <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
                 <SelectItem value="all">הכל</SelectItem>
                 {uniqueCategories.map(c => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={commerceGroupFilter} onValueChange={(v) => setCommerceGroupFilter(v || "all")}>
-              <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-                <SelectValue placeholder="קבוצת קומרס">
-                  {commerceGroupFilter === 'all' ? 'כל קבוצות הקומרס' : commerceGroupFilter}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-                <SelectItem value="all">הכל</SelectItem>
-                {uniqueCommerceGroups.map(c => (
                   <SelectItem key={c} value={c}>{c}</SelectItem>
                 ))}
               </SelectContent>
