@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ExternalLink, Download, Trash2, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Search, ExternalLink, Download, Trash2, Loader2, Package, Truck, CheckCircle2, Clock } from "lucide-react";
 import { deleteShippingLabel } from "./actions";
 
-export default function ShippingLabelsClient({ initialLabels }: { initialLabels: any[] }) {
+export default function ShippingLabelsClient({ initialLabels, initialStatuses = {} }: { initialLabels: any[], initialStatuses?: Record<string, string> }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -25,6 +26,22 @@ export default function ShippingLabelsClient({ initialLabels }: { initialLabels:
     label.orderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     label.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalLabels = initialLabels.length;
+  const pendingShipments = initialLabels.filter(l => {
+    const status = initialStatuses[l.barcode];
+    return !status || status === 'UNASSIGNED' || status === 'ASSIGNED' || status === 'NEW';
+  }).length;
+  
+  const inTransitShipments = initialLabels.filter(l => {
+    const status = initialStatuses[l.barcode];
+    return status === 'IN_TRANSIT' || status === 'ON_THE_WAY';
+  }).length;
+
+  const completedShipments = initialLabels.filter(l => {
+    const status = initialStatuses[l.barcode];
+    return status === 'DELIVERED';
+  }).length;
 
   const handleDelete = (id: string) => {
     if (confirm("האם אתה בטוח שברצונך למחוק מדבקה זו? (פעולה זו תמחק את הרשומה מהמערכת בלבד)")) {
@@ -59,8 +76,47 @@ export default function ShippingLabelsClient({ initialLabels }: { initialLabels:
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">מדבקות למשלוח</h1>
-          <p className="text-gray-500 mt-2">צפייה בכל המדבקות שהופקו מ-LionWheel</p>
+          <p className="text-gray-500 mt-2">צפייה ומעקב אחר המדבקות שהופקו מ-LionWheel</p>
         </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">סה״כ מדבקות</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground text-gray-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalLabels}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">ממתינים לאיסוף</CardTitle>
+            <Clock className="h-4 w-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{pendingShipments}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">במשלוח / במעבר</CardTitle>
+            <Truck className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{inTransitShipments}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">נמסרו בהצלחה</CardTitle>
+            <CheckCircle2 className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{completedShipments}</div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -80,35 +136,45 @@ export default function ShippingLabelsClient({ initialLabels }: { initialLabels:
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50 hover:bg-gray-50">
-                <TableHead className="text-right font-semibold">תאריך הפקה</TableHead>
-                <TableHead className="text-right font-semibold">שם לקוח</TableHead>
-                <TableHead className="text-right font-semibold">מספר הזמנה</TableHead>
-                <TableHead className="text-right font-semibold">ברקוד / מעקב</TableHead>
-                <TableHead className="text-right font-semibold">פעולות</TableHead>
+                <TableHead className="text-center font-semibold">תאריך הפקה</TableHead>
+                <TableHead className="text-center font-semibold">שם לקוח</TableHead>
+                <TableHead className="text-center font-semibold">מספר הזמנה</TableHead>
+                <TableHead className="text-center font-semibold">ברקוד / מעקב</TableHead>
+                <TableHead className="text-center font-semibold">סטטוס</TableHead>
+                <TableHead className="text-center font-semibold">פעולות</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredLabels.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                     לא נמצאו תוצאות לחיפוש
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredLabels.map((label) => (
                   <TableRow key={label.id} className="hover:bg-gray-50/50 transition-colors">
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium text-center">
                       {format(new Date(label.createdAt), "dd/MM/yyyy HH:mm")}
                     </TableCell>
-                    <TableCell>{label.customerName}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">{label.customerName}</TableCell>
+                    <TableCell className="text-center">
                       <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-700 text-xs font-medium">
                         {label.orderId}
                       </span>
                     </TableCell>
-                    <TableCell>{label.barcode || "N/A"}</TableCell>
+                    <TableCell className="text-center">{label.barcode || "N/A"}</TableCell>
+                    <TableCell className="text-center">
+                      {initialStatuses[label.barcode] ? (
+                        <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">
+                          {initialStatuses[label.barcode]}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">-</span>
+                      )}
+                    </TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
+                      <div className="flex justify-center gap-2">
                         {label.labelUrl && (
                           <Button 
                             variant="outline" 
