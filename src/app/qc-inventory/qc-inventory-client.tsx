@@ -63,7 +63,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     if (!topSectionRef.current) return;
     const observer = new ResizeObserver((entries) => {
       for (let entry of entries) {
-        setHeaderHeight(entry.contentRect.height);
+        setHeaderHeight(entry.target.getBoundingClientRect().height);
       }
     });
     observer.observe(topSectionRef.current);
