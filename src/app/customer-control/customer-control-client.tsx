@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ArrowUpDown, Search } from "lucide-react";
+import { ArrowUpDown, Search, Users, UserCheck, ShoppingCart, TrendingUp } from "lucide-react";
 
 type SortKey = 
   | "totalAllTime" 
@@ -131,6 +131,18 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
     return filteredAndSorted.slice(start, start + itemsPerPage);
   }, [filteredAndSorted, currentPage, itemsPerPage]);
 
+  // --- Summary Cards Calculations ---
+  const now = new Date();
+  const totalCustomers = initialData.length;
+  const activeCustomers = initialData.filter(c => {
+    if (!c.lastPurchaseDate) return false;
+    return (now.getTime() - c.lastPurchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 30.44) <= 3;
+  }).length;
+  const avgCartValueTotal = totalCustomers > 0 
+    ? initialData.reduce((acc, c) => acc + c.averageCartValue, 0) / totalCustomers 
+    : 0;
+  const totalLastMonthRevenue = initialData.reduce((acc, c) => acc + c.totalLastMonth, 0);
+
   const SortHeader = ({ label, sortKey: key, className }: { label: string, sortKey: SortKey, className?: string }) => (
     <TableHead className={`text-center px-0.5 cursor-pointer hover:bg-slate-100/50 transition-colors ${className || ''}`} onClick={() => handleSort(key)}>
       <div className="flex flex-col items-center justify-center gap-0.5 text-[11px]">
@@ -153,6 +165,45 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
             <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full">אדום: מעל 9 חודשים</span>
           </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-sm">
+          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+            <div className="p-2 bg-indigo-100 text-indigo-600 rounded-full">
+              <Users className="w-5 h-5" />
+            </div>
+            <p className="text-xs text-slate-500 font-medium">סה״כ לקוחות רשומים</p>
+            <h3 className="text-xl md:text-2xl font-bold text-slate-800">{totalCustomers}</h3>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-sm">
+          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+            <div className="p-2 bg-green-100 text-green-600 rounded-full">
+              <UserCheck className="w-5 h-5" />
+            </div>
+            <p className="text-xs text-slate-500 font-medium">לקוחות פעילים (עד 3 חודשים)</p>
+            <h3 className="text-xl md:text-2xl font-bold text-slate-800">{activeCustomers}</h3>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-sm">
+          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+            <div className="p-2 bg-violet-100 text-violet-600 rounded-full">
+              <ShoppingCart className="w-5 h-5" />
+            </div>
+            <p className="text-xs text-slate-500 font-medium">ממוצע שווי סל כללי</p>
+            <h3 className="text-xl md:text-2xl font-bold text-slate-800">{formatCurrency(avgCartValueTotal)}</h3>
+          </CardContent>
+        </Card>
+        <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-sm">
+          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-full">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <p className="text-xs text-slate-500 font-medium">הכנסות בחודש האחרון</p>
+            <h3 className="text-xl md:text-2xl font-bold text-slate-800">{formatCurrency(totalLastMonthRevenue)}</h3>
+          </CardContent>
+        </Card>
       </div>
 
       <Card className="w-full bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-xl overflow-hidden">

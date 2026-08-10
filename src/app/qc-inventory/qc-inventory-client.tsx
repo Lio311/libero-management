@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, ChevronDown, ChevronUp, Filter, Package } from "lucide-react";
+import { Search, ChevronDown, ChevronUp, Filter, Package, AlertTriangle, AlertCircle, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
@@ -39,13 +39,13 @@ function getAgeCategory(days: number) {
 }
 
 function getRatingStyle(rating: number | undefined) {
-  if (rating === undefined) return { text: "text-gray-400", bg: "bg-gray-50/70 hover:bg-gray-100/70", border: "border-gray-200" };
-  if (rating >= 8.5) return { text: "text-emerald-600 font-medium", bg: "bg-emerald-50/70 hover:bg-emerald-100/70", border: "border-emerald-400" };
-  if (rating >= 7) return { text: "text-green-500 font-medium", bg: "bg-green-50/70 hover:bg-green-100/70", border: "border-green-400" };
-  if (rating >= 5) return { text: "text-yellow-600 font-medium", bg: "bg-yellow-50/70 hover:bg-yellow-100/70", border: "border-yellow-400" };
-  if (rating >= 3.5) return { text: "text-orange-500 font-medium", bg: "bg-orange-50/70 hover:bg-orange-100/70", border: "border-orange-400" };
-  if (rating >= 2) return { text: "text-red-500 font-medium", bg: "bg-red-50/70 hover:bg-red-100/70", border: "border-red-400" };
-  return { text: "text-red-700 font-medium", bg: "bg-red-100/70 hover:bg-red-200/70", border: "border-red-500" };
+  if (rating === undefined) return { text: "text-gray-400", bg: "bg-gray-50/70 hover:bg-gray-100/70", border: "border-r-gray-200" };
+  if (rating >= 8.5) return { text: "text-emerald-600 font-medium", bg: "bg-emerald-50/70 hover:bg-emerald-100/70", border: "border-r-emerald-400" };
+  if (rating >= 7) return { text: "text-green-500 font-medium", bg: "bg-green-50/70 hover:bg-green-100/70", border: "border-r-green-400" };
+  if (rating >= 5) return { text: "text-yellow-600 font-medium", bg: "bg-yellow-50/70 hover:bg-yellow-100/70", border: "border-r-yellow-400" };
+  if (rating >= 3.5) return { text: "text-orange-500 font-medium", bg: "bg-orange-50/70 hover:bg-orange-100/70", border: "border-r-orange-400" };
+  if (rating >= 2) return { text: "text-red-500 font-medium", bg: "bg-red-50/70 hover:bg-red-100/70", border: "border-r-red-400" };
+  return { text: "text-red-700 font-medium", bg: "bg-red-100/70 hover:bg-red-200/70", border: "border-r-red-500" };
 }
 
 export default function QcInventoryClient({ products }: { products: InventoryProduct[] }) {
@@ -198,6 +198,12 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     return result;
   }, [processedProducts, searchQuery, sortMode, categoryFilter, colorFilter, stockFilter]);
 
+  // --- Summary Cards Calculations ---
+  const totalInStock = processedProducts.filter(p => p.currentStock > 0).length;
+  const outOfStock = processedProducts.filter(p => p.currentStock <= 0).length;
+  const needsAttention = processedProducts.filter(p => p.rating && p.rating < 4).length;
+  const zeroSales = processedProducts.filter(p => p.totalSales === 0).length;
+
   return (
     <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen" dir="rtl">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -214,6 +220,45 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             <span className="px-2 py-1 bg-red-200 text-red-800 rounded-full">גרוע (1-2)</span>
           </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="bg-white border-none shadow-sm">
+          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-full">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <p className="text-xs text-gray-500 font-medium">סה״כ מוצרים במלאי</p>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-800">{totalInStock}</h3>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border-none shadow-sm">
+          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+            <div className="p-2 bg-red-100 text-red-600 rounded-full">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <p className="text-xs text-gray-500 font-medium">מוצרים שאזלו (Out of Stock)</p>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-800">{outOfStock}</h3>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border-none shadow-sm">
+          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+            <div className="p-2 bg-orange-100 text-orange-600 rounded-full">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <p className="text-xs text-gray-500 font-medium">דורשים תשומת לב (דירוג &lt; 4)</p>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-800">{needsAttention}</h3>
+          </CardContent>
+        </Card>
+        <Card className="bg-white border-none shadow-sm">
+          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+            <div className="p-2 bg-gray-100 text-gray-600 rounded-full">
+              <Package className="w-5 h-5" />
+            </div>
+            <p className="text-xs text-gray-500 font-medium">מוצרים ללא מכירות כלל</p>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-800">{zeroSales}</h3>
+          </CardContent>
+        </Card>
       </div>
 
       <Card className="bg-white border-none shadow-sm overflow-visible">
@@ -357,9 +402,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             סה״כ מוצרים: {filteredAndSorted.length}
           </div>
           <div className="relative border rounded-md">
-            <table className="w-full text-sm">
-              <thead className="hidden md:table-header-group sticky top-0 z-50 shadow-sm border-b bg-white">
-                <tr className="bg-white">
+            <table className="w-full text-sm border-separate border-spacing-0">
+              <thead className="hidden md:table-header-group sticky top-0 z-50 shadow-sm bg-white">
+                <tr className="bg-white [&>th]:border-b [&>th]:border-b-gray-200">
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md bg-white z-50">שם המוצר</th>
                   <th className="py-3 px-4 font-medium text-right bg-white z-50">קטגוריה</th>
                   <th className="py-3 px-4 font-medium text-right bg-white z-50">קבוצת קומרס</th>
@@ -374,13 +419,13 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                   <th className="py-3 px-4 font-medium text-center rounded-tl-md bg-white z-50">זמן חיי מדף</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody>
                 {filteredAndSorted.length > 0 ? (
                   filteredAndSorted.map((product) => {
                     const style = getAgeCategory(product.ageDays);
                     const ratingStyle = getRatingStyle(product.rating);
                     return (
-                      <tr key={product.id} className={`transition-all duration-300 hidden md:table-row ${ratingStyle.bg}`}>
+                      <tr key={product.id} className={`transition-all duration-300 hidden md:table-row [&>td]:border-b [&>td]:border-b-gray-100 ${ratingStyle.bg}`}>
                         <td className={`py-3 px-4 text-right border-r-4 ${ratingStyle.border}`}>
                           <div className="flex items-center gap-3">
                             {product.productImage ? (
@@ -457,7 +502,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                   })
                 ) : (
                   <tr>
-                    <td colSpan={10} className="py-12 text-center text-gray-400">
+                    <td colSpan={12} className="py-12 text-center text-gray-400">
                       <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
                       <p>לא נמצאו מוצרים</p>
                     </td>
@@ -470,7 +515,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                   const ratingStyle = getRatingStyle(product.rating);
                   return (
                     <tr key={`mobile-${product.id}`} className="md:hidden border-b-0">
-                      <td colSpan={10} className="p-0 border-b-0">
+                      <td colSpan={12} className="p-0 border-b-0">
                         <div className={`m-2 rounded-xl shadow-sm border border-r-4 ${ratingStyle.border} ${ratingStyle.bg.split(' ')[0]}`}>
                           <div className="p-3 flex items-start gap-3 border-b border-gray-100">
                             {product.productImage ? (
