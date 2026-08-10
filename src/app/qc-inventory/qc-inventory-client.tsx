@@ -363,15 +363,6 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           <div>
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">בקרת מלאי</h2>
             <p className="text-muted-foreground mt-1 text-sm mb-3">מעקב גיל מלאי ותמחור למוצרי ליברו</p>
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className="font-medium text-gray-500">דירוג:</span>
-              <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">מצוין (8.5-10)</span>
-              <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">טוב (7-8.5)</span>
-              <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">בינוני (5-7)</span>
-              <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">טעון שיפור (3.5-5)</span>
-              <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full">חלש (2-3.5)</span>
-              <span className="px-2 py-1 bg-red-200 text-red-800 rounded-full">גרוע (1-2)</span>
-            </div>
           </div>
         </div>
 
@@ -416,7 +407,16 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       </div>
 
       {/* Sticky Filters Section */}
-      <div ref={topSectionRef} className="sticky top-0 z-[60] bg-white pb-4 pt-4 px-4 md:px-8 shadow-sm border-b border-gray-200">
+      <div ref={topSectionRef} className="sticky top-0 z-[60] bg-white pb-4 pt-4 px-4 md:px-8 shadow-sm border-b border-gray-200 flex flex-col gap-4">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-medium text-gray-500">דירוג:</span>
+          <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">מצוין (8.5-10)</span>
+          <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">טוב (7-8.5)</span>
+          <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">בינוני (5-7)</span>
+          <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">טעון שיפור (3.5-5)</span>
+          <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full">חלש (2-3.5)</span>
+          <span className="px-2 py-1 bg-red-200 text-red-800 rounded-full">גרוע (1-2)</span>
+        </div>
         {renderFiltersAndSearch()}
       </div>
 
@@ -432,18 +432,18 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             <table className="w-full text-sm border-separate border-spacing-0">
               <thead className="hidden md:table-header-group">
                 <tr className="bg-white [&>th]:border-b [&>th]:border-b-gray-200">
-                  <th className="py-3 px-4 font-medium text-right rounded-tr-md bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>שם המוצר</th>
-                  <th className="py-3 px-4 font-medium text-right bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>קטגוריה</th>
-                  <th className="py-3 px-4 font-medium text-right bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>קבוצת קומרס</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>דירוג</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>מכר חודש לפני אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>מכר חודש אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>מכר שבוע אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>התקדמות</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>תאריך בקרת מוצר אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>תאריך תמחור אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>תאריך מכירה אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center rounded-tl-md bg-white z-40 sticky" style={{ top: `${headerHeight}px` }}>זמן חיי מדף</th>
+                  <th className="py-3 px-4 font-medium text-right rounded-tr-md bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>שם המוצר</th>
+                  <th className="py-3 px-4 font-medium text-right bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>קטגוריה</th>
+                  <th className="py-3 px-4 font-medium text-right bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>קבוצת קומרס</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>דירוג</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>מכר חודש לפני אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>מכר חודש אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>מכר שבוע אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>התקדמות</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>תאריך בקרת מוצר אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>תאריך תמחור אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>תאריך מכירה אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center rounded-tl-md bg-white z-40 sticky before:content-[''] before:absolute before:inset-x-0 before:bottom-full before:h-[100px] before:bg-white before:-z-10" style={{ top: `${headerHeight}px` }}>זמן חיי מדף</th>
                 </tr>
               </thead>
               <tbody>
