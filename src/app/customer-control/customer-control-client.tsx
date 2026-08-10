@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ArrowUpDown, Search, Users, UserCheck, ShoppingCart, TrendingUp } from "lucide-react";
+import { ArrowUpDown, Search, Users, UserCheck, ShoppingCart, TrendingUp, Loader2 } from "lucide-react";
 
 type SortKey = 
   | "totalAllTime" 
@@ -40,6 +40,8 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(new Set());
+  const [isGeneratingLabels, setIsGeneratingLabels] = useState(false);
 
 
   const formatCurrency = (val: number) => {
@@ -131,6 +133,59 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
     return filteredAndSorted.slice(start, start + itemsPerPage);
   }, [filteredAndSorted, currentPage, itemsPerPage]);
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allVisibleIds = paginatedData.map(c => c.id);
+      setSelectedCustomerIds(new Set([...selectedCustomerIds, ...allVisibleIds]));
+    } else {
+      const newSelected = new Set(selectedCustomerIds);
+      paginatedData.forEach(c => newSelected.delete(c.id));
+      setSelectedCustomerIds(newSelected);
+    }
+  };
+
+  const handleSelectOne = (id: string, checked: boolean) => {
+    const newSelected = new Set(selectedCustomerIds);
+    if (checked) {
+      newSelected.add(id);
+    } else {
+      newSelected.delete(id);
+    }
+    setSelectedCustomerIds(newSelected);
+  };
+
+  const isAllVisibleSelected = paginatedData.length > 0 && paginatedData.every(c => selectedCustomerIds.has(c.id));
+  const isSomeVisibleSelected = paginatedData.some(c => selectedCustomerIds.has(c.id)) && !isAllVisibleSelected;
+
+  const handleGenerateLabels = async () => {
+    if (selectedCustomerIds.size === 0) return;
+    
+    setIsGeneratingLabels(true);
+    try {
+      const selectedCustomers = initialData.filter(c => selectedCustomerIds.has(c.id));
+      const res = await fetch('/api/lionwheel/create-labels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customers: selectedCustomers })
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok || !data.allSuccessful) {
+        alert("חלק מהמשלוחים או כולם נכשלו. אנא בדוק בקונסול או במערכת LionWheel.");
+        console.error("LionWheel results:", data);
+      } else {
+        alert("משלוחים נוצרו בהצלחה ב-LionWheel!");
+        setSelectedCustomerIds(new Set()); // Clear selection on success
+      }
+    } catch (err) {
+      console.error(err);
+      alert("שגיאה בתקשורת עם השרת.");
+    } finally {
+      setIsGeneratingLabels(false);
+    }
+  };
+
   // --- Summary Cards Calculations ---
   const now = new Date();
   const totalCustomers = initialData.length;
@@ -213,6 +268,20 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
         </div>
         
         <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
+          {selectedCustomerIds.size > 0 && (
+            <Button
+              variant="default"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm h-10 px-4"
+              onClick={handleGenerateLabels}
+              disabled={isGeneratingLabels}
+              dir="rtl"
+            >
+              {isGeneratingLabels ? (
+                <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+              ) : null}
+              <span>יצירת משלוחים ({selectedCustomerIds.size})</span>
+            </Button>
+          )}
           <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-md p-1 shadow-sm">
             <Button 
               variant="ghost" 
@@ -273,6 +342,17 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
         <Table>
           <TableHeader className="bg-slate-50/80 sticky top-0 z-10 border-b border-slate-200 shadow-sm">
             <TableRow className="hover:bg-transparent">
+              <TableHead className="w-[40px] text-center px-1">
+                <input 
+                  type="checkbox" 
+                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer align-middle" 
+                  checked={isAllVisibleSelected}
+                  ref={input => {
+                    if (input) input.indeterminate = isSomeVisibleSelected;
+                  }}
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                />
+              </TableHead>
               <SortHeader label="שם מלא" sortKey="fullName" className="w-[70px]" />
               <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">אימייל</TableHead>
               <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">טלפון</TableHead>
@@ -290,13 +370,21 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
           <TableBody>
             {paginatedData.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={12} className="h-32 text-center text-slate-500">
+                <TableCell colSpan={13} className="h-32 text-center text-slate-500">
                   לא נמצאו לקוחות.
                 </TableCell>
               </TableRow>
             ) : (
               paginatedData.map((customer) => (
                 <TableRow key={customer.id} className={getRowColorClass(customer.lastPurchaseDate)}>
+                  <TableCell className="px-1 text-center w-[40px]">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
+                      checked={selectedCustomerIds.has(customer.id)}
+                      onChange={(e) => handleSelectOne(customer.id, e.target.checked)}
+                    />
+                  </TableCell>
                   <TableCell className="px-0.5 text-center font-medium text-slate-800 text-[11px] max-w-[70px] truncate" title={customer.fullName}>{customer.fullName}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-600 text-[10px] truncate max-w-[80px]" title={customer.email}>{customer.email}</TableCell>
                   <TableCell className="px-0.5 text-center text-slate-600 text-[11px] truncate max-w-[80px]" dir="ltr" title={customer.phone}>{customer.phone}</TableCell>

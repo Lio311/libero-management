@@ -20,6 +20,9 @@ export type CustomerControlData = {
   lastPurchaseDate: Date | null;
   averageCartValue: number;
   orderCount: number;
+  city: string;
+  address_1: string;
+  latestOrderId: string;
 };
 
 export async function getCustomerControlData(): Promise<CustomerControlData[]> {
@@ -78,6 +81,9 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
         lastPurchaseDate: null,
         averageCartValue: 0,
         orderCount: 0,
+        city: billing.city || '',
+        address_1: billing.address_1 || '',
+        latestOrderId: order.id.toString(),
       });
     }
 
@@ -89,6 +95,10 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
 
     if (!customer.lastPurchaseDate || orderDate > customer.lastPurchaseDate) {
       customer.lastPurchaseDate = orderDate;
+      // Update city/address to the most recent order's billing details
+      if (billing.city) customer.city = billing.city;
+      if (billing.address_1) customer.address_1 = billing.address_1;
+      customer.latestOrderId = order.id.toString();
     }
 
     // Track order count for average calculation
