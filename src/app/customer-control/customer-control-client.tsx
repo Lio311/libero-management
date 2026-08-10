@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { CustomerControlData } from "@/app/actions/customer-control-actions";
 import { 
   Table, 
@@ -35,6 +35,7 @@ type SortKey =
   | "fullName";
 
 export default function CustomerControlClient({ initialData }: { initialData: CustomerControlData[] }) {
+  const [isMounted, setIsMounted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("totalLastMonth");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -43,6 +44,10 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(new Set());
   const [isGeneratingLabels, setIsGeneratingLabels] = useState(false);
   const [generatedLabels, setGeneratedLabels] = useState<{name: string, url: string}[]>([]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
 
   const formatCurrency = (val: number) => {
@@ -221,6 +226,14 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
       </div>
     </TableHead>
   );
+
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
