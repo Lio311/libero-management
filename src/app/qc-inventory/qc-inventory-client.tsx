@@ -356,9 +356,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           <div className="px-4 py-2 text-sm text-gray-500 font-medium">
             סה״כ מוצרים: {filteredAndSorted.length}
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-auto h-[calc(100vh-280px)] relative border rounded-md">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group sticky top-0 z-10">
+              <thead className="bg-white text-muted-foreground hidden md:table-header-group sticky top-0 z-10 shadow-sm border-b">
                 <tr>
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md">שם המוצר</th>
                   <th className="py-3 px-4 font-medium text-right">קטגוריה</th>
