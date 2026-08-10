@@ -25,9 +25,10 @@ interface InventoryProduct {
   salesMonthBeforeLast: number;
   totalSales: number;
   lastSaleDate?: Date | null;
+  rating?: number;
 }
 
-type SortMode = "name_asc" | "name_desc" | "inspection_asc" | "inspection_desc" | "price_asc" | "price_desc" | "color_asc" | "color_desc" | "last_sale_date_asc" | "last_sale_date_desc";
+type SortMode = "name_asc" | "name_desc" | "inspection_asc" | "inspection_desc" | "price_asc" | "price_desc" | "color_asc" | "color_desc" | "last_sale_date_asc" | "last_sale_date_desc" | "rating_asc" | "rating_desc";
 
 function getAgeCategory(days: number) {
   if (days > 90) return { category: "red", label: "מעל 90 יום", bg: "bg-red-50/70 hover:bg-red-100/70", text: "text-red-700", border: "border-red-400", badgeBg: "bg-red-100" };
@@ -73,10 +74,41 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     price_desc: "תאריך תמחור: חדש ← ישן",
     last_sale_date_desc: "תאריך מכירה: חדש ← ישן",
     last_sale_date_asc: "תאריך מכירה: ישן ← חדש",
+    rating_desc: "דירוג: גבוה לנמוך",
+    rating_asc: "דירוג: נמוך לגבוה",
   };
 
+  const processedProducts = useMemo(() => {
+    return products.map(p => {
+      let rating = 0;
+      
+      const totalOrdered = p.currentStock + p.totalSales;
+      const progress = totalOrdered > 0 ? (p.totalSales / totalOrdered) : 0;
+      rating += progress * 3.5;
+      
+      if (p.ageDays <= 30) rating += 3;
+      else if (p.ageDays <= 90) rating += 2;
+      else if (p.ageDays <= 180) rating += 1;
+      
+      if (p.lastSaleDate) {
+        const daysSinceSale = (new Date().getTime() - new Date(p.lastSaleDate).getTime()) / (1000 * 60 * 60 * 24);
+        if (daysSinceSale <= 7) rating += 2.5;
+        else if (daysSinceSale <= 14) rating += 1.5;
+        else if (daysSinceSale <= 30) rating += 0.5;
+      }
+
+      if (p.commerceGroup === "מותגי הבית" || p.categories?.includes("מותגי הבית")) {
+        rating += 1;
+      }
+      
+      rating = Math.max(1, Math.min(10, rating));
+      
+      return { ...p, rating };
+    });
+  }, [products]);
+
   const filteredAndSorted = useMemo(() => {
-    let result = [...products];
+    let result = [...processedProducts];
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -137,13 +169,17 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           if (!a.lastSaleDate) return 1;
           if (!b.lastSaleDate) return -1;
           return new Date(b.lastSaleDate).getTime() - new Date(a.lastSaleDate).getTime();
+        case "rating_asc":
+          return (a.rating || 0) - (b.rating || 0);
+        case "rating_desc":
+          return (b.rating || 0) - (a.rating || 0);
         default:
           return 0;
       }
     });
 
     return result;
-  }, [products, searchQuery, sortMode, categoryFilter, colorFilter, stockFilter]);
+  }, [processedProducts, searchQuery, sortMode, categoryFilter, colorFilter, stockFilter]);
 
   return (
     <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen" dir="rtl">
@@ -308,6 +344,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md">שם המוצר</th>
                   <th className="py-3 px-4 font-medium text-right">קטגוריה</th>
                   <th className="py-3 px-4 font-medium text-right">קבוצת קומרס</th>
+                  <th className="py-3 px-4 font-medium text-center">דירוג</th>
                   <th className="py-3 px-4 font-medium text-center">מכר חודש לפני אחרון</th>
                   <th className="py-3 px-4 font-medium text-center">מכר חודש אחרון</th>
                   <th className="py-3 px-4 font-medium text-center">מכר שבוע אחרון</th>
@@ -346,6 +383,12 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                         </td>
                         <td className="py-3 px-4 text-right">
                           <span className="text-gray-600 text-sm">{product.commerceGroup || "—"}</span>
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          <div className="flex items-baseline justify-center gap-1">
+                            <span className="font-bold text-lg text-blue-700">{product.rating?.toFixed(1) || "-"}</span>
+                            <span className="text-gray-400 text-xs">/ 10</span>
+                          </div>
                         </td>
                         <td className="py-3 px-4 text-center text-gray-700">
                           {product.salesMonthBeforeLast}
@@ -426,6 +469,10 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                               {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
                               {product.categories && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.categories}</p>}
                               {product.commerceGroup && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.commerceGroup}</p>}
+                            </div>
+                            <div className="flex flex-col items-center justify-center bg-blue-50 px-3 py-1.5 rounded-lg mr-2">
+                              <span className="font-bold text-lg text-blue-700 leading-none">{product.rating?.toFixed(1) || "-"}</span>
+                              <span className="text-blue-400 text-[10px] font-medium mt-0.5">דירוג</span>
                             </div>
                           </div>
                           <div className="p-3 space-y-2 text-[12px]">

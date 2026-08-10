@@ -1,38 +1,49 @@
-const auth = Buffer.from('[REDACTED_CK]:[REDACTED_CS]').toString('base64');
-const baseUrl = "https://libero-il.co.il";
+require('dotenv').config({ path: '.env' });
+const auth = Buffer.from(`[REDACTED_CK]:[REDACTED_CS]`).toString('base64');
+const groups = ["חדירה זול", "חדירה יקר", "בסיס זול", "בסיס יקר", "פרימיום יקר", "פרימיום זול", "מותגי הבית"];
 
-async function fetchAllProducts() {
-  const start = Date.now();
-  let allProducts = [];
+async function checkProducts() {
   let page = 1;
-  let hasMore = true;
-
-  while (hasMore && page <= 20) {
-    const url = `${baseUrl}/wp-json/wc/v3/products?per_page=100&page=${page}&status=publish&_fields=id,name,sku,images`;
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Basic ${auth}`,
-        'Content-Type': 'application/json',
-      },
+  let found = {};
+  
+  while(page <= 5) { // Check up to 500 products
+    const res = await fetch(`https://libero-il.co.il/wp-json/wc/v3/products?per_page=100&page=${page}`, {
+      headers: { 'Authorization': `Basic ${auth}` }
     });
-
-    if (!response.ok) {
-      console.error(`API error: ${response.status}`);
-      break;
+    const data = await res.json();
+    if (!data || data.length === 0) break;
+    
+    for (let p of data) {
+      let productStr = JSON.stringify(p);
+      for (let g of groups) {
+        if (productStr.includes(g)) {
+          if (!found[g]) found[g] = [];
+          if (found[g].length < 1) { // Just get the first match for debugging
+             found[g].push(p);
+          }
+        }
+      }
     }
-
-    const products = await response.json();
-    allProducts = allProducts.concat(products);
-
-    if (products.length < 100) {
-      hasMore = false;
-    } else {
-      page++;
+    page++;
+  }
+  
+  for (let g of Object.keys(found)) {
+    console.log(`\n\n--- MATCH FOUND FOR: ${g} ---`);
+    const match = found[g][0];
+    
+    // Find where it matched
+    if (JSON.stringify(match.meta_data).includes(g)) {
+       console.log('Found in meta_data:', JSON.stringify(match.meta_data.filter(m => JSON.stringify(m).includes(g)), null, 2));
+    }
+    if (JSON.stringify(match.attributes).includes(g)) {
+       console.log('Found in attributes:', JSON.stringify(match.attributes.filter(m => JSON.stringify(m).includes(g)), null, 2));
+    }
+    if (JSON.stringify(match.categories).includes(g)) {
+       console.log('Found in categories:', JSON.stringify(match.categories.filter(m => JSON.stringify(m).includes(g)), null, 2));
+    }
+    if (JSON.stringify(match.tags).includes(g)) {
+       console.log('Found in tags:', JSON.stringify(match.tags.filter(m => JSON.stringify(m).includes(g)), null, 2));
     }
   }
-  const end = Date.now();
-  console.log(`Fetched ${allProducts.length} products in ${(end - start)/1000} seconds`);
 }
-
-fetchAllProducts();
+checkProducts().catch(console.error);

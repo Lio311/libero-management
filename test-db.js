@@ -1,9 +1,9 @@
-import { db } from "./src/lib/db/index.js";
-import { influencers } from "./src/lib/db/schema.js";
-
+const { Pool } = require('pg');
+require('dotenv').config({ path: '.env' });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 async function main() {
-  const result = await db.select().from(influencers);
-  console.log(result);
+  const res = await pool.query('SELECT * FROM wc_products LIMIT 2');
+  console.log(JSON.stringify(res.rows, null, 2));
   process.exit(0);
 }
-main();
+main().catch(console.error);
