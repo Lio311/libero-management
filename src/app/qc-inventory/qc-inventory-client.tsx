@@ -38,14 +38,14 @@ function getAgeCategory(days: number) {
   return { category: "green", label: "פחות משבועיים", bg: "bg-emerald-50/70 hover:bg-emerald-100/70", text: "text-emerald-700", border: "border-emerald-400", badgeBg: "bg-emerald-100" };
 }
 
-function getRatingColor(rating: number | undefined) {
-  if (rating === undefined) return "text-gray-400";
-  if (rating >= 8.5) return "text-emerald-600 font-medium";
-  if (rating >= 7) return "text-green-500 font-medium";
-  if (rating >= 5) return "text-yellow-600 font-medium";
-  if (rating >= 3.5) return "text-orange-500 font-medium";
-  if (rating >= 2) return "text-red-500 font-medium";
-  return "text-red-700 font-medium";
+function getRatingStyle(rating: number | undefined) {
+  if (rating === undefined) return { text: "text-gray-400", bg: "bg-gray-50/70 hover:bg-gray-100/70", border: "border-gray-200" };
+  if (rating >= 8.5) return { text: "text-emerald-600 font-medium", bg: "bg-emerald-50/70 hover:bg-emerald-100/70", border: "border-emerald-400" };
+  if (rating >= 7) return { text: "text-green-500 font-medium", bg: "bg-green-50/70 hover:bg-green-100/70", border: "border-green-400" };
+  if (rating >= 5) return { text: "text-yellow-600 font-medium", bg: "bg-yellow-50/70 hover:bg-yellow-100/70", border: "border-yellow-400" };
+  if (rating >= 3.5) return { text: "text-orange-500 font-medium", bg: "bg-orange-50/70 hover:bg-orange-100/70", border: "border-orange-400" };
+  if (rating >= 2) return { text: "text-red-500 font-medium", bg: "bg-red-50/70 hover:bg-red-100/70", border: "border-red-400" };
+  return { text: "text-red-700 font-medium", bg: "bg-red-100/70 hover:bg-red-200/70", border: "border-red-500" };
 }
 
 export default function QcInventoryClient({ products }: { products: InventoryProduct[] }) {
@@ -64,18 +64,18 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     return Array.from(cats).sort();
   }, [products]);
 
-  const colorOptions = [
-    { value: "all", label: "הכל" },
-    { value: "green", label: "ירוק (פחות משבועיים)" },
-    { value: "yellow", label: "צהוב (14-30 ימים)" },
-    { value: "orange", label: "כתום (30-45 ימים)" },
-    { value: "dark_orange", label: "כתום כהה (45-90 ימים)" },
-    { value: "red", label: "אדום (מעל 90 יום)" },
+  const ageOptions = [
+    { value: "all", label: "כל זמני המדף" },
+    { value: "green", label: "פחות משבועיים" },
+    { value: "yellow", label: "14-30 ימים" },
+    { value: "orange", label: "30-45 ימים" },
+    { value: "dark_orange", label: "45-90 ימים" },
+    { value: "red", label: "מעל 90 יום" },
   ];
 
   const sortLabels: Record<SortMode, string> = {
-    color_desc: "צבע: אדום לירוק",
-    color_asc: "צבע: ירוק לאדום",
+    color_desc: "זמן מדף: ישן לחדש",
+    color_asc: "זמן מדף: חדש לישן",
     name_asc: "שם: א ← ת",
     name_desc: "שם: ת ← א",
     inspection_asc: "תאריך בקרה: ישן ← חדש",
@@ -197,12 +197,14 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         <div>
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">בקרת מלאי</h2>
           <p className="text-muted-foreground mt-1 text-sm mb-3">מעקב גיל מלאי ותמחור למוצרי ליברו</p>
-          <div className="flex flex-wrap gap-2 text-xs">
-            <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">ירוק: פחות משבועיים</span>
-            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">צהוב: 14-30 ימים</span>
-            <span className="px-2 py-1 bg-orange-100 text-orange-600 rounded-full">כתום: 30-45 ימים</span>
-            <span className="px-2 py-1 bg-orange-200 text-orange-800 rounded-full">כתום כהה: 45-90 ימים</span>
-            <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full">אדום: מעל 90 יום</span>
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="font-medium text-gray-500">דירוג:</span>
+            <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">מצוין (8.5-10)</span>
+            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">טוב (7-8.5)</span>
+            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">בינוני (5-7)</span>
+            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">טעון שיפור (3.5-5)</span>
+            <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full">חלש (2-3.5)</span>
+            <span className="px-2 py-1 bg-red-200 text-red-800 rounded-full">גרוע (1-2)</span>
           </div>
         </div>
       </div>
@@ -261,12 +263,12 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
 
               <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
                 <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-                  <SelectValue placeholder="כל הצבעים">
-                    {colorOptions.find(c => c.value === colorFilter)?.label}
+                  <SelectValue placeholder="זמן מדף">
+                    {ageOptions.find(c => c.value === colorFilter)?.label}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent align="end" dir="rtl">
-                  {colorOptions.map(c => (
+                  {ageOptions.map(c => (
                     <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                   ))}
                 </SelectContent>
@@ -317,12 +319,12 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
 
             <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
               <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-                <SelectValue placeholder="כל הצבעים">
-                  {colorOptions.find(c => c.value === colorFilter)?.label}
+                <SelectValue placeholder="זמן מדף">
+                  {ageOptions.find(c => c.value === colorFilter)?.label}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-                {colorOptions.map(c => (
+                {ageOptions.map(c => (
                   <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
                 ))}
               </SelectContent>
@@ -369,8 +371,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                 {filteredAndSorted.length > 0 ? (
                   filteredAndSorted.map((product) => {
                     const style = getAgeCategory(product.ageDays);
+                    const ratingStyle = getRatingStyle(product.rating);
                     return (
-                      <tr key={product.id} className={`transition-all duration-300 hidden md:table-row border-r-4 ${style.border} ${style.bg}`}>
+                      <tr key={product.id} className={`transition-all duration-300 hidden md:table-row border-r-4 ${ratingStyle.border} ${ratingStyle.bg}`}>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center gap-3">
                             {product.productImage ? (
@@ -395,7 +398,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                           <span className="text-gray-600 text-sm">{product.commerceGroup || "—"}</span>
                         </td>
                         <td className="py-3 px-4 text-center">
-                          <span className={getRatingColor(product.rating)}>{product.rating?.toFixed(1) || "-"}</span>
+                          <span className={ratingStyle.text}>{product.rating?.toFixed(1) || "-"}</span>
                         </td>
                         <td className="py-3 px-4 text-center text-gray-700">
                           {product.salesMonthBeforeLast}
@@ -457,10 +460,11 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                 {/* Mobile view lines */}
                 {filteredAndSorted.map((product) => {
                   const style = getAgeCategory(product.ageDays);
+                  const ratingStyle = getRatingStyle(product.rating);
                   return (
                     <tr key={`mobile-${product.id}`} className="md:hidden border-b-0">
                       <td colSpan={10} className="p-0 border-b-0">
-                        <div className={`m-2 rounded-xl shadow-sm border border-r-4 ${style.border} ${style.bg.split(' ')[0]}`}>
+                        <div className={`m-2 rounded-xl shadow-sm border border-r-4 ${ratingStyle.border} ${ratingStyle.bg.split(' ')[0]}`}>
                           <div className="p-3 flex items-start gap-3 border-b border-gray-100">
                             {product.productImage ? (
                               <img src={product.productImage} alt={product.productName} className="w-14 h-14 rounded-lg object-cover border flex-shrink-0" />
@@ -478,7 +482,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                               {product.commerceGroup && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.commerceGroup}</p>}
                             </div>
                             <div className="flex flex-col items-center justify-center bg-gray-50/80 px-3 py-1.5 rounded-lg mr-2">
-                              <span className={`text-base leading-none ${getRatingColor(product.rating)}`}>{product.rating?.toFixed(1) || "-"}</span>
+                              <span className={`text-base leading-none ${ratingStyle.text}`}>{product.rating?.toFixed(1) || "-"}</span>
                               <span className="text-gray-500 text-[10px] font-medium mt-0.5">דירוג</span>
                             </div>
                           </div>
