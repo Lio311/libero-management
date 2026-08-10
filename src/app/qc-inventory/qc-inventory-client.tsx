@@ -359,7 +359,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   );
 
   return (
-    <div className="bg-gray-50/50 min-h-screen flex-1 shrink-0 flex flex-col" dir="rtl">
+    <div className="bg-gray-50/50 min-h-screen relative" dir="rtl">
       {/* Header and Stats - Not Sticky */}
       <div className="pt-4 md:pt-8 px-4 md:px-8 space-y-6 mb-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -409,228 +409,253 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         </div>
       </div>
 
-      {/* Sticky Filters Section */}
-      <div ref={topSectionRef} className="sticky top-0 z-[60] bg-white pb-4 pt-4 px-4 md:px-8 shadow-sm border-b border-gray-200 flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          <span className="font-medium text-gray-500">דירוג:</span>
-          <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">מצוין (8.5-10)</span>
-          <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">טוב (7-8.5)</span>
-          <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">בינוני (5-7)</span>
-          <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">טעון שיפור (3.5-5)</span>
-          <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full">חלש (2-3.5)</span>
-          <span className="px-2 py-1 bg-red-200 text-red-800 rounded-full">גרוע (1-2)</span>
-        </div>
-        {renderFiltersAndSearch()}
-      </div>
-
       {/* Main Content */}
-      <div className="p-4 md:p-8 pt-4 md:pt-6">
-        <Card className="bg-white border-none shadow-sm overflow-visible">
-          <div className="mt-4 text-sm text-gray-500 font-medium md:hidden mb-4 px-4">
+      <div className="px-4 md:px-8 pb-8">
+        {/* Sticky Header - ratings + filters - direct child of scroll flow */}
+        <div ref={topSectionRef} className="sticky top-0 z-[60] bg-white p-4 md:p-6 border border-gray-100 border-b-0 rounded-t-xl shadow-sm flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="font-medium text-gray-500">דירוג:</span>
+            <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">מצוין (8.5-10)</span>
+            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">טוב (7-8.5)</span>
+            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">בינוני (5-7)</span>
+            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">טעון שיפור (3.5-5)</span>
+            <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full">חלש (2-3.5)</span>
+            <span className="px-2 py-1 bg-red-200 text-red-800 rounded-full">גרוע (1-2)</span>
+          </div>
+          {renderFiltersAndSearch()}
+        </div>
+
+        {/* Table header - sticky just below the filters */}
+        <div className="hidden md:block sticky z-[55] bg-white border-x border-gray-100" style={{ top: `${Math.max(0, headerHeight)}px` }}>
+          <div className="border-b border-gray-200 flex text-sm font-medium text-gray-700">
+            <div className="py-3 px-4 text-right flex-[2]">שם המוצר</div>
+            <div className="py-3 px-4 text-right flex-[1.2]">קטגוריה</div>
+            <div className="py-3 px-4 text-right flex-[1.2]">קבוצת קומרס</div>
+            <div className="py-3 px-4 text-center flex-[0.7]">דירוג</div>
+            <div className="py-3 px-4 text-center flex-[1]">מכר חודש לפני אחרון</div>
+            <div className="py-3 px-4 text-center flex-[1]">מכר חודש אחרון</div>
+            <div className="py-3 px-4 text-center flex-[1]">מכר שבוע אחרון</div>
+            <div className="py-3 px-4 text-center flex-[1]">התקדמות</div>
+            <div className="py-3 px-4 text-center flex-[1.2]">תאריך בקרת מוצר אחרון</div>
+            <div className="py-3 px-4 text-center flex-[1.1]">תאריך תמחור אחרון</div>
+            <div className="py-3 px-4 text-center flex-[1.1]">תאריך מכירה אחרון</div>
+            <div className="py-3 px-4 text-center flex-[1]">זמן חיי מדף</div>
+          </div>
+          <div className="h-[1px] shadow-[0_4px_10px_-4px_rgba(0,0,0,0.08)]"></div>
+        </div>
+
+        <div className="bg-white border border-gray-100 border-t-0 rounded-b-xl shadow-sm">
+          <div className="mt-4 text-sm text-gray-500 font-medium md:hidden mb-2 px-4">
             סה״כ מוצרים: {filteredAndSorted.length}
           </div>
 
-          <CardContent className="p-0 md:px-6 md:pb-6">
-            <div className="relative md:border rounded-md">
-            <table className="w-full text-sm border-separate border-spacing-0">
-              <thead className="hidden md:table-header-group">
-                <tr className="bg-white [&>th]:border-b [&>th]:border-b-gray-200">
-                  <th className="py-3 px-4 font-medium text-right bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>שם המוצר</th>
-                  <th className="py-3 px-4 font-medium text-right bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>קטגוריה</th>
-                  <th className="py-3 px-4 font-medium text-right bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>קבוצת קומרס</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>דירוג</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>מכר חודש לפני אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>מכר חודש אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>מכר שבוע אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>התקדמות</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>תאריך בקרת מוצר אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>תאריך תמחור אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>תאריך מכירה אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center bg-white z-40 sticky shadow-[0_-4px_0_0_white]" style={{ top: `${Math.max(0, headerHeight - 1)}px` }}>זמן חיי מדף</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAndSorted.length > 0 ? (
-                  filteredAndSorted.map((product) => {
-                    const style = getAgeCategory(product.ageDays);
-                    const ratingStyle = getRatingStyle(product.rating);
-                    return (
-                      <tr key={product.id} className={`transition-all duration-300 hidden md:table-row [&>td]:border-b [&>td]:border-b-gray-100 ${ratingStyle.bg}`}>
-                        <td className={`py-3 px-4 text-right border-r-4 ${ratingStyle.border}`}>
-                          <div className="flex items-center gap-3">
-                            {product.productImage ? (
-                              <img src={product.productImage} alt={product.productName} className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0" />
-                            ) : (
-                              <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                <Package className="w-5 h-5 text-gray-400" />
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <a href={`https://libero-il.co.il/?p=${product.wooProductId}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[200px] block">
-                                {product.productName}
-                              </a>
-                              {product.productSku && <p className="text-[11px] text-gray-400">מק״ט: {product.productSku}</p>}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <span className="text-gray-600 text-sm">{product.categories || "—"}</span>
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <span className="text-gray-600 text-sm">{product.commerceGroup || "—"}</span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <span className={ratingStyle.text}>{product.rating?.toFixed(1) || "-"}</span>
-                        </td>
-                        <td className="py-3 px-4 text-center text-gray-700">
-                          {product.salesMonthBeforeLast}
-                        </td>
-                        <td className="py-3 px-4 text-center text-gray-700">
-                          {product.salesLastMonth}
-                        </td>
-                        <td className="py-3 px-4 text-center text-gray-700">
-                          {product.salesLastWeek}
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <div className="w-full max-w-[100px] mx-auto bg-gray-200 rounded-full h-2 mb-1 relative">
-                            {(() => {
-                              const totalOrdered = product.currentStock + product.totalSales;
-                              const progress = totalOrdered > 0 ? (product.totalSales / totalOrdered) * 100 : 0;
-                              return (
-                                <div 
-                                  className="bg-blue-500 h-2 rounded-full transition-all duration-500" 
-                                  style={{ width: `${Math.min(progress, 100)}%` }}
-                                ></div>
-                              );
-                            })()}
-                          </div>
-                          <span className="text-[10px] text-gray-500 whitespace-nowrap" dir="ltr">
-                            {product.totalSales} / {product.currentStock + product.totalSales}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          {product.lastInspectionDate ? format(new Date(product.lastInspectionDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          {product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          {product.lastSaleDate ? format(new Date(product.lastSaleDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <div className="flex flex-col items-center gap-1">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style.badgeBg} ${style.text}`}>
-                              {style.label}
-                            </span>
-                            <span className="text-[11px] text-gray-500">
-                              {format(new Date(product.dateAddedToSite), "dd/MM/yyyy", { locale: he })}
-                            </span>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
+          {/* Desktop Table View */}
+          <div className="hidden md:block pb-6">
+            <div className="relative">
+              <table className="w-full text-sm border-separate border-spacing-0">
+                <thead className="sr-only">
                   <tr>
-                    <td colSpan={12} className="py-12 text-center text-gray-400">
-                      <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                      <p>לא נמצאו מוצרים</p>
-                    </td>
+                    <th>שם המוצר</th>
+                    <th>קטגוריה</th>
+                    <th>קבוצת קומרס</th>
+                    <th>דירוג</th>
+                    <th>מכר חודש לפני אחרון</th>
+                    <th>מכר חודש אחרון</th>
+                    <th>מכר שבוע אחרון</th>
+                    <th>התקדמות</th>
+                    <th>תאריך בקרת מוצר אחרון</th>
+                    <th>תאריך תמחור אחרון</th>
+                    <th>תאריך מכירה אחרון</th>
+                    <th>זמן חיי מדף</th>
                   </tr>
-                )}
-                
-                {/* Mobile view lines */}
-                {filteredAndSorted.map((product) => {
-                  const style = getAgeCategory(product.ageDays);
-                  const ratingStyle = getRatingStyle(product.rating);
-                  return (
-                    <tr key={`mobile-${product.id}`} className="md:hidden border-b-0">
-                      <td colSpan={12} className="p-0 border-b-0">
-                        <div className={`m-2 rounded-xl shadow-sm border border-r-4 ${ratingStyle.border} ${ratingStyle.bg.split(' ')[0]}`}>
-                          <div className="p-3 flex items-start gap-3 border-b border-gray-100">
-                            {product.productImage ? (
-                              <img src={product.productImage} alt={product.productName} className="w-14 h-14 rounded-lg object-cover border flex-shrink-0" />
-                            ) : (
-                              <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                <Package className="w-6 h-6 text-gray-400" />
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <a href={`https://libero-il.co.il/?p=${product.wooProductId}`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline truncate block">
-                                {product.productName}
-                              </a>
-                              {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
-                              {product.categories && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.categories}</p>}
-                              {product.commerceGroup && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.commerceGroup}</p>}
-                            </div>
-                            <div className="flex flex-col items-center justify-center bg-gray-50/80 px-3 py-1.5 rounded-lg mr-2">
-                              <span className={`text-base leading-none ${ratingStyle.text}`}>{product.rating?.toFixed(1) || "-"}</span>
-                              <span className="text-gray-500 text-[10px] font-medium mt-0.5">דירוג</span>
-                            </div>
-                          </div>
-                          <div className="p-3 space-y-2 text-[12px]">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-500">בקרת מוצר:</span>
-                              <span>{product.lastInspectionDate ? format(new Date(product.lastInspectionDate), "dd/MM/yyyy", { locale: he }) : "—"}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-500">תמחור אחרון:</span>
-                              <span>{product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : "—"}</span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-gray-50 text-center">
-                              <div>
-                                <span className="block text-gray-500 text-[10px]">חודש שעבר</span>
-                                <span className="font-medium text-[13px]">{product.salesMonthBeforeLast}</span>
-                              </div>
-                              <div>
-                                <span className="block text-gray-500 text-[10px]">מכר 30 יום</span>
-                                <span className="font-medium text-[13px]">{product.salesLastMonth}</span>
-                              </div>
-                              <div>
-                                <span className="block text-gray-500 text-[10px]">מכר 7 ימים</span>
-                                <span className="font-medium text-[13px]">{product.salesLastWeek}</span>
+                </thead>
+                <tbody>
+                  {filteredAndSorted.length > 0 ? (
+                    filteredAndSorted.map((product) => {
+                      const style = getAgeCategory(product.ageDays);
+                      const ratingStyle = getRatingStyle(product.rating);
+                      return (
+                        <tr key={product.id} className={`transition-all duration-300 [&>td]:border-b [&>td]:border-b-gray-100 ${ratingStyle.bg}`}>
+                          <td className={`py-3 px-4 text-right border-r-4 ${ratingStyle.border}`}>
+                            <div className="flex items-center gap-3">
+                              {product.productImage ? (
+                                <img src={product.productImage} alt={product.productName} className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0" />
+                              ) : (
+                                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                  <Package className="w-5 h-5 text-gray-400" />
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <a href={`https://libero-il.co.il/?p=${product.wooProductId}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[200px] block">
+                                  {product.productName}
+                                </a>
+                                {product.productSku && <p className="text-[11px] text-gray-400">מק״ט: {product.productSku}</p>}
                               </div>
                             </div>
-                            <div className="mt-2 pt-2 border-t border-gray-50">
-                              <div className="flex justify-between items-center text-[10px] text-gray-500 mb-1">
-                                <span>התקדמות מכר/מלאי</span>
-                                <span dir="ltr">{product.totalSales} / {product.currentStock + product.totalSales}</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                {(() => {
-                                  const totalOrdered = product.currentStock + product.totalSales;
-                                  const progress = totalOrdered > 0 ? (product.totalSales / totalOrdered) * 100 : 0;
-                                  return (
-                                    <div 
-                                      className="bg-blue-500 h-1.5 rounded-full transition-all duration-500" 
-                                      style={{ width: `${Math.min(progress, 100)}%` }}
-                                    ></div>
-                                  );
-                                })()}
-                              </div>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <span className="text-gray-600 text-sm">{product.categories || "—"}</span>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <span className="text-gray-600 text-sm">{product.commerceGroup || "—"}</span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className={ratingStyle.text}>{product.rating?.toFixed(1) || "-"}</span>
+                          </td>
+                          <td className="py-3 px-4 text-center text-gray-700">
+                            {product.salesMonthBeforeLast}
+                          </td>
+                          <td className="py-3 px-4 text-center text-gray-700">
+                            {product.salesLastMonth}
+                          </td>
+                          <td className="py-3 px-4 text-center text-gray-700">
+                            {product.salesLastWeek}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="w-full max-w-[100px] mx-auto bg-gray-200 rounded-full h-2 mb-1 relative">
+                              {(() => {
+                                const totalOrdered = product.currentStock + product.totalSales;
+                                const progress = totalOrdered > 0 ? (product.totalSales / totalOrdered) * 100 : 0;
+                                return (
+                                  <div 
+                                    className="bg-blue-500 h-2 rounded-full transition-all duration-500" 
+                                    style={{ width: `${Math.min(progress, 100)}%` }}
+                                  ></div>
+                                );
+                              })()}
                             </div>
-                            <div className="flex justify-between items-center pt-2 border-t border-gray-50">
-                              <span className="text-gray-500">חיי מדף:</span>
-                              <div className="flex flex-col items-end">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${style.badgeBg} ${style.text}`}>
-                                  {style.label}
-                                </span>
-                                <span className="text-[10px] text-gray-500 mt-1">
-                                  {format(new Date(product.dateAddedToSite), "dd/MM/yyyy", { locale: he })}
-                                </span>
-                              </div>
+                            <span className="text-[10px] text-gray-500 whitespace-nowrap" dir="ltr">
+                              {product.totalSales} / {product.currentStock + product.totalSales}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {product.lastInspectionDate ? format(new Date(product.lastInspectionDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            {product.lastSaleDate ? format(new Date(product.lastSaleDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <div className="flex flex-col items-center gap-1">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style.badgeBg} ${style.text}`}>
+                                {style.label}
+                              </span>
+                              <span className="text-[11px] text-gray-500">
+                                {format(new Date(product.dateAddedToSite), "dd/MM/yyyy", { locale: he })}
+                              </span>
                             </div>
-                          </div>
-                        </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={12} className="py-12 text-center text-gray-400">
+                        <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                        <p>לא נמצאו מוצרים</p>
                       </td>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Mobile Cards View */}
+          <div className="md:hidden flex flex-col gap-3 px-4 pb-6">
+            {filteredAndSorted.length > 0 ? (
+              filteredAndSorted.map((product) => {
+                const style = getAgeCategory(product.ageDays);
+                const ratingStyle = getRatingStyle(product.rating);
+                return (
+                  <div key={`mobile-${product.id}`} className={`rounded-xl shadow-sm border border-r-4 ${ratingStyle.border} ${ratingStyle.bg.split(' ')[0]}`}>
+                    <div className="p-3 flex items-start gap-3 border-b border-gray-100">
+                      {product.productImage ? (
+                        <img src={product.productImage} alt={product.productName} className="w-14 h-14 rounded-lg object-cover border flex-shrink-0" />
+                      ) : (
+                        <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                          <Package className="w-6 h-6 text-gray-400" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <a href={`https://libero-il.co.il/?p=${product.wooProductId}`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline truncate block">
+                          {product.productName}
+                        </a>
+                        {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
+                        {product.categories && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.categories}</p>}
+                        {product.commerceGroup && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.commerceGroup}</p>}
+                      </div>
+                      <div className="flex flex-col items-center justify-center bg-gray-50/80 px-3 py-1.5 rounded-lg mr-2">
+                        <span className={`text-base leading-none ${ratingStyle.text}`}>{product.rating?.toFixed(1) || "-"}</span>
+                        <span className="text-gray-500 text-[10px] font-medium mt-0.5">דירוג</span>
+                      </div>
+                    </div>
+                    <div className="p-3 space-y-2 text-[12px]">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-500">בקרת מוצר:</span>
+                        <span>{product.lastInspectionDate ? format(new Date(product.lastInspectionDate), "dd/MM/yyyy", { locale: he }) : "—"}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-500">תמחור אחרון:</span>
+                        <span>{product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : "—"}</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-gray-50 text-center">
+                        <div>
+                          <span className="block text-gray-500 text-[10px]">חודש שעבר</span>
+                          <span className="font-medium text-[13px]">{product.salesMonthBeforeLast}</span>
+                        </div>
+                        <div>
+                          <span className="block text-gray-500 text-[10px]">מכר 30 יום</span>
+                          <span className="font-medium text-[13px]">{product.salesLastMonth}</span>
+                        </div>
+                        <div>
+                          <span className="block text-gray-500 text-[10px]">מכר 7 ימים</span>
+                          <span className="font-medium text-[13px]">{product.salesLastWeek}</span>
+                        </div>
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-gray-50">
+                        <div className="flex justify-between items-center text-[10px] text-gray-500 mb-1">
+                          <span>התקדמות מכר/מלאי</span>
+                          <span dir="ltr">{product.totalSales} / {product.currentStock + product.totalSales}</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                          {(() => {
+                            const totalOrdered = product.currentStock + product.totalSales;
+                            const progress = totalOrdered > 0 ? (product.totalSales / totalOrdered) * 100 : 0;
+                            return (
+                              <div 
+                                className="bg-blue-500 h-1.5 rounded-full transition-all duration-500" 
+                                style={{ width: `${Math.min(progress, 100)}%` }}
+                              ></div>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center pt-2 border-t border-gray-50">
+                        <span className="text-gray-500">חיי מדף:</span>
+                        <div className="flex flex-col items-end">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${style.badgeBg} ${style.text}`}>
+                            {style.label}
+                          </span>
+                          <span className="text-[10px] text-gray-500 mt-1">
+                            {format(new Date(product.dateAddedToSite), "dd/MM/yyyy", { locale: he })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="py-12 text-center text-gray-400">
+                <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                <p>לא נמצאו מוצרים</p>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
