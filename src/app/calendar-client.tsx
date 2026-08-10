@@ -136,12 +136,6 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
 
             const isCompleted = existingTask ? existingTask.isCompleted : (task.status === 'בוצע');
 
-            if (!isCompleted && isBefore(thursdayDate, today)) {
-              renderDate = today;
-              isDelayed = true;
-              delayMonths = differenceInMonths(today, thursdayDate);
-            }
-
             if (renderDate.getDay() === 5) {
               renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 2);
             } else if (renderDate.getDay() === 6) {
@@ -188,12 +182,6 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
             }
 
             const isCompleted = existingTask ? existingTask.isCompleted : (task.status === 'בוצע');
-
-            if (!isCompleted && isBefore(tuesdayDate, today)) {
-              renderDate = today;
-              isDelayed = true;
-              delayMonths = differenceInMonths(today, tuesdayDate);
-            }
 
             if (renderDate.getDay() === 5) {
               renderDate = new Date(renderDate.getFullYear(), renderDate.getMonth(), renderDate.getDate() + 2);
@@ -304,13 +292,6 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         }
 
         const isCompleted = existingTask ? existingTask.isCompleted : (task.status === 'בוצע');
-
-        // Delay logic: uncompleted tasks with past dates move to today
-        if (!isCompleted && isBefore(taskDate, today)) {
-          renderDate = today;
-          isDelayed = true;
-          delayMonths = differenceInMonths(today, taskDate);
-        }
 
         // Ensure renderDate doesn't fall on Friday/Saturday
         if (renderDate.getDay() === 5) {
