@@ -216,7 +216,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         </div>
       </div>
 
-      <Card className="bg-white border-none shadow-sm">
+      <Card className="bg-white border-none shadow-sm overflow-visible">
         <CardHeader className="pb-3">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="relative flex-1 max-w-md">
