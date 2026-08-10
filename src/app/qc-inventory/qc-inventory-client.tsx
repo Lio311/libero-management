@@ -55,6 +55,11 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [colorFilter, setColorFilter] = useState<string>("all");
   const [stockFilter, setStockFilter] = useState<string>("in_stock");
+  const [isMounted, setIsMounted] = useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const [headerHeight, setHeaderHeight] = useState(0);
   const observerRef = React.useRef<ResizeObserver | null>(null);
@@ -357,6 +362,10 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       </div>
     </div>
   );
+
+  if (!isMounted) {
+    return null;
+  }
 
   return (
     <div className="bg-gray-50/50 min-h-screen relative" dir="rtl">
