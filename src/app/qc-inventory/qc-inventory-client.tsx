@@ -357,8 +357,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
 
   return (
     <div className="bg-gray-50/50 min-h-screen flex flex-col" dir="rtl">
-      {/* Sticky Top Section */}
-      <div ref={topSectionRef} className="sticky top-0 z-[60] bg-gray-50/95 backdrop-blur-sm pb-4 pt-4 md:pt-8 px-4 md:px-8 space-y-6 shadow-sm border-b border-gray-200">
+      {/* Header and Stats - Not Sticky */}
+      <div className="pt-4 md:pt-8 px-4 md:px-8 space-y-6 mb-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">בקרת מלאי</h2>
@@ -413,7 +413,10 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             </CardContent>
           </Card>
         </div>
+      </div>
 
+      {/* Sticky Filters Section */}
+      <div ref={topSectionRef} className="sticky top-0 z-[60] bg-white pb-4 pt-4 px-4 md:px-8 shadow-sm border-b border-gray-200">
         {renderFiltersAndSearch()}
       </div>
 
