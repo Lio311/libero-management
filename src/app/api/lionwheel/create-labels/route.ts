@@ -56,8 +56,8 @@ export async function POST(request: Request) {
             orderId: payload.original_order_id,
             customerId: customer.id?.toString() || "",
             customerName: customer.fullName || "לא ידוע",
-            labelUrl: data.pdf_link || data.label_url || "",
-            trackingUrl: data.tracking_url || "",
+            labelUrl: data.label || data.pdf_link || data.label_url || "",
+            trackingUrl: data.tracking_link || data.tracking_url || "",
             barcode: data.barcode || data.tracking_number || "",
           });
         } catch (dbError) {
