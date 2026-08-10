@@ -204,206 +204,216 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const needsAttention = processedProducts.filter(p => p.rating && p.rating < 4).length;
   const zeroSales = processedProducts.filter(p => p.totalSales === 0).length;
 
-  return (
-    <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen" dir="rtl">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">בקרת מלאי</h2>
-          <p className="text-muted-foreground mt-1 text-sm mb-3">מעקב גיל מלאי ותמחור למוצרי ליברו</p>
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-medium text-gray-500">דירוג:</span>
-            <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">מצוין (8.5-10)</span>
-            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">טוב (7-8.5)</span>
-            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">בינוני (5-7)</span>
-            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">טעון שיפור (3.5-5)</span>
-            <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full">חלש (2-3.5)</span>
-            <span className="px-2 py-1 bg-red-200 text-red-800 rounded-full">גרוע (1-2)</span>
-          </div>
+  const renderFiltersAndSearch = () => (
+    <div className="w-full">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="חיפוש מוצר..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pr-9 pl-3 py-2 border border-gray-200 rounded-lg text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50/50"
+            dir="rtl"
+          />
+        </div>
+
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="md:hidden inline-flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600"
+        >
+          <Filter className="w-4 h-4" />
+          מיון
+          {showFilters ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+        </button>
+
+        <div className="hidden md:flex items-center gap-2">
+          <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "all")}>
+            <SelectTrigger className="w-[140px] h-10 border-gray-200 bg-white text-right" dir="rtl">
+              <SelectValue placeholder="מצב מלאי">
+                {stockFilter === 'all' ? 'הכל' : stockFilter === 'in_stock' ? 'במלאי' : 'אזל מהמלאי'}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent align="end" dir="rtl">
+              <SelectItem value="all">הכל</SelectItem>
+              <SelectItem value="in_stock">במלאי</SelectItem>
+              <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
+            <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
+              <SelectValue placeholder="כל הקטגוריות">
+                {categoryFilter === 'all' ? 'הכל' : categoryFilter}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent align="end" dir="rtl">
+              <SelectItem value="all">הכל</SelectItem>
+              {uniqueCategories.map(c => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
+            <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
+              <SelectValue placeholder="זמן מדף">
+                {ageOptions.find(c => c.value === colorFilter)?.label}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent align="end" dir="rtl">
+              {ageOptions.map(c => (
+                <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+            <SelectTrigger className="w-[180px] h-10 border-gray-200 bg-white text-right" dir="rtl">
+              <SelectValue placeholder="בחר מיון">
+                {sortLabels[sortMode]}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent align="end" dir="rtl">
+              {Object.entries(sortLabels).map(([key, label]) => (
+                <SelectItem key={key} value={key}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-white border-none shadow-sm">
-          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-full">
-              <CheckCircle2 className="w-5 h-5" />
+      <div className={`mt-3 space-y-3 ${showFilters ? "block" : "hidden md:hidden"}`}>
+        <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "all")}>
+          <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
+            <SelectValue placeholder="מצב מלאי">
+              {stockFilter === 'all' ? 'הכל' : stockFilter === 'in_stock' ? 'במלאי' : 'אזל מהמלאי'}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
+            <SelectItem value="all">הכל</SelectItem>
+            <SelectItem value="in_stock">במלאי</SelectItem>
+            <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
+          <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
+            <SelectValue placeholder="כל הקטגוריות">
+              {categoryFilter === 'all' ? 'הכל' : categoryFilter}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
+            <SelectItem value="all">הכל</SelectItem>
+            {uniqueCategories.map(c => (
+              <SelectItem key={c} value={c}>{c}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
+          <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
+            <SelectValue placeholder="זמן מדף">
+              {ageOptions.find(c => c.value === colorFilter)?.label}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
+            {ageOptions.map(c => (
+              <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
+          <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
+            <SelectValue placeholder="בחר מיון">
+              {sortLabels[sortMode]}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
+            {Object.entries(sortLabels).map(([key, label]) => (
+              <SelectItem key={key} value={key}>{label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="bg-gray-50/50 min-h-screen flex flex-col" dir="rtl">
+      {/* Sticky Top Section */}
+      <div className="sticky top-0 z-[60] bg-gray-50/95 backdrop-blur-sm pb-4 pt-4 md:pt-8 px-4 md:px-8 space-y-6 shadow-sm border-b border-gray-200">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">בקרת מלאי</h2>
+            <p className="text-muted-foreground mt-1 text-sm mb-3">מעקב גיל מלאי ותמחור למוצרי ליברו</p>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-medium text-gray-500">דירוג:</span>
+              <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">מצוין (8.5-10)</span>
+              <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">טוב (7-8.5)</span>
+              <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">בינוני (5-7)</span>
+              <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">טעון שיפור (3.5-5)</span>
+              <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full">חלש (2-3.5)</span>
+              <span className="px-2 py-1 bg-red-200 text-red-800 rounded-full">גרוע (1-2)</span>
             </div>
-            <p className="text-xs text-gray-500 font-medium">סה״כ מוצרים במלאי</p>
-            <h3 className="text-xl md:text-2xl font-bold text-gray-800">{totalInStock}</h3>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border-none shadow-sm">
-          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-            <div className="p-2 bg-red-100 text-red-600 rounded-full">
-              <AlertCircle className="w-5 h-5" />
-            </div>
-            <p className="text-xs text-gray-500 font-medium">מוצרים שאזלו (Out of Stock)</p>
-            <h3 className="text-xl md:text-2xl font-bold text-gray-800">{outOfStock}</h3>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border-none shadow-sm">
-          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-            <div className="p-2 bg-orange-100 text-orange-600 rounded-full">
-              <AlertTriangle className="w-5 h-5" />
-            </div>
-            <p className="text-xs text-gray-500 font-medium">דורשים תשומת לב (דירוג &lt; 4)</p>
-            <h3 className="text-xl md:text-2xl font-bold text-gray-800">{needsAttention}</h3>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border-none shadow-sm">
-          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-            <div className="p-2 bg-gray-100 text-gray-600 rounded-full">
-              <Package className="w-5 h-5" />
-            </div>
-            <p className="text-xs text-gray-500 font-medium">מוצרים ללא מכירות כלל</p>
-            <h3 className="text-xl md:text-2xl font-bold text-gray-800">{zeroSales}</h3>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="bg-white border-none shadow-sm">
+            <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+              <div className="p-2 bg-emerald-100 text-emerald-600 rounded-full">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <p className="text-xs text-gray-500 font-medium">סה״כ מוצרים במלאי</p>
+              <h3 className="text-xl md:text-2xl font-bold text-gray-800">{totalInStock}</h3>
+            </CardContent>
+          </Card>
+          <Card className="bg-white border-none shadow-sm">
+            <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+              <div className="p-2 bg-red-100 text-red-600 rounded-full">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <p className="text-xs text-gray-500 font-medium">מוצרים שאזלו (Out of Stock)</p>
+              <h3 className="text-xl md:text-2xl font-bold text-gray-800">{outOfStock}</h3>
+            </CardContent>
+          </Card>
+          <Card className="bg-white border-none shadow-sm">
+            <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+              <div className="p-2 bg-orange-100 text-orange-600 rounded-full">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <p className="text-xs text-gray-500 font-medium">דורשים תשומת לב (דירוג &lt; 4)</p>
+              <h3 className="text-xl md:text-2xl font-bold text-gray-800">{needsAttention}</h3>
+            </CardContent>
+          </Card>
+          <Card className="bg-white border-none shadow-sm">
+            <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
+              <div className="p-2 bg-gray-100 text-gray-600 rounded-full">
+                <Package className="w-5 h-5" />
+              </div>
+              <p className="text-xs text-gray-500 font-medium">מוצרים ללא מכירות כלל</p>
+              <h3 className="text-xl md:text-2xl font-bold text-gray-800">{zeroSales}</h3>
+            </CardContent>
+          </Card>
+        </div>
+
+        {renderFiltersAndSearch()}
       </div>
 
-      <Card className="bg-white border-none shadow-sm overflow-visible">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="חיפוש מוצר..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pr-9 pl-3 py-2 border border-gray-200 rounded-lg text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50/50"
-                dir="rtl"
-              />
-            </div>
-
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="md:hidden inline-flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600"
-            >
-              <Filter className="w-4 h-4" />
-              מיון
-              {showFilters ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            </button>
-
-            <div className="hidden md:flex items-center gap-2">
-              <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "all")}>
-                <SelectTrigger className="w-[140px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-                  <SelectValue placeholder="מצב מלאי">
-                    {stockFilter === 'all' ? 'הכל' : stockFilter === 'in_stock' ? 'במלאי' : 'אזל מהמלאי'}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent align="end" dir="rtl">
-                  <SelectItem value="all">הכל</SelectItem>
-                  <SelectItem value="in_stock">במלאי</SelectItem>
-                  <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
-                <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-                  <SelectValue placeholder="כל הקטגוריות">
-                    {categoryFilter === 'all' ? 'הכל' : categoryFilter}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent align="end" dir="rtl">
-                  <SelectItem value="all">הכל</SelectItem>
-                  {uniqueCategories.map(c => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
-                <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-                  <SelectValue placeholder="זמן מדף">
-                    {ageOptions.find(c => c.value === colorFilter)?.label}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent align="end" dir="rtl">
-                  {ageOptions.map(c => (
-                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-                <SelectTrigger className="w-[180px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-                  <SelectValue placeholder="בחר מיון">
-                    {sortLabels[sortMode]}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent align="end" dir="rtl">
-                  {Object.entries(sortLabels).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>{label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className={`mt-3 space-y-3 ${showFilters ? "block" : "hidden md:hidden"}`}>
-            <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "all")}>
-              <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-                <SelectValue placeholder="מצב מלאי">
-                  {stockFilter === 'all' ? 'הכל' : stockFilter === 'in_stock' ? 'במלאי' : 'אזל מהמלאי'}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-                <SelectItem value="all">הכל</SelectItem>
-                <SelectItem value="in_stock">במלאי</SelectItem>
-                <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
-              <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-                <SelectValue placeholder="כל הקטגוריות">
-                  {categoryFilter === 'all' ? 'הכל' : categoryFilter}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-                <SelectItem value="all">הכל</SelectItem>
-                {uniqueCategories.map(c => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
-              <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-                <SelectValue placeholder="זמן מדף">
-                  {ageOptions.find(c => c.value === colorFilter)?.label}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-                {ageOptions.map(c => (
-                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-              <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-                <SelectValue placeholder="בחר מיון">
-                  {sortLabels[sortMode]}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-                {Object.entries(sortLabels).map(([key, label]) => (
-                  <SelectItem key={key} value={key}>{label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardHeader>
-
-        <CardContent className="p-0 md:px-6 md:pb-6">
-          <div className="px-4 py-2 text-sm text-gray-500 font-medium">
+      {/* Main Content */}
+      <div className="p-4 md:p-8 pt-4 md:pt-6">
+        <Card className="bg-white border-none shadow-sm overflow-visible">
+          <div className="mt-4 text-sm text-gray-500 font-medium md:hidden mb-4 px-4">
             סה״כ מוצרים: {filteredAndSorted.length}
           </div>
-          <div className="relative border rounded-md">
+
+          <CardContent className="p-0 md:px-6 md:pb-6">
+            <div className="relative md:border rounded-md">
             <table className="w-full text-sm border-separate border-spacing-0">
-              <thead className="hidden md:table-header-group sticky top-0 z-50 shadow-sm bg-white">
+              <thead className="hidden md:table-header-group">
                 <tr className="bg-white [&>th]:border-b [&>th]:border-b-gray-200">
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md bg-white z-50">שם המוצר</th>
                   <th className="py-3 px-4 font-medium text-right bg-white z-50">קטגוריה</th>
@@ -601,6 +611,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
