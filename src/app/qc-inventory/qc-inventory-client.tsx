@@ -425,25 +425,6 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           {renderFiltersAndSearch()}
         </div>
 
-        {/* Table header - sticky just below the filters */}
-        <div className="hidden md:block sticky z-20 bg-white border-x border-gray-100" style={{ top: `${Math.max(0, headerHeight)}px` }}>
-          <div className="border-b border-gray-200 flex text-sm font-medium text-gray-700">
-            <div className="py-3 px-4 text-right flex-[2]">שם המוצר</div>
-            <div className="py-3 px-4 text-right flex-[1.2]">קטגוריה</div>
-            <div className="py-3 px-4 text-right flex-[1.2]">קבוצת קומרס</div>
-            <div className="py-3 px-4 text-center flex-[0.7]">דירוג</div>
-            <div className="py-3 px-4 text-center flex-[1]">מכר חודש לפני אחרון</div>
-            <div className="py-3 px-4 text-center flex-[1]">מכר חודש אחרון</div>
-            <div className="py-3 px-4 text-center flex-[1]">מכר שבוע אחרון</div>
-            <div className="py-3 px-4 text-center flex-[1]">התקדמות</div>
-            <div className="py-3 px-4 text-center flex-[1.2]">תאריך בקרת מוצר אחרון</div>
-            <div className="py-3 px-4 text-center flex-[1.1]">תאריך תמחור אחרון</div>
-            <div className="py-3 px-4 text-center flex-[1.1]">תאריך מכירה אחרון</div>
-            <div className="py-3 px-4 text-center flex-[1]">זמן חיי מדף</div>
-          </div>
-          <div className="h-[1px] shadow-[0_4px_10px_-4px_rgba(0,0,0,0.08)]"></div>
-        </div>
-
         <div className="bg-white border border-gray-100 border-t-0 rounded-b-xl shadow-sm">
           <div className="mt-4 text-sm text-gray-500 font-medium md:hidden mb-2 px-4">
             סה״כ מוצרים: {filteredAndSorted.length}
@@ -453,20 +434,20 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           <div className="hidden md:block pb-6">
             <div className="relative">
               <table className="w-full text-sm border-separate border-spacing-0">
-                <thead className="sr-only">
-                  <tr>
-                    <th>שם המוצר</th>
-                    <th>קטגוריה</th>
-                    <th>קבוצת קומרס</th>
-                    <th>דירוג</th>
-                    <th>מכר חודש לפני אחרון</th>
-                    <th>מכר חודש אחרון</th>
-                    <th>מכר שבוע אחרון</th>
-                    <th>התקדמות</th>
-                    <th>תאריך בקרת מוצר אחרון</th>
-                    <th>תאריך תמחור אחרון</th>
-                    <th>תאריך מכירה אחרון</th>
-                    <th>זמן חיי מדף</th>
+                <thead className="sticky z-20" style={{ top: `${Math.max(0, headerHeight)}px` }}>
+                  <tr className="bg-white [&>th]:border-b [&>th]:border-b-gray-200">
+                    <th className="py-3 px-4 font-medium text-right bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>שם המוצר</th>
+                    <th className="py-3 px-4 font-medium text-right bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>קטגוריה</th>
+                    <th className="py-3 px-4 font-medium text-right bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>קבוצת קומרס</th>
+                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>דירוג</th>
+                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>מכר חודש לפני אחרון</th>
+                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>מכר חודש אחרון</th>
+                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>מכר שבוע אחרון</th>
+                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>התקדמות</th>
+                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>תאריך בקרת מוצר אחרון</th>
+                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>תאריך תמחור אחרון</th>
+                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>תאריך מכירה אחרון</th>
+                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>זמן חיי מדף</th>
                   </tr>
                 </thead>
                 <tbody>
