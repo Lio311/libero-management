@@ -356,22 +356,22 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           <div className="px-4 py-2 text-sm text-gray-500 font-medium">
             סה״כ מוצרים: {filteredAndSorted.length}
           </div>
-          <div className="overflow-auto h-[calc(100vh-280px)] relative border rounded-md">
+          <div className="relative border rounded-md">
             <table className="w-full text-sm">
-              <thead className="bg-white text-muted-foreground hidden md:table-header-group sticky top-0 z-10 shadow-sm border-b">
-                <tr>
-                  <th className="py-3 px-4 font-medium text-right rounded-tr-md">שם המוצר</th>
-                  <th className="py-3 px-4 font-medium text-right">קטגוריה</th>
-                  <th className="py-3 px-4 font-medium text-right">קבוצת קומרס</th>
-                  <th className="py-3 px-4 font-medium text-center">דירוג</th>
-                  <th className="py-3 px-4 font-medium text-center">מכר חודש לפני אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center">מכר חודש אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center">מכר שבוע אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center">התקדמות</th>
-                  <th className="py-3 px-4 font-medium text-center">תאריך בקרת מוצר אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center">תאריך תמחור אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center">תאריך מכירה אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center rounded-tl-md">זמן חיי מדף</th>
+              <thead className="hidden md:table-header-group sticky top-0 z-50 shadow-sm border-b bg-white">
+                <tr className="bg-white">
+                  <th className="py-3 px-4 font-medium text-right rounded-tr-md bg-white z-50">שם המוצר</th>
+                  <th className="py-3 px-4 font-medium text-right bg-white z-50">קטגוריה</th>
+                  <th className="py-3 px-4 font-medium text-right bg-white z-50">קבוצת קומרס</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-50">דירוג</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-50">מכר חודש לפני אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-50">מכר חודש אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-50">מכר שבוע אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-50">התקדמות</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-50">תאריך בקרת מוצר אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-50">תאריך תמחור אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center bg-white z-50">תאריך מכירה אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center rounded-tl-md bg-white z-50">זמן חיי מדף</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
