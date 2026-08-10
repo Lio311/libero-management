@@ -3,7 +3,8 @@
 import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, ChevronDown, ChevronUp, Filter, Package, AlertTriangle, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Search, ChevronDown, ChevronUp, Filter, Package, AlertTriangle, AlertCircle, CheckCircle2, X } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
@@ -52,14 +53,18 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const [searchQuery, setSearchQuery] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("color_desc");
   const [showFilters, setShowFilters] = useState(false);
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const [colorFilter, setColorFilter] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
+  const [colorFilter, setColorFilter] = useState<string[]>([]);
   const [stockFilter, setStockFilter] = useState<string>("in_stock");
   const [isMounted, setIsMounted] = useState(false);
 
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const toggleFilter = (setState: React.Dispatch<React.SetStateAction<string[]>>, value: string) => {
+    setState(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
+  };
 
   const [headerHeight, setHeaderHeight] = useState(0);
   const observerRef = React.useRef<ResizeObserver | null>(null);
@@ -81,9 +86,12 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const uniqueCategories = useMemo(() => {
     const cats = new Set<string>();
     products.forEach(p => {
-      if (p.categories) cats.add(p.categories);
+      const catStr = String(p.categories || "");
+      if (catStr) {
+        catStr.split(',').forEach(c => cats.add(c.trim()));
+      }
     });
-    return Array.from(cats).sort();
+    return Array.from(cats).filter(Boolean).sort();
   }, [products]);
 
   const ageOptions = [
@@ -114,20 +122,24 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     return products.map(p => {
       let rating = 0;
       
-      const totalOrdered = p.currentStock + p.totalSales;
-      const progressRatio = totalOrdered > 0 ? (p.totalSales / totalOrdered) : 0;
+      const currentStock = Number(p.currentStock) || 0;
+      const totalSales = Number(p.totalSales) || 0;
+      const ageDays = Number(p.ageDays) || 0;
+      
+      const totalOrdered = currentStock + totalSales;
+      const progressRatio = totalOrdered > 0 ? (totalSales / totalOrdered) : 0;
       
       // משקל של 2 נקודות לאחוז ההתקדמות
       const percentageScore = progressRatio * 2;
       
       // משקל של 1.5 נקודות לנפח המכירות האבסולוטי (מקסימום ניקוד למי שמכר 100 יחידות ומעלה)
-      const volumeScore = Math.min(p.totalSales / 100, 1) * 1.5;
+      const volumeScore = Math.min(totalSales / 100, 1) * 1.5;
       
       rating += percentageScore + volumeScore;
       
-      if (p.ageDays <= 30) rating += 3;
-      else if (p.ageDays <= 90) rating += 2;
-      else if (p.ageDays <= 180) rating += 1;
+      if (ageDays <= 30) rating += 3;
+      else if (ageDays <= 90) rating += 2;
+      else if (ageDays <= 180) rating += 1;
       
       if (p.lastSaleDate) {
         const daysSinceSale = (new Date().getTime() - new Date(p.lastSaleDate).getTime()) / (1000 * 60 * 60 * 24);
@@ -136,13 +148,14 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         else if (daysSinceSale <= 30) rating += 0.5;
       }
 
-      if (p.commerceGroup === "מותגי הבית" || p.categories?.includes("מותגי הבית")) {
+      const catStr = String(p.categories || "");
+      if (p.commerceGroup === "מותגי הבית" || catStr.includes("מותגי הבית")) {
         rating += 1;
       }
       
       rating = Math.max(1, Math.min(10, rating));
       
-      return { ...p, rating };
+      return { ...p, rating, catStr, currentStock, totalSales, ageDays };
     });
   }, [products]);
 
@@ -153,61 +166,56 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       const q = searchQuery.toLowerCase();
       result = result.filter(
         (p) =>
-          p.productName.toLowerCase().includes(q) ||
-          (p.productSku && p.productSku.toLowerCase().includes(q))
+          String(p.productName || "").toLowerCase().includes(q) ||
+          String(p.productSku || "").toLowerCase().includes(q)
       );
     }
 
-    if (categoryFilter !== "all") {
-      result = result.filter(p => p.categories === categoryFilter);
+    if (categoryFilter.length > 0) {
+      result = result.filter(p => {
+        if (!p.catStr) return false;
+        const pCats = p.catStr.split(',').map(c => c.trim());
+        return pCats.some(c => categoryFilter.includes(c));
+      });
     }
 
-    if (colorFilter !== "all") {
-      result = result.filter(p => getAgeCategory(p.ageDays).category === colorFilter);
+    if (colorFilter.length > 0) {
+      result = result.filter(p => colorFilter.includes(getAgeCategory(p.ageDays).category));
     }
 
-    if (stockFilter === "in_stock") {
-      result = result.filter(p => p.currentStock > 0);
-    } else if (stockFilter === "out_of_stock") {
-      result = result.filter(p => p.currentStock <= 0);
+    if (stockFilter !== "all") {
+      result = result.filter(p => {
+        const inStock = p.currentStock > 0;
+        if (stockFilter === "in_stock") return inStock;
+        if (stockFilter === "out_of_stock") return !inStock;
+        return true;
+      });
     }
 
     result.sort((a, b) => {
       switch (sortMode) {
         case "name_asc":
-          return a.productName.localeCompare(b.productName, "he");
+          return String(a.productName || "").localeCompare(String(b.productName || ""), "he");
         case "name_desc":
-          return b.productName.localeCompare(a.productName, "he");
+          return String(b.productName || "").localeCompare(String(a.productName || ""), "he");
         case "inspection_asc":
-          if (!a.lastInspectionDate) return -1;
-          if (!b.lastInspectionDate) return 1;
-          return new Date(a.lastInspectionDate).getTime() - new Date(b.lastInspectionDate).getTime();
+          return new Date(a.lastInspectionDate || 0).getTime() - new Date(b.lastInspectionDate || 0).getTime();
         case "inspection_desc":
-          if (!a.lastInspectionDate) return 1;
-          if (!b.lastInspectionDate) return -1;
-          return new Date(b.lastInspectionDate).getTime() - new Date(a.lastInspectionDate).getTime();
+          return new Date(b.lastInspectionDate || 0).getTime() - new Date(a.lastInspectionDate || 0).getTime();
         case "price_asc":
-          if (!a.lastPriceStatusDate) return -1;
-          if (!b.lastPriceStatusDate) return 1;
-          return new Date(a.lastPriceStatusDate).getTime() - new Date(b.lastPriceStatusDate).getTime();
+          return new Date(a.lastPriceStatusDate || 0).getTime() - new Date(b.lastPriceStatusDate || 0).getTime();
         case "price_desc":
-          if (!a.lastPriceStatusDate) return 1;
-          if (!b.lastPriceStatusDate) return -1;
-          return new Date(b.lastPriceStatusDate).getTime() - new Date(a.lastPriceStatusDate).getTime();
+          return new Date(b.lastPriceStatusDate || 0).getTime() - new Date(a.lastPriceStatusDate || 0).getTime();
         case "color_asc":
           if (a.ageDays !== b.ageDays) return a.ageDays - b.ageDays;
-          return new Date(b.dateAddedToSite).getTime() - new Date(a.dateAddedToSite).getTime();
+          return new Date(b.dateAddedToSite || 0).getTime() - new Date(a.dateAddedToSite || 0).getTime();
         case "color_desc":
           if (a.ageDays !== b.ageDays) return b.ageDays - a.ageDays;
-          return new Date(a.dateAddedToSite).getTime() - new Date(b.dateAddedToSite).getTime();
+          return new Date(a.dateAddedToSite || 0).getTime() - new Date(b.dateAddedToSite || 0).getTime();
         case "last_sale_date_asc":
-          if (!a.lastSaleDate) return -1;
-          if (!b.lastSaleDate) return 1;
-          return new Date(a.lastSaleDate).getTime() - new Date(b.lastSaleDate).getTime();
+          return new Date(a.lastSaleDate || 0).getTime() - new Date(b.lastSaleDate || 0).getTime();
         case "last_sale_date_desc":
-          if (!a.lastSaleDate) return 1;
-          if (!b.lastSaleDate) return -1;
-          return new Date(b.lastSaleDate).getTime() - new Date(a.lastSaleDate).getTime();
+          return new Date(b.lastSaleDate || 0).getTime() - new Date(a.lastSaleDate || 0).getTime();
         case "rating_asc":
           return (a.rating || 0) - (b.rating || 0);
         case "rating_desc":
@@ -251,45 +259,54 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         </button>
 
         <div className="hidden md:flex items-center gap-2">
-          <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "all")}>
+          <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "in_stock")}>
             <SelectTrigger className="w-[140px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-              <SelectValue placeholder="מצב מלאי">
-                {stockFilter === 'all' ? 'הכל' : stockFilter === 'in_stock' ? 'במלאי' : 'אזל מהמלאי'}
-              </SelectValue>
+              <SelectValue placeholder="מצב מלאי" />
             </SelectTrigger>
             <SelectContent align="end" dir="rtl">
-              <SelectItem value="all">הכל</SelectItem>
+              <SelectItem value="all">כל מצבי המלאי</SelectItem>
               <SelectItem value="in_stock">במלאי</SelectItem>
               <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
             </SelectContent>
           </Select>
 
-          <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
-            <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-              <SelectValue placeholder="כל הקטגוריות">
-                {categoryFilter === 'all' ? 'הכל' : categoryFilter}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent align="end" dir="rtl">
-              <SelectItem value="all">הכל</SelectItem>
-              {uniqueCategories.map(c => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger className="flex w-[160px] h-10 items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
+                <span className="truncate">
+                  {categoryFilter.length === 0 ? 'כל הקטגוריות' : categoryFilter.length === 1 ? categoryFilter[0] : `${categoryFilter.length} קטגוריות`}
+                </span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-2" align="end" dir="rtl">
+              <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto pr-1">
+                {uniqueCategories.map(c => (
+                  <label key={c} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                    <input type="checkbox" checked={categoryFilter.includes(c)} onChange={() => toggleFilter(setCategoryFilter, c)} className="w-4 h-4 accent-blue-600 rounded border-gray-300" />
+                    <span className="text-sm">{c}</span>
+                  </label>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
 
-          <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
-            <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-              <SelectValue placeholder="זמן מדף">
-                {ageOptions.find(c => c.value === colorFilter)?.label}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent align="end" dir="rtl">
-              {ageOptions.map(c => (
-                <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger className="flex w-[160px] h-10 items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
+                <span className="truncate">
+                  {colorFilter.length === 0 ? 'כל זמני המדף' : colorFilter.length === 1 ? ageOptions.find(o => o.value === colorFilter[0])?.label : `${colorFilter.length} זמני מדף`}
+                </span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-2" align="end" dir="rtl">
+              <div className="flex flex-col gap-1">
+                {ageOptions.slice(1).map(c => (
+                  <label key={c.value} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                    <input type="checkbox" checked={colorFilter.includes(c.value)} onChange={() => toggleFilter(setColorFilter, c.value)} className="w-4 h-4 accent-blue-600 rounded border-gray-300" />
+                    <span className="text-sm">{c.label}</span>
+                  </label>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
 
           <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
             <SelectTrigger className="w-[180px] h-10 border-gray-200 bg-white text-right" dir="rtl">
@@ -307,45 +324,54 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       </div>
 
       <div className={`mt-3 space-y-3 ${showFilters ? "block" : "hidden md:hidden"}`}>
-        <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "all")}>
+        <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "in_stock")}>
           <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-            <SelectValue placeholder="מצב מלאי">
-              {stockFilter === 'all' ? 'הכל' : stockFilter === 'in_stock' ? 'במלאי' : 'אזל מהמלאי'}
-            </SelectValue>
+            <SelectValue placeholder="מצב מלאי" />
           </SelectTrigger>
           <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-            <SelectItem value="all">הכל</SelectItem>
+            <SelectItem value="all">כל מצבי המלאי</SelectItem>
             <SelectItem value="in_stock">במלאי</SelectItem>
             <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
           </SelectContent>
         </Select>
 
-        <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v || "all")}>
-          <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-            <SelectValue placeholder="כל הקטגוריות">
-              {categoryFilter === 'all' ? 'הכל' : categoryFilter}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-            <SelectItem value="all">הכל</SelectItem>
-            {uniqueCategories.map(c => (
-              <SelectItem key={c} value={c}>{c}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Popover>
+          <PopoverTrigger className="flex w-full h-10 items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
+              <span className="truncate">
+                {categoryFilter.length === 0 ? 'כל הקטגוריות' : categoryFilter.length === 1 ? categoryFilter[0] : `${categoryFilter.length} קטגוריות`}
+              </span>
+              <ChevronDown className="h-4 w-4 opacity-50" />
+          </PopoverTrigger>
+          <PopoverContent align="center" className="w-[calc(100vw-3rem)] p-2" dir="rtl">
+            <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto pr-1">
+              {uniqueCategories.map(c => (
+                <label key={c} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                  <input type="checkbox" checked={categoryFilter.includes(c)} onChange={() => toggleFilter(setCategoryFilter, c)} className="w-4 h-4 accent-blue-600 rounded border-gray-300" />
+                  <span className="text-sm">{c}</span>
+                </label>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
 
-        <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
-          <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-            <SelectValue placeholder="זמן מדף">
-              {ageOptions.find(c => c.value === colorFilter)?.label}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
-            {ageOptions.map(c => (
-              <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Popover>
+          <PopoverTrigger className="flex w-full h-10 items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
+              <span className="truncate">
+                {colorFilter.length === 0 ? 'כל זמני המדף' : colorFilter.length === 1 ? ageOptions.find(o => o.value === colorFilter[0])?.label : `${colorFilter.length} זמני מדף`}
+              </span>
+              <ChevronDown className="h-4 w-4 opacity-50" />
+          </PopoverTrigger>
+          <PopoverContent align="center" className="w-[calc(100vw-3rem)] p-2" dir="rtl">
+            <div className="flex flex-col gap-1">
+              {ageOptions.slice(1).map(c => (
+                <label key={c.value} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                  <input type="checkbox" checked={colorFilter.includes(c.value)} onChange={() => toggleFilter(setColorFilter, c.value)} className="w-4 h-4 accent-blue-600 rounded border-gray-300" />
+                  <span className="text-sm">{c.label}</span>
+                </label>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
           <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
@@ -360,12 +386,44 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           </SelectContent>
         </Select>
       </div>
+      {/* Active Filters Display */}
+      {(categoryFilter.length > 0 || colorFilter.length > 0 || stockFilter !== "in_stock") && (
+        <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+          <span className="text-xs font-medium text-gray-500">מסננים פעילים:</span>
+          {categoryFilter.map(c => (
+            <span key={c} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-100 text-blue-700 rounded-md text-xs transition-colors">
+              {c}
+              <button onClick={() => toggleFilter(setCategoryFilter, c)} className="hover:text-blue-900 focus:outline-none"><X className="w-3 h-3" /></button>
+            </span>
+          ))}
+          {colorFilter.map(c => (
+            <span key={c} className="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 border border-purple-100 text-purple-700 rounded-md text-xs transition-colors">
+              {ageOptions.find(o => o.value === c)?.label}
+              <button onClick={() => toggleFilter(setColorFilter, c)} className="hover:text-purple-900 focus:outline-none"><X className="w-3 h-3" /></button>
+            </span>
+          ))}
+          {stockFilter !== "in_stock" && (
+            <span className={`inline-flex items-center gap-1 px-2 py-1 border rounded-md text-xs transition-colors ${stockFilter === "out_of_stock" ? "bg-red-50 border-red-100 text-red-700" : "bg-gray-50 border-gray-200 text-gray-700"}`}>
+              {stockFilter === "out_of_stock" ? "אזל מהמלאי" : "כל מצבי המלאי"}
+              <button onClick={() => setStockFilter("in_stock")} className="hover:opacity-70 focus:outline-none"><X className="w-3 h-3" /></button>
+            </span>
+          )}
+          {(categoryFilter.length > 0 || colorFilter.length > 0 || stockFilter !== "in_stock") && (
+            <button onClick={() => { setCategoryFilter([]); setColorFilter([]); setStockFilter("in_stock"); }} className="text-xs text-gray-500 hover:text-gray-900 underline mr-auto px-2">
+              נקה הכל
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 
   if (!isMounted) {
     return null;
   }
+
+  const thClasses = "py-3 px-4 font-medium text-right bg-white border-b border-gray-200 sticky z-20";
+  const thStyle = { top: `${Math.max(0, headerHeight)}px`, backgroundClip: "padding-box" };
 
   return (
     <div className="bg-gray-50/50 min-h-screen relative" dir="rtl">
@@ -443,20 +501,20 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           <div className="hidden md:block pb-6">
             <div className="relative">
               <table className="w-full text-sm border-separate border-spacing-0">
-                <thead className="sticky z-20" style={{ top: `${Math.max(0, headerHeight)}px` }}>
-                  <tr className="bg-white [&>th]:border-b [&>th]:border-b-gray-200">
-                    <th className="py-3 px-4 font-medium text-right bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>שם המוצר</th>
-                    <th className="py-3 px-4 font-medium text-right bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>קטגוריה</th>
-                    <th className="py-3 px-4 font-medium text-right bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>קבוצת קומרס</th>
-                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>דירוג</th>
-                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>מכר חודש לפני אחרון</th>
-                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>מכר חודש אחרון</th>
-                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>מכר שבוע אחרון</th>
-                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>התקדמות</th>
-                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>תאריך בקרת מוצר אחרון</th>
-                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>תאריך תמחור אחרון</th>
-                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>תאריך מכירה אחרון</th>
-                    <th className="py-3 px-4 font-medium text-center bg-white" style={{ boxShadow: "0 -2px 0 0 white, 0 4px 4px -4px rgba(0,0,0,0.05)" }}>זמן חיי מדף</th>
+                <thead>
+                  <tr>
+                    <th className={`${thClasses} border-r-4 border-transparent`} style={thStyle}>שם המוצר</th>
+                    <th className={thClasses} style={thStyle}>קטגוריה</th>
+                    <th className={thClasses} style={thStyle}>קבוצת קומרס</th>
+                    <th className={`${thClasses} text-center`} style={thStyle}>דירוג</th>
+                    <th className={`${thClasses} text-center`} style={thStyle}>מכר חודש לפני אחרון</th>
+                    <th className={`${thClasses} text-center`} style={thStyle}>מכר חודש אחרון</th>
+                    <th className={`${thClasses} text-center`} style={thStyle}>מכר שבוע אחרון</th>
+                    <th className={`${thClasses} text-center`} style={thStyle}>התקדמות</th>
+                    <th className={`${thClasses} text-center`} style={thStyle}>תאריך בקרת מוצר אחרון</th>
+                    <th className={`${thClasses} text-center`} style={thStyle}>תאריך תמחור אחרון</th>
+                    <th className={`${thClasses} text-center`} style={thStyle}>תאריך מכירה אחרון</th>
+                    <th className={`${thClasses} text-center`} style={thStyle}>זמן חיי מדף</th>
                   </tr>
                 </thead>
                 <tbody>
