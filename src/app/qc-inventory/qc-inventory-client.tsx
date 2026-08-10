@@ -93,8 +93,15 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       let rating = 0;
       
       const totalOrdered = p.currentStock + p.totalSales;
-      const progress = totalOrdered > 0 ? (p.totalSales / totalOrdered) : 0;
-      rating += progress * 3.5;
+      const progressRatio = totalOrdered > 0 ? (p.totalSales / totalOrdered) : 0;
+      
+      // משקל של 2 נקודות לאחוז ההתקדמות
+      const percentageScore = progressRatio * 2;
+      
+      // משקל של 1.5 נקודות לנפח המכירות האבסולוטי (מקסימום ניקוד למי שמכר 100 יחידות ומעלה)
+      const volumeScore = Math.min(p.totalSales / 100, 1) * 1.5;
+      
+      rating += percentageScore + volumeScore;
       
       if (p.ageDays <= 30) rating += 3;
       else if (p.ageDays <= 90) rating += 2;
