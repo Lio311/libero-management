@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { format } from "date-fns";
 import { 
   Table, 
@@ -12,16 +12,47 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ExternalLink, Download } from "lucide-react";
+import { Search, ExternalLink, Download, Trash2, Loader2 } from "lucide-react";
+import { deleteShippingLabel } from "./actions";
 
 export default function ShippingLabelsClient({ initialLabels }: { initialLabels: any[] }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isPending, startTransition] = useTransition();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const filteredLabels = initialLabels.filter((label) => 
     label.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     label.orderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     label.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDelete = (id: string) => {
+    if (confirm("האם אתה בטוח שברצונך למחוק מדבקה זו? (פעולה זו תמחק את הרשומה מהמערכת בלבד)")) {
+      setDeletingId(id);
+      startTransition(async () => {
+        await deleteShippingLabel(id);
+        setDeletingId(null);
+      });
+    }
+  };
+
+  const handleDownload = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Failed to download PDF, opening in new tab instead:", error);
+      window.open(url, '_blank');
+    }
+  };
 
   return (
     <div className="p-8 w-full max-w-7xl mx-auto">
@@ -79,17 +110,41 @@ export default function ShippingLabelsClient({ initialLabels }: { initialLabels:
                     <TableCell>
                       <div className="flex gap-2">
                         {label.labelUrl && (
-                          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => window.open(label.labelUrl, '_blank')}>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 text-xs" 
+                            onClick={() => handleDownload(label.labelUrl, `label-${label.orderId}.pdf`)}
+                          >
                             <Download className="h-3.5 w-3.5 ml-1" />
                             הורד מדבקה
                           </Button>
                         )}
                         {label.trackingUrl && (
-                          <Button variant="secondary" size="sm" className="h-8 text-xs" onClick={() => window.open(label.trackingUrl, '_blank')}>
+                          <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            className="h-8 text-xs" 
+                            onClick={() => window.open(label.trackingUrl, '_blank')}
+                          >
                             <ExternalLink className="h-3.5 w-3.5 ml-1" />
                             מעקב
                           </Button>
                         )}
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="h-8 text-xs"
+                          disabled={isPending && deletingId === label.id}
+                          onClick={() => handleDelete(label.id)}
+                        >
+                          {isPending && deletingId === label.id ? (
+                            <Loader2 className="h-3.5 w-3.5 ml-1 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5 ml-1" />
+                          )}
+                          מחק
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
