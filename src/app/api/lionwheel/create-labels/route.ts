@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const LIONWHEEL_API_KEY = process.env.LIONWHEEL_API_KEY || "c_key_ea2313a9-c33a-436a-bd4b-ed2978e51a70";
+const LIONWHEEL_API_KEY = (process.env.LIONWHEEL_API_KEY || "c_key_ea2313a9-c33a-436a-bd4b-ed2978e51a70").replace(/['"]/g, '').trim();
 const LIONWHEEL_ENDPOINT = "https://members.lionwheel.com/api/v1/tasks/create";
 
 export async function POST(request: Request) {
