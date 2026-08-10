@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     for (const customer of customers) {
       const payload = {
         pickup_at: formattedDate,
-        original_order_id: customer.latestOrderId || `CUST-${customer.id}`,
+        original_order_id: (customer.latestOrderId || `CUST-${customer.id}`) + `-${Date.now()}`,
         destination_city: customer.city || "לא ידוע",
         destination_street: customer.address_1 || "לא ידוע",
         destination_number: "0",
