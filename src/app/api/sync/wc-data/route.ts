@@ -98,7 +98,7 @@ export async function GET(request: Request) {
     };
 
     // 1. Fetch & Sync Products
-    const products = await fetchFromWooCommerce('products', queryParams + '&status=any&_fields=id,name,sku,price,stock_quantity,date_created,categories,status');
+    const products = await fetchFromWooCommerce('products', queryParams + '&status=any&_fields=id,name,sku,price,stock_quantity,date_created,date_modified,categories,status');
     
     if (products.length > 0) {
       const existingProducts = await db.select({ id: wcProducts.id, stockQuantity: wcProducts.stockQuantity }).from(wcProducts);
@@ -124,7 +124,7 @@ export async function GET(request: Request) {
           dateCreated: p.date_created ? new Date(p.date_created) : new Date(),
           status: p.status || 'publish',
           categories: p.categories || [],
-          updatedAt: new Date(),
+          updatedAt: p.date_modified ? new Date(p.date_modified) : new Date(),
         };
       });
 
