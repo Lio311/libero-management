@@ -1,0 +1,34 @@
+--- src/app/qc-inventory/qc-inventory-client.tsx
++++ src/app/qc-inventory/qc-inventory-client.tsx
+@@ -56,15 +56,20 @@
+   const [colorFilter, setColorFilter] = useState<string>("all");
+   const [stockFilter, setStockFilter] = useState<string>("in_stock");
+ 
+-  const topSectionRef = React.useRef<HTMLDivElement>(null);
+   const [headerHeight, setHeaderHeight] = useState(0);
++  const observerRef = React.useRef<ResizeObserver | null>(null);
+ 
+-  React.useEffect(() => {
+-    if (!topSectionRef.current) return;
+-    const observer = new ResizeObserver((entries) => {
+-      for (let entry of entries) {
+-        setHeaderHeight(Math.max(0, entry.target.getBoundingClientRect().height - 1));
+-      }
+-    });
+-    observer.observe(topSectionRef.current);
+-    return () => observer.disconnect();
+-  }, []);
++  const topSectionRef = React.useCallback((node: HTMLDivElement | null) => {
++    if (observerRef.current) {
++      observerRef.current.disconnect();
++      observerRef.current = null;
++    }
++    if (node) {
++      observerRef.current = new ResizeObserver(() => {
++        setHeaderHeight(node.getBoundingClientRect().height);
++      });
++      observerRef.current.observe(node);
++      setHeaderHeight(node.getBoundingClientRect().height);
++    }
++  }, []);
+ 

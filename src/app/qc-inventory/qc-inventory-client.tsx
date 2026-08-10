@@ -49,6 +49,12 @@ function getRatingStyle(rating: number | undefined) {
   return { text: "text-red-700 font-medium", bg: "bg-red-100/70 hover:bg-red-200/70", border: "border-r-red-500" };
 }
 
+const stockFilterLabels: Record<string, string> = {
+  all: "כל מצבי המלאי",
+  in_stock: "במלאי",
+  out_of_stock: "אזל מהמלאי",
+};
+
 export default function QcInventoryClient({ products }: { products: InventoryProduct[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("color_desc");
@@ -228,6 +234,18 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     return result;
   }, [processedProducts, searchQuery, sortMode, categoryFilter, colorFilter, stockFilter]);
 
+  // --- Count per age category (considering stock filter) ---
+  const ageCategoryCounts = useMemo(() => {
+    const stockFiltered = stockFilter === "all" 
+      ? processedProducts 
+      : processedProducts.filter(p => stockFilter === "in_stock" ? p.currentStock > 0 : p.currentStock <= 0);
+    const counts: Record<string, number> = {};
+    for (const opt of ageOptions.slice(1)) {
+      counts[opt.value] = stockFiltered.filter(p => getAgeCategory(p.ageDays).category === opt.value).length;
+    }
+    return counts;
+  }, [processedProducts, stockFilter]);
+
   // --- Summary Cards Calculations ---
   const totalInStock = processedProducts.filter(p => p.currentStock > 0).length;
   const outOfStock = processedProducts.filter(p => p.currentStock <= 0).length;
@@ -261,7 +279,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         <div className="hidden md:flex items-center gap-2">
           <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "in_stock")}>
             <SelectTrigger className="w-[140px] h-10 border-gray-200 bg-white text-right" dir="rtl">
-              <SelectValue placeholder="מצב מלאי" />
+              <SelectValue placeholder="מצב מלאי">{stockFilterLabels[stockFilter] || "מצב מלאי"}</SelectValue>
             </SelectTrigger>
             <SelectContent align="end" dir="rtl">
               <SelectItem value="all">כל מצבי המלאי</SelectItem>
@@ -301,7 +319,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                 {ageOptions.slice(1).map(c => (
                   <label key={c.value} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
                     <input type="checkbox" checked={colorFilter.includes(c.value)} onChange={() => toggleFilter(setColorFilter, c.value)} className="w-4 h-4 accent-blue-600 rounded border-gray-300" />
-                    <span className="text-sm">{c.label}</span>
+                    <span className="text-sm flex-1">{c.label}</span>
+                    <span className="text-xs text-gray-400">{ageCategoryCounts[c.value] || 0}</span>
                   </label>
                 ))}
               </div>
@@ -326,7 +345,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       <div className={`mt-3 space-y-3 ${showFilters ? "block" : "hidden md:hidden"}`}>
         <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "in_stock")}>
           <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
-            <SelectValue placeholder="מצב מלאי" />
+            <SelectValue placeholder="מצב מלאי">{stockFilterLabels[stockFilter] || "מצב מלאי"}</SelectValue>
           </SelectTrigger>
           <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
             <SelectItem value="all">כל מצבי המלאי</SelectItem>
@@ -366,7 +385,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
               {ageOptions.slice(1).map(c => (
                 <label key={c.value} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
                   <input type="checkbox" checked={colorFilter.includes(c.value)} onChange={() => toggleFilter(setColorFilter, c.value)} className="w-4 h-4 accent-blue-600 rounded border-gray-300" />
-                  <span className="text-sm">{c.label}</span>
+                  <span className="text-sm flex-1">{c.label}</span>
+                  <span className="text-xs text-gray-400">{ageCategoryCounts[c.value] || 0}</span>
                 </label>
               ))}
             </div>
@@ -451,7 +471,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
               <div className="p-2 bg-red-100 text-red-600 rounded-full">
                 <AlertCircle className="w-5 h-5" />
               </div>
-              <p className="text-xs text-gray-500 font-medium">מוצרים שאזלו (Out of Stock)</p>
+              <p className="text-xs text-gray-500 font-medium">מוצרים שאזלו מהמלאי</p>
               <h3 className="text-xl md:text-2xl font-bold text-gray-800">{outOfStock}</h3>
             </CardContent>
           </Card>
