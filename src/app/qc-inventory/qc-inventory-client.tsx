@@ -359,7 +359,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           <div className="relative border rounded-md">
             <table className="w-full text-sm">
               <thead className="hidden md:table-header-group sticky top-0 z-50 shadow-sm border-b bg-white">
-                <tr className="bg-white border-r-4 border-white">
+                <tr className="bg-white">
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md bg-white z-50">שם המוצר</th>
                   <th className="py-3 px-4 font-medium text-right bg-white z-50">קטגוריה</th>
                   <th className="py-3 px-4 font-medium text-right bg-white z-50">קבוצת קומרס</th>
@@ -380,8 +380,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                     const style = getAgeCategory(product.ageDays);
                     const ratingStyle = getRatingStyle(product.rating);
                     return (
-                      <tr key={product.id} className={`transition-all duration-300 hidden md:table-row border-r-4 ${ratingStyle.border} ${ratingStyle.bg}`}>
-                        <td className="py-3 px-4 text-right">
+                      <tr key={product.id} className={`transition-all duration-300 hidden md:table-row ${ratingStyle.bg}`}>
+                        <td className={`py-3 px-4 text-right border-r-4 ${ratingStyle.border}`}>
                           <div className="flex items-center gap-3">
                             {product.productImage ? (
                               <img src={product.productImage} alt={product.productName} className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0" />
