@@ -14,6 +14,7 @@ interface InventoryProduct {
   productSku: string | null;
   productImage: string | null;
   categories: string;
+  commerceGroup: string;
   lastInspectionDate: Date | null;
   lastPriceStatusDate: Date | null;
   dateAddedToSite: Date;
@@ -23,6 +24,7 @@ interface InventoryProduct {
   salesLastMonth: number;
   salesMonthBeforeLast: number;
   totalSales: number;
+  lastSaleDate?: Date | null;
 }
 
 type SortMode = "name_asc" | "name_desc" | "inspection_asc" | "inspection_desc" | "price_asc" | "price_desc" | "color_asc" | "color_desc";
@@ -40,6 +42,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const [sortMode, setSortMode] = useState<SortMode>("color_desc");
   const [showFilters, setShowFilters] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [commerceGroupFilter, setCommerceGroupFilter] = useState<string>("all");
   const [colorFilter, setColorFilter] = useState<string>("all");
   const [stockFilter, setStockFilter] = useState<string>("in_stock");
 
@@ -49,6 +52,14 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       if (p.categories) cats.add(p.categories);
     });
     return Array.from(cats).sort();
+  }, [products]);
+
+  const uniqueCommerceGroups = useMemo(() => {
+    const groups = new Set<string>();
+    products.forEach(p => {
+      if (p.commerceGroup) groups.add(p.commerceGroup);
+    });
+    return Array.from(groups).sort();
   }, [products]);
 
   const colorOptions = [
@@ -87,6 +98,10 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       result = result.filter(p => p.categories === categoryFilter);
     }
     
+    if (commerceGroupFilter !== "all") {
+      result = result.filter(p => p.commerceGroup === commerceGroupFilter);
+    }
+
     if (colorFilter !== "all") {
       result = result.filter(p => getAgeCategory(p.ageDays).category === colorFilter);
     }
@@ -131,14 +146,21 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     });
 
     return result;
-  }, [products, searchQuery, sortMode, categoryFilter, colorFilter, stockFilter]);
+  }, [products, searchQuery, sortMode, categoryFilter, commerceGroupFilter, colorFilter, stockFilter]);
 
   return (
     <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen" dir="rtl">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">בקרת מלאי</h2>
-          <p className="text-muted-foreground mt-1 text-sm">מעקב גיל מלאי ותמחור למוצרי ליברו</p>
+          <p className="text-muted-foreground mt-1 text-sm mb-3">מעקב גיל מלאי ותמחור למוצרי ליברו</p>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">ירוק: פחות משבועיים</span>
+            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">צהוב: 14-30 ימים</span>
+            <span className="px-2 py-1 bg-orange-100 text-orange-600 rounded-full">כתום: 30-45 ימים</span>
+            <span className="px-2 py-1 bg-orange-200 text-orange-800 rounded-full">כתום כהה: 45-90 ימים</span>
+            <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full">אדום: מעל 90 יום</span>
+          </div>
         </div>
       </div>
 
@@ -189,6 +211,20 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                 <SelectContent align="end" dir="rtl">
                   <SelectItem value="all">הכל</SelectItem>
                   {uniqueCategories.map(c => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={commerceGroupFilter} onValueChange={(v) => setCommerceGroupFilter(v || "all")}>
+                <SelectTrigger className="w-[160px] h-10 border-gray-200 bg-white text-right" dir="rtl">
+                  <SelectValue placeholder="קבוצת קומרס">
+                    {commerceGroupFilter === 'all' ? 'כל קבוצות הקומרס' : commerceGroupFilter}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent align="end" dir="rtl">
+                  <SelectItem value="all">הכל</SelectItem>
+                  {uniqueCommerceGroups.map(c => (
                     <SelectItem key={c} value={c}>{c}</SelectItem>
                   ))}
                 </SelectContent>
@@ -250,6 +286,20 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
               </SelectContent>
             </Select>
 
+            <Select value={commerceGroupFilter} onValueChange={(v) => setCommerceGroupFilter(v || "all")}>
+              <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
+                <SelectValue placeholder="קבוצת קומרס">
+                  {commerceGroupFilter === 'all' ? 'כל קבוצות הקומרס' : commerceGroupFilter}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
+                <SelectItem value="all">הכל</SelectItem>
+                {uniqueCommerceGroups.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <Select value={colorFilter} onValueChange={(v) => setColorFilter(v || "all")}>
               <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
                 <SelectValue placeholder="כל הצבעים">
@@ -288,12 +338,14 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                 <tr>
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md">שם המוצר</th>
                   <th className="py-3 px-4 font-medium text-right">קטגוריה</th>
+                  <th className="py-3 px-4 font-medium text-right">קבוצת קומרס</th>
                   <th className="py-3 px-4 font-medium text-center">מכר חודש לפני אחרון</th>
                   <th className="py-3 px-4 font-medium text-center">מכר חודש אחרון</th>
                   <th className="py-3 px-4 font-medium text-center">מכר שבוע אחרון</th>
                   <th className="py-3 px-4 font-medium text-center">התקדמות</th>
                   <th className="py-3 px-4 font-medium text-center">תאריך בקרת מוצר אחרון</th>
                   <th className="py-3 px-4 font-medium text-center">תאריך תמחור אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center">תאריך מכירה אחרון</th>
                   <th className="py-3 px-4 font-medium text-center rounded-tl-md">זמן חיי מדף</th>
                 </tr>
               </thead>
@@ -322,6 +374,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                         </td>
                         <td className="py-3 px-4 text-right">
                           <span className="text-gray-600 text-sm">{product.categories || "—"}</span>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <span className="text-gray-600 text-sm">{product.commerceGroup || "—"}</span>
                         </td>
                         <td className="py-3 px-4 text-center text-gray-700">
                           {product.salesMonthBeforeLast}
@@ -356,6 +411,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                           {product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
                         </td>
                         <td className="py-3 px-4 text-center">
+                          {product.lastSaleDate ? format(new Date(product.lastSaleDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
+                        </td>
+                        <td className="py-3 px-4 text-center">
                           <div className="flex flex-col items-center gap-1">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style.badgeBg} ${style.text}`}>
                               {style.label}
@@ -370,7 +428,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                   })
                 ) : (
                   <tr>
-                    <td colSpan={9} className="py-12 text-center text-gray-400">
+                    <td colSpan={10} className="py-12 text-center text-gray-400">
                       <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
                       <p>לא נמצאו מוצרים</p>
                     </td>
@@ -382,7 +440,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                   const style = getAgeCategory(product.ageDays);
                   return (
                     <tr key={`mobile-${product.id}`} className="md:hidden border-b-0">
-                      <td colSpan={9} className="p-0 border-b-0">
+                      <td colSpan={10} className="p-0 border-b-0">
                         <div className={`m-2 rounded-xl shadow-sm border border-r-4 ${style.border} ${style.bg.split(' ')[0]}`}>
                           <div className="p-3 flex items-start gap-3 border-b border-gray-100">
                             {product.productImage ? (
@@ -398,6 +456,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                               </a>
                               {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
                               {product.categories && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.categories}</p>}
+                              {product.commerceGroup && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.commerceGroup}</p>}
                             </div>
                           </div>
                           <div className="p-3 space-y-2 text-[12px]">

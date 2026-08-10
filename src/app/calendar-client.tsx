@@ -405,7 +405,8 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
            let isDelayed = false;
            let delayMonths = 0;
            
-           if (!isCompleted && isBefore(parsedDate, today)) {
+           const isRecurringName = task.taskName && (task.taskName.includes('שבוע') || task.taskName.includes('חודש') || task.taskName.includes('דו'));
+           if (!isCompleted && isBefore(parsedDate, today) && !isRecurringName) {
               renderDate = today;
               isDelayed = true;
               delayMonths = differenceInMonths(today, parsedDate);

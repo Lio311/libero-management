@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { wcProducts, wcOrders } from '@/lib/db/schema';
-import { eq, sql } from 'drizzle-orm';
+import { wcProducts, wcOrders, qcProducts } from '@/lib/db/schema';
+import { eq, sql, inArray } from 'drizzle-orm';
 
 const LIBERO_CONFIG = {
   ck: '[REDACTED_CK]',
@@ -101,17 +101,32 @@ export async function GET(request: Request) {
     const products = await fetchFromWooCommerce('products', queryParams + '&status=any&_fields=id,name,sku,price,stock_quantity,date_created,categories,status');
     
     if (products.length > 0) {
-      const productValues = products.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        sku: p.sku || '',
-        price: p.price ? p.price.toString() : '0',
-        stockQuantity: p.stock_quantity || 0,
-        dateCreated: p.date_created ? new Date(p.date_created) : new Date(),
-        status: p.status || 'publish',
-        categories: p.categories || [],
-        updatedAt: new Date(),
-      }));
+      const existingProducts = await db.select({ id: wcProducts.id, stockQuantity: wcProducts.stockQuantity }).from(wcProducts);
+      const stockMap = new Map(existingProducts.map(p => [p.id, p.stockQuantity || 0]));
+      const restockedProductIds: number[] = [];
+
+      const productValues = products.map((p: any) => {
+        const id = p.id;
+        const newStock = p.stock_quantity || 0;
+        const oldStock = stockMap.get(id) || 0;
+        
+        // If stock goes up and it's not a newly added product, it's a restock.
+        if (newStock > oldStock && stockMap.has(id)) {
+          restockedProductIds.push(id);
+        }
+
+        return {
+          id,
+          name: p.name,
+          sku: p.sku || '',
+          price: p.price ? p.price.toString() : '0',
+          stockQuantity: newStock,
+          dateCreated: p.date_created ? new Date(p.date_created) : new Date(),
+          status: p.status || 'publish',
+          categories: p.categories || [],
+          updatedAt: new Date(),
+        };
+      });
 
       const productChunks = chunkArray(productValues, 500);
       for (const chunk of productChunks) {
@@ -129,6 +144,16 @@ export async function GET(request: Request) {
               updatedAt: sql`EXCLUDED.updated_at`,
             }
           });
+      }
+
+      if (restockedProductIds.length > 0) {
+        // Update qcProducts with the new restock date
+        const restockChunks = chunkArray(restockedProductIds, 500);
+        for (const chunk of restockChunks) {
+          await db.update(qcProducts)
+            .set({ lastRestockDate: new Date(), updatedAt: new Date() })
+            .where(inArray(qcProducts.wooProductId, chunk));
+        }
       }
     }
 

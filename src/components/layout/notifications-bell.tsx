@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { format, isBefore, isToday, startOfDay, differenceInMonths, isValid } from "date-fns";
+import { format, isBefore, isToday, isSameDay, startOfDay, differenceInMonths, isValid } from "date-fns";
 import { he } from "date-fns/locale";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 
@@ -114,9 +114,17 @@ export function NotificationsBell({ scheduleData, bankTasksData, qcPendingCount 
 
     Object.keys(localTasks).forEach(dateKey => {
       const date = new Date(dateKey);
-      if (isBefore(date, today) || isToday(date)) {
+      if (isSameDay(date, today)) {
+        // Today's tasks (which includes delayed one-time tasks since their renderDate is today)
         localTasks[dateKey].forEach(task => {
           if (!task.isCompleted) {
+            notifications.push({ dateKey, task });
+          }
+        });
+      } else if (isBefore(date, today)) {
+        // Past tasks - only notify if they are explicitly delayed (which shouldn't happen if renderDate was moved to today, but just in case)
+        localTasks[dateKey].forEach(task => {
+          if (!task.isCompleted && task.isDelayed) {
             notifications.push({ dateKey, task });
           }
         });

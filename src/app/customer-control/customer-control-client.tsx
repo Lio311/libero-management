@@ -141,8 +141,22 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   );
 
   return (
-    <Card className="w-full bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-xl overflow-hidden">
-      <CardHeader className="bg-slate-50/50 border-b border-slate-100 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center p-6">
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 md:hidden">בקרת לקוחות</h2>
+          <div className="flex flex-wrap gap-2 text-xs mt-3">
+            <span className="font-medium px-2 py-1">מקרא זמן מאז רכישה אחרונה:</span>
+            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">ירוק: עד 3 חודשים</span>
+            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">צהוב: 3-6 חודשים</span>
+            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">כתום: 6-9 חודשים</span>
+            <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full">אדום: מעל 9 חודשים</span>
+          </div>
+        </div>
+      </div>
+
+      <Card className="w-full bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-xl overflow-hidden">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center p-6">
         <div>
           <p className="text-sm text-slate-500 mt-1">סה״כ: {filteredAndSorted.length} לקוחות</p>
         </div>
@@ -251,5 +265,6 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
         </Table>
       </CardContent>
     </Card>
+    </div>
   );
 }

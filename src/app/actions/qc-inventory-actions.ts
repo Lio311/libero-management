@@ -26,21 +26,30 @@ export async function getQcInventoryProducts() {
     
     const stockMap = new Map<number, number>();
     const categoryMap = new Map<number, string>();
+    const commerceGroupsList = ["חדירה זול", "חדירה יקר", "בסיס זול", "בסיס יקר", "פרימיום יקר", "פרימיום זול", "מותגי הבית"];
+    const commerceGroupMap = new Map<number, string>();
     for (const wp of allWcProducts) {
       stockMap.set(wp.id, wp.stockQuantity || 0);
       
       let categoryStr = "אחר";
+      let commerceGroupStr = "";
       if (wp.categories && Array.isArray(wp.categories) && wp.categories.length > 0) {
         const ignoredCats = ["כללי", "חדש באתר", "מבצעים", "הנמכרים ביותר", "חדש בליברו"];
-        const meaningfulCat = wp.categories.find((c: any) => c.name && !ignoredCats.includes(c.name));
+        const meaningfulCat = wp.categories.find((c: any) => c.name && !ignoredCats.includes(c.name) && !commerceGroupsList.includes(c.name));
         
         if (meaningfulCat) {
           categoryStr = meaningfulCat.name;
         } else if (wp.categories[0]?.name) {
           categoryStr = wp.categories[0].name;
         }
+
+        const commerceGroupCat = wp.categories.find((c: any) => c.name && commerceGroupsList.includes(c.name));
+        if (commerceGroupCat) {
+          commerceGroupStr = commerceGroupCat.name;
+        }
       }
       categoryMap.set(wp.id, categoryStr);
+      commerceGroupMap.set(wp.id, commerceGroupStr);
     }
 
     // Fetch orders to calculate sales metrics
@@ -50,10 +59,10 @@ export async function getQcInventoryProducts() {
       status: wcOrders.status,
     }).from(wcOrders);
 
-    const metricsMap = new Map<number, { salesLastWeek: number; salesLastMonth: number; salesMonthBeforeLast: number; totalSales: number }>();
+    const metricsMap = new Map<number, { salesLastWeek: number; salesLastMonth: number; salesMonthBeforeLast: number; totalSales: number; lastSaleDate: Date | null }>();
 
     for (const product of products) {
-      metricsMap.set(product.wooProductId, { salesLastWeek: 0, salesLastMonth: 0, salesMonthBeforeLast: 0, totalSales: 0 });
+      metricsMap.set(product.wooProductId, { salesLastWeek: 0, salesLastMonth: 0, salesMonthBeforeLast: 0, totalSales: 0, lastSaleDate: null });
     }
 
     const now = new Date();
@@ -79,6 +88,10 @@ export async function getQcInventoryProducts() {
         
         metrics.totalSales += qty;
         
+        if (!metrics.lastSaleDate || orderDate > metrics.lastSaleDate) {
+          metrics.lastSaleDate = orderDate;
+        }
+        
         if (orderDate >= sevenDaysAgo) {
           metrics.salesLastWeek += qty;
         }
@@ -92,15 +105,16 @@ export async function getQcInventoryProducts() {
     }
     
     const inventoryProducts = products.map((product) => {
-      const dateCreated = product.dateAddedToSite || product.createdAt;
+      const dateCreated = product.lastRestockDate || product.dateAddedToSite || product.createdAt;
       
       const createdDate = new Date(dateCreated);
       const diffTime = Math.abs(now.getTime() - createdDate.getTime());
       const ageDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
-      const metrics = metricsMap.get(product.wooProductId) || { salesLastWeek: 0, salesLastMonth: 0, salesMonthBeforeLast: 0, totalSales: 0 };
+      const metrics = metricsMap.get(product.wooProductId) || { salesLastWeek: 0, salesLastMonth: 0, salesMonthBeforeLast: 0, totalSales: 0, lastSaleDate: null };
       const currentStock = stockMap.get(product.wooProductId) || 0;
       const categories = categoryMap.get(product.wooProductId) || "";
+      const commerceGroup = commerceGroupMap.get(product.wooProductId) || "";
       
       return {
         id: product.id,
@@ -109,6 +123,7 @@ export async function getQcInventoryProducts() {
         productSku: product.productSku,
         productImage: product.productImage,
         categories: categories,
+        commerceGroup: commerceGroup,
         lastInspectionDate: latestInspections.get(product.id) || null,
         lastPriceStatusDate: product.priceStatusDate || null,
         dateAddedToSite: dateCreated,
@@ -118,6 +133,7 @@ export async function getQcInventoryProducts() {
         salesLastMonth: metrics.salesLastMonth,
         salesMonthBeforeLast: metrics.salesMonthBeforeLast,
         totalSales: metrics.totalSales,
+        lastSaleDate: metrics.lastSaleDate,
       };
     });
     

@@ -469,7 +469,13 @@ export default function InventoryClient({
     <div className="p-8 space-y-8 bg-gray-50/50 min-h-screen" dir="rtl">
       <div>
         <h2 className="text-3xl font-bold tracking-tight text-gray-900">הזמנות וספקים</h2>
-        <p className="text-muted-foreground mt-2">בריאות המלאי, פריטים חסרים והזמנות רכש.</p>
+        <p className="text-muted-foreground mt-2 mb-3">בריאות המלאי, פריטים חסרים והזמנות רכש.</p>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <span className="font-medium px-2 py-1">מקרא רמת מלאי:</span>
+          <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">ירוק: מעל 70%</span>
+          <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">צהוב: 20% - 70%</span>
+          <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full">אדום: מתחת ל-20%</span>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

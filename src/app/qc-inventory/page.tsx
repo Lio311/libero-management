@@ -3,6 +3,8 @@ import QcInventoryClient from "./qc-inventory-client";
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: "בקרת מלאי | Libero",
 };
