@@ -974,17 +974,17 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
         <CardContent className="p-0 md:px-6 md:pb-6">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1100px] text-sm">
+            <table className="w-full min-w-[1100px] text-sm table-fixed">
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
-                  <th className="py-3 px-4 font-medium text-right rounded-tr-md">שם המוצר</th>
-                  <th className="py-3 px-4 font-medium text-center">דירוג</th>
-                  <th className="py-3 px-4 font-medium text-center">כמות במלאי</th>
-                  <th className="py-3 px-4 font-medium text-center">סטטוס</th>
-                  <th className="py-3 px-4 font-medium text-center">בקרה</th>
-                  <th className="py-3 px-4 font-medium text-center">תאריך בקרה אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center">תמחור</th>
-                  <th className="py-3 px-4 font-medium text-right rounded-tl-md">הערות</th>
+                  <th className="py-3 px-4 font-medium text-right rounded-tr-md w-[22%]">שם המוצר</th>
+                  <th className="py-3 px-4 font-medium text-center w-[8%]">דירוג</th>
+                  <th className="py-3 px-4 font-medium text-center w-[10%]">כמות במלאי</th>
+                  <th className="py-3 px-4 font-medium text-center w-[10%]">סטטוס</th>
+                  <th className="py-3 px-4 font-medium text-center w-[15%]">בקרה</th>
+                  <th className="py-3 px-4 font-medium text-center w-[10%]">תאריך בקרה אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center w-[10%]">תמחור</th>
+                  <th className="py-3 px-4 font-medium text-right rounded-tl-md w-[15%]">הערות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
