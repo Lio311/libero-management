@@ -313,7 +313,7 @@ function ProductRow({ product }: { product: QcProduct }) {
       {/* Desktop History Row */}
       {showHistory && (
         <tr className="hidden md:table-row">
-          <td colSpan={7} className="px-4 py-2 bg-gray-50/50">
+          <td colSpan={8} className="px-4 py-2 bg-gray-50/50">
             <div className="flex flex-wrap gap-2 pr-14">
               {product.inspections.map((insp) => (
                 <span
@@ -330,7 +330,7 @@ function ProductRow({ product }: { product: QcProduct }) {
 
       {/* Mobile Card */}
       <tr className="md:hidden">
-        <td colSpan={7} className="p-0">
+        <td colSpan={8} className="p-0">
           <div className={`m-2 rounded-xl shadow-sm border transition-all duration-300 overflow-hidden ${
             status === "ok" ? "border-emerald-200 bg-emerald-50/50" :
             status === "warning" ? "border-amber-200 bg-amber-50/50" :
@@ -922,7 +922,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
         <CardContent className="p-0 md:px-6 md:pb-6">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1100px] text-sm">
+            <table className="w-full md:min-w-[1300px] text-sm">
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md">שם המוצר</th>
