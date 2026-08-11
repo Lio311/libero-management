@@ -173,7 +173,7 @@ function ProductRow({ product }: { product: QcProduct }) {
                 href={`https://libero-il.co.il/?p=${product.wooProductId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[200px] block"
+                className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[250px] lg:max-w-[300px] block"
               >
                 {product.productName}
               </a>
@@ -303,7 +303,7 @@ function ProductRow({ product }: { product: QcProduct }) {
             </div>
           ) : (
             <div className="flex items-center gap-1 group cursor-pointer" onClick={() => setIsEditingNotes(true)}>
-              <span className="text-sm text-gray-600 truncate max-w-[200px]">{product.notes || "—"}</span>
+              <span className="text-sm text-gray-600 truncate max-w-[250px]">{product.notes || "—"}</span>
               <Edit2 className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 transition-colors flex-shrink-0" />
             </div>
           )}
@@ -922,7 +922,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
         <CardContent className="p-0 md:px-6 md:pb-6">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[1100px] text-sm">
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md">שם המוצר</th>
