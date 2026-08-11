@@ -11,6 +11,10 @@
     {
       "path": "/api/sync/wc-data",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/mist-monitor",
+      "schedule": "* * * * *"
     }
   ]
 }
