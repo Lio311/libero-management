@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       p.inspections && p.inspections.some((i: any) => new Date(i.inspectedAt) >= today)
     ).length;
 
-    const reportDateStr = new Date().toISOString().split('T')[0];
+
 
     // Delete any existing report for today to ensure only one report per day
     await db.delete(qcReports).where(eq(qcReports.reportDate, reportDateStr));
