@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useTransition, useMemo } from "react";
+import React, { useState, useTransition, useMemo, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -432,6 +432,16 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
   const [syncResult, setSyncResult] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
+  const initialInspectionRef = useRef<Map<string, Date | null>>(new Map());
+
+  useMemo(() => {
+    products.forEach(p => {
+      if (!initialInspectionRef.current.has(p.id)) {
+        initialInspectionRef.current.set(p.id, p.lastInspection);
+      }
+    });
+  }, [products]);
+
   const handleSync = async () => {
     setIsSyncing(true);
     setSyncResult(null);
@@ -469,13 +479,22 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
     switch (filterMode) {
       case "not_inspected":
-        result = result.filter((p) => !p.lastInspection);
+        result = result.filter((p) => {
+          const last = initialInspectionRef.current.has(p.id) ? initialInspectionRef.current.get(p.id) : p.lastInspection;
+          return !last;
+        });
         break;
       case "inspected":
-        result = result.filter((p) => p.lastInspection && new Date(p.lastInspection) >= threeMonthsAgo);
+        result = result.filter((p) => {
+          const last = initialInspectionRef.current.has(p.id) ? initialInspectionRef.current.get(p.id) : p.lastInspection;
+          return last && new Date(last) >= threeMonthsAgo;
+        });
         break;
       case "needs_reinspection":
-        result = result.filter((p) => p.lastInspection && new Date(p.lastInspection) < threeMonthsAgo);
+        result = result.filter((p) => {
+          const last = initialInspectionRef.current.has(p.id) ? initialInspectionRef.current.get(p.id) : p.lastInspection;
+          return last && new Date(last) < threeMonthsAgo;
+        });
         break;
     }
 
@@ -491,18 +510,22 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
     switch (sortMode) {
       case "last_inspection_asc":
         result.sort((a, b) => {
-          if (!a.lastInspection && !b.lastInspection) return 0;
-          if (!a.lastInspection) return -1;
-          if (!b.lastInspection) return 1;
-          return new Date(a.lastInspection).getTime() - new Date(b.lastInspection).getTime();
+          const aLast = initialInspectionRef.current.has(a.id) ? initialInspectionRef.current.get(a.id) : a.lastInspection;
+          const bLast = initialInspectionRef.current.has(b.id) ? initialInspectionRef.current.get(b.id) : b.lastInspection;
+          if (!aLast && !bLast) return 0;
+          if (!aLast) return -1;
+          if (!bLast) return 1;
+          return new Date(aLast).getTime() - new Date(bLast).getTime();
         });
         break;
       case "last_inspection_desc":
         result.sort((a, b) => {
-          if (!a.lastInspection && !b.lastInspection) return 0;
-          if (!a.lastInspection) return 1;
-          if (!b.lastInspection) return -1;
-          return new Date(b.lastInspection).getTime() - new Date(a.lastInspection).getTime();
+          const aLast = initialInspectionRef.current.has(a.id) ? initialInspectionRef.current.get(a.id) : a.lastInspection;
+          const bLast = initialInspectionRef.current.has(b.id) ? initialInspectionRef.current.get(b.id) : b.lastInspection;
+          if (!aLast && !bLast) return 0;
+          if (!aLast) return 1;
+          if (!bLast) return -1;
+          return new Date(bLast).getTime() - new Date(aLast).getTime();
         });
         break;
       case "name_asc":
@@ -514,14 +537,24 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
       default:
         // Default: never inspected first, then needs reinspection (oldest first), then recently inspected
         result.sort((a, b) => {
-          const statusA = getProductStatus(a);
-          const statusB = getProductStatus(b);
+          const aLast = initialInspectionRef.current.has(a.id) ? initialInspectionRef.current.get(a.id) : a.lastInspection;
+          const bLast = initialInspectionRef.current.has(b.id) ? initialInspectionRef.current.get(b.id) : b.lastInspection;
+          
+          const getStatus = (last: Date | null | undefined) => {
+            if (!last) return "never";
+            const threeMonthsAgoDate = new Date();
+            threeMonthsAgoDate.setMonth(threeMonthsAgoDate.getMonth() - 3);
+            return new Date(last) < threeMonthsAgoDate ? "warning" : "ok";
+          };
+
+          const statusA = getStatus(aLast);
+          const statusB = getStatus(bLast);
           const order = { never: 0, warning: 1, ok: 2 };
           if (order[statusA] !== order[statusB]) return order[statusA] - order[statusB];
-          if (!a.lastInspection && !b.lastInspection) return a.productName.localeCompare(b.productName, "he");
-          if (!a.lastInspection) return -1;
-          if (!b.lastInspection) return 1;
-          return new Date(a.lastInspection).getTime() - new Date(b.lastInspection).getTime();
+          if (!aLast && !bLast) return a.productName.localeCompare(b.productName, "he");
+          if (!aLast) return -1;
+          if (!bLast) return 1;
+          return new Date(aLast).getTime() - new Date(bLast).getTime();
         });
     }
 
@@ -536,11 +569,46 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
     ).length;
   }, [products]);
 
+  const dynamicStats = useMemo(() => {
+    let baseProducts = products;
+    if (stockFilterMode !== "all") {
+      baseProducts = baseProducts.filter(p => {
+        const inStock = (p.currentStock || 0) > 0;
+        return stockFilterMode === "in_stock" ? inStock : !inStock;
+      });
+    }
+
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+    let inspected = 0;
+    let needsReinspection = 0;
+    let neverInspected = 0;
+
+    for (const p of baseProducts) {
+      if (!p.lastInspection) {
+        neverInspected++;
+      } else if (new Date(p.lastInspection) < threeMonthsAgo) {
+        needsReinspection++;
+      } else {
+        inspected++;
+      }
+    }
+
+    return {
+      total: baseProducts.length,
+      inspected,
+      needsReinspection,
+      neverInspected,
+      pending: neverInspected + needsReinspection,
+    };
+  }, [products, stockFilterMode]);
+
   const filterOptions: { key: FilterMode; label: string; count: number }[] = [
-    { key: "all", label: "הכל", count: products.length },
-    { key: "not_inspected", label: "לא נבדקו", count: stats.neverInspected },
-    { key: "needs_reinspection", label: "דורשים בקרה חוזרת", count: stats.needsReinspection },
-    { key: "inspected", label: "תקינים", count: stats.inspected },
+    { key: "all", label: "הכל", count: dynamicStats.total },
+    { key: "not_inspected", label: "לא נבדקו", count: dynamicStats.neverInspected },
+    { key: "needs_reinspection", label: "דורשים בקרה חוזרת", count: dynamicStats.needsReinspection },
+    { key: "inspected", label: "תקינים", count: dynamicStats.inspected },
   ];
 
   const sortLabels: Record<SortMode, string> = {
@@ -591,7 +659,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
             <Package className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-gray-900">{stats.total}</div>
+            <div className="text-xl md:text-2xl font-bold text-gray-900">{dynamicStats.total}</div>
           </CardContent>
         </Card>
 
@@ -601,7 +669,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-emerald-600">{stats.inspected}</div>
+            <div className="text-xl md:text-2xl font-bold text-emerald-600">{dynamicStats.inspected}</div>
           </CardContent>
         </Card>
 
@@ -611,7 +679,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
             <AlertTriangle className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent className="p-4 pt-0 md:p-6 md:pt-0">
-            <div className="text-xl md:text-2xl font-bold text-amber-600">{stats.pending}</div>
+            <div className="text-xl md:text-2xl font-bold text-amber-600">{dynamicStats.pending}</div>
           </CardContent>
         </Card>
 
