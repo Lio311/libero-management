@@ -720,7 +720,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
               const today = new Date();
               today.setHours(0, 0, 0, 0);
               const todayProducts = processedProducts.filter(p =>
-                p.inspections.some(i => new Date(i.inspectedAt) >= today)
+                p.inspections.some(i => new Date(i.inspectedAt) >= today) && p.notes && p.notes.trim().length > 0
               );
               const dateStr = new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date());
               
@@ -733,6 +733,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                       table { border-collapse: collapse; width: 100%; margin-top: 20px; }
                       th, td { border: 1px solid #ddd; padding: 10px; text-align: right; font-size: 14px; }
                       th { background-color: #f8f9fa; font-weight: bold; }
+                      a { color: #2563eb; text-decoration: underline; }
                       h1 { font-size: 24px; margin-bottom: 5px; text-align: center; }
                       .sub { text-align: center; color: #666; margin-bottom: 20px; font-size: 14px; }
                       @media print {
@@ -742,22 +743,22 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   </head>
                   <body>
                     <h1>דוח בקרות היום - ${dateStr}</h1>
-                    <p class="sub">${todayProducts.length} מוצרים נבדקו</p>
+                    <p class="sub">${todayProducts.length} מוצרים עם הערות</p>
                     <table>
                       <thead>
                         <tr>
-                          <th style="width: 50%">שם הבושם</th>
-                          <th style="width: 50%">הערות</th>
+                          <th style="width: 40%">שם הבושם</th>
+                          <th style="width: 60%">הערות</th>
                         </tr>
                       </thead>
                       <tbody>
                         ${todayProducts.map((p, idx) => `
                           <tr style="background-color: ${idx % 2 === 0 ? '#fff' : '#f9fafb'}">
-                            <td><strong>${p.productName}</strong></td>
-                            <td>${p.notes || '-'}</td>
+                            <td><strong><a href="https://libero-il.co.il/?p=${p.wooProductId}" target="_blank">${p.productName}</a></strong></td>
+                            <td>${p.notes}</td>
                           </tr>
                         `).join('')}
-                        ${todayProducts.length === 0 ? '<tr><td colspan="2" style="text-align:center;color:#999;padding:20px">לא נמצאו בקרות להיום</td></tr>' : ''}
+                        ${todayProducts.length === 0 ? '<tr><td colspan="2" style="text-align:center;color:#999;padding:20px">לא נמצאו מוצרים עם הערות להיום</td></tr>' : ''}
                       </tbody>
                     </table>
                     <script>
