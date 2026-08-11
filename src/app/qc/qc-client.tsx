@@ -39,6 +39,7 @@ interface QcProduct {
   updatedAt: Date;
   inspections: { id: string; inspectedAt: Date; inspectedBy: string | null }[];
   lastInspection: Date | null;
+  currentStock: number;
 }
 
 interface QcStats {
@@ -50,6 +51,7 @@ interface QcStats {
 }
 
 type FilterMode = "all" | "not_inspected" | "inspected" | "needs_reinspection";
+type StockFilterMode = "in_stock" | "out_of_stock" | "all";
 type SortMode = "default" | "last_inspection_asc" | "last_inspection_desc" | "name_asc" | "name_desc";
 
 function getProductStatus(product: QcProduct): "never" | "ok" | "warning" {
@@ -424,6 +426,7 @@ function ProductRow({ product }: { product: QcProduct }) {
 export default function QcClient({ products, stats }: { products: QcProduct[]; stats: QcStats }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [stockFilterMode, setStockFilterMode] = useState<StockFilterMode>("in_stock");
   const [sortMode, setSortMode] = useState<SortMode>("default");
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<string | null>(null);
@@ -476,6 +479,14 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
         break;
     }
 
+    // Stock Filter
+    if (stockFilterMode !== "all") {
+      result = result.filter(p => {
+        const inStock = (p.currentStock || 0) > 0;
+        return stockFilterMode === "in_stock" ? inStock : !inStock;
+      });
+    }
+
     // Sort
     switch (sortMode) {
       case "last_inspection_asc":
@@ -515,7 +526,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
     }
 
     return result;
-  }, [products, searchQuery, filterMode, sortMode]);
+  }, [products, searchQuery, filterMode, sortMode, stockFilterMode]);
 
   const todayInspectedCount = useMemo(() => {
     const today = new Date();
@@ -538,6 +549,12 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
     last_inspection_desc: "תאריך בקרה: חדש ← ישן",
     name_asc: "שם: א ← ת",
     name_desc: "שם: ת ← א",
+  };
+
+  const stockFilterLabels: Record<StockFilterMode, string> = {
+    in_stock: "במלאי",
+    out_of_stock: "אזל מהמלאי",
+    all: "כל מצבי המלאי",
   };
 
   return (
@@ -674,6 +691,19 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   <SelectItem value="name_desc">שם: ת ← א</SelectItem>
                 </SelectContent>
               </Select>
+              
+              <Select value={stockFilterMode} onValueChange={(v) => setStockFilterMode(v as StockFilterMode)}>
+                <SelectTrigger className="w-[140px] h-10 border-gray-200 bg-white">
+                  <SelectValue placeholder="מלאי">
+                    {stockFilterLabels[stockFilterMode]}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent align="end">
+                  <SelectItem value="in_stock">במלאי</SelectItem>
+                  <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
+                  <SelectItem value="all">הכל</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -714,6 +744,19 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   <SelectItem value="last_inspection_desc">תאריך בקרה: חדש ← ישן</SelectItem>
                   <SelectItem value="name_asc">שם: א ← ת</SelectItem>
                   <SelectItem value="name_desc">שם: ת ← א</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="mt-2" />
+              <Select value={stockFilterMode} onValueChange={(v) => setStockFilterMode(v as StockFilterMode)}>
+                <SelectTrigger className="w-full h-10 border-gray-200 bg-white">
+                  <SelectValue placeholder="מלאי">
+                    {stockFilterLabels[stockFilterMode]}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent align="center" className="w-[calc(100vw-3rem)]">
+                  <SelectItem value="in_stock">במלאי</SelectItem>
+                  <SelectItem value="out_of_stock">אזל מהמלאי</SelectItem>
+                  <SelectItem value="all">הכל</SelectItem>
                 </SelectContent>
               </Select>
             </div>

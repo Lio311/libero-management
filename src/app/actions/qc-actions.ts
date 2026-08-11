@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { qcProducts, qcInspections } from "@/lib/db/schema";
+import { qcProducts, qcInspections, wcProducts } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -57,12 +57,24 @@ export async function getQcProducts() {
       inspectionsByProduct.set(insp.productId, arr);
     }
     
+    // Fetch stock quantities from wcProducts
+    const allWcProducts = await db.select({
+      id: wcProducts.id,
+      stockQuantity: wcProducts.stockQuantity,
+    }).from(wcProducts);
+    
+    const stockMap = new Map<number, number>();
+    for (const wp of allWcProducts) {
+      stockMap.set(wp.id, wp.stockQuantity || 0);
+    }
+    
     const productsWithInspections = products.map((product) => {
       const inspections = inspectionsByProduct.get(product.id) || [];
       return {
         ...product,
         inspections,
         lastInspection: inspections.length > 0 ? inspections[0].inspectedAt : null,
+        currentStock: stockMap.get(product.wooProductId) || 0,
       };
     });
     
