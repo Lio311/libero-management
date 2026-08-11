@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { qcReports } from '@/lib/db/schema';
 import { getQcProducts } from '@/app/actions/qc-actions';
+import { eq } from 'drizzle-orm';
 
 export async function GET(request: Request) {
   // Verify authorization for cron jobs
@@ -29,6 +30,9 @@ export async function GET(request: Request) {
     ).length;
 
     const reportDateStr = new Date().toISOString().split('T')[0];
+
+    // Delete any existing report for today to ensure only one report per day
+    await db.delete(qcReports).where(eq(qcReports.reportDate, reportDateStr));
 
     await db.insert(qcReports).values({
       reportDate: reportDateStr,
