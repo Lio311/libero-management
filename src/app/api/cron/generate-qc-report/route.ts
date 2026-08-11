@@ -21,14 +21,14 @@ export async function GET(request: Request) {
     // Fetch all products with their metrics
     const allProducts = await getQcProducts();
     
-    // Calculate how many products were inspected TODAY
     const reportDateStr = new Date().toISOString().split('T')[0];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    const inspectedTodayCount = allProducts.filter(p => 
+    // Only include products that had an inspection today
+    const inspectedTodayProducts = allProducts.filter(p => 
       p.inspections && p.inspections.some((i: any) => new Date(i.inspectedAt) >= today)
-    ).length;
+    );
 
 
 
@@ -37,15 +37,15 @@ export async function GET(request: Request) {
 
     await db.insert(qcReports).values({
       reportDate: reportDateStr,
-      totalInspected: inspectedTodayCount, // Number of products inspected today
-      reportData: allProducts, // Save ALL products as requested
+      totalInspected: inspectedTodayProducts.length, // Number of products inspected today
+      reportData: inspectedTodayProducts, // Save only products inspected today
     });
 
     return NextResponse.json({
       success: true,
       reportDate: reportDateStr,
-      totalInspected: inspectedTodayCount,
-      totalProducts: allProducts.length,
+      totalInspected: inspectedTodayProducts.length,
+      totalProducts: inspectedTodayProducts.length,
     });
   } catch (error: any) {
     console.error('Generate QC Report error:', error);
