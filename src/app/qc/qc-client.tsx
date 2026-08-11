@@ -761,20 +761,20 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                           const lastInsp = p.lastInspection ? new Intl.DateTimeFormat('he-IL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(p.lastInspection)) : '-';
                           const priceDate = p.priceStatusDate ? new Intl.DateTimeFormat('he-IL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(p.priceStatusDate)) : '';
                           
-                          return \`
+                          return `
                           <tr>
                             <td>
-                              <strong><a href="https://libero-il.co.il/?p=\${p.wooProductId}" target="_blank">\${p.productName}</a></strong>
-                              \${p.productSku ? \`<br><small style="color: #666" dir="ltr">\${p.productSku}</small>\` : ''}
+                              <strong><a href="https://libero-il.co.il/?p=${p.wooProductId}" target="_blank">${p.productName}</a></strong>
+                              ${p.productSku ? '<br><small style="color: #666" dir="ltr">' + p.productSku + '</small>' : ''}
                             </td>
-                            <td style="text-align: center">\${p.rating?.toFixed(1) || '-'}</td>
-                            <td style="text-align: center">\${p.currentStock || 0}</td>
-                            <td style="text-align: center"><span class="badge badge-\${status}">\${statusText}</span></td>
-                            <td style="text-align: center">\${lastInsp}</td>
-                            <td style="text-align: center">\${p.priceStatus || 'טרם נבדק'}\${priceDate ? \`<br><small style="color: #666">\${priceDate}</small>\` : ''}</td>
-                            <td>\${p.notes || ''}</td>
+                            <td style="text-align: center">${p.rating?.toFixed(1) || '-'}</td>
+                            <td style="text-align: center">${p.currentStock || 0}</td>
+                            <td style="text-align: center"><span class="badge badge-${status}">${statusText}</span></td>
+                            <td style="text-align: center">${lastInsp}</td>
+                            <td style="text-align: center">${p.priceStatus || 'טרם נבדק'}${priceDate ? '<br><small style="color: #666">' + priceDate + '</small>' : ''}</td>
+                            <td>${p.notes || ''}</td>
                           </tr>
-                        \`}).join('')}
+                        `}).join('')}
                       </tbody>
                     </table>
                     <script>
