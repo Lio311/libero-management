@@ -40,6 +40,26 @@ interface QcProduct {
   inspections: { id: string; inspectedAt: Date; inspectedBy: string | null }[];
   lastInspection: Date | null;
   currentStock: number;
+  categories?: string;
+  commerceGroup?: string;
+  dateAddedToSite?: Date;
+  ageDays?: number;
+  salesLastWeek?: number;
+  salesLastMonth?: number;
+  salesMonthBeforeLast?: number;
+  totalSales?: number;
+  lastSaleDate?: Date | null;
+  rating?: number;
+}
+
+function getRatingStyle(rating: number | undefined) {
+  if (rating === undefined) return { text: "text-gray-400", bg: "bg-gray-50/70 hover:bg-gray-100/70", border: "border-r-gray-200" };
+  if (rating >= 8.5) return { text: "text-emerald-600 font-medium", bg: "bg-emerald-50/70 hover:bg-emerald-100/70", border: "border-r-emerald-400" };
+  if (rating >= 7) return { text: "text-green-500 font-medium", bg: "bg-green-50/70 hover:bg-green-100/70", border: "border-r-green-400" };
+  if (rating >= 5) return { text: "text-yellow-600 font-medium", bg: "bg-yellow-50/70 hover:bg-yellow-100/70", border: "border-r-yellow-400" };
+  if (rating >= 3.5) return { text: "text-orange-500 font-medium", bg: "bg-orange-50/70 hover:bg-orange-100/70", border: "border-r-orange-400" };
+  if (rating >= 2) return { text: "text-red-500 font-medium", bg: "bg-red-50/70 hover:bg-red-100/70", border: "border-r-red-400" };
+  return { text: "text-red-700 font-medium", bg: "bg-red-100/70 hover:bg-red-200/70", border: "border-r-red-500" };
 }
 
 interface QcStats {
@@ -107,6 +127,7 @@ function ProductRow({ product }: { product: QcProduct }) {
   const [justInspected, setJustInspected] = useState(false);
 
   const status = justInspected ? "ok" : getProductStatus(product);
+  const ratingStyle = getRatingStyle(product.rating);
 
   const handleInspect = () => {
     startTransition(async () => {
@@ -160,6 +181,16 @@ function ProductRow({ product }: { product: QcProduct }) {
               )}
             </div>
           </div>
+        </td>
+
+        {/* Rating */}
+        <td className="py-3 px-4 text-center">
+          <span className={ratingStyle.text}>{product.rating?.toFixed(1) || "-"}</span>
+        </td>
+
+        {/* Stock */}
+        <td className="py-3 px-4 text-center font-medium text-gray-900">
+          {product.currentStock || 0}
         </td>
 
         {/* Status */}
@@ -281,7 +312,7 @@ function ProductRow({ product }: { product: QcProduct }) {
       {/* Desktop History Row */}
       {showHistory && (
         <tr className="hidden md:table-row">
-          <td colSpan={5} className="px-4 py-2 bg-gray-50/50">
+          <td colSpan={7} className="px-4 py-2 bg-gray-50/50">
             <div className="flex flex-wrap gap-2 pr-14">
               {product.inspections.map((insp) => (
                 <span
@@ -298,7 +329,7 @@ function ProductRow({ product }: { product: QcProduct }) {
 
       {/* Mobile Card */}
       <tr className="md:hidden">
-        <td colSpan={5} className="p-0">
+        <td colSpan={7} className="p-0">
           <div className={`m-2 rounded-xl shadow-sm border transition-all duration-300 overflow-hidden ${
             status === "ok" ? "border-emerald-200 bg-emerald-50/50" :
             status === "warning" ? "border-amber-200 bg-amber-50/50" :
@@ -322,7 +353,14 @@ function ProductRow({ product }: { product: QcProduct }) {
                   {product.productName}
                 </a>
                 {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
-                <div className="mt-1.5">{getStatusBadge(status)}</div>
+                <div className="mt-1.5 flex flex-wrap gap-2 items-center">
+                  {getStatusBadge(status)}
+                  <span className="text-[11px] text-gray-500 font-medium bg-gray-100 px-2 py-0.5 rounded-full">מלאי: {product.currentStock || 0}</span>
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center bg-gray-50/80 px-3 py-1.5 rounded-lg mr-2">
+                <span className={`text-base leading-none ${ratingStyle.text}`}>{product.rating?.toFixed(1) || "-"}</span>
+                <span className="text-gray-500 text-[10px] font-medium mt-0.5">דירוג</span>
               </div>
             </div>
 
@@ -460,8 +498,46 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
     setIsSyncing(false);
   };
 
+  const processedProducts = useMemo(() => {
+    return products.map(p => {
+      let rating = 0;
+      
+      const currentStock = Number(p.currentStock) || 0;
+      const totalSales = Number(p.totalSales) || 0;
+      const ageDays = Number(p.ageDays) || 0;
+      
+      const totalOrdered = currentStock + totalSales;
+      const progressRatio = totalOrdered > 0 ? (totalSales / totalOrdered) : 0;
+      
+      const percentageScore = progressRatio * 2;
+      const volumeScore = Math.min(totalSales / 100, 1) * 1.5;
+      
+      rating += percentageScore + volumeScore;
+      
+      if (ageDays <= 30) rating += 3;
+      else if (ageDays <= 90) rating += 2;
+      else if (ageDays <= 180) rating += 1;
+      
+      if (p.lastSaleDate) {
+        const daysSinceSale = (new Date().getTime() - new Date(p.lastSaleDate).getTime()) / (1000 * 60 * 60 * 24);
+        if (daysSinceSale <= 7) rating += 2.5;
+        else if (daysSinceSale <= 14) rating += 1.5;
+        else if (daysSinceSale <= 30) rating += 0.5;
+      }
+
+      const catStr = String(p.categories || "");
+      if (p.commerceGroup === "מותגי הבית" || catStr.includes("מותגי הבית")) {
+        rating += 1;
+      }
+      
+      rating = Math.max(1, Math.min(10, rating));
+      
+      return { ...p, rating };
+    });
+  }, [products]);
+
   const filteredAndSorted = useMemo(() => {
-    let result = [...products];
+    let result = [...processedProducts];
 
     // Search
     if (searchQuery) {
@@ -710,7 +786,11 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
               width: `${Math.min((todayInspectedCount / 100) * 100, 100)}%`,
               background: todayInspectedCount >= 100
                 ? "linear-gradient(90deg, #10b981, #059669)"
-                : "linear-gradient(90deg, #3b82f6, #2563eb)",
+                : todayInspectedCount >= 70
+                ? "linear-gradient(90deg, #3b82f6, #2563eb)"
+                : todayInspectedCount >= 30
+                ? "linear-gradient(90deg, #f59e0b, #d97706)"
+                : "linear-gradient(90deg, #ef4444, #dc2626)",
             }}
           />
         </div>
@@ -837,6 +917,8 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md">שם המוצר</th>
+                  <th className="py-3 px-4 font-medium text-center">דירוג</th>
+                  <th className="py-3 px-4 font-medium text-center">כמות במלאי</th>
                   <th className="py-3 px-4 font-medium text-center">סטטוס</th>
                   <th className="py-3 px-4 font-medium text-center">בקרה</th>
                   <th className="py-3 px-4 font-medium text-center">תאריך בקרה אחרון</th>
@@ -851,7 +933,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="py-12 text-center text-gray-400">
+                    <td colSpan={8} className="py-12 text-center text-gray-400">
                       <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
                       <p>לא נמצאו מוצרים</p>
                       <p className="text-xs mt-1">נסה לסנכרן מוצרים מ-WooCommerce</p>

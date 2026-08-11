@@ -530,6 +530,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                     <th className={`${thClasses} text-center`} style={thStyle}>מכר חודש לפני אחרון</th>
                     <th className={`${thClasses} text-center`} style={thStyle}>מכר חודש אחרון</th>
                     <th className={`${thClasses} text-center`} style={thStyle}>מכר שבוע אחרון</th>
+                    <th className={`${thClasses} text-center`} style={thStyle}>כמות במלאי</th>
                     <th className={`${thClasses} text-center`} style={thStyle}>התקדמות</th>
                     <th className={`${thClasses} text-center`} style={thStyle}>תאריך בקרת מוצר אחרון</th>
                     <th className={`${thClasses} text-center`} style={thStyle}>תאריך תמחור אחרון</th>
@@ -578,6 +579,9 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                           </td>
                           <td className="py-3 px-4 text-center text-gray-700">
                             {product.salesLastWeek}
+                          </td>
+                          <td className="py-3 px-4 text-center font-medium text-gray-900">
+                            {product.currentStock}
                           </td>
                           <td className="py-3 px-4 text-center">
                             <div className="w-full max-w-[100px] mx-auto bg-gray-200 rounded-full h-2 mb-1 relative">
@@ -669,7 +673,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                         <span className="text-gray-500">תמחור אחרון:</span>
                         <span>{product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : "—"}</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-gray-50 text-center">
+                      <div className="grid grid-cols-4 gap-2 mt-2 pt-2 border-t border-gray-50 text-center">
                         <div>
                           <span className="block text-gray-500 text-[10px]">חודש שעבר</span>
                           <span className="font-medium text-[13px]">{product.salesMonthBeforeLast}</span>
@@ -681,6 +685,10 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                         <div>
                           <span className="block text-gray-500 text-[10px]">מכר 7 ימים</span>
                           <span className="font-medium text-[13px]">{product.salesLastWeek}</span>
+                        </div>
+                        <div>
+                          <span className="block text-gray-500 text-[10px]">במלאי</span>
+                          <span className="font-medium text-[13px] text-gray-900">{product.currentStock}</span>
                         </div>
                       </div>
                       <div className="mt-2 pt-2 border-t border-gray-50">
