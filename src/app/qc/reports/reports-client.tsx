@@ -73,10 +73,15 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
     const filteredData = rawData.filter(p => p.notes && p.notes.trim().length > 0);
     
     return filteredData.map(p => {
-      // Rating calculation removed as it's no longer displayed
-      return { ...p };
+      const pc = reportPriceChanges.find(c => c.wooProductId === p.wooProductId);
+      return { 
+        ...p,
+        oldPrice: pc?.oldPrice || null,
+        newPrice: pc?.newPrice || null,
+        priceChangeDate: pc?.changedAt || null
+      };
     });
-  }, [selectedReport]);
+  }, [selectedReport, reportPriceChanges]);
 
   if (selectedReport) {
     const handlePrint = () => {
@@ -109,8 +114,11 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
             <table>
               <thead>
                 <tr>
-                  <th style="width: 40%">שם המוצר</th>
-                  <th style="width: 60%">הערות לבדיקה</th>
+                  <th style="width: 30%">שם המוצר</th>
+                  <th style="width: 30%">הערות לבדיקה</th>
+                  <th style="width: 15%">מחיר לפני</th>
+                  <th style="width: 15%">מחיר אחרי</th>
+                  <th style="width: 10%">מועד שינוי</th>
                 </tr>
               </thead>
               <tbody>
@@ -122,6 +130,9 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
                       ${p.productSku ? '<br><small style="color: #666" dir="ltr">' + p.productSku + '</small>' : ''}
                     </td>
                     <td style="white-space: pre-wrap;">${p.notes || ''}</td>
+                    <td style="text-align: center; color: #666; text-decoration: line-through;">${p.oldPrice ? '₪' + parseFloat(p.oldPrice).toFixed(0) : '-'}</td>
+                    <td style="text-align: center; font-weight: bold;">${p.newPrice ? '₪' + parseFloat(p.newPrice).toFixed(0) : '-'}</td>
+                    <td style="text-align: center; font-size: 12px; color: #666;">${p.priceChangeDate ? format(new Date(p.priceChangeDate), 'dd/MM/yy HH:mm') : '-'}</td>
                   </tr>
                 `}).join('')}
               </tbody>
@@ -189,33 +200,17 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
           <table className="w-full text-sm text-right">
             <thead className="bg-gray-50 text-gray-700 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 font-medium whitespace-nowrap w-24">תמונה</th>
                 <th className="px-4 py-3 font-medium min-w-[200px]">שם המוצר</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap text-center">כמות במלאי</th>
                 <th className="px-4 py-3 font-medium min-w-[250px]">הערות לבדיקה</th>
+                <th className="px-4 py-3 font-medium text-center">מחיר לפני</th>
+                <th className="px-4 py-3 font-medium text-center">מחיר אחרי</th>
+                <th className="px-4 py-3 font-medium text-center">מועד שינוי</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {reportDataProcessed.map((item, idx) => {
                 return (
                   <tr key={idx} className="hover:bg-gray-50 transition-colors border-l-4 border-transparent hover:border-primary">
-                    <td className="px-4 py-2">
-                      {item.productImage ? (
-                        <div className="relative w-12 h-12 rounded-md overflow-hidden bg-gray-100 border border-gray-200">
-                          <Image
-                            src={item.productImage}
-                            alt={item.productName || 'Product image'}
-                            fill
-                            className="object-cover"
-                            sizes="48px"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-12 h-12 rounded-md bg-gray-100 border border-gray-200 flex items-center justify-center">
-                          <Package className="w-5 h-5 text-gray-400" />
-                        </div>
-                      )}
-                    </td>
                     <td className="px-4 py-2 font-medium text-gray-900">
                       <a 
                         href={`https://libero-il.co.il/?p=${item.wooProductId}`}
@@ -231,18 +226,24 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-2 text-center whitespace-nowrap text-gray-600 font-medium">
-                      {item.currentStock || 0}
-                    </td>
                     <td className="px-4 py-2 text-gray-600 whitespace-pre-wrap max-w-xs text-sm">
                       {item.notes || '-'}
+                    </td>
+                    <td className="px-4 py-2 text-center text-gray-500 line-through">
+                      {item.oldPrice ? `₪${parseFloat(item.oldPrice).toFixed(0)}` : '-'}
+                    </td>
+                    <td className="px-4 py-2 text-center font-semibold text-gray-900">
+                      {item.newPrice ? `₪${parseFloat(item.newPrice).toFixed(0)}` : '-'}
+                    </td>
+                    <td className="px-4 py-2 text-center text-gray-500 text-sm">
+                      {item.priceChangeDate ? format(new Date(item.priceChangeDate), 'dd/MM/yyyy HH:mm') : '-'}
                     </td>
                   </tr>
                 );
               })}
               {reportDataProcessed.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={2} className="px-4 py-8 text-center text-gray-500">
                     לא נמצאו בקרות בדוח זה
                   </td>
                 </tr>
