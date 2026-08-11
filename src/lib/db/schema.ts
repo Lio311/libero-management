@@ -285,3 +285,9 @@ export const generatedShippingLabels = pgTable("generated_shipping_labels", {
   barcode: text("barcode"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const scannedWholesaleProducts = pgTable("scanned_wholesale_products", {
+  id: integer("id").primaryKey(),
+  productName: text("product_name").notNull(),
+  scannedAt: timestamp("scanned_at", { withTimezone: true }).defaultNow().notNull(),
+});

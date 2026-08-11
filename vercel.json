@@ -15,6 +15,10 @@
     {
       "path": "/api/mist-monitor",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/wholesale-scanner",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
