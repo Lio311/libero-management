@@ -520,22 +520,22 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           {/* Desktop Table View */}
           <div className="hidden md:block pb-6">
             <div className="relative">
-              <table className="w-full text-sm border-separate border-spacing-0">
+              <table className="w-full text-sm border-separate border-spacing-0 table-fixed">
                 <thead>
                   <tr>
-                    <th className={`${thClasses} border-r-4 border-transparent`} style={thStyle}>שם המוצר</th>
-                    <th className={thClasses} style={thStyle}>קטגוריה</th>
-                    <th className={thClasses} style={thStyle}>קבוצת קומרס</th>
-                    <th className={`${thClasses} text-center`} style={thStyle}>דירוג</th>
-                    <th className={`${thClasses} text-center`} style={thStyle}>מכר חודש לפני אחרון</th>
-                    <th className={`${thClasses} text-center`} style={thStyle}>מכר חודש אחרון</th>
-                    <th className={`${thClasses} text-center`} style={thStyle}>מכר שבוע אחרון</th>
-                    <th className={`${thClasses} text-center`} style={thStyle}>כמות במלאי</th>
-                    <th className={`${thClasses} text-center`} style={thStyle}>התקדמות</th>
-                    <th className={`${thClasses} text-center`} style={thStyle}>תאריך בקרת מוצר אחרון</th>
-                    <th className={`${thClasses} text-center`} style={thStyle}>תאריך תמחור אחרון</th>
-                    <th className={`${thClasses} text-center`} style={thStyle}>תאריך מכירה אחרון</th>
-                    <th className={`${thClasses} text-center`} style={thStyle}>זמן חיי מדף</th>
+                    <th className={`${thClasses} border-r-4 border-transparent w-[14%]`} style={thStyle}>שם המוצר</th>
+                    <th className={`${thClasses} w-[8%]`} style={thStyle}>קטגוריה</th>
+                    <th className={`${thClasses} w-[8%]`} style={thStyle}>קבוצת קומרס</th>
+                    <th className={`${thClasses} text-center w-[5%]`} style={thStyle}>דירוג</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>מכר חודש לפני אחרון</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>מכר חודש אחרון</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>מכר שבוע אחרון</th>
+                    <th className={`${thClasses} text-center w-[7%]`} style={thStyle}>כמות במלאי</th>
+                    <th className={`${thClasses} text-center w-[7%]`} style={thStyle}>התקדמות</th>
+                    <th className={`${thClasses} text-center w-[8%] leading-tight`} style={thStyle}>תאריך בקרת מוצר אחרון</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>תאריך תמחור אחרון</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>תאריך מכירה אחרון</th>
+                    <th className={`${thClasses} text-center w-[8%] leading-tight`} style={thStyle}>זמן חיי מדף</th>
                   </tr>
                 </thead>
                 <tbody>
