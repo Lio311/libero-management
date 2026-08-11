@@ -21,19 +21,32 @@ export async function GET(request: Request) {
     // Fetch all products with their metrics
     const allProducts = await getQcProducts();
     
-    const reportDateStr = new Date().toISOString().split('T')[0];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem', year: 'numeric', month: '2-digit', day: '2-digit' });
+    const reportDateStr = formatter.format(new Date()); // YYYY-MM-DD in Israel time
     
-    // Only include products that had an inspection today
+    // Only include products that had an inspection today in Israel time
     const inspectedTodayProducts = allProducts.filter(p => 
-      p.inspections && p.inspections.some((i: any) => new Date(i.inspectedAt) >= today)
+      p.inspections && p.inspections.some((i: any) => {
+        if (!i.inspectedAt) return false;
+        const inspectionDateStr = formatter.format(new Date(i.inspectedAt));
+        return inspectionDateStr === reportDateStr;
+      })
     );
 
-
-
-    // Delete any existing report for today to ensure only one report per day
+    // Delete any existing report for today or generated in the last 24 hours to clean up duplicates
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+    
+    // We can't easily do an OR condition without importing it, so we'll just run two deletes
     await db.delete(qcReports).where(eq(qcReports.reportDate, reportDateStr));
+    
+    // To delete by createdAt, we need to import gte. Since we didn't import it, let's just fetch all reports and delete those created today.
+    const allExistingReports = await db.select().from(qcReports);
+    for (const r of allExistingReports) {
+      if (new Date(r.createdAt) >= twentyFourHoursAgo) {
+        await db.delete(qcReports).where(eq(qcReports.id, r.id));
+      }
+    }
 
     await db.insert(qcReports).values({
       reportDate: reportDateStr,

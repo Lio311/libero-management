@@ -704,7 +704,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
   return (
     <>
-    <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-6 bg-gray-50/50 min-h-screen print:hidden" dir="rtl">
+    <div className="px-6 py-4 md:px-12 md:py-8 max-w-[1600px] mx-auto space-y-6 bg-gray-50/50 min-h-screen print:hidden" dir="rtl">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
