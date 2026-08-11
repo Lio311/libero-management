@@ -117,7 +117,6 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
                   <th style="width: 15%">תמחור</th>
                   <th style="width: 12%">מחיר לפני</th>
                   <th style="width: 12%">מחיר אחרי</th>
-                  <th style="width: 11%">מועד שינוי</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,7 +133,6 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
                     </td>
                     <td style="text-align: center; color: #666; text-decoration: line-through;">${p.oldPrice ? '₪' + parseFloat(p.oldPrice).toFixed(0) : '-'}</td>
                     <td style="text-align: center; font-weight: bold;">${p.newPrice ? '₪' + parseFloat(p.newPrice).toFixed(0) : '-'}</td>
-                    <td style="text-align: center; font-size: 12px; color: #666;">${p.priceChangeDate ? format(new Date(p.priceChangeDate), 'dd/MM/yy HH:mm') : '-'}</td>
                   </tr>
                 `}).join('')}
               </tbody>
@@ -207,7 +205,6 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
                 <th className="px-4 py-3 font-medium text-center">תמחור</th>
                 <th className="px-4 py-3 font-medium text-center">מחיר לפני</th>
                 <th className="px-4 py-3 font-medium text-center">מחיר אחרי</th>
-                <th className="px-4 py-3 font-medium text-center">מועד שינוי</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -252,9 +249,6 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
                     </td>
                     <td className="px-4 py-2 text-center font-semibold text-gray-900">
                       {item.newPrice ? `₪${parseFloat(item.newPrice).toFixed(0)}` : '-'}
-                    </td>
-                    <td className="px-4 py-2 text-center text-gray-500 text-sm">
-                      {item.priceChangeDate ? format(new Date(item.priceChangeDate), 'dd/MM/yyyy HH:mm') : '-'}
                     </td>
                   </tr>
                 );
