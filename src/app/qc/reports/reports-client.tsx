@@ -164,7 +164,7 @@ export default function QCReportsClient({ initialReports }: { initialReports: QC
     };
 
     return (
-      <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen print:hidden" dir="rtl">
+      <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-6 bg-gray-50/50 min-h-screen print:hidden" dir="rtl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button 
@@ -312,7 +312,7 @@ export default function QCReportsClient({ initialReports }: { initialReports: QC
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen print:hidden" dir="rtl">
+    <div className="p-4 md:p-8 max-w-[1600px] mx-auto space-y-6 bg-gray-50/50 min-h-screen print:hidden" dir="rtl">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">היסטוריית דוחות בקרה</h1>
         <p className="text-muted-foreground mt-1">
