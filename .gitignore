@@ -47,3 +47,9 @@ venv_xlsx/
 # Data
 *.xlsx
 
+
+
+# mist-monitor
+mist-monitor/known_products.json
+mist-monitor/monitor.log
+mist-monitor/monitor.pid
