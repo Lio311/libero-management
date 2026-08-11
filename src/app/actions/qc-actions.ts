@@ -60,6 +60,7 @@ export async function getQcProducts() {
     // Fetch stock quantities and categories from wcProducts
     const allWcProducts = await db.select({
       id: wcProducts.id,
+      price: wcProducts.price,
       stockQuantity: wcProducts.stockQuantity,
       categories: wcProducts.categories,
       dateCreated: wcProducts.dateCreated,
@@ -125,6 +126,11 @@ export async function getQcProducts() {
       }
     }
     
+    const priceMap = new Map<number, string | null>();
+    for (const wp of allWcProducts) {
+      priceMap.set(wp.id, wp.price);
+    }
+
     const now = new Date();
     const productsWithInspections = products.map((product) => {
       const inspections = inspectionsByProduct.get(product.id) || [];
@@ -139,6 +145,7 @@ export async function getQcProducts() {
         inspections,
         lastInspection: inspections.length > 0 ? inspections[0].inspectedAt : null,
         currentStock: stockMap.get(product.wooProductId) || 0,
+        currentPrice: priceMap.get(product.wooProductId) || null,
         ageDays,
         totalSales: metrics.totalSales,
         lastSaleDate: metrics.lastSaleDate,

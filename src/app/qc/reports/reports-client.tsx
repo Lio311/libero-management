@@ -77,7 +77,7 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
       return { 
         ...p,
         oldPrice: pc?.oldPrice || null,
-        newPrice: pc?.newPrice || null,
+        newPrice: pc?.newPrice || p.currentPrice || null,
         priceChangeDate: pc?.changedAt || null
       };
     });
@@ -114,11 +114,12 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
             <table>
               <thead>
                 <tr>
-                  <th style="width: 30%">שם המוצר</th>
-                  <th style="width: 30%">הערות לבדיקה</th>
-                  <th style="width: 15%">מחיר לפני</th>
-                  <th style="width: 15%">מחיר אחרי</th>
-                  <th style="width: 10%">מועד שינוי</th>
+                  <th style="width: 25%">שם המוצר</th>
+                  <th style="width: 25%">הערות לבדיקה</th>
+                  <th style="width: 15%">תמחור</th>
+                  <th style="width: 12%">מחיר לפני</th>
+                  <th style="width: 12%">מחיר אחרי</th>
+                  <th style="width: 11%">מועד שינוי</th>
                 </tr>
               </thead>
               <tbody>
@@ -130,6 +131,9 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
                       ${p.productSku ? '<br><small style="color: #666" dir="ltr">' + p.productSku + '</small>' : ''}
                     </td>
                     <td style="white-space: pre-wrap;">${p.notes || ''}</td>
+                    <td style="text-align: center; font-size: 13px;">
+                      ${p.priceStatus ? `<strong>${p.priceStatus}</strong>${p.priceStatusDate ? `<br><span style="color:#666;font-size:11px;" dir="ltr">,${format(new Date(p.priceStatusDate), 'd.M.yyyy')}<br>${format(new Date(p.priceStatusDate), 'HH:mm')}</span>` : ''}` : '-'}
+                    </td>
                     <td style="text-align: center; color: #666; text-decoration: line-through;">${p.oldPrice ? '₪' + parseFloat(p.oldPrice).toFixed(0) : '-'}</td>
                     <td style="text-align: center; font-weight: bold;">${p.newPrice ? '₪' + parseFloat(p.newPrice).toFixed(0) : '-'}</td>
                     <td style="text-align: center; font-size: 12px; color: #666;">${p.priceChangeDate ? format(new Date(p.priceChangeDate), 'dd/MM/yy HH:mm') : '-'}</td>
@@ -202,6 +206,7 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
               <tr>
                 <th className="px-4 py-3 font-medium min-w-[200px]">שם המוצר</th>
                 <th className="px-4 py-3 font-medium min-w-[250px]">הערות לבדיקה</th>
+                <th className="px-4 py-3 font-medium text-center">תמחור</th>
                 <th className="px-4 py-3 font-medium text-center">מחיר לפני</th>
                 <th className="px-4 py-3 font-medium text-center">מחיר אחרי</th>
                 <th className="px-4 py-3 font-medium text-center">מועד שינוי</th>
@@ -228,6 +233,21 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
                     </td>
                     <td className="px-4 py-2 text-gray-600 whitespace-pre-wrap max-w-xs text-sm">
                       {item.notes || '-'}
+                    </td>
+                    <td className="px-4 py-2 text-center text-sm">
+                      {item.priceStatus ? (
+                        <div className="flex flex-col items-center">
+                          <span className="font-medium text-gray-900">{item.priceStatus}</span>
+                          {item.priceStatusDate && (
+                            <span className="text-gray-500 text-xs mt-1 text-center" dir="ltr">
+                              ,{format(new Date(item.priceStatusDate), 'd.M.yyyy')}<br/>
+                              {format(new Date(item.priceStatusDate), 'HH:mm')}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">-</span>
+                      )}
                     </td>
                     <td className="px-4 py-2 text-center text-gray-500 line-through">
                       {item.oldPrice ? `₪${parseFloat(item.oldPrice).toFixed(0)}` : '-'}
