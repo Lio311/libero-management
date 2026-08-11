@@ -713,7 +713,59 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => window.print()}
+            onClick={() => {
+              const printWindow = window.open('', '', 'width=800,height=600');
+              if (!printWindow) return;
+              
+              const html = `
+                <html dir="rtl" lang="he">
+                  <head>
+                    <title>דוח הערות מוצרים</title>
+                    <style>
+                      body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
+                      table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+                      th, td { border: 1px solid #ddd; padding: 10px; text-align: right; font-size: 14px; }
+                      th { background-color: #f8f9fa; font-weight: bold; }
+                      a { color: #2563eb; text-decoration: underline; }
+                      h1 { font-size: 24px; margin-bottom: 20px; text-align: center; }
+                      @media print {
+                        body { padding: 0; }
+                        button { display: none; }
+                      }
+                    </style>
+                  </head>
+                  <body>
+                    <h1>דוח הערות מוצרים</h1>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th style="width: 40%">שם המוצר</th>
+                          <th style="width: 20%">קישור למוצר</th>
+                          <th style="width: 40%">הערות</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${filteredAndSorted.map(p => `
+                          <tr>
+                            <td>${p.productName}</td>
+                            <td><a href="https://libero-il.co.il/?p=${p.wooProductId}" target="_blank">צפה במוצר</a></td>
+                            <td>${p.notes || ''}</td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                    <script>
+                      window.onload = () => {
+                        window.print();
+                        setTimeout(() => window.close(), 500);
+                      };
+                    </script>
+                  </body>
+                </html>
+              `;
+              printWindow.document.write(html);
+              printWindow.document.close();
+            }}
             className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm active:scale-95"
           >
             <Printer className="w-4 h-4" />
@@ -922,7 +974,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
         <CardContent className="p-0 md:px-6 md:pb-6">
           <div className="overflow-x-auto">
-            <table className="w-full md:min-w-[1300px] text-sm">
+            <table className="w-full min-w-[1100px] text-sm">
               <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md">שם המוצר</th>
