@@ -69,10 +69,8 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
     if (!selectedReport) return [];
     
     const rawData = selectedReport.reportData as any[];
-    // Filter to only include products with notes
-    const filteredData = rawData.filter(p => p.notes && p.notes.trim().length > 0);
     
-    return filteredData.map(p => {
+    return rawData.map(p => {
       const pc = reportPriceChanges.find(c => c.wooProductId === p.wooProductId);
       return { 
         ...p,
