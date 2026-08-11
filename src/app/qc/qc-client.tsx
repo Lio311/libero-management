@@ -97,21 +97,21 @@ function getStatusBadge(status: "never" | "ok" | "warning") {
   switch (status) {
     case "ok":
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-700">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-700 whitespace-nowrap">
           <CheckCircle2 className="w-3 h-3" />
           תקין
         </span>
       );
     case "warning":
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-700">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-100 text-amber-700 whitespace-nowrap">
           <AlertTriangle className="w-3 h-3" />
           דורש בקרה חוזרת
         </span>
       );
     default:
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-600">
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
           <Clock className="w-3 h-3" />
           לא נבדק
         </span>
@@ -204,7 +204,7 @@ function ProductRow({ product }: { product: QcProduct }) {
           <button
             onClick={handleInspect}
             disabled={isPending || justInspected || status === "ok"}
-            className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+            className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
               isPending
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                 : justInspected || status === "ok"
@@ -302,9 +302,9 @@ function ProductRow({ product }: { product: QcProduct }) {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-1 group cursor-pointer" onClick={() => setIsEditingNotes(true)}>
-              <span className="text-sm text-gray-600 truncate max-w-[250px]">{product.notes || "—"}</span>
-              <Edit2 className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 transition-colors flex-shrink-0" />
+            <div className="flex items-start gap-1 group cursor-pointer" onClick={() => setIsEditingNotes(true)}>
+              <span className="text-sm text-gray-600 max-w-[250px] whitespace-normal break-words leading-tight">{product.notes || "—"}</span>
+              <Edit2 className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 transition-colors flex-shrink-0 mt-0.5" />
             </div>
           )}
         </td>
@@ -704,7 +704,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
 
   return (
     <>
-    <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen print:hidden md:min-w-max" dir="rtl">
+    <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen print:hidden" dir="rtl">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
