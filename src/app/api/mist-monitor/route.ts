@@ -6,7 +6,43 @@ import nodemailer from "nodemailer";
 const COLLECTION_URL =
   "https://mist.co.il/collections/back-in-stock/products.json?limit=250";
 const EMAIL_TO = "lior31197@gmail.com";
+const HOT_EMAILS = [
+  "lior31197@gmail.com",
+  "suppliers@libero-il.co.il",
+  "daniel@libero-il.co.il",
+  "liberoperfume@gmail.com",
+];
 const BLOB_KEY = "mist-monitor/known-ids.json";
+
+// ─── Hot Brands: products from these brands also alert the team ───
+const HOT_BRANDS = [
+  "בלונד אמבר",
+  "אקס נילו",
+  "הורמון",
+  "גאבה",
+  "אמואג",
+  "ביי קיליאן",
+  "קיליאן",
+  "אסנשייל פרפיומס",
+  "בויס",
+  "ספיריט אוף דובאי",
+  // English fallbacks
+  "blond amber",
+  "ex nihilo",
+  "hormone",
+  "gaba",
+  "amouage",
+  "kilian",
+  "by kilian",
+  "essential parfums",
+  "bois",
+  "spirit of dubai",
+];
+
+function isHotProduct(product: MistProduct): boolean {
+  const text = `${product.title} ${product.vendor}`.toLowerCase();
+  return HOT_BRANDS.some((brand) => text.includes(brand.toLowerCase()));
+}
 
 // ─── Types ───
 interface MistVariant {
@@ -118,18 +154,46 @@ async function sendEmail(products: MistProduct[]) {
     auth: { user: gmailAddress, pass: gmailPassword },
   });
 
-  const titles = products
-    .slice(0, 3)
-    .map((p) => p.title.substring(0, 30))
-    .join(", ");
-  const suffix = products.length > 3 ? ` (+${products.length - 3} עוד)` : "";
+  // Split into hot and regular products
+  const hotProducts = products.filter(isHotProduct);
+  const regularProducts = products.filter((p) => !isHotProduct(p));
 
-  await transporter.sendMail({
-    from: gmailAddress,
-    to: EMAIL_TO,
-    subject: `🚨 MIST — ${products.length} מוצר חדש: ${titles}${suffix}`,
-    html: buildEmailHtml(products),
-  });
+  // Always send ALL new products to lior
+  if (products.length > 0) {
+    const titles = products
+      .slice(0, 3)
+      .map((p) => p.title.substring(0, 30))
+      .join(", ");
+    const suffix = products.length > 3 ? ` (+${products.length - 3} עוד)` : "";
+
+    await transporter.sendMail({
+      from: gmailAddress,
+      to: EMAIL_TO,
+      subject: `🚨 MIST — ${products.length} מוצר חדש: ${titles}${suffix}`,
+      html: buildEmailHtml(products),
+    });
+  }
+
+  // Send hot products also to the team
+  if (hotProducts.length > 0) {
+    const hotTitles = hotProducts
+      .slice(0, 3)
+      .map((p) => p.title.substring(0, 30))
+      .join(", ");
+    const hotSuffix =
+      hotProducts.length > 3 ? ` (+${hotProducts.length - 3} עוד)` : "";
+
+    await transporter.sendMail({
+      from: gmailAddress,
+      to: HOT_EMAILS.join(", "),
+      subject: `🔥 MIST — מוצר חם במלאי! ${hotTitles}${hotSuffix}`,
+      html: buildEmailHtml(hotProducts),
+    });
+
+    console.log(
+      `[mist-monitor] 🔥 Hot alert sent to team for: ${hotProducts.map((p) => p.title).join(", ")}`
+    );
+  }
 }
 
 // ─── Route Handler ───
