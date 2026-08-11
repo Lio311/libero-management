@@ -518,8 +518,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           </div>
 
           {/* Desktop Table View */}
-          <div className="hidden md:block pb-6">
-            <div className="relative">
+          <div className="hidden md:block pb-6 overflow-x-auto">
+            <div className="min-w-[1300px] relative">
               <table className="w-full text-sm border-separate border-spacing-0">
                 <thead>
                   <tr>
