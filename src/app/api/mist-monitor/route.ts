@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
+import { put, head } from "@vercel/blob";
 import nodemailer from "nodemailer";
 
 // ─── Config ───
 const COLLECTION_URL =
   "https://mist.co.il/collections/back-in-stock/products.json?limit=250";
 const EMAIL_TO = "lior31197@gmail.com";
+const BLOB_KEY = "mist-monitor/known-ids.json";
 
 // ─── Types ───
 interface MistVariant {
@@ -24,10 +26,30 @@ interface MistProduct {
   images: MistImage[];
 }
 
-// ─── State: Vercel KV would be ideal, but we use a simple timestamp approach ───
-// Since Vercel cron runs every minute, we check products published in the last 2 minutes
-// to catch anything new without needing persistent state.
-const LOOKBACK_MINUTES = 2;
+// ─── State: stored in Vercel Blob ───
+
+async function loadKnownIds(): Promise<Set<number>> {
+  try {
+    const blob = await head(BLOB_KEY);
+    if (blob) {
+      const res = await fetch(blob.url);
+      const ids: number[] = await res.json();
+      return new Set(ids);
+    }
+  } catch {
+    // First run or blob doesn't exist
+  }
+  return new Set();
+}
+
+async function saveKnownIds(ids: Set<number>) {
+  await put(BLOB_KEY, JSON.stringify([...ids]), {
+    access: "public",
+    addRandomSuffix: false,
+  });
+}
+
+// ─── Email ───
 
 function formatPrice(price: string): string {
   try {
@@ -122,7 +144,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Fetch products
+    // 1. Fetch current products from MIST
     const res = await fetch(COLLECTION_URL, {
       headers: { "User-Agent": "MistMonitor/1.0" },
       cache: "no-store",
@@ -137,17 +159,38 @@ export async function GET(request: Request) {
 
     const data = await res.json();
     const products: MistProduct[] = data.products || [];
+    const currentIds = new Set(products.map((p) => p.id));
 
-    // Find products published in the last LOOKBACK_MINUTES
-    const cutoff = new Date(Date.now() - LOOKBACK_MINUTES * 60 * 1000);
-    const newProducts = products.filter(
-      (p) => new Date(p.published_at) > cutoff
-    );
+    // 2. Load previously known IDs from Vercel Blob
+    const knownIds = await loadKnownIds();
+    const isFirstRun = knownIds.size === 0;
+
+    if (isFirstRun) {
+      // First run — save current state, don't send email
+      await saveKnownIds(currentIds);
+      console.log(
+        `[mist-monitor] First run — saved ${currentIds.size} product IDs`
+      );
+      return NextResponse.json({
+        status: "first_run",
+        saved: currentIds.size,
+      });
+    }
+
+    // 3. Find truly new products (IDs we've never seen)
+    const newIds = [...currentIds].filter((id) => !knownIds.has(id));
+    const newProducts = products.filter((p) => newIds.includes(p.id));
 
     if (newProducts.length > 0) {
+      // 4. Send email ONLY for new products
       await sendEmail(newProducts);
+
+      // 5. Update known IDs (merge old + new)
+      const mergedIds = new Set([...knownIds, ...currentIds]);
+      await saveKnownIds(mergedIds);
+
       console.log(
-        `[mist-monitor] Sent email for ${newProducts.length} new products`
+        `[mist-monitor] Sent email for ${newProducts.length} new product(s)`
       );
       return NextResponse.json({
         status: "email_sent",
@@ -155,6 +198,9 @@ export async function GET(request: Request) {
         products: newProducts.map((p) => p.title),
       });
     }
+
+    // No new products — still update known IDs (in case products were removed and re-added)
+    await saveKnownIds(new Set([...knownIds, ...currentIds]));
 
     console.log(`[mist-monitor] No new products (${products.length} total)`);
     return NextResponse.json({
