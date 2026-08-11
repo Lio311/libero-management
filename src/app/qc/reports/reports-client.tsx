@@ -69,40 +69,12 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
     if (!selectedReport) return [];
     
     const rawData = selectedReport.reportData as any[];
-    return rawData.map(p => {
-      let rating = 0;
-      
-      const currentStock = Number(p.currentStock) || 0;
-      const totalSales = Number(p.totalSales) || 0;
-      const ageDays = Number(p.ageDays) || 0;
-      
-      const totalOrdered = currentStock + totalSales;
-      const progressRatio = totalOrdered > 0 ? (totalSales / totalOrdered) : 0;
-      
-      const percentageScore = progressRatio * 2;
-      const volumeScore = Math.min(totalSales / 100, 1) * 1.5;
-      
-      rating += percentageScore + volumeScore;
-      
-      if (ageDays <= 30) rating += 3;
-      else if (ageDays <= 90) rating += 2;
-      else if (ageDays <= 180) rating += 1;
-      
-      if (p.lastSaleDate) {
-        const daysSinceSale = (new Date(selectedReport.createdAt).getTime() - new Date(p.lastSaleDate).getTime()) / (1000 * 60 * 60 * 24);
-        if (daysSinceSale <= 7) rating += 2.5;
-        else if (daysSinceSale <= 14) rating += 1.5;
-        else if (daysSinceSale <= 30) rating += 0.5;
-      }
-
-      const catStr = String(p.categories || "");
-      if (p.commerceGroup === "מותגי הבית" || catStr.includes("מותגי הבית")) {
-        rating += 1;
-      }
-      
-      rating = Math.max(1, Math.min(10, rating));
-      
-      return { ...p, rating };
+    // Filter to only include products with notes
+    const filteredData = rawData.filter(p => p.notes && p.notes.trim().length > 0);
+    
+    return filteredData.map(p => {
+      // Rating calculation removed as it's no longer displayed
+      return { ...p };
     });
   }, [selectedReport]);
 
@@ -234,22 +206,14 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
               <tr>
                 <th className="px-4 py-3 font-medium whitespace-nowrap w-24">תמונה</th>
                 <th className="px-4 py-3 font-medium min-w-[200px]">שם המוצר</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap text-center">דירוג</th>
                 <th className="px-4 py-3 font-medium whitespace-nowrap text-center">כמות במלאי</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap text-center">סטטוס</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap text-center">בקרה</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap text-center">תאריך בקרה אחרון</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap text-center">תמחור</th>
                 <th className="px-4 py-3 font-medium min-w-[250px]">הערות לבדיקה</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {reportDataProcessed.map((item, idx) => {
-                const ratingStyle = getRatingStyle(item.rating);
-                // Status calculation based on snapshot lastInspection
-                const status = getProductStatus(item.lastInspection);
                 return (
-                  <tr key={idx} className={`hover:bg-gray-50 transition-colors ${ratingStyle.border} border-r-4`}>
+                  <tr key={idx} className="hover:bg-gray-50 transition-colors border-l-4 border-transparent hover:border-primary">
                     <td className="px-4 py-2">
                       {item.productImage ? (
                         <div className="relative w-12 h-12 rounded-md overflow-hidden bg-gray-100 border border-gray-200">
@@ -269,10 +233,10 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
                     </td>
                     <td className="px-4 py-2 font-medium text-gray-900">
                       <a 
-                        href={`https://libero-il.co.il/wp-admin/post.php?post=${item.wooProductId}&action=edit`}
+                        href={`https://libero-il.co.il/?p=${item.wooProductId}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-primary transition-colors hover:underline"
+                        className="text-blue-600 hover:text-blue-800 transition-colors hover:underline"
                       >
                         {item.productName}
                       </a>
@@ -282,33 +246,8 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-2 text-center whitespace-nowrap">
-                      <span className={ratingStyle.text}>{item.rating?.toFixed(1) || "-"}</span>
-                    </td>
                     <td className="px-4 py-2 text-center whitespace-nowrap text-gray-600 font-medium">
                       {item.currentStock || 0}
-                    </td>
-                    <td className="px-4 py-2 text-center whitespace-nowrap">
-                      {getStatusBadge(status)}
-                    </td>
-                    <td className="px-4 py-2 text-center whitespace-nowrap">
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/50">
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        <span className="text-xs font-medium">בוצע</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-2 text-center whitespace-nowrap text-gray-500">
-                      {item.lastInspection ? format(new Date(item.lastInspection), 'dd/MM/yy HH:mm', { locale: he }) : '-'}
-                    </td>
-                    <td className="px-4 py-2 text-center whitespace-nowrap text-gray-500">
-                      <div className="text-sm">
-                        {item.priceStatus || "טרם נבדק"}
-                      </div>
-                      {item.priceStatusDate && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {format(new Date(item.priceStatusDate), "dd/MM/yy HH:mm", { locale: he })}
-                        </div>
-                      )}
                     </td>
                     <td className="px-4 py-2 text-gray-600 whitespace-pre-wrap max-w-xs text-sm">
                       {item.notes || '-'}
