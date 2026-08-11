@@ -109,34 +109,19 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
             <table>
               <thead>
                 <tr>
-                  <th>שם המוצר</th>
-                  <th>דירוג</th>
-                  <th>במלאי</th>
-                  <th>סטטוס</th>
-                  <th>תאריך בקרה אחרון</th>
-                  <th>תמחור</th>
-                  <th>הערות</th>
+                  <th style="width: 40%">שם המוצר</th>
+                  <th style="width: 60%">הערות לבדיקה</th>
                 </tr>
               </thead>
               <tbody>
                 ${reportDataProcessed.map(p => {
-                  const status = getProductStatus(p.lastInspection);
-                  const statusText = status === 'ok' ? 'תקין' : status === 'warning' ? 'עבר זמן' : 'לא נבדק';
-                  const lastInsp = p.lastInspection ? new Intl.DateTimeFormat('he-IL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(p.lastInspection)) : '-';
-                  const priceDate = p.priceStatusDate ? new Intl.DateTimeFormat('he-IL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(p.priceStatusDate)) : '';
-                  
                   return `
                   <tr>
                     <td>
                       <strong><a href="https://libero-il.co.il/?p=${p.wooProductId}" target="_blank">${p.productName}</a></strong>
                       ${p.productSku ? '<br><small style="color: #666" dir="ltr">' + p.productSku + '</small>' : ''}
                     </td>
-                    <td style="text-align: center">${p.rating?.toFixed(1) || '-'}</td>
-                    <td style="text-align: center">${p.currentStock || 0}</td>
-                    <td style="text-align: center"><span class="badge badge-${status}">${statusText}</span></td>
-                    <td style="text-align: center">${lastInsp}</td>
-                    <td style="text-align: center">${p.priceStatus || 'טרם נבדק'}${priceDate ? '<br><small style="color: #666">' + priceDate + '</small>' : ''}</td>
-                    <td>${p.notes || ''}</td>
+                    <td style="white-space: pre-wrap;">${p.notes || ''}</td>
                   </tr>
                 `}).join('')}
               </tbody>
