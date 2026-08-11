@@ -8,6 +8,13 @@
       "when": 1786455029965,
       "tag": "0000_thin_shadow_king",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786460426335,
+      "tag": "0001_shocking_shard",
+      "breakpoints": true
     }
   ]
 }

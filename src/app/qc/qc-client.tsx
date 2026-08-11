@@ -717,64 +717,47 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
               const printWindow = window.open('', '', 'width=800,height=600');
               if (!printWindow) return;
               
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const todayProducts = processedProducts.filter(p =>
+                p.inspections.some(i => new Date(i.inspectedAt) >= today)
+              );
+              const dateStr = new Intl.DateTimeFormat('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date());
+              
               const html = `
                 <html dir="rtl" lang="he">
                   <head>
-                    <title>דוח בקרת מוצרים</title>
+                    <title>דוח בקרות היום - ${dateStr}</title>
                     <style>
                       body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
                       table { border-collapse: collapse; width: 100%; margin-top: 20px; }
                       th, td { border: 1px solid #ddd; padding: 10px; text-align: right; font-size: 14px; }
                       th { background-color: #f8f9fa; font-weight: bold; }
-                      a { color: #2563eb; text-decoration: underline; }
-                      h1 { font-size: 24px; margin-bottom: 20px; text-align: center; }
-                      .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-                      .badge-ok { background-color: #d1fae5; color: #047857; }
-                      .badge-warning { background-color: #fef3c7; color: #b45309; }
-                      .badge-never { background-color: #f3f4f6; color: #4b5563; }
+                      h1 { font-size: 24px; margin-bottom: 5px; text-align: center; }
+                      .sub { text-align: center; color: #666; margin-bottom: 20px; font-size: 14px; }
                       @media print {
                         body { padding: 0; }
-                        button { display: none; }
                       }
                     </style>
                   </head>
                   <body>
-                    <h1>דוח בקרת מוצרים</h1>
+                    <h1>דוח בקרות היום - ${dateStr}</h1>
+                    <p class="sub">${todayProducts.length} מוצרים נבדקו</p>
                     <table>
                       <thead>
                         <tr>
-                          <th>שם המוצר</th>
-                          <th>דירוג</th>
-                          <th>במלאי</th>
-                          <th>סטטוס</th>
-                          <th>תאריך בקרה אחרון</th>
-                          <th>תמחור</th>
-                          <th>הערות</th>
+                          <th style="width: 50%">שם הבושם</th>
+                          <th style="width: 50%">הערות</th>
                         </tr>
                       </thead>
                       <tbody>
-                        ${filteredAndSorted.map(p => {
-                          const status = p.lastInspection 
-                            ? (new Date(p.lastInspection) < new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000) ? 'warning' : 'ok') 
-                            : 'never';
-                          const statusText = status === 'ok' ? 'תקין' : status === 'warning' ? 'דורש בקרה חוזרת' : 'לא נבדק';
-                          const lastInsp = p.lastInspection ? new Intl.DateTimeFormat('he-IL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(p.lastInspection)) : '-';
-                          const priceDate = p.priceStatusDate ? new Intl.DateTimeFormat('he-IL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(p.priceStatusDate)) : '';
-                          
-                          return `
-                          <tr>
-                            <td>
-                              <strong><a href="https://libero-il.co.il/?p=${p.wooProductId}" target="_blank">${p.productName}</a></strong>
-                              ${p.productSku ? '<br><small style="color: #666" dir="ltr">' + p.productSku + '</small>' : ''}
-                            </td>
-                            <td style="text-align: center">${p.rating?.toFixed(1) || '-'}</td>
-                            <td style="text-align: center">${p.currentStock || 0}</td>
-                            <td style="text-align: center"><span class="badge badge-${status}">${statusText}</span></td>
-                            <td style="text-align: center">${lastInsp}</td>
-                            <td style="text-align: center">${p.priceStatus || 'טרם נבדק'}${priceDate ? '<br><small style="color: #666">' + priceDate + '</small>' : ''}</td>
-                            <td>${p.notes || ''}</td>
+                        ${todayProducts.map((p, idx) => `
+                          <tr style="background-color: ${idx % 2 === 0 ? '#fff' : '#f9fafb'}">
+                            <td><strong>${p.productName}</strong></td>
+                            <td>${p.notes || '-'}</td>
                           </tr>
-                        `}).join('')}
+                        `).join('')}
+                        ${todayProducts.length === 0 ? '<tr><td colspan="2" style="text-align:center;color:#999;padding:20px">לא נמצאו בקרות להיום</td></tr>' : ''}
                       </tbody>
                     </table>
                     <script>

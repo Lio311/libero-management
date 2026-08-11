@@ -303,3 +303,12 @@ export const qcReports = pgTable("qc_reports", {
   totalInspected: integer("total_inspected").notNull(),
   reportData: jsonb("report_data").notNull(),
 });
+
+export const priceHistory = pgTable("price_history", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  wooProductId: integer("woo_product_id").notNull(),
+  productName: text("product_name").notNull(),
+  oldPrice: decimal("old_price"),
+  newPrice: decimal("new_price"),
+  changedAt: timestamp("changed_at", { withTimezone: true }).defaultNow().notNull(),
+});

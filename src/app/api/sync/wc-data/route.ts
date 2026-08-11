@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { wcProducts, wcOrders, qcProducts } from '@/lib/db/schema';
+import { wcProducts, wcOrders, qcProducts, priceHistory } from '@/lib/db/schema';
 import { eq, sql, inArray } from 'drizzle-orm';
 
 const LIBERO_CONFIG = {
@@ -101,9 +101,12 @@ export async function GET(request: Request) {
     const products = await fetchFromWooCommerce('products', queryParams + '&status=any&_fields=id,name,sku,price,stock_quantity,date_created,date_modified,categories,status');
     
     if (products.length > 0) {
-      const existingProducts = await db.select({ id: wcProducts.id, stockQuantity: wcProducts.stockQuantity }).from(wcProducts);
+      const existingProducts = await db.select({ id: wcProducts.id, stockQuantity: wcProducts.stockQuantity, price: wcProducts.price, name: wcProducts.name }).from(wcProducts);
       const stockMap = new Map(existingProducts.map(p => [p.id, p.stockQuantity || 0]));
+      const priceMap = new Map(existingProducts.map(p => [p.id, p.price || '0']));
+      const nameMap = new Map(existingProducts.map(p => [p.id, p.name]));
       const restockedProductIds: number[] = [];
+      const priceChanges: { wooProductId: number; productName: string; oldPrice: string; newPrice: string }[] = [];
 
       const productValues = products.map((p: any) => {
         const id = p.id;
@@ -113,6 +116,18 @@ export async function GET(request: Request) {
         // If stock goes up and it's not a newly added product, it's a restock.
         if (newStock > oldStock && stockMap.has(id)) {
           restockedProductIds.push(id);
+        }
+
+        // Detect price changes
+        const newPrice = p.price ? p.price.toString() : '0';
+        const oldPrice = priceMap.get(id) || '0';
+        if (priceMap.has(id) && newPrice !== oldPrice) {
+          priceChanges.push({
+            wooProductId: id,
+            productName: nameMap.get(id) || p.name || '',
+            oldPrice,
+            newPrice,
+          });
         }
 
         return {
@@ -153,6 +168,21 @@ export async function GET(request: Request) {
           await db.update(qcProducts)
             .set({ lastRestockDate: new Date(), updatedAt: new Date() })
             .where(inArray(qcProducts.wooProductId, chunk));
+        }
+      }
+
+      // Save price changes to history
+      if (priceChanges.length > 0) {
+        const priceHistoryValues = priceChanges.map(pc => ({
+          wooProductId: pc.wooProductId,
+          productName: pc.productName,
+          oldPrice: pc.oldPrice,
+          newPrice: pc.newPrice,
+          changedAt: new Date(),
+        }));
+        const priceChunks = chunkArray(priceHistoryValues, 500);
+        for (const chunk of priceChunks) {
+          await db.insert(priceHistory).values(chunk);
         }
       }
     }

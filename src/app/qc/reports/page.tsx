@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { qcReports } from "@/lib/db/schema";
+import { qcReports, priceHistory } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
 import QCReportsClient from "./reports-client";
 
@@ -11,5 +11,10 @@ export default async function QCReportsPage() {
     .from(qcReports)
     .orderBy(desc(qcReports.createdAt));
 
-  return <QCReportsClient initialReports={reports} />;
+  const allPriceChanges = await db
+    .select()
+    .from(priceHistory)
+    .orderBy(desc(priceHistory.changedAt));
+
+  return <QCReportsClient initialReports={reports} priceChanges={allPriceChanges} />;
 }

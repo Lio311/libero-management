@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
-import { ChevronLeft, Package, Clock, CalendarDays, CheckCircle, AlertCircle, XCircle, Printer } from 'lucide-react';
+import { ChevronLeft, Package, Clock, CalendarDays, CheckCircle, AlertCircle, XCircle, Printer, TrendingUp, TrendingDown, ArrowLeftRight } from 'lucide-react';
 import Image from 'next/image';
 import { he } from 'date-fns/locale';
 
@@ -12,6 +12,15 @@ interface QCReport {
   reportDate: string;
   totalInspected: number;
   reportData: any;
+}
+
+interface PriceChange {
+  id: string;
+  wooProductId: number;
+  productName: string;
+  oldPrice: string | null;
+  newPrice: string | null;
+  changedAt: Date;
 }
 
 function getRatingStyle(rating: number | undefined) {
@@ -43,8 +52,18 @@ function getStatusBadge(status: "never" | "ok" | "warning") {
   }
 }
 
-export default function QCReportsClient({ initialReports }: { initialReports: QCReport[] }) {
+export default function QCReportsClient({ initialReports, priceChanges = [] }: { initialReports: QCReport[]; priceChanges?: PriceChange[] }) {
   const [selectedReport, setSelectedReport] = useState<QCReport | null>(null);
+
+  const reportPriceChanges = useMemo(() => {
+    if (!selectedReport) return [];
+    const reportDate = selectedReport.reportDate; // YYYY-MM-DD
+    return priceChanges.filter(pc => {
+      const changeDate = new Date(pc.changedAt);
+      const changeDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem', year: 'numeric', month: '2-digit', day: '2-digit' }).format(changeDate);
+      return changeDateStr === reportDate;
+    });
+  }, [selectedReport, priceChanges]);
 
   const reportDataProcessed = useMemo(() => {
     if (!selectedReport) return [];
@@ -307,6 +326,49 @@ export default function QCReportsClient({ initialReports }: { initialReports: QC
             </tbody>
           </table>
         </div>
+
+        {/* Price Changes Section */}
+        {reportPriceChanges.length > 0 && (
+          <div className="bg-white rounded-lg shadow overflow-x-auto">
+            <div className="px-4 py-3 border-b border-gray-200 flex items-center gap-2">
+              <ArrowLeftRight className="w-5 h-5 text-blue-500" />
+              <h2 className="text-lg font-semibold text-gray-900">שינויי תמחור ({reportPriceChanges.length})</h2>
+            </div>
+            <table className="w-full text-sm text-right">
+              <thead className="bg-gray-50 text-gray-700 border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-3 font-medium min-w-[200px]">שם המוצר</th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap text-center">מחיר ישן</th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap text-center"></th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap text-center">מחיר חדש</th>
+                  <th className="px-4 py-3 font-medium whitespace-nowrap text-center">שינוי</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {reportPriceChanges.map((pc) => {
+                  const oldP = parseFloat(pc.oldPrice || '0');
+                  const newP = parseFloat(pc.newPrice || '0');
+                  const diff = newP - oldP;
+                  const pctChange = oldP > 0 ? ((diff / oldP) * 100).toFixed(1) : '—';
+                  const isUp = diff > 0;
+                  return (
+                    <tr key={pc.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-3 font-medium text-gray-900">{pc.productName}</td>
+                      <td className="px-4 py-3 text-center text-gray-500 line-through">₪{oldP.toFixed(0)}</td>
+                      <td className="px-4 py-3 text-center">
+                        {isUp ? <TrendingUp className="w-4 h-4 text-red-500 mx-auto" /> : <TrendingDown className="w-4 h-4 text-emerald-500 mx-auto" />}
+                      </td>
+                      <td className="px-4 py-3 text-center font-semibold text-gray-900">₪{newP.toFixed(0)}</td>
+                      <td className={`px-4 py-3 text-center font-medium ${isUp ? 'text-red-500' : 'text-emerald-600'}`}>
+                        {isUp ? '+' : ''}{pctChange}%
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     );
   }
