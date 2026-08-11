@@ -446,7 +446,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const thStyle = { top: `${Math.max(0, headerHeight)}px`, backgroundClip: "padding-box" };
 
   return (
-    <div className="bg-gray-50/50 min-h-screen relative" dir="rtl">
+    <div className="bg-gray-50/50 min-h-screen relative md:min-w-max" dir="rtl">
       {/* Header and Stats - Not Sticky */}
       <div className="pt-4 md:pt-8 px-4 md:px-8 space-y-6 mb-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
