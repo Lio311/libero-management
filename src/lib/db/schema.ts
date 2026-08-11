@@ -295,3 +295,11 @@ export const scannedWholesaleProducts = pgTable("scanned_wholesale_products", {
   stock: text("stock"),
   scannedAt: timestamp("scanned_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const qcReports = pgTable("qc_reports", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  reportDate: date("report_date").notNull(),
+  totalInspected: integer("total_inspected").notNull(),
+  reportData: jsonb("report_data").notNull(),
+});

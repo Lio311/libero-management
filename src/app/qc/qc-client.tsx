@@ -720,7 +720,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
               const html = `
                 <html dir="rtl" lang="he">
                   <head>
-                    <title>דוח הערות מוצרים</title>
+                    <title>דוח בקרת מוצרים</title>
                     <style>
                       body { font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
                       table { border-collapse: collapse; width: 100%; margin-top: 20px; }
@@ -728,6 +728,10 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                       th { background-color: #f8f9fa; font-weight: bold; }
                       a { color: #2563eb; text-decoration: underline; }
                       h1 { font-size: 24px; margin-bottom: 20px; text-align: center; }
+                      .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+                      .badge-ok { background-color: #d1fae5; color: #047857; }
+                      .badge-warning { background-color: #fef3c7; color: #b45309; }
+                      .badge-never { background-color: #f3f4f6; color: #4b5563; }
                       @media print {
                         body { padding: 0; }
                         button { display: none; }
@@ -735,23 +739,42 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                     </style>
                   </head>
                   <body>
-                    <h1>דוח הערות מוצרים</h1>
+                    <h1>דוח בקרת מוצרים</h1>
                     <table>
                       <thead>
                         <tr>
-                          <th style="width: 40%">שם המוצר</th>
-                          <th style="width: 20%">קישור למוצר</th>
-                          <th style="width: 40%">הערות</th>
+                          <th>שם המוצר</th>
+                          <th>דירוג</th>
+                          <th>במלאי</th>
+                          <th>סטטוס</th>
+                          <th>תאריך בקרה אחרון</th>
+                          <th>תמחור</th>
+                          <th>הערות</th>
                         </tr>
                       </thead>
                       <tbody>
-                        ${filteredAndSorted.map(p => `
+                        ${filteredAndSorted.map(p => {
+                          const status = p.lastInspection 
+                            ? (new Date(p.lastInspection) < new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000) ? 'warning' : 'ok') 
+                            : 'never';
+                          const statusText = status === 'ok' ? 'תקין' : status === 'warning' ? 'דורש בקרה חוזרת' : 'לא נבדק';
+                          const lastInsp = p.lastInspection ? new Intl.DateTimeFormat('he-IL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(p.lastInspection)) : '-';
+                          const priceDate = p.priceStatusDate ? new Intl.DateTimeFormat('he-IL', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(p.priceStatusDate)) : '';
+                          
+                          return \`
                           <tr>
-                            <td>${p.productName}</td>
-                            <td><a href="https://libero-il.co.il/?p=${p.wooProductId}" target="_blank">צפה במוצר</a></td>
-                            <td>${p.notes || ''}</td>
+                            <td>
+                              <strong><a href="https://libero-il.co.il/?p=\${p.wooProductId}" target="_blank">\${p.productName}</a></strong>
+                              \${p.productSku ? \`<br><small style="color: #666" dir="ltr">\${p.productSku}</small>\` : ''}
+                            </td>
+                            <td style="text-align: center">\${p.rating?.toFixed(1) || '-'}</td>
+                            <td style="text-align: center">\${p.currentStock || 0}</td>
+                            <td style="text-align: center"><span class="badge badge-\${status}">\${statusText}</span></td>
+                            <td style="text-align: center">\${lastInsp}</td>
+                            <td style="text-align: center">\${p.priceStatus || 'טרם נבדק'}\${priceDate ? \`<br><small style="color: #666">\${priceDate}</small>\` : ''}</td>
+                            <td>\${p.notes || ''}</td>
                           </tr>
-                        `).join('')}
+                        \`}).join('')}
                       </tbody>
                     </table>
                     <script>

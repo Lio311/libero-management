@@ -520,7 +520,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           {/* Desktop Table View */}
           <div className="hidden md:block pb-6">
             <div className="relative">
-              <table className="w-full text-sm border-separate border-spacing-0 table-fixed">
+              <table className="w-full text-sm border-separate border-spacing-0">
                 <thead>
                   <tr>
                     <th className={`${thClasses} border-r-4 border-transparent w-[14%]`} style={thStyle}>שם המוצר</th>

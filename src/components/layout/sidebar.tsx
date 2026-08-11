@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ClipboardCheck, UserCog, ShoppingBag } from "lucide-react";
+import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ClipboardCheck, UserCog, ShoppingBag, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { influencersConfig } from "@/config/influencers";
@@ -38,7 +38,14 @@ const navigation: NavItem[] = [
   { name: "הזמנות וספקים", href: "/inventory", icon: Package },
   { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
   { name: "ניתוח מלאי חכם", href: "/inventory-analysis", icon: BarChart },
-  { name: "בקרת מוצרים", href: "/qc", icon: ClipboardCheck },
+  { 
+    name: "בקרת איכות", 
+    icon: ClipboardCheck,
+    subItems: [
+      { name: "בקרת מוצרים", href: "/qc" },
+      { name: "היסטוריית דוחות בקרה", href: "/qc/reports" },
+    ]
+  },
   { name: "בקרת מלאי", href: "/qc-inventory", icon: ClipboardCheck },
   { name: "מוצרי לינדו", href: "/lindo-products", icon: ShoppingBag },
   { 
