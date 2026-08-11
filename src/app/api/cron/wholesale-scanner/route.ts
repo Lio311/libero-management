@@ -184,6 +184,10 @@ export async function GET(request: Request) {
     const insertData = newProducts.map((p: any) => ({
       id: p.id,
       productName: p.product_name || "Unknown",
+      brand: p.brand || "",
+      img: p.img || "",
+      price: p.price ? String(p.price) : null,
+      stock: p.stock ? String(p.stock) : null,
     }));
 
     await db.insert(scannedWholesaleProducts).values(insertData);

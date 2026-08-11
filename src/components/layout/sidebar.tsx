@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ClipboardCheck, UserCog } from "lucide-react";
+import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ClipboardCheck, UserCog, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { influencersConfig } from "@/config/influencers";
@@ -40,6 +40,7 @@ const navigation: NavItem[] = [
   { name: "ניתוח מלאי חכם", href: "/inventory-analysis", icon: BarChart },
   { name: "בקרת מוצרים", href: "/qc", icon: ClipboardCheck },
   { name: "בקרת מלאי", href: "/qc-inventory", icon: ClipboardCheck },
+  { name: "מוצרי לינדו", href: "/lindo-products", icon: ShoppingBag },
   { 
     name: "לקוחות", 
     icon: UserCog,
