@@ -168,12 +168,12 @@ function ProductRow({ product }: { product: QcProduct }) {
                 <Package className="w-5 h-5 text-gray-400" />
               </div>
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <a 
                 href={`https://libero-il.co.il/?p=${product.wooProductId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[250px] lg:max-w-[300px] block"
+                className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline line-clamp-2 block"
               >
                 {product.productName}
               </a>
@@ -185,22 +185,22 @@ function ProductRow({ product }: { product: QcProduct }) {
         </td>
 
         {/* Rating */}
-        <td className="py-3 px-4 text-center">
+        <td className="py-3 px-4 text-center whitespace-nowrap">
           <span className={ratingStyle.text}>{product.rating?.toFixed(1) || "-"}</span>
         </td>
 
         {/* Stock */}
-        <td className="py-3 px-4 text-center font-medium text-gray-900">
+        <td className="py-3 px-4 text-center font-medium text-gray-900 whitespace-nowrap">
           {product.currentStock || 0}
         </td>
 
         {/* Status */}
-        <td className="py-3 px-4 text-center">
+        <td className="py-3 px-4 text-center whitespace-nowrap">
           {getStatusBadge(status)}
         </td>
 
         {/* Inspect Button */}
-        <td className="py-3 px-4 text-center">
+        <td className="py-3 px-4 text-center whitespace-nowrap">
           <button
             onClick={handleInspect}
             disabled={isPending || justInspected || status === "ok"}
@@ -229,7 +229,7 @@ function ProductRow({ product }: { product: QcProduct }) {
         </td>
 
         {/* Last Inspection */}
-        <td className="py-3 px-4 text-center">
+        <td className="py-3 px-4 text-center whitespace-nowrap">
           <div className="flex flex-col items-center gap-1">
             {justInspected ? (
               <span className="text-sm text-emerald-600 font-medium">עכשיו</span>
@@ -253,7 +253,7 @@ function ProductRow({ product }: { product: QcProduct }) {
         </td>
 
         {/* Price Status */}
-        <td className="py-3 px-4 text-center">
+        <td className="py-3 px-4 text-center whitespace-nowrap">
           <div className="flex flex-col items-center gap-1">
             <Select
               value={product.priceStatus || "טרם נבדק"}
@@ -265,7 +265,7 @@ function ProductRow({ product }: { product: QcProduct }) {
               }}
               disabled={isPending}
             >
-              <SelectTrigger className="w-[140px] mx-auto h-8 text-xs bg-white border-gray-200 focus:ring-0 focus:ring-offset-0">
+              <SelectTrigger className="w-[130px] mx-auto h-8 text-xs bg-white border-gray-200 focus:ring-0 focus:ring-offset-0">
                 <SelectValue placeholder="בחר סטטוס" />
               </SelectTrigger>
               <SelectContent>
@@ -284,7 +284,7 @@ function ProductRow({ product }: { product: QcProduct }) {
         </td>
 
         {/* Notes */}
-        <td className="py-3 px-4 text-right">
+        <td className="py-3 px-4 text-right min-w-[200px]">
           {isEditingNotes ? (
             <div className="flex items-center gap-1">
               <input
@@ -303,7 +303,7 @@ function ProductRow({ product }: { product: QcProduct }) {
             </div>
           ) : (
             <div className="flex items-start gap-1 group cursor-pointer" onClick={() => setIsEditingNotes(true)}>
-              <span className="text-sm text-gray-600 max-w-[250px] whitespace-normal break-words leading-tight">{product.notes || "—"}</span>
+              <span className="flex-1 min-w-0 text-sm text-gray-600 whitespace-normal break-words leading-tight">{product.notes || "—"}</span>
               <Edit2 className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 transition-colors flex-shrink-0 mt-0.5" />
             </div>
           )}
@@ -425,14 +425,14 @@ function ProductRow({ product }: { product: QcProduct }) {
             <div className="px-3 pb-3 pt-1">
               {isEditingNotes ? (
                 <div className="flex items-center gap-1">
-                  <input value={notesValue} onChange={(e) => setNotesValue(e.target.value)} className="flex-1 text-sm border rounded-md px-2 py-1 text-right" autoFocus dir="rtl" />
-                  <button onClick={handleSaveNotes} disabled={isSavingNotes} className="p-1 text-emerald-600"><Check className="w-4 h-4" /></button>
-                  <button onClick={() => { setIsEditingNotes(false); setNotesValue(product.notes || ""); }} className="p-1 text-red-500"><X className="w-4 h-4" /></button>
+                  <input value={notesValue} onChange={(e) => setNotesValue(e.target.value)} className="flex-1 min-w-0 text-sm border rounded-md px-2 py-1 text-right" autoFocus dir="rtl" />
+                  <button onClick={handleSaveNotes} disabled={isSavingNotes} className="p-1 text-emerald-600 flex-shrink-0"><Check className="w-4 h-4" /></button>
+                  <button onClick={() => { setIsEditingNotes(false); setNotesValue(product.notes || ""); }} className="p-1 text-red-500 flex-shrink-0"><X className="w-4 h-4" /></button>
                 </div>
               ) : (
-                <div className="flex items-center gap-1 text-[11px] text-gray-500 cursor-pointer" onClick={() => setIsEditingNotes(true)}>
-                  <span className="truncate">{product.notes || "לחץ להוספת הערה"}</span>
-                  <Edit2 className="w-3 h-3 text-gray-300 flex-shrink-0" />
+                <div className="flex items-start gap-1 text-[11px] text-gray-500 cursor-pointer" onClick={() => setIsEditingNotes(true)}>
+                  <span className="whitespace-normal break-words leading-tight flex-1">{product.notes || "לחץ להוספת הערה"}</span>
+                  <Edit2 className="w-3 h-3 text-gray-300 flex-shrink-0 mt-0.5" />
                 </div>
               )}
             </div>
@@ -973,18 +973,18 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
         </CardHeader>
 
         <CardContent className="p-0 md:px-6 md:pb-6">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[1100px] text-sm table-fixed">
-              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
+          <div className="w-full">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50/90 text-muted-foreground hidden md:table-header-group sticky top-0 z-20 backdrop-blur-sm shadow-sm">
                 <tr>
-                  <th className="py-3 px-4 font-medium text-right rounded-tr-md w-[22%]">שם המוצר</th>
-                  <th className="py-3 px-4 font-medium text-center w-[8%]">דירוג</th>
-                  <th className="py-3 px-4 font-medium text-center w-[10%]">כמות במלאי</th>
-                  <th className="py-3 px-4 font-medium text-center w-[10%]">סטטוס</th>
-                  <th className="py-3 px-4 font-medium text-center w-[15%]">בקרה</th>
-                  <th className="py-3 px-4 font-medium text-center w-[10%]">תאריך בקרה אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center w-[10%]">תמחור</th>
-                  <th className="py-3 px-4 font-medium text-right rounded-tl-md w-[15%]">הערות</th>
+                  <th className="py-3 px-4 font-medium text-right rounded-tr-md min-w-[150px] w-1/4">שם המוצר</th>
+                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">דירוג</th>
+                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">כמות במלאי</th>
+                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">סטטוס</th>
+                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">בקרה</th>
+                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">תאריך בקרה אחרון</th>
+                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">תמחור</th>
+                  <th className="py-3 px-4 font-medium text-right rounded-tl-md min-w-[200px] w-1/4">הערות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
