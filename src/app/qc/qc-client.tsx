@@ -21,6 +21,7 @@ import {
   Check,
   X,
   Loader2,
+  Printer,
 } from "lucide-react";
 import { markProductInspected, updateProductNotes, updateProductPriceStatus } from "@/app/actions/qc-actions";
 import { format } from "date-fns";
@@ -42,12 +43,12 @@ interface QcProduct {
   currentStock: number;
   categories?: string;
   commerceGroup?: string;
-  dateAddedToSite?: Date;
-  ageDays?: number;
-  salesLastWeek?: number;
-  salesLastMonth?: number;
-  salesMonthBeforeLast?: number;
-  totalSales?: number;
+  dateAddedToSite?: Date | null;
+  ageDays?: number | null;
+  salesLastWeek?: number | null;
+  salesLastMonth?: number | null;
+  salesMonthBeforeLast?: number | null;
+  totalSales?: number | null;
   lastSaleDate?: Date | null;
   rating?: number;
 }
@@ -702,7 +703,8 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen" dir="rtl">
+    <>
+    <div className="p-4 md:p-8 space-y-6 bg-gray-50/50 min-h-screen print:hidden" dir="rtl">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -710,6 +712,13 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
           <p className="text-muted-foreground mt-1 text-sm">מעקב ובקרת איכות למוצרי ליברו</p>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm active:scale-95"
+          >
+            <Printer className="w-4 h-4" />
+            דוח PDF
+          </button>
           <button
             onClick={handleSync}
             disabled={isSyncing}
@@ -953,5 +962,56 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
         </CardContent>
       </Card>
     </div>
+    
+    {/* Print Report */}
+    <div className="hidden print:block p-8 bg-white" dir="rtl">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">דוח הערות - בקרת איכות</h1>
+        <p className="text-gray-500">תאריך הפקה: {format(new Date(), "dd/MM/yyyy HH:mm", { locale: he })}</p>
+      </div>
+      
+      <table className="w-full text-right border-collapse">
+        <thead>
+          <tr className="border-b-2 border-gray-800">
+            <th className="py-2 px-4 font-bold text-gray-900 w-1/3">שם המוצר</th>
+            <th className="py-2 px-4 font-bold text-gray-900 w-1/4">קישור</th>
+            <th className="py-2 px-4 font-bold text-gray-900 w-5/12">הערות</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredAndSorted
+            .filter(p => p.notes && p.notes.trim().length > 0)
+            .map((p, idx) => (
+            <tr key={p.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+              <td className="py-3 px-4 border-b border-gray-200">
+                <span className="font-medium text-gray-900">{p.productName}</span>
+                {p.productSku && <div className="text-sm text-gray-500">מק״ט: {p.productSku}</div>}
+              </td>
+              <td className="py-3 px-4 border-b border-gray-200">
+                <a 
+                  href={`https://libero-il.co.il/?p=${p.wooProductId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
+                  קישור למוצר
+                </a>
+              </td>
+              <td className="py-3 px-4 border-b border-gray-200 text-gray-700 whitespace-pre-wrap">
+                {p.notes}
+              </td>
+            </tr>
+          ))}
+          {filteredAndSorted.filter(p => p.notes && p.notes.trim().length > 0).length === 0 && (
+            <tr>
+              <td colSpan={3} className="py-4 text-center text-gray-500 italic">
+                אין מוצרים עם הערות בסינון הנוכחי.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+    </>
   );
 }
