@@ -20,22 +20,27 @@ export async function GET(request: Request) {
     // Fetch all products with their metrics
     const allProducts = await getQcProducts();
     
-    // Filter products inspected in the last 24 hours
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const recentInspections = allProducts.filter(p => p.lastInspection && new Date(p.lastInspection) >= yesterday);
+    // Calculate how many products are currently in "ok" status (inspected in the last 3 months)
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    
+    const inspectedCount = allProducts.filter(p => 
+      p.lastInspection && new Date(p.lastInspection) >= threeMonthsAgo
+    ).length;
 
     const reportDateStr = new Date().toISOString().split('T')[0];
 
     await db.insert(qcReports).values({
       reportDate: reportDateStr,
-      totalInspected: recentInspections.length,
-      reportData: recentInspections,
+      totalInspected: inspectedCount, // Number of products currently valid/inspected
+      reportData: allProducts, // Save ALL products as requested
     });
 
     return NextResponse.json({
       success: true,
       reportDate: reportDateStr,
-      totalInspected: recentInspections.length,
+      totalInspected: inspectedCount,
+      totalProducts: allProducts.length,
     });
   } catch (error: any) {
     console.error('Generate QC Report error:', error);
