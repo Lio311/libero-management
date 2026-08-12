@@ -234,6 +234,21 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
     </tr>
   );
 }
+// Global queue to prevent 504 errors from WooCommerce API due to too many concurrent requests
+type FetchTask = () => Promise<void>;
+const fetchQueue: FetchTask[] = [];
+let isProcessingQueue = false;
+
+const processQueue = async () => {
+  if (isProcessingQueue) return;
+  isProcessingQueue = true;
+  while (fetchQueue.length > 0) {
+    const tasks = fetchQueue.splice(0, 3); // Fetch 3 at a time max
+    await Promise.allSettled(tasks.map(task => task()));
+    await new Promise(r => setTimeout(r, 500)); // Delay between batches
+  }
+  isProcessingQueue = false;
+};
 
 function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfluencers: any[] }) {
   const confirm = useConfirm();
@@ -264,15 +279,24 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
           ? `/api/oded-coupon?month=${monthParam}`
           : `/api/influencer-coupon/${payment.influencerId}?month=${monthParam}`;
           
-        fetch(apiUrl)
-          .then(res => res.json())
-          .then(data => {
+        fetchQueue.push(async () => {
+          try {
+            const res = await fetch(apiUrl);
+            if (!res.ok) {
+              console.error('Fetch error for', payment.influencerId, ':', res.status);
+              return;
+            }
+            const data = await res.json();
             if (data && data.summary && data.summary.commission !== undefined) {
                setCommission(Math.round(Number(data.summary.commission) * 100) / 100);
             }
-          })
-          .catch(console.error)
-          .finally(() => setIsLoadingCommission(false));
+          } catch (err) {
+            console.error(err);
+          } finally {
+            setIsLoadingCommission(false);
+          }
+        });
+        processQueue();
       }
     }
   }, [payment.influencerId, payment.paymentMonth]);
