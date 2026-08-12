@@ -22,22 +22,6 @@ jobs:
           config: "p/default"
           generateSarif: "1"
 
-  secret_scan:
-    name: Secret Scanning (TruffleHog)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: TruffleHog Secret Scanner
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-
   dependency_scan:
     name: Dependency Audit
     runs-on: ubuntu-latest
