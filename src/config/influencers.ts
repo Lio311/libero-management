@@ -165,6 +165,15 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     coupons: [
       { brand: 'libero', code: 'osvr10' }
     ]
+  },
+  orika: {
+    id: 'orika',
+    name: "אמא פלסטיק ואוריקה",
+    coupons: [
+      { brand: 'velour', code: 'orika' },
+      { brand: 'labura', code: 'orika' },
+      { brand: 'libero', code: 'orika' }
+    ]
   }
 };
 

@@ -475,7 +475,7 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
   
   const currentInfluencerId = data.influencerId || payment.influencerId;
   const selectedInfluencer = rawInfluencers?.find((i: any) => i.influencerId === currentInfluencerId);
-  const baseSalary = payment.hasRealPayment ? Number(payment.baseSalary || 0) : 0;
+  const baseSalary = Number(payment.baseSalary || 0);
   const totalPayment = (commission || 0) + baseSalary;
 
   return (
@@ -665,25 +665,34 @@ export default function MarketingClient({
       }
     });
 
+    const currentMonthWeight = getMonthWeight(currentMonth);
+
     // From rawPayments (payment records)
-    (rawPayments || []).forEach(p => {
-      const key = p.influencerId || p.influencerName || p.id;
-      if (!influencerMap.has(key)) {
-        influencerMap.set(key, {
-          influencerId: p.influencerId || undefined,
-          influencerName: p.influencerName || '',
-          baseSalary: Number(p.baseSalary) || 0,
-          baseLibero: Number(p.baseLibero) || 0,
-          baseVelour: Number(p.baseVelour) || 0,
-          baseLabura: Number(p.baseLabura) || 0,
-          dbId: p.id // the actual UUID from the influencer_payments table
-        });
-      } else {
-        const current = influencerMap.get(key)!;
-        current.baseSalary = current.baseSalary || Number(p.baseSalary) || 0;
-        current.baseLibero = current.baseLibero || Number(p.baseLibero) || 0;
-        current.baseVelour = current.baseVelour || Number(p.baseVelour) || 0;
-        current.baseLabura = current.baseLabura || Number(p.baseLabura) || 0;
+    const sortedPayments = [...(rawPayments || [])].sort((a, b) => getMonthWeight(String(a.paymentMonth)) - getMonthWeight(String(b.paymentMonth)));
+    
+    sortedPayments.forEach(p => {
+      const pWeight = getMonthWeight(String(p.paymentMonth));
+      if (pWeight <= currentMonthWeight) {
+        const key = p.influencerId || p.influencerName || p.id;
+        if (!influencerMap.has(key)) {
+          influencerMap.set(key, {
+            influencerId: p.influencerId || undefined,
+            influencerName: p.influencerName || '',
+            baseSalary: Number(p.baseSalary) || 0,
+            baseLibero: Number(p.baseLibero) || 0,
+            baseVelour: Number(p.baseVelour) || 0,
+            baseLabura: Number(p.baseLabura) || 0,
+            dbId: p.id // the actual UUID from the influencer_payments table
+          });
+        } else {
+          const current = influencerMap.get(key)!;
+          if (p.baseSalary !== undefined && p.baseSalary !== null) {
+            current.baseSalary = Number(p.baseSalary) || 0;
+            current.baseLibero = Number(p.baseLibero) || 0;
+            current.baseVelour = Number(p.baseVelour) || 0;
+            current.baseLabura = Number(p.baseLabura) || 0;
+          }
+        }
       }
     });
 

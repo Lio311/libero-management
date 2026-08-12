@@ -93,7 +93,7 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
     const influencerBrands = Array.from(new Set(influencerConfig?.coupons.map(c => c.brand) || []));
     
     const commissionRates = Array.from(new Set(influencerConfig?.coupons.map(c => 
-        (c.code.toLowerCase().includes('15') || influencerId === 'reut') ? 15 : 10
+        (influencerId === 'orika') ? 0 : ((c.code.toLowerCase().includes('15') || influencerId === 'reut') ? 15 : 10)
     ) || []));
     const commissionRateStr = commissionRates.length > 0 ? `${commissionRates.sort((a, b) => a - b).join('% - ')}%` : '';
 
@@ -101,7 +101,7 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
         const brandCoupons = influencerConfig?.coupons.filter(c => c.brand === brand) || [];
         if (brandCoupons.length === 0) return '';
         const rates = Array.from(new Set(brandCoupons.map(c => 
-            (c.code.toLowerCase().includes('15') || influencerId === 'reut') ? 15 : 10
+            (influencerId === 'orika') ? 0 : ((c.code.toLowerCase().includes('15') || influencerId === 'reut') ? 15 : 10)
         )));
         return rates.length > 0 ? `${rates.sort((a,b) => a - b).join('% - ')}%` : '';
     };

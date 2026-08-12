@@ -239,7 +239,9 @@ export async function GET(
             
             const brandCommission = brandOrders.reduce((acc: number, o: any) => {
                 let commRate = 0.10;
-                if (o.coupon_used.toLowerCase().includes('15') || id === 'reut') {
+                if (id === 'orika') {
+                    commRate = 0;
+                } else if (o.coupon_used.toLowerCase().includes('15') || id === 'reut') {
                     commRate = 0.15;
                 }
                 
@@ -272,7 +274,9 @@ export async function GET(
                 if (o.is_duduar_only) return acc; // Handled separately
                 
                 let commRate = 0.10;
-                if (o.coupon_used.toLowerCase().includes('15') || id === 'reut') {
+                if (id === 'orika') {
+                    commRate = 0;
+                } else if (o.coupon_used.toLowerCase().includes('15') || id === 'reut') {
                     commRate = 0.15;
                 }
                 
