@@ -84,8 +84,8 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
             <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4">
               <Menu className="h-6 w-6" />
             </button>
-            <div className="relative h-12 w-28 overflow-hidden">
-              <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
+            <div className="relative h-10 w-28 overflow-hidden mx-auto">
+              <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center" priority />
             </div>
             <div className="absolute left-4">{children}</div>
           </>
@@ -94,8 +94,8 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
             <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4">
               <Menu className="h-6 w-6" />
             </button>
-            <div className="relative h-12 w-28 overflow-hidden">
-              <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
+            <div className="relative h-10 w-28 overflow-hidden mx-auto">
+              <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center" priority />
             </div>
           </>
         )}
@@ -115,8 +115,8 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
         isOpen ? "translate-x-0" : "translate-x-full"
       )}>
         <div className="flex h-[calc(4rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center px-6 border-b border-border/50 relative justify-center">
-          <div className="relative h-12 w-28 overflow-hidden">
-            <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center" priority />
+          <div className="relative h-10 w-28 overflow-hidden mx-auto">
+            <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center" priority />
           </div>
           
           {isAuthenticated ? (
@@ -133,7 +133,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
           )}
         </div>
         <nav className={cn(
-          "flex-1 space-y-0.5 px-3 py-3 overflow-y-auto",
+          "flex-1 space-y-0 px-2 py-2 overflow-y-auto",
           !isAuthenticated && "blur-sm pointer-events-none select-none opacity-50"
         )}>
           {navigation.map((item) => {
@@ -147,7 +147,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
                   <button
                     onClick={() => toggleDropdown(item.name)}
                     className={cn(
-                      "w-full group flex justify-between items-center px-3 py-2 text-sm font-medium rounded-lg hover-scale",
+                      "w-full group flex justify-between items-center px-3 py-1.5 text-sm font-medium rounded-lg hover-scale",
                       isActive
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
@@ -174,7 +174,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
                     href={item.href!}
                     onClick={closeSidebar}
                     className={cn(
-                      "group flex items-center px-3 py-2 text-sm font-medium rounded-lg hover-scale",
+                      "group flex items-center px-3 py-1.5 text-sm font-medium rounded-lg hover-scale",
                       isActive
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
@@ -192,7 +192,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
                 )}
 
                 {hasSubItems && isDropdownOpen && (
-                  <div className="mt-0.5 space-y-0.5 px-3 pb-1">
+                  <div className="mt-0 space-y-0 px-2 pb-0.5">
                     {item.subItems!.map((subItem) => {
                       const isSubActive = pathname === subItem.href;
                       return (
@@ -201,7 +201,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
                           href={subItem.href}
                           onClick={closeSidebar}
                           className={cn(
-                            "group flex items-center pr-10 pl-3 py-1.5 text-sm font-medium rounded-lg hover-scale",
+                            "group flex items-center pr-9 pl-3 py-1 text-sm font-medium rounded-lg hover-scale",
                             isSubActive
                               ? "bg-primary text-primary-foreground shadow-sm"
                               : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
