@@ -51,10 +51,15 @@ export async function getEmployeeBonuses(employeeId: number) {
 
 export async function addBonus(bonusData: any) {
     try {
+        const amount = Number(bonusData.amount);
+        if (isNaN(amount) || amount < 0) {
+            throw new Error("Invalid bonus amount");
+        }
+
         const result = await db.insert(bonuses).values({
             employeeId: bonusData.employee_id,
             saleDate: bonusData.sale_date,
-            amount: bonusData.amount,
+            amount: amount.toString(),
             invoiceUrl: bonusData.invoice_url,
             status: "pending",
         }).returning();
@@ -71,9 +76,20 @@ export async function addBonus(bonusData: any) {
 export async function updateBonus(id: number, updates: any) {
     try {
         const dbUpdates: any = {};
-        if (updates.status !== undefined) dbUpdates.status = updates.status;
-        if (updates.amount !== undefined) dbUpdates.amount = updates.amount;
-        if (updates.invoice_url !== undefined) dbUpdates.invoiceUrl = updates.invoice_url;
+        if (updates.status !== undefined) {
+            if (!['pending', 'approved', 'paid'].includes(updates.status)) {
+                throw new Error("Invalid status");
+            }
+            dbUpdates.status = updates.status;
+        }
+        if (updates.amount !== undefined) {
+            const amount = Number(updates.amount);
+            if (isNaN(amount) || amount < 0) throw new Error("Invalid bonus amount");
+            dbUpdates.amount = amount.toString();
+        }
+        if (updates.invoice_url !== undefined) {
+            dbUpdates.invoiceUrl = updates.invoice_url;
+        }
         
         const result = await db.update(bonuses)
             .set(dbUpdates)
