@@ -256,7 +256,7 @@ export async function GET(
                 }
                 
                 let comm = (o.subtotal / 1.18) * commRate;
-                const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut'];
+                const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav'];
                 if (!noVatAddBack.includes(id)) {
                     comm = comm * 1.18;
                 }
