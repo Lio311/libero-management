@@ -307,7 +307,8 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
     isDone: payment.isDone || '',
     paymentMonth: payment.paymentMonth || '',
     notes: payment.notes || '',
-    influencerId: payment.influencerId || ''
+    influencerId: payment.influencerId || '',
+    baseSalary: payment.baseSalary || 0
   });
 
   const handleSave = async () => {
@@ -315,6 +316,7 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       await createInfluencerPayment({
         ...data,
         amount: data.amount.toString(),
+        baseSalary: data.baseSalary.toString(),
         paymentMonth: payment.paymentMonth || data.paymentMonth
       });
       if (payment.onCancelNew) payment.onCancelNew();
@@ -322,7 +324,8 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
     } else {
       await updateInfluencerPayment(payment.id, {
         ...data,
-        amount: data.amount.toString()
+        amount: data.amount.toString(),
+        baseSalary: data.baseSalary.toString()
       });
       setIsEditing(false);
     }
@@ -338,7 +341,8 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         isDone: payment.isDone || '',
         paymentMonth: payment.paymentMonth || '',
         notes: payment.notes || '',
-        influencerId: payment.influencerId || ''
+        influencerId: payment.influencerId || '',
+        baseSalary: payment.baseSalary || 0
       });
       setIsEditing(false);
     }
@@ -373,7 +377,7 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       <tr className="bg-blue-50/30 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 rounded-lg md:rounded-none mb-4 md:mb-0">
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שם משפיענ/ית</span><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">עמלת קופונים</span>-</td>
-        <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span>-</td>
+        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-center" value={data.baseSalary} onChange={e => setData({...data, baseSalary: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">סה"כ לתשלום</span>-</td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-sm text-gray-500">בוצע?</span>
@@ -421,9 +425,7 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
   
   const currentInfluencerId = data.influencerId || payment.influencerId;
   const selectedInfluencer = rawInfluencers?.find((i: any) => i.influencerId === currentInfluencerId);
-  const baseSalary = (payment.baseSalary !== undefined && payment.baseSalary !== null)
-    ? Number(payment.baseSalary) 
-    : (selectedInfluencer?.baseSalary ? Number(selectedInfluencer.baseSalary) : 0);
+  const baseSalary = payment.hasRealPayment ? Number(payment.baseSalary || 0) : 0;
   const totalPayment = (commission || 0) + baseSalary;
 
   return (
@@ -615,10 +617,9 @@ export default function MarketingClient({
 
       if (existingPayment) {
         processedPaymentIds.add(existingPayment.id);
-        const configSalary = infInfo.influencerId ? influencersConfig[infInfo.influencerId]?.baseSalary : undefined;
         resultRows.push({
           ...existingPayment,
-          baseSalary: configSalary !== undefined ? configSalary : (existingPayment.baseSalary || infInfo.baseSalary),
+          baseSalary: existingPayment.baseSalary || 0,
           hasRealPayment: true
         });
       } else {
@@ -632,7 +633,7 @@ export default function MarketingClient({
           isDone: 'לא בוצע',
           paymentMonth: currentMonth,
           notes: '',
-          baseSalary: infInfo.baseSalary,
+          baseSalary: 0,
           hasRealPayment: false
         });
       }
@@ -642,7 +643,7 @@ export default function MarketingClient({
       if (!processedPaymentIds.has(p.id)) {
         resultRows.push({
           ...p,
-          baseSalary: p.influencerId ? (influencersConfig[p.influencerId]?.baseSalary || p.baseSalary || 0) : (p.baseSalary || 0),
+          baseSalary: p.baseSalary || 0,
           hasRealPayment: true
         });
       }
