@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
+import { BRAND_CONFIG } from '@/lib/wc-config';
+import { cookies } from 'next/headers';
+import { jwtVerify } from 'jose';
 import { db } from '@/lib/db';
 import { qcProducts } from '@/lib/db/schema';
 import { sql } from 'drizzle-orm';
 
-const LIBERO_CONFIG = {
-  ck: '[REDACTED_CK]',
-  cs: '[REDACTED_CS]',
-  baseUrl: 'https://libero-il.co.il',
-};
+const LIBERO_CONFIG = BRAND_CONFIG.libero;
 
 async function fetchAllProducts() {
   const auth = Buffer.from(`${LIBERO_CONFIG.ck}:${LIBERO_CONFIG.cs}`).toString('base64');
@@ -69,15 +68,28 @@ async function fetchAllProducts() {
 }
 
 export async function GET(request: Request) {
-  // Verify authorization for cron jobs
+  // Check auth: allow if CRON_SECRET matches OR if a valid JWT cookie is present
   const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
+  let isAuthorized = false;
 
-  // Allow if CRON_SECRET matches, or if no CRON_SECRET is set (dev mode), or if it's a manual trigger
-  const url = new URL(request.url);
-  const isManual = url.searchParams.get('manual') === 'true';
+  if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
+    isAuthorized = true;
+  } else {
+    try {
+      const cookieStore = await cookies();
+      const authCookie = cookieStore.get('auth');
+      if (authCookie && authCookie.value) {
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback_insecure_secret_for_dev_only');
+        await jwtVerify(authCookie.value, secret);
+        isAuthorized = true;
+      }
+    } catch (e) {
+      // JWT verify failed
+    }
+  }
 
-  if (cronSecret && !isManual && authHeader !== `Bearer ${cronSecret}`) {
+  if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

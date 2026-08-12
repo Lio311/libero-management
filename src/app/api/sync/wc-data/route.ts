@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
+import { BRAND_CONFIG } from '@/lib/wc-config';
+import { cookies } from 'next/headers';
+import { jwtVerify } from 'jose';
 import { db } from '@/lib/db';
 import { wcProducts, wcOrders, qcProducts, priceHistory } from '@/lib/db/schema';
 import { eq, sql, inArray } from 'drizzle-orm';
 
-const LIBERO_CONFIG = {
-  ck: '[REDACTED_CK]',
-  cs: '[REDACTED_CS]',
-  baseUrl: 'https://libero-il.co.il',
-};
+const LIBERO_CONFIG = BRAND_CONFIG.libero;
 
 async function fetchFromWooCommerce(endpoint: string, queryParams: string = '') {
   const auth = Buffer.from(`${LIBERO_CONFIG.ck}:${LIBERO_CONFIG.cs}`).toString('base64');
@@ -62,16 +61,32 @@ async function fetchFromWooCommerce(endpoint: string, queryParams: string = '') 
 }
 
 export async function GET(request: Request) {
-  // Check auth for cron
+  // Check auth: allow if CRON_SECRET matches OR if a valid JWT cookie is present
   const authHeader = request.headers.get('authorization');
   const cronSecret = process.env.CRON_SECRET;
-  const url = new URL(request.url);
-  const isManual = url.searchParams.get('manual') === 'true';
+  let isAuthorized = false;
 
-  if (cronSecret && !isManual && authHeader !== `Bearer ${cronSecret}`) {
+  if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
+    isAuthorized = true;
+  } else {
+    try {
+      const cookieStore = await cookies();
+      const authCookie = cookieStore.get('auth');
+      if (authCookie && authCookie.value) {
+        const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback_insecure_secret_for_dev_only');
+        await jwtVerify(authCookie.value, secret);
+        isAuthorized = true;
+      }
+    } catch (e) {
+      // JWT verify failed
+    }
+  }
+
+  if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const url = new URL(request.url);
   const mode = url.searchParams.get('mode') || 'incremental';
   let queryParams = '';
 

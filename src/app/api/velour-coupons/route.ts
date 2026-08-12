@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { BRAND_CONFIG } from '@/lib/wc-config';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -8,9 +9,9 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Month parameter is required (YYYY-MM)' }, { status: 400 });
     }
 
-    const ck = 'ck_50e2712ebe187cae81f5a2b6353c0a316067eefe';
-    const cs = 'cs_fe5ad58ff939b47a0856f5a9c3478cefa5c74c04';
-    const baseUrl = 'https://velour.co.il';
+    const ck = BRAND_CONFIG.velour.ck;
+    const cs = BRAND_CONFIG.velour.cs;
+    const baseUrl = BRAND_CONFIG.velour.baseUrl;
 
     if (!ck || !cs) {
         return NextResponse.json({ error: 'Missing credentials' }, { status: 500 });

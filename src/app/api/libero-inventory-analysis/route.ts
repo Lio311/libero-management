@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
+import { BRAND_CONFIG } from '@/lib/wc-config';
 
 export async function GET(request: Request) {
-    // Force hardcoded keys, ignoring Vercel env variables completely for now
-    const ck = '[REDACTED_CK]';
-    const cs = '[REDACTED_CS]';
-    const baseUrl = 'https://libero-il.co.il';
+    // Fetch keys securely
+    const ck = BRAND_CONFIG.libero.ck;
+    const cs = BRAND_CONFIG.libero.cs;
+    const baseUrl = BRAND_CONFIG.libero.baseUrl;
 
     if (!ck || !cs) {
         return NextResponse.json({ error: 'חסרים מפתחות גישה ל-WooCommerce (LIBERO_WC_CK/CS)' }, { status: 500 });

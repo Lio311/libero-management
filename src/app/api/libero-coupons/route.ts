@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { BRAND_CONFIG } from '@/lib/wc-config';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -8,9 +9,9 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Month parameter is required (YYYY-MM)' }, { status: 400 });
     }
 
-    const ck = '[REDACTED_CK]'; // Forced to fix vercel env issue
-    const cs = '[REDACTED_CS]';
-    const baseUrl = 'https://libero-il.co.il';
+    const ck = BRAND_CONFIG.libero.ck;
+    const cs = BRAND_CONFIG.libero.cs;
+    const baseUrl = BRAND_CONFIG.libero.baseUrl;
 
     if (!ck || !cs) {
         return NextResponse.json({

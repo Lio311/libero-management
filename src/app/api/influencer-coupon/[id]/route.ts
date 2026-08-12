@@ -3,24 +3,9 @@ import { getInfluencerById, Brand, InfluencerCoupon } from '@/config/influencers
 import { db } from '@/lib/db';
 import { influencers } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { BRAND_CONFIG } from '@/lib/wc-config';
 
-const BRAND_CONFIG: Record<Brand, { ck: string; cs: string; baseUrl: string }> = {
-    velour: {
-        ck: 'ck_50e2712ebe187cae81f5a2b6353c0a316067eefe',
-        cs: 'cs_fe5ad58ff939b47a0856f5a9c3478cefa5c74c04',
-        baseUrl: 'https://velour.co.il',
-    },
-    labura: {
-        ck: 'ck_c05a4ccf7b36d2c7f5aeee1307db0da45512c306',
-        cs: 'cs_d3d1d9eba2cf904b5a4b4324b1fba75d4a1da2c2',
-        baseUrl: 'https://la-burro.co.il',
-    },
-    libero: {
-        ck: '[REDACTED_CK]',
-        cs: '[REDACTED_CS]',
-        baseUrl: 'https://libero-il.co.il',
-    }
-};
+
 
 export async function GET(
     request: Request,
@@ -103,15 +88,20 @@ export async function GET(
             const couponLine = order.coupon_lines.find((cl: any) => lowerCoupons.includes(cl.code.toLowerCase()));
             const itemsTotal = (order.line_items || []).reduce((acc: number, li: any) => acc + parseFloat(li.total || 0), 0);
 
+            // Mask customer name (only first name and first letter of last name)
+            const firstName = order.billing?.first_name || '';
+            const lastName = order.billing?.last_name || '';
+            const maskedName = lastName ? `${firstName} ${lastName.charAt(0)}.` : firstName;
+
             return {
                 brand,
                 order_id: order.id,
                 order_number: order.number,
                 date: order.date_created,
                 status: order.status,
-                customer_name: `${order.billing?.first_name || ''} ${order.billing?.last_name || ''}`.trim(),
-                customer_email: order.billing?.email || '',
-                customer_phone: order.billing?.phone || '',
+                customer_name: maskedName.trim() || 'Unknown',
+                customer_email: '',
+                customer_phone: '',
                 items: (order.line_items || []).map((li: any) => ({
                     name: li.name,
                     quantity: li.quantity,
@@ -124,7 +114,7 @@ export async function GET(
                 discount_amount: parseFloat(couponLine?.discount || 0),
                 total: parseFloat(order.total || 0),
                 payment_method: order.payment_method_title || '',
-                shipping_city: order.shipping?.city || order.billing?.city || '',
+                shipping_city: '',
                 coupon_used: couponLine?.code || '',
             };
         });
@@ -209,22 +199,26 @@ export async function GET(
                     // Add the Duduar order to detailed orders if it's not already there
                     const existingOrderIndex = detailedOrders.findIndex(o => o.order_id === order.id && o.brand === 'libero');
                     if (existingOrderIndex === -1) {
+                        const firstName = order.billing?.first_name || '';
+                        const lastName = order.billing?.last_name || '';
+                        const maskedName = lastName ? `${firstName} ${lastName.charAt(0)}.` : firstName;
+
                         detailedOrders.push({
                             brand: 'libero',
                             order_id: order.id,
                             order_number: order.number,
                             date: order.date_created,
                             status: order.status,
-                            customer_name: `${order.billing?.first_name || ''} ${order.billing?.last_name || ''}`.trim(),
-                            customer_email: order.billing?.email || '',
-                            customer_phone: order.billing?.phone || '',
+                            customer_name: maskedName.trim() || 'Unknown',
+                            customer_email: '',
+                            customer_phone: '',
                             items: duduarItems,
                             items_count: orderDuduarBottles,
                             subtotal: orderDuduarRevenue,
                             discount_amount: 0, // Not tied to his coupon necessarily
                             total: parseFloat(order.total || 0),
                             payment_method: order.payment_method_title || '',
-                            shipping_city: order.shipping?.city || order.billing?.city || '',
+                            shipping_city: '',
                             coupon_used: 'DUDUAR_SALE',
                             is_duduar_only: true
                         });

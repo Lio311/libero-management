@@ -8,8 +8,8 @@ import { db } from '@/lib/db';
 import { pushSubscriptions } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
-const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U';
-const privateKey = process.env.VAPID_PRIVATE_KEY || '8XQx6e4Z1q9j9m3a7Y8n2C5t3R8f1D4w7E9b2G5v8Y8';
+const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '';
+const privateKey = process.env.VAPID_PRIVATE_KEY || '';
 
 try {
   webpush.setVapidDetails(
@@ -22,6 +22,14 @@ try {
 }
 
 export async function POST(req: Request) {
+  // Verify webhook authorization
+  const authHeader = req.headers.get('authorization');
+  const webhookSecret = process.env.WEBHOOK_SECRET;
+
+  if (!webhookSecret || authHeader !== `Bearer ${webhookSecret}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { message } = await req.json();
 

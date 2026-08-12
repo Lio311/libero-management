@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { BRAND_CONFIG } from '@/lib/wc-config';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -8,9 +9,9 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Month parameter is required (YYYY-MM)' }, { status: 400 });
     }
 
-    const ck = '[REDACTED_CK]';
-    const cs = '[REDACTED_CS]';
-    const baseUrl = 'https://libero-il.co.il';
+    const ck = BRAND_CONFIG.libero.ck;
+    const cs = BRAND_CONFIG.libero.cs;
+    const baseUrl = BRAND_CONFIG.libero.baseUrl;
 
     const auth = Buffer.from(`${ck}:${cs}`).toString('base64');
     const [yearStr, monthStr] = month.split('-');
@@ -103,9 +104,7 @@ export async function GET(request: Request) {
                 order_number: order.number,
                 date: order.date_created,
                 status: order.status,
-                customer_name: `${order.billing?.first_name || ''} ${order.billing?.last_name || ''}`.trim(),
-                customer_email: order.billing?.email || '',
-                customer_phone: order.billing?.phone || '',
+                customer_name: `${order.billing?.first_name || ''} ${order.billing?.last_name ? order.billing.last_name.charAt(0) + '.' : ''}`.trim(),
                 items: (order.line_items || []).map((li: any) => ({
                     name: li.name,
                     quantity: li.quantity,
@@ -120,7 +119,6 @@ export async function GET(request: Request) {
                 discount_amount: parseFloat(couponLine?.discount || 0),
                 total: parseFloat(order.total || 0),
                 payment_method: order.payment_method_title || '',
-                shipping_city: order.shipping?.city || order.billing?.city || '',
             };
         });
 
