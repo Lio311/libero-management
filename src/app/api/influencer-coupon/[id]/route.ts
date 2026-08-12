@@ -42,6 +42,12 @@ export async function GET(
 
     const fetchOrdersForBrand = async (brand: Brand, coupons: string[]) => {
         const config = BRAND_CONFIG[brand];
+        
+        if (!config.ck || !config.cs) {
+            console.error(`Missing WooCommerce credentials for brand ${brand} in Environment Variables.`);
+            return [];
+        }
+
         const auth = Buffer.from(`${config.ck}:${config.cs}`).toString('base64');
         
         const fetchPage = async (page = 1) => {
@@ -143,7 +149,10 @@ export async function GET(
 
         if (id === 'amit') {
             const liberoConfig = BRAND_CONFIG['libero'];
-            const liberoAuth = Buffer.from(`${liberoConfig.ck}:${liberoConfig.cs}`).toString('base64');
+            if (!liberoConfig.ck || !liberoConfig.cs) {
+                 console.error("Missing WooCommerce credentials for Libero");
+            } else {
+                 const liberoAuth = Buffer.from(`${liberoConfig.ck}:${liberoConfig.cs}`).toString('base64');
             
             const fetchLiberoPage = async (page = 1) => {
                 const query = `after=${after}&before=${before}&per_page=100&page=${page}&status=processing,completed`;
@@ -228,6 +237,7 @@ export async function GET(
             
             // Re-sort after adding Duduar orders
             detailedOrders = detailedOrders.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            } // Close else for credentials
         }
 
         const totalRevenue = detailedOrders.reduce((acc: number, o: any) => acc + o.subtotal, 0);
