@@ -3,8 +3,8 @@ import { qcProducts } from '../src/lib/db/schema';
 import { sql } from 'drizzle-orm';
 
 const LIBERO_CONFIG = {
-  ck: '[REDACTED_CK]',
-  cs: '[REDACTED_CS]',
+  ck: process.env.LIBERO_WC_CK || '',
+  cs: process.env.LIBERO_WC_CS || '',
   baseUrl: 'https://libero-il.co.il',
 };
 
