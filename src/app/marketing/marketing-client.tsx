@@ -50,15 +50,26 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
     activities: inf.activities || '',
     notes: inf.notes || '',
     influencerId: inf.influencerId || '',
-    baseSalary: inf.baseSalary || 0
+    baseSalary: inf.baseSalary || 0,
+    baseLibero: inf.baseLibero || 0,
+    baseVelour: inf.baseVelour || 0,
+    baseLabura: inf.baseLabura || 0
   });
 
   const handleSave = async () => {
+    const totalBase = Number(data.baseLibero || 0) + Number(data.baseVelour || 0) + Number(data.baseLabura || 0);
+    const payload = {
+      ...data,
+      baseSalary: totalBase.toString(),
+      baseLibero: data.baseLibero.toString(),
+      baseVelour: data.baseVelour.toString(),
+      baseLabura: data.baseLabura.toString()
+    };
     if (inf.isNew) {
-      await createInfluencer(data);
+      await createInfluencer(payload);
       if (inf.onCancelNew) inf.onCancelNew();
     } else {
-      await updateInfluencer(inf.id, data);
+      await updateInfluencer(inf.id, payload);
       setIsEditing(false);
     }
   };
@@ -78,7 +89,10 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
         activities: inf.activities || '',
         notes: inf.notes || '',
         influencerId: inf.influencerId || '',
-        baseSalary: inf.baseSalary || 0
+        baseSalary: inf.baseSalary || 0,
+        baseLibero: inf.baseLibero || 0,
+        baseVelour: inf.baseVelour || 0,
+        baseLabura: inf.baseLabura || 0
       });
       setIsEditing(false);
     }
@@ -138,7 +152,14 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
           </Popover>
         </td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">בתשלום?</span><input className="w-full p-1 border rounded text-sm text-right" value={data.isPaid} onChange={e => setData({...data, isPaid: e.target.value})} /></td>
-        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-right" value={data.baseSalary} onChange={e => setData({...data, baseSalary: e.target.value})} /></td>
+        <td className="p-2 flex flex-col md:table-cell gap-1">
+          <span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span>
+          <div className="flex flex-col gap-1 min-w-[120px]">
+            <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">ליברו:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLibero} onChange={e => setData({...data, baseLibero: e.target.value})} /></div>
+            <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">וולור:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseVelour} onChange={e => setData({...data, baseVelour: e.target.value})} /></div>
+            <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">לה בורה:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLabura} onChange={e => setData({...data, baseLabura: e.target.value})} /></div>
+          </div>
+        </td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">מספר סרטונים</span><input className="w-full p-1 border rounded text-sm text-right" value={data.videoCount} onChange={e => setData({...data, videoCount: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">מספר פוסטים</span><input className="w-full p-1 border rounded text-sm text-right" value={data.postCount} onChange={e => setData({...data, postCount: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">מוצרים שניתנו</span><input className="w-full p-1 border rounded text-sm text-right" value={data.productsGiven} onChange={e => setData({...data, productsGiven: e.target.value})} /></td>
@@ -187,7 +208,16 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
-        {inf.baseSalary ? `₪${formatCurrency(inf.baseSalary)}` : '-'}
+        <div className="flex flex-col items-center">
+          <span>{inf.baseSalary ? `₪${formatCurrency(inf.baseSalary)}` : '-'}</span>
+          {(Number(inf.baseLibero) > 0 || Number(inf.baseVelour) > 0 || Number(inf.baseLabura) > 0) && (
+            <div className="text-[10px] text-gray-500 font-normal leading-tight mt-1 flex flex-col gap-0.5">
+              {Number(inf.baseLibero) > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(inf.baseLibero)}</div>}
+              {Number(inf.baseVelour) > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(inf.baseVelour)}</div>}
+              {Number(inf.baseLabura) > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(inf.baseLabura)}</div>}
+            </div>
+          )}
+        </div>
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">סרטונים</span>
@@ -308,15 +338,22 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
     paymentMonth: payment.paymentMonth || '',
     notes: payment.notes || '',
     influencerId: payment.influencerId || '',
-    baseSalary: payment.baseSalary || 0
+    baseSalary: payment.baseSalary || 0,
+    baseLibero: payment.baseLibero || 0,
+    baseVelour: payment.baseVelour || 0,
+    baseLabura: payment.baseLabura || 0
   });
 
   const handleSave = async () => {
+    const totalBase = Number(data.baseLibero || 0) + Number(data.baseVelour || 0) + Number(data.baseLabura || 0);
     if (payment.isNew || payment.hasRealPayment === false) {
       await createInfluencerPayment({
         ...data,
         amount: data.amount.toString(),
-        baseSalary: data.baseSalary.toString(),
+        baseSalary: totalBase.toString(),
+        baseLibero: data.baseLibero.toString(),
+        baseVelour: data.baseVelour.toString(),
+        baseLabura: data.baseLabura.toString(),
         paymentMonth: payment.paymentMonth || data.paymentMonth
       });
       if (payment.onCancelNew) payment.onCancelNew();
@@ -325,7 +362,10 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       await updateInfluencerPayment(payment.id, {
         ...data,
         amount: data.amount.toString(),
-        baseSalary: data.baseSalary.toString()
+        baseSalary: totalBase.toString(),
+        baseLibero: data.baseLibero.toString(),
+        baseVelour: data.baseVelour.toString(),
+        baseLabura: data.baseLabura.toString()
       });
       setIsEditing(false);
     }
@@ -342,7 +382,10 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         paymentMonth: payment.paymentMonth || '',
         notes: payment.notes || '',
         influencerId: payment.influencerId || '',
-        baseSalary: payment.baseSalary || 0
+        baseSalary: payment.baseSalary || 0,
+        baseLibero: payment.baseLibero || 0,
+        baseVelour: payment.baseVelour || 0,
+        baseLabura: payment.baseLabura || 0
       });
       setIsEditing(false);
     }
@@ -377,7 +420,14 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       <tr className="bg-blue-50/30 transition-colors flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 rounded-lg md:rounded-none mb-4 md:mb-0">
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שם משפיענ/ית</span><input className="w-full p-1 border rounded text-sm text-right" value={data.influencerName} onChange={e => setData({...data, influencerName: e.target.value})} /></td>
         <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">עמלת קופונים</span>-</td>
-        <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span><input type="number" className="w-full p-1 border rounded text-sm text-center" value={data.baseSalary} onChange={e => setData({...data, baseSalary: e.target.value})} /></td>
+        <td className="p-2 flex flex-col md:table-cell gap-1">
+          <span className="md:hidden font-medium text-sm text-gray-500">שכר בסיס</span>
+          <div className="flex flex-col gap-1 min-w-[120px]">
+            <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">ליברו:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLibero} onChange={e => setData({...data, baseLibero: e.target.value})} /></div>
+            <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">וולור:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseVelour} onChange={e => setData({...data, baseVelour: e.target.value})} /></div>
+            <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">לה בורה:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLabura} onChange={e => setData({...data, baseLabura: e.target.value})} /></div>
+          </div>
+        </td>
         <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">סה"כ לתשלום</span>-</td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
           <span className="md:hidden font-medium text-sm text-gray-500">בוצע?</span>
@@ -450,7 +500,16 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       </td>
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-purple-600">
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
-        <span dir="ltr">₪{formatCurrency(baseSalary)}</span>
+        <div className="flex flex-col items-center">
+          <span dir="ltr">₪{formatCurrency(baseSalary)}</span>
+          {(Number(payment.baseLibero) > 0 || Number(payment.baseVelour) > 0 || Number(payment.baseLabura) > 0) && (
+            <div className="text-[10px] text-gray-500 font-normal leading-tight mt-1 flex flex-col gap-0.5">
+              {Number(payment.baseLibero) > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(payment.baseLibero)}</div>}
+              {Number(payment.baseVelour) > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(payment.baseVelour)}</div>}
+              {Number(payment.baseLabura) > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(payment.baseLabura)}</div>}
+            </div>
+          )}
+        </div>
       </td>
       <td className="py-1 md:py-3 px-2 font-bold flex justify-between items-center md:table-cell text-center text-emerald-600">
         <span className="md:hidden text-gray-500 text-sm">סה"כ לתשלום</span>
@@ -569,14 +628,17 @@ export default function MarketingClient({
   const filteredPayments = currentMonth ? rawPayments.filter(p => p.paymentMonth === currentMonth) : rawPayments;
 
   const combinedPayments = currentMonth ? (() => {
-    const influencerMap = new Map<string, { influencerId?: string; influencerName: string; baseSalary: number; dbId?: string }>();
+    const influencerMap = new Map<string, { influencerId?: string; influencerName: string; baseSalary: number; baseLibero: number; baseVelour: number; baseLabura: number; dbId?: string }>();
 
     // From influencersConfig
     Object.entries(influencersConfig).forEach(([key, config]) => {
       influencerMap.set(key, {
         influencerId: key,
         influencerName: config.name,
-        baseSalary: config.baseSalary || 0
+        baseSalary: config.baseSalary || 0,
+        baseLibero: 0,
+        baseVelour: 0,
+        baseLabura: 0
       });
     });
 
@@ -588,8 +650,18 @@ export default function MarketingClient({
           influencerId: inf.influencerId || undefined,
           influencerName: inf.influencerName || '',
           baseSalary: Number(inf.baseSalary) || 0,
+          baseLibero: Number(inf.baseLibero) || 0,
+          baseVelour: Number(inf.baseVelour) || 0,
+          baseLabura: Number(inf.baseLabura) || 0,
           dbId: inf.id // the actual UUID from the influencers table
         });
+      } else {
+        const current = influencerMap.get(key)!;
+        current.baseSalary = Number(inf.baseSalary) || current.baseSalary;
+        current.baseLibero = Number(inf.baseLibero) || current.baseLibero;
+        current.baseVelour = Number(inf.baseVelour) || current.baseVelour;
+        current.baseLabura = Number(inf.baseLabura) || current.baseLabura;
+        current.dbId = inf.id || current.dbId;
       }
     });
 
@@ -601,8 +673,17 @@ export default function MarketingClient({
           influencerId: p.influencerId || undefined,
           influencerName: p.influencerName || '',
           baseSalary: Number(p.baseSalary) || 0,
+          baseLibero: Number(p.baseLibero) || 0,
+          baseVelour: Number(p.baseVelour) || 0,
+          baseLabura: Number(p.baseLabura) || 0,
           dbId: p.id // the actual UUID from the influencer_payments table
         });
+      } else {
+        const current = influencerMap.get(key)!;
+        current.baseSalary = current.baseSalary || Number(p.baseSalary) || 0;
+        current.baseLibero = current.baseLibero || Number(p.baseLibero) || 0;
+        current.baseVelour = current.baseVelour || Number(p.baseVelour) || 0;
+        current.baseLabura = current.baseLabura || Number(p.baseLabura) || 0;
       }
     });
 
@@ -633,7 +714,10 @@ export default function MarketingClient({
           isDone: 'לא בוצע',
           paymentMonth: currentMonth,
           notes: '',
-          baseSalary: 0,
+          baseSalary: infInfo.baseSalary,
+          baseLibero: infInfo.baseLibero,
+          baseVelour: infInfo.baseVelour,
+          baseLabura: infInfo.baseLabura,
           hasRealPayment: false
         });
       }

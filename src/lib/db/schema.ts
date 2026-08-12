@@ -129,6 +129,9 @@ export const influencers = pgTable("influencers", {
   notes: text("notes"),
   paymentMonth: varchar("payment_month", { length: 20 }),
   baseSalary: decimal("base_salary"),
+  baseLibero: decimal("base_libero"),
+  baseVelour: decimal("base_velour"),
+  baseLabura: decimal("base_labura"),
   influencerId: varchar("influencer_id", { length: 255 }),
 });
 
@@ -140,6 +143,9 @@ export const influencerPayments = pgTable("influencer_payments", {
   notes: text("notes"),
   paymentMonth: varchar("payment_month", { length: 20 }),
   baseSalary: decimal("base_salary"),
+  baseLibero: decimal("base_libero"),
+  baseVelour: decimal("base_velour"),
+  baseLabura: decimal("base_labura"),
   influencerId: varchar("influencer_id", { length: 255 }),
 });
 
