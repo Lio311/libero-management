@@ -92,6 +92,20 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
     const hasVat = !noVatAddBack.includes(influencerId);
     const influencerBrands = Array.from(new Set(influencerConfig?.coupons.map(c => c.brand) || []));
     
+    const commissionRates = Array.from(new Set(influencerConfig?.coupons.map(c => 
+        (c.code.toLowerCase().includes('15') || influencerId === 'reut') ? 15 : 10
+    ) || []));
+    const commissionRateStr = commissionRates.length > 0 ? `${commissionRates.sort((a, b) => a - b).join('% - ')}%` : '';
+
+    const getBrandCommissionRateStr = (brand: string) => {
+        const brandCoupons = influencerConfig?.coupons.filter(c => c.brand === brand) || [];
+        if (brandCoupons.length === 0) return '';
+        const rates = Array.from(new Set(brandCoupons.map(c => 
+            (c.code.toLowerCase().includes('15') || influencerId === 'reut') ? 15 : 10
+        )));
+        return rates.length > 0 ? `${rates.sort((a,b) => a - b).join('% - ')}%` : '';
+    };
+    
     const [currentDate, setCurrentDate] = useState(new Date());
     const [orders, setOrders] = useState<InfluencerOrder[]>([]);
     const [summary, setSummary] = useState<Summary | null>(null);
@@ -389,6 +403,9 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                         <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                             <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ עמלה {hasVat ? '(כולל מע"מ)' : ''}</p>
                                             <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.commission)}</p>
+                                            {commissionRateStr && (
+                                                <p className="text-sm font-medium text-[#6d6d6d] mt-1">לפי {commissionRateStr} מהמכירות</p>
+                                            )}
                                         </div>
                                         <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                             <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">שכר בסיס</p>
@@ -408,6 +425,9 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                         <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission)}</p>
                                         {hasVat && (
                                             <p className="text-sm font-medium text-white/70 mt-1" dir="ltr">{formatILS(summary.commission / 1.18)} לא כולל מע"מ</p>
+                                        )}
+                                        {commissionRateStr && (
+                                            <p className="text-sm font-medium text-white/70 mt-1">לפי {commissionRateStr} מהמכירות</p>
                                         )}
                                     </div>
                                 )}
@@ -460,6 +480,9 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                                     <p className="text-lg font-black text-blue-600 leading-tight" dir="ltr">{formatILS(bs.commission)}</p>
                                                     {hasVat && (
                                                         <p className="text-[9px] font-medium text-blue-500/70 mt-0.5 leading-tight" dir="ltr">{formatILS(bs.commission / 1.18)} לא כולל מע"מ</p>
+                                                    )}
+                                                    {getBrandCommissionRateStr(brand) && (
+                                                        <p className="text-[9px] font-medium text-blue-500/70 mt-0.5 leading-tight">לפי {getBrandCommissionRateStr(brand)} מהמכירות</p>
                                                     )}
                                                 </div>
                                             </div>
