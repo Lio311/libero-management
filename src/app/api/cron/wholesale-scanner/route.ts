@@ -108,17 +108,20 @@ export async function GET(request: Request) {
     }
 
     // 4. Send emails for new products
-    const gmailAddress = process.env.GMAIL_APP_USER;
+    const gmailAddress = process.env.GMAIL_APP_USER || process.env.GMAIL_ADDRESS;
     const gmailPassword = process.env.GMAIL_APP_PASSWORD;
 
-    if (!gmailAddress || !gmailPassword) {
-      return NextResponse.json({ success: false, error: "Missing email configuration" }, { status: 500 });
-    }
+    let emailsSent = 0;
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: gmailAddress, pass: gmailPassword },
-    });
+    if (!gmailAddress || !gmailPassword) {
+      console.warn("Missing email configuration - skipping email notifications, but will still update the database");
+    } else {
+      const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: gmailAddress, pass: gmailPassword },
+      });
+
+
 
     const hotProducts = newProducts.filter(isHotProduct);
     const regularProducts = newProducts.filter((p: any) => !isHotProduct(p));
@@ -159,26 +162,35 @@ export async function GET(request: Request) {
     };
 
     // Send Hot Products Email
-    if (hotProducts.length > 0) {
-      await transporter.sendMail({
-        from: gmailAddress,
-        to: HOT_EMAILS.join(", "),
-        subject: `🔥 מוצרים חמים חדשים עלו לאתר הסיטונאי (${hotProducts.length})`,
-        html: generateHtml(hotProducts, `עלו ${hotProducts.length} מוצרים חמים חדשים!`),
-      });
-      emailsSent++;
+    if (hotProducts.length > 0 && gmailAddress) {
+      try {
+        await transporter.sendMail({
+          from: gmailAddress,
+          to: HOT_EMAILS.join(", "),
+          subject: `🔥 מוצרים חמים חדשים עלו לאתר הסיטונאי (${hotProducts.length})`,
+          html: generateHtml(hotProducts, `עלו ${hotProducts.length} מוצרים חמים חדשים!`),
+        });
+        emailsSent++;
+      } catch (err) {
+        console.error("Failed to send hot products email:", err);
+      }
     }
 
     // Send Regular Products Email
-    if (regularProducts.length > 0) {
-      await transporter.sendMail({
-        from: gmailAddress,
-        to: NORMAL_EMAILS.join(", "),
-        subject: `📦 מוצרים רגילים חדשים עלו לאתר הסיטונאי (${regularProducts.length})`,
-        html: generateHtml(regularProducts, `עלו ${regularProducts.length} מוצרים חדשים`),
-      });
-      emailsSent++;
+    if (regularProducts.length > 0 && gmailAddress) {
+      try {
+        await transporter.sendMail({
+          from: gmailAddress,
+          to: NORMAL_EMAILS.join(", "),
+          subject: `📦 מוצרים רגילים חדשים עלו לאתר הסיטונאי (${regularProducts.length})`,
+          html: generateHtml(regularProducts, `עלו ${regularProducts.length} מוצרים חדשים`),
+        });
+        emailsSent++;
+      } catch (err) {
+        console.error("Failed to send regular products email:", err);
+      }
     }
+    } // close the else block for email configuration check
 
     // 5. Insert newly scanned IDs into database
     const insertData = newProducts.map((p: any) => ({
