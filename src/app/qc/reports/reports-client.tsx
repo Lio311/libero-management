@@ -2,16 +2,17 @@
 
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
-import { ChevronLeft, Package, Clock, CalendarDays, CheckCircle, AlertCircle, XCircle, Printer, TrendingUp, TrendingDown, ArrowLeftRight } from 'lucide-react';
+import { ChevronLeft, Package, Clock, CalendarDays, CheckCircle, AlertCircle, XCircle, Printer, TrendingUp, TrendingDown, ArrowLeftRight, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { he } from 'date-fns/locale';
+import { getReportDetails } from '@/app/actions/qc-actions';
 
 interface QCReport {
   id: string;
   createdAt: Date;
   reportDate: string;
   totalInspected: number;
-  reportData: any;
+  reportData?: any;
 }
 
 interface PriceChange {
@@ -54,16 +55,35 @@ function getStatusBadge(status: "never" | "ok" | "warning") {
 
 export default function QCReportsClient({ initialReports, priceChanges = [] }: { initialReports: QCReport[]; priceChanges?: PriceChange[] }) {
   const [selectedReport, setSelectedReport] = useState<QCReport | null>(null);
+  const [activePriceChanges, setActivePriceChanges] = useState<PriceChange[]>(priceChanges);
+  const [loadingReportId, setLoadingReportId] = useState<string | null>(null);
+
+  const handleSelectReport = async (report: QCReport) => {
+    setLoadingReportId(report.id);
+    try {
+      const details = await getReportDetails(report.id, report.reportDate);
+      setSelectedReport({
+        ...report,
+        reportData: details.reportData
+      });
+      setActivePriceChanges(details.priceChanges as any);
+    } catch (error) {
+      console.error('Failed to load report details', error);
+      alert('שגיאה בטעינת פרטי הדוח');
+    } finally {
+      setLoadingReportId(null);
+    }
+  };
 
   const reportPriceChanges = useMemo(() => {
     if (!selectedReport) return [];
     const reportDate = selectedReport.reportDate; // YYYY-MM-DD
-    return priceChanges.filter(pc => {
+    return activePriceChanges.filter(pc => {
       const changeDate = new Date(pc.changedAt);
       const changeDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem', year: 'numeric', month: '2-digit', day: '2-digit' }).format(changeDate);
       return changeDateStr === reportDate;
     });
-  }, [selectedReport, priceChanges]);
+  }, [selectedReport, activePriceChanges]);
 
   const reportDataProcessed = useMemo(() => {
     if (!selectedReport) return [];
@@ -325,33 +345,36 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
             לא קיימים דוחות במערכת
           </div>
         ) : (
-          initialReports.map((report) => (
-            <div 
-              key={report.id}
-              onClick={() => setSelectedReport(report)}
-              className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-primary/50 transition-all cursor-pointer group"
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div className="bg-primary/10 p-2.5 rounded-lg text-primary group-hover:scale-110 transition-transform">
-                  <CalendarDays className="w-6 h-6" />
+          initialReports.map((report) => {
+            const isThisLoading = loadingReportId === report.id;
+            return (
+              <div 
+                key={report.id}
+                onClick={() => !loadingReportId && handleSelectReport(report)}
+                className={`bg-white rounded-xl border border-gray-200 p-5 shadow-sm transition-all group ${loadingReportId ? (isThisLoading ? 'border-primary shadow-md opacity-80' : 'opacity-50 pointer-events-none') : 'hover:shadow-md hover:border-primary/50 cursor-pointer'}`}
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <div className="bg-primary/10 p-2.5 rounded-lg text-primary group-hover:scale-110 transition-transform">
+                    {isThisLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <CalendarDays className="w-6 h-6" />}
+                  </div>
+                  <div className="text-left" dir="ltr">
+                    <span className="text-xs font-medium text-gray-500 block">
+                      {format(new Date(report.createdAt), 'HH:mm')}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-left" dir="ltr">
-                  <span className="text-xs font-medium text-gray-500 block">
-                    {format(new Date(report.createdAt), 'HH:mm')}
-                  </span>
+                
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  דוח בקרות {format(new Date(report.reportDate), 'dd/MM/yyyy')}
+                </h3>
+                
+                <div className="flex items-center gap-2 mt-4 text-sm text-gray-600">
+                  <Package className="w-4 h-4" />
+                  <span>{report.totalInspected} מוצרים מבוקרים</span>
                 </div>
               </div>
-              
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                דוח בקרות {format(new Date(report.reportDate), 'dd/MM/yyyy')}
-              </h3>
-              
-              <div className="flex items-center gap-2 mt-4 text-sm text-gray-600">
-                <Package className="w-4 h-4" />
-                <span>{report.totalInspected} מוצרים מבוקרים</span>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

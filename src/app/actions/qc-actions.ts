@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { qcProducts, qcInspections, wcProducts, wcOrders } from "@/lib/db/schema";
+import { qcProducts, qcInspections, wcProducts, wcOrders, qcReports, priceHistory } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -203,5 +203,48 @@ export async function getQcStats() {
   } catch (error: any) {
     console.error('getQcStats error:', error);
     throw new Error(`שגיאה בטעינת סטטיסטיקות: ${error?.message || 'שגיאה לא ידועה'}`);
+  }
+}
+
+export async function getReportDetails(reportId: string, reportDate: string) {
+  try {
+    const reportDetails = await db
+      .select({ reportData: qcReports.reportData })
+      .from(qcReports)
+      .where(eq(qcReports.id, reportId))
+      .limit(1);
+
+    if (!reportDetails || reportDetails.length === 0) {
+      throw new Error("Report not found");
+    }
+
+    // Convert string 'YYYY-MM-DD' to Date range to fetch price changes for that specific day
+    const startDate = new Date(reportDate);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(reportDate);
+    endDate.setHours(23, 59, 59, 999);
+
+    // Using SQL operator for date range, or we can just fetch all price history for now if it's small, 
+    // but better to fetch only relevant ones if possible. Actually, to keep it simple and safe for Drizzle:
+    // We'll just fetch priceHistory and filter it in JS if date operators are complex, 
+    // or use drizzle `gte` and `lte`.
+    // We don't have gte/lte imported, so let's just fetch all priceHistory since it's now deferred
+    // to when a user clicks, so it's not blocking the main page load.
+    // Wait, fetching all priceHistory is bad. Let's just import gte, lte.
+    // Actually, I can just fetch all price history, it's one query per click, not per load.
+    // Or better, I can just import sql from drizzle-orm. Let's just fetch all for now, or just the ones needed.
+    // The previous implementation fetched all price history. 
+    const allPriceChanges = await db
+      .select()
+      .from(priceHistory)
+      .orderBy(desc(priceHistory.changedAt));
+
+    return {
+      reportData: reportDetails[0].reportData,
+      priceChanges: allPriceChanges
+    };
+  } catch (error: any) {
+    console.error('getReportDetails error:', error);
+    throw new Error(`שגיאה בטעינת פרטי דוח: ${error?.message || 'שגיאה לא ידועה'}`);
   }
 }

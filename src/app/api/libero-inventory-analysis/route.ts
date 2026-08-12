@@ -62,8 +62,24 @@ export async function GET(request: Request) {
         const db = (await import('@/lib/db')).db;
         const { wcProducts, wcOrders } = await import('@/lib/db/schema');
 
-        const allProductsData = await db.select().from(wcProducts);
-        const allOrdersData = await db.select().from(wcOrders);
+        const allProductsData = await db.select({
+            id: wcProducts.id,
+            name: wcProducts.name,
+            sku: wcProducts.sku,
+            price: wcProducts.price,
+            stockQuantity: wcProducts.stockQuantity,
+            dateCreated: wcProducts.dateCreated,
+            categories: wcProducts.categories,
+            status: wcProducts.status
+        }).from(wcProducts);
+        const allOrdersData = await db.select({
+            id: wcOrders.id,
+            total: wcOrders.total,
+            customerId: wcOrders.customerId,
+            dateCreated: wcOrders.dateCreated,
+            status: wcOrders.status,
+            lineItems: wcOrders.lineItems
+        }).from(wcOrders);
 
         // Map them back to the expected format
         const allProducts = allProductsData.map(p => ({

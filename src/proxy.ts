@@ -1,14 +1,25 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function proxy(request: NextRequest) {
+import { jwtVerify } from 'jose';
+
+export async function proxy(request: NextRequest) {
   const authCookie = request.cookies.get('auth');
 
-  if (!authCookie || authCookie.value !== 'authenticated') {
+  if (!authCookie || !authCookie.value) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  return NextResponse.next();
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback_insecure_secret_for_dev_only');
+    await jwtVerify(authCookie.value, secret);
+    return NextResponse.next();
+  } catch (error) {
+    console.error('Auth verification failed in proxy:', error);
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.delete('auth');
+    return response;
+  }
 }
 
 export const config = {

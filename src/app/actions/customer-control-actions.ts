@@ -27,8 +27,19 @@ export type CustomerControlData = {
 
 export async function getCustomerControlData(): Promise<CustomerControlData[]> {
   const [orders, products] = await Promise.all([
-    db.select().from(wcOrders).orderBy(desc(wcOrders.dateCreated)),
-    db.select().from(wcProducts)
+    db.select({
+      id: wcOrders.id,
+      status: wcOrders.status,
+      billing: wcOrders.billing,
+      customerId: wcOrders.customerId,
+      dateCreated: wcOrders.dateCreated,
+      total: wcOrders.total,
+      lineItems: wcOrders.lineItems,
+    }).from(wcOrders).orderBy(desc(wcOrders.dateCreated)),
+    db.select({
+      id: wcProducts.id,
+      categories: wcProducts.categories,
+    }).from(wcProducts)
   ]);
 
   // Create product mapping for quick category lookup

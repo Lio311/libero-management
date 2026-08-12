@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { qcReports, priceHistory } from "@/lib/db/schema";
+import { qcReports } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
 import QCReportsClient from "./reports-client";
 
@@ -7,14 +7,15 @@ export const dynamic = 'force-dynamic';
 
 export default async function QCReportsPage() {
   const reports = await db
-    .select()
+    .select({
+      id: qcReports.id,
+      createdAt: qcReports.createdAt,
+      reportDate: qcReports.reportDate,
+      totalInspected: qcReports.totalInspected,
+      reportData: qcReports.reportData
+    })
     .from(qcReports)
     .orderBy(desc(qcReports.createdAt));
 
-  const allPriceChanges = await db
-    .select()
-    .from(priceHistory)
-    .orderBy(desc(priceHistory.changedAt));
-
-  return <QCReportsClient initialReports={reports} priceChanges={allPriceChanges} />;
+  return <QCReportsClient initialReports={reports} priceChanges={[]} />;
 }

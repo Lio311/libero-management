@@ -34,7 +34,7 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies();
   const authCookie = cookieStore.get('auth');
-  const isAuthenticated = authCookie?.value === 'authenticated';
+  const isAuthenticated = !!authCookie?.value;
 
   return (
     <html lang="he" dir="rtl">
