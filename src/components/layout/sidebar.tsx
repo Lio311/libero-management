@@ -133,7 +133,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
           )}
         </div>
         <nav className={cn(
-          "flex-1 space-y-1 px-3 py-4 overflow-y-auto",
+          "flex-1 space-y-0.5 px-3 py-3 overflow-y-auto",
           !isAuthenticated && "blur-sm pointer-events-none select-none opacity-50"
         )}>
           {navigation.map((item) => {
@@ -147,7 +147,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
                   <button
                     onClick={() => toggleDropdown(item.name)}
                     className={cn(
-                      "w-full group flex justify-between items-center px-3 py-2.5 text-sm font-medium rounded-lg hover-scale",
+                      "w-full group flex justify-between items-center px-3 py-2 text-sm font-medium rounded-lg hover-scale",
                       isActive
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
@@ -174,7 +174,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
                     href={item.href!}
                     onClick={closeSidebar}
                     className={cn(
-                      "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg hover-scale",
+                      "group flex items-center px-3 py-2 text-sm font-medium rounded-lg hover-scale",
                       isActive
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
@@ -192,7 +192,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
                 )}
 
                 {hasSubItems && isDropdownOpen && (
-                  <div className="mt-1 space-y-1 px-3 pb-2">
+                  <div className="mt-0.5 space-y-0.5 px-3 pb-1">
                     {item.subItems!.map((subItem) => {
                       const isSubActive = pathname === subItem.href;
                       return (
@@ -201,7 +201,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
                           href={subItem.href}
                           onClick={closeSidebar}
                           className={cn(
-                            "group flex items-center pr-10 pl-3 py-2 text-sm font-medium rounded-lg hover-scale",
+                            "group flex items-center pr-10 pl-3 py-1.5 text-sm font-medium rounded-lg hover-scale",
                             isSubActive
                               ? "bg-primary text-primary-foreground shadow-sm"
                               : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
