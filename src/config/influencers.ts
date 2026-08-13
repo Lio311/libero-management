@@ -136,7 +136,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
   },
   reut: {
     id: 'reut',
-    name: "ראות סטורלוביץ",
+    name: "ראות סטרולוביץ",
     image: "/influencers/reut.jpg",
     coupons: [
       { brand: 'labura', code: 'reut' }
