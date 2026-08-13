@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { updateLaburaInventoryCount } from "./actions";
-import { Printer } from "lucide-react";
+import { updateLaburaInventoryCount, addLaburaItem, toggleArchiveLaburaItem, deleteLaburaItem } from "./actions";
+import { Printer, Trash2, Plus, RefreshCw } from "lucide-react";
 
 type LaburaItem = {
   id: string;
@@ -14,12 +14,15 @@ type LaburaItem = {
   bodyButtersToOrder: number;
   stickers: number;
   smallStickersForSamples: number;
+  isArchived: boolean;
 };
 
 export default function LaburaCountClient({ initialData }: { initialData: LaburaItem[] }) {
   // Use any to allow empty strings for the input fields while they are being edited
   const [data, setData] = useState<any[]>(initialData);
   const [printMode, setPrintMode] = useState<'all' | 'cartons-order' | 'body-butters-order'>('all');
+  const [newButterName, setNewButterName] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     const handleAfterPrint = () => setPrintMode('all');
@@ -39,6 +42,37 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
     // Call server action
     const numericValue = newLocalValue === "" ? 0 : newLocalValue;
     await updateLaburaInventoryCount(id, field, numericValue);
+  };
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newButterName.trim()) return;
+    
+    setIsAdding(true);
+    const result = await addLaburaItem(newButterName.trim());
+    if (result.success) {
+      setNewButterName("");
+      // Real data reload would happen from Next.js server actions revalidating the path
+      // But for optimistic UI without a full page reload, we can let the parent refresh
+      // or we can just window.location.reload(). 
+      // For a truly reactive UI, we'd need to use router.refresh() 
+      // but here we can just reload the page for simplicity to get the new ID from DB.
+      window.location.reload();
+    }
+    setIsAdding(false);
+  };
+
+  const handleArchive = async (id: string, isArchived: boolean) => {
+    // Optimistic update
+    setData(prev => prev.map(item => item.id === id ? { ...item, isArchived } : item));
+    await toggleArchiveLaburaItem(id, isArchived);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm("האם אתה בטוח שברצונך למחוק חמאה זו לצמיתות?")) {
+      setData(prev => prev.filter(item => item.id !== id));
+      await deleteLaburaItem(id);
+    }
   };
 
   const handleExportPDF = () => {
@@ -62,11 +96,14 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
     }, 100);
   };
 
+  const activeData = data.filter(item => !item.isArchived);
+  const archivedData = data.filter(item => item.isArchived);
+
   const displayData = printMode === 'cartons-order'
-    ? data.filter(item => typeof item.cartonsToOrder === 'number' ? item.cartonsToOrder > 0 : false)
+    ? activeData.filter(item => typeof item.cartonsToOrder === 'number' ? item.cartonsToOrder > 0 : false)
     : printMode === 'body-butters-order'
-    ? data.filter(item => typeof item.bodyButtersToOrder === 'number' ? item.bodyButtersToOrder > 0 : false)
-    : data;
+    ? activeData.filter(item => typeof item.bodyButtersToOrder === 'number' ? item.bodyButtersToOrder > 0 : false)
+    : activeData;
 
   const totalCartonsToOrder = displayData.reduce(
     (sum, item) => sum + (typeof item.cartonsToOrder === 'number' && !isNaN(item.cartonsToOrder) ? item.cartonsToOrder : 0), 
@@ -149,6 +186,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
               <>
                 <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">מדבקות</th>
                 <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">מדבקות קטנות לדוגמיות</th>
+                <th className="px-2 py-3 font-medium min-w-[50px] leading-tight text-center print-hide"></th>
               </>
             )}
           </tr>
@@ -251,13 +289,22 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                       {item.smallStickersForSamples === "" ? "0" : item.smallStickersForSamples}
                     </span>
                   </td>
+                  <td className="px-2 py-3 w-12 print-hide text-center">
+                    <button
+                      onClick={() => handleArchive(item.id, true)}
+                      className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded-md hover:bg-destructive/10"
+                      title="העבר לארכיון"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
                 </>
               )}
             </tr>
           ))}
           {displayData.length === 0 && (
             <tr>
-              <td colSpan={printMode === 'all' ? 8 : 3} className="px-4 py-8 text-center text-muted-foreground">
+              <td colSpan={printMode === 'all' ? 9 : 3} className="px-4 py-8 text-center text-muted-foreground">
                 אין נתונים בטבלה
               </td>
             </tr>
@@ -280,7 +327,72 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           </tfoot>
         )}
         </table>
+        
+        {printMode === 'all' && (
+          <div className="p-4 border-t bg-muted/20">
+            <form onSubmit={handleAdd} className="flex gap-2 items-center max-w-sm">
+              <input
+                type="text"
+                value={newButterName}
+                onChange={(e) => setNewButterName(e.target.value)}
+                placeholder="שם חמאה חדשה..."
+                className="flex-1 bg-background border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+              <button
+                type="submit"
+                disabled={isAdding || !newButterName.trim()}
+                className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-sm hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm font-medium"
+              >
+                <Plus className="w-4 h-4" />
+                <span>הוסף</span>
+              </button>
+            </form>
+          </div>
+        )}
       </div>
+
+      {archivedData.length > 0 && (
+        <div className="mt-8 space-y-4 print-hide">
+          <h3 className="text-lg font-bold text-muted-foreground">היסטוריית חמאות (בארכיון)</h3>
+          <div className="bg-card rounded-xl border shadow-sm overflow-hidden overflow-x-auto p-2 sm:p-4 opacity-75">
+            <table className="w-full text-right text-sm">
+              <thead className="bg-muted/50 text-muted-foreground">
+                <tr>
+                  <th className="px-2 py-3 font-medium whitespace-nowrap">#</th>
+                  <th className="px-2 py-3 font-medium whitespace-nowrap">שם החמאה</th>
+                  <th className="px-2 py-3 font-medium text-center">פעולות</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {archivedData.map((item, index) => (
+                  <tr key={item.id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-2 py-3 text-muted-foreground w-10 text-center">{index + 1}</td>
+                    <td className="px-2 py-3 font-medium min-w-[180px]">{item.butterName}</td>
+                    <td className="px-2 py-3 w-32 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleArchive(item.id, false)}
+                          className="text-primary hover:bg-primary/10 p-1.5 rounded-md transition-colors"
+                          title="שחזר מהארכיון"
+                        >
+                          <RefreshCw className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="text-destructive hover:bg-destructive/10 p-1.5 rounded-md transition-colors"
+                          title="מחק לצמיתות"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

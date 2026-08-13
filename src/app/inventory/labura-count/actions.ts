@@ -31,3 +31,53 @@ export async function updateLaburaInventoryCount(id: string, field: string, valu
     return { success: false, error: "Failed to update" };
   }
 }
+
+export async function addLaburaItem(butterName: string) {
+  try {
+    const existingItems = await db.select().from(laburaInventoryCounts);
+    const maxOrder = existingItems.length > 0 
+      ? Math.max(...existingItems.map(i => i.displayOrder)) 
+      : 0;
+
+    await db.insert(laburaInventoryCounts).values({
+      butterName,
+      displayOrder: maxOrder + 1,
+    });
+
+    revalidatePath("/inventory/labura-count");
+    return { success: true };
+  } catch (error) {
+    console.error("Error adding labura item:", error);
+    return { success: false, error: "Failed to add item" };
+  }
+}
+
+export async function toggleArchiveLaburaItem(id: string, isArchived: boolean) {
+  try {
+    await db.update(laburaInventoryCounts)
+      .set({ 
+        isArchived,
+        updatedAt: new Date()
+      })
+      .where(eq(laburaInventoryCounts.id, id));
+    
+    revalidatePath("/inventory/labura-count");
+    return { success: true };
+  } catch (error) {
+    console.error("Error archiving labura item:", error);
+    return { success: false, error: "Failed to archive item" };
+  }
+}
+
+export async function deleteLaburaItem(id: string) {
+  try {
+    await db.delete(laburaInventoryCounts)
+      .where(eq(laburaInventoryCounts.id, id));
+    
+    revalidatePath("/inventory/labura-count");
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting labura item:", error);
+    return { success: false, error: "Failed to delete item" };
+  }
+}
