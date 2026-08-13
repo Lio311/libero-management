@@ -131,24 +131,24 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
         <table className="w-full text-right text-sm">
         <thead className="bg-muted/50 text-muted-foreground">
           <tr>
-            <th className="px-4 py-3 font-medium whitespace-nowrap">#</th>
-            <th className="px-4 py-3 font-medium whitespace-nowrap">שם החמאה</th>
+            <th className="px-2 py-3 font-medium whitespace-nowrap">#</th>
+            <th className="px-2 py-3 font-medium whitespace-nowrap">שם החמאה</th>
             {printMode === 'all' && (
               <>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">מספר יחידות ממוצר מוגמר</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">אריזות קרטון</th>
+                <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">מספר יחידות ממוצר מוגמר</th>
+                <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">אריזות קרטון</th>
               </>
             )}
             {(printMode === 'all' || printMode === 'cartons-order') && (
-              <th className="px-4 py-3 font-medium whitespace-nowrap">כמות להזמנה מקרטונים</th>
+              <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">כמות להזמנה מקרטונים</th>
             )}
             {(printMode === 'all' || printMode === 'body-butters-order') && (
-              <th className="px-4 py-3 font-medium whitespace-nowrap">כמות להזמנה מחמאות גוף</th>
+              <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">כמות להזמנה מחמאות גוף</th>
             )}
             {printMode === 'all' && (
               <>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">מדבקות</th>
-                <th className="px-4 py-3 font-medium whitespace-nowrap">מדבקות קטנות לדוגמיות</th>
+                <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">מדבקות</th>
+                <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">מדבקות קטנות לדוגמיות</th>
               </>
             )}
           </tr>
@@ -156,34 +156,34 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
         <tbody className="divide-y divide-border">
           {displayData.map((item, index) => (
             <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-              <td className="px-4 py-3 text-muted-foreground w-12">{index + 1}</td>
-              <td className="px-4 py-3 font-medium min-w-[200px]">{item.butterName}</td>
+              <td className="px-2 py-3 text-muted-foreground w-10 text-center">{index + 1}</td>
+              <td className="px-2 py-3 font-medium min-w-[180px]">{item.butterName}</td>
               
               {printMode === 'all' && (
                 <>
-                  <td className="px-4 py-3 w-40">
+                  <td className="px-2 py-3 w-28">
                     <input
                       type="number"
                       value={item.finishedProductUnits}
                       onChange={(e) => handleUpdate(item.id, 'finishedProductUnits', e.target.value)}
                       onWheel={(e) => e.currentTarget.blur()}
-                      className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                      className="w-full bg-transparent border border-input rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center print-hide"
                       dir="ltr"
                     />
-                    <span className="hidden print-show text-left w-full">
+                    <span className="hidden print-show text-center w-full">
                       {item.finishedProductUnits === "" ? "0" : item.finishedProductUnits}
                     </span>
                   </td>
-                  <td className="px-4 py-3 w-40">
+                  <td className="px-2 py-3 w-28">
                     <input
                       type="number"
                       value={item.cartonPackages}
                       onChange={(e) => handleUpdate(item.id, 'cartonPackages', e.target.value)}
                       onWheel={(e) => e.currentTarget.blur()}
-                      className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                      className="w-full bg-transparent border border-input rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center print-hide"
                       dir="ltr"
                     />
-                    <span className="hidden print-show text-left w-full">
+                    <span className="hidden print-show text-center w-full">
                       {item.cartonPackages === "" ? "0" : item.cartonPackages}
                     </span>
                   </td>
@@ -191,32 +191,32 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
               )}
 
               {(printMode === 'all' || printMode === 'cartons-order') && (
-                <td className="px-4 py-3 w-40">
+                <td className="px-2 py-3 w-28">
                   <input
                     type="number"
                     value={item.cartonsToOrder}
                     onChange={(e) => handleUpdate(item.id, 'cartonsToOrder', e.target.value)}
                     onWheel={(e) => e.currentTarget.blur()}
-                    className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                    className="w-full bg-transparent border border-input rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center print-hide"
                     dir="ltr"
                   />
-                  <span className="hidden print-show text-left w-full">
+                  <span className="hidden print-show text-center w-full">
                     {item.cartonsToOrder === "" ? "0" : item.cartonsToOrder}
                   </span>
                 </td>
               )}
 
               {(printMode === 'all' || printMode === 'body-butters-order') && (
-                <td className="px-4 py-3 w-40">
+                <td className="px-2 py-3 w-28">
                   <input
                     type="number"
                     value={item.bodyButtersToOrder}
                     onChange={(e) => handleUpdate(item.id, 'bodyButtersToOrder', e.target.value)}
                     onWheel={(e) => e.currentTarget.blur()}
-                    className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                    className="w-full bg-transparent border border-input rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center print-hide"
                     dir="ltr"
                   />
-                  <span className="hidden print-show text-left w-full">
+                  <span className="hidden print-show text-center w-full">
                     {item.bodyButtersToOrder === "" ? "0" : item.bodyButtersToOrder}
                   </span>
                 </td>
@@ -224,29 +224,29 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
 
               {printMode === 'all' && (
                 <>
-                  <td className="px-4 py-3 w-40">
+                  <td className="px-2 py-3 w-28">
                     <input
                       type="number"
                       value={item.stickers}
                       onChange={(e) => handleUpdate(item.id, 'stickers', e.target.value)}
                       onWheel={(e) => e.currentTarget.blur()}
-                      className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                      className="w-full bg-transparent border border-input rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center print-hide"
                       dir="ltr"
                     />
-                    <span className="hidden print-show text-left w-full">
+                    <span className="hidden print-show text-center w-full">
                       {item.stickers === "" ? "0" : item.stickers}
                     </span>
                   </td>
-                  <td className="px-4 py-3 w-40">
+                  <td className="px-2 py-3 w-28">
                     <input
                       type="number"
                       value={item.smallStickersForSamples}
                       onChange={(e) => handleUpdate(item.id, 'smallStickersForSamples', e.target.value)}
                       onWheel={(e) => e.currentTarget.blur()}
-                      className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                      className="w-full bg-transparent border border-input rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center print-hide"
                       dir="ltr"
                     />
-                    <span className="hidden print-show text-left w-full">
+                    <span className="hidden print-show text-center w-full">
                       {item.smallStickersForSamples === "" ? "0" : item.smallStickersForSamples}
                     </span>
                   </td>
@@ -266,7 +266,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           <tfoot className="bg-muted/10 border-t-2 border-border font-bold text-base">
             <tr>
               <td colSpan={2} className="px-4 py-4 text-left">סה״כ קרטונים להזמנה:</td>
-              <td className="px-4 py-4 text-left" dir="ltr">{totalCartonsToOrder}</td>
+              <td className="px-4 py-4 text-center" dir="ltr">{totalCartonsToOrder}</td>
             </tr>
           </tfoot>
         )}
@@ -274,7 +274,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           <tfoot className="bg-muted/10 border-t-2 border-border font-bold text-base">
             <tr>
               <td colSpan={2} className="px-4 py-4 text-left">סה״כ חמאות גוף להזמנה:</td>
-              <td className="px-4 py-4 text-left" dir="ltr">{totalBodyButtersToOrder}</td>
+              <td className="px-4 py-4 text-center" dir="ltr">{totalBodyButtersToOrder}</td>
             </tr>
           </tfoot>
         )}
