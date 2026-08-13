@@ -118,7 +118,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
 
       {/* Sidebar Content */}
       <div className={cn(
-        "fixed inset-y-0 right-0 z-50 flex h-full w-64 flex-col glass-panel text-card-foreground shadow-sm transition-transform duration-300 md:relative md:translate-x-0",
+        "fixed inset-y-0 right-0 z-50 flex h-full w-64 flex-col glass-panel text-card-foreground shadow-sm transition-transform duration-300 md:relative md:translate-x-0 print:hidden",
         isOpen ? "translate-x-0" : "translate-x-full"
       )}>
         <div className="flex h-[calc(4rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center px-6 border-b border-border/50 relative justify-center">

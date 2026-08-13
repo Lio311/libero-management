@@ -42,15 +42,8 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
         @media print {
           @page { size: landscape; margin: 10mm; }
           body { background: white !important; }
-          body * { visibility: hidden; }
-          #print-area, #print-area * { visibility: visible; }
           #print-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            border: none;
-            box-shadow: none;
+            overflow: visible !important;
           }
           .print-hide { display: none !important; }
           .print-show { display: inline-block !important; }
@@ -69,7 +62,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
       
       <div 
         id="print-area"
-        className="bg-card rounded-xl border shadow-sm overflow-hidden overflow-x-auto p-2 sm:p-4"
+        className="bg-card rounded-xl border shadow-sm overflow-hidden overflow-x-auto print:overflow-visible print:border-none print:shadow-none p-2 sm:p-4"
       >
         <div className="mb-4 text-center">
           <h2 className="text-xl font-bold">ספירת מלאי לה בורה</h2>

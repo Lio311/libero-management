@@ -174,4 +174,9 @@
     opacity: 1;
     transform: none;
   }
+}@media print {
+  html, body, main {
+    height: auto !important;
+    overflow: visible !important;
+  }
 }
