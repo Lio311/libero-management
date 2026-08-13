@@ -318,3 +318,14 @@ export const priceHistory = pgTable("price_history", {
   newPrice: decimal("new_price"),
   changedAt: timestamp("changed_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const laburaInventoryCounts = pgTable("labura_inventory_counts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  displayOrder: integer("display_order").default(0).notNull(),
+  butterName: text("butter_name").notNull(),
+  finishedProductUnits: integer("finished_product_units").default(0).notNull(),
+  cartonPackages: integer("carton_packages").default(0).notNull(),
+  stickers: integer("stickers").default(0).notNull(),
+  smallStickersForSamples: integer("small_stickers_for_samples").default(0).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});

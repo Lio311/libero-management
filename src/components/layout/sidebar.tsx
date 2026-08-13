@@ -46,7 +46,14 @@ const navigation: NavItem[] = [
       { name: "היסטוריית דוחות בקרה", href: "/qc/reports" },
     ]
   },
-  { name: "בקרת מלאי", href: "/qc-inventory", icon: ClipboardCheck },
+  { 
+    name: "בקרת מלאי", 
+    icon: ClipboardCheck,
+    subItems: [
+      { name: "בקרת מלאי כללי", href: "/qc-inventory" },
+      { name: "ספירת מלאי לה בורה", href: "/inventory/labura-count" },
+    ]
+  },
   { name: "מוצרי לינדו", href: "/lindo-products", icon: ShoppingBag },
   { 
     name: "לקוחות", 
