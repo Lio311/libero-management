@@ -134,16 +134,16 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
             <th className="px-2 py-3 font-medium whitespace-nowrap">#</th>
             <th className="px-2 py-3 font-medium whitespace-nowrap">שם החמאה</th>
             {printMode === 'all' && (
-              <>
-                <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">מספר יחידות ממוצר מוגמר</th>
-                <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">אריזות קרטון</th>
-              </>
-            )}
-            {(printMode === 'all' || printMode === 'cartons-order') && (
-              <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">כמות להזמנה מקרטונים</th>
+              <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">מספר יחידות ממוצר מוגמר</th>
             )}
             {(printMode === 'all' || printMode === 'body-butters-order') && (
               <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">כמות להזמנה מחמאות גוף</th>
+            )}
+            {printMode === 'all' && (
+              <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">אריזות קרטון</th>
+            )}
+            {(printMode === 'all' || printMode === 'cartons-order') && (
+              <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">כמות להזמנה מקרטונים</th>
             )}
             {printMode === 'all' && (
               <>
@@ -160,7 +160,6 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
               <td className="px-2 py-3 font-medium min-w-[180px]">{item.butterName}</td>
               
               {printMode === 'all' && (
-                <>
                   <td className="px-2 py-3 w-28">
                     <input
                       type="number"
@@ -174,36 +173,6 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                       {item.finishedProductUnits === "" ? "0" : item.finishedProductUnits}
                     </span>
                   </td>
-                  <td className="px-2 py-3 w-28">
-                    <input
-                      type="number"
-                      value={item.cartonPackages}
-                      onChange={(e) => handleUpdate(item.id, 'cartonPackages', e.target.value)}
-                      onWheel={(e) => e.currentTarget.blur()}
-                      className="w-full bg-transparent border border-input rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center print-hide"
-                      dir="ltr"
-                    />
-                    <span className="hidden print-show text-center w-full">
-                      {item.cartonPackages === "" ? "0" : item.cartonPackages}
-                    </span>
-                  </td>
-                </>
-              )}
-
-              {(printMode === 'all' || printMode === 'cartons-order') && (
-                <td className="px-2 py-3 w-28">
-                  <input
-                    type="number"
-                    value={item.cartonsToOrder}
-                    onChange={(e) => handleUpdate(item.id, 'cartonsToOrder', e.target.value)}
-                    onWheel={(e) => e.currentTarget.blur()}
-                    className="w-full bg-transparent border border-input rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center print-hide"
-                    dir="ltr"
-                  />
-                  <span className="hidden print-show text-center w-full">
-                    {item.cartonsToOrder === "" ? "0" : item.cartonsToOrder}
-                  </span>
-                </td>
               )}
 
               {(printMode === 'all' || printMode === 'body-butters-order') && (
@@ -218,6 +187,38 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                   />
                   <span className="hidden print-show text-center w-full">
                     {item.bodyButtersToOrder === "" ? "0" : item.bodyButtersToOrder}
+                  </span>
+                </td>
+              )}
+
+              {printMode === 'all' && (
+                  <td className="px-2 py-3 w-28">
+                    <input
+                      type="number"
+                      value={item.cartonPackages}
+                      onChange={(e) => handleUpdate(item.id, 'cartonPackages', e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      className="w-full bg-transparent border border-input rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center print-hide"
+                      dir="ltr"
+                    />
+                    <span className="hidden print-show text-center w-full">
+                      {item.cartonPackages === "" ? "0" : item.cartonPackages}
+                    </span>
+                  </td>
+              )}
+
+              {(printMode === 'all' || printMode === 'cartons-order') && (
+                <td className="px-2 py-3 w-28">
+                  <input
+                    type="number"
+                    value={item.cartonsToOrder}
+                    onChange={(e) => handleUpdate(item.id, 'cartonsToOrder', e.target.value)}
+                    onWheel={(e) => e.currentTarget.blur()}
+                    className="w-full bg-transparent border border-input rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center print-hide"
+                    dir="ltr"
+                  />
+                  <span className="hidden print-show text-center w-full">
+                    {item.cartonsToOrder === "" ? "0" : item.cartonsToOrder}
                   </span>
                 </td>
               )}
