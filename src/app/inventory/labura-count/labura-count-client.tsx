@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { updateLaburaInventoryCount } from "./actions";
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
+import { FileText } from "lucide-react";
 
 type LaburaItem = {
   id: string;
@@ -15,6 +18,8 @@ type LaburaItem = {
 
 export default function LaburaCountClient({ initialData }: { initialData: LaburaItem[] }) {
   const [data, setData] = useState<LaburaItem[]>(initialData);
+  const [isExporting, setIsExporting] = useState(false);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const handleUpdate = async (id: string, field: keyof LaburaItem, value: string) => {
     // Parse integer, allow empty string
@@ -30,9 +35,57 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
     await updateLaburaInventoryCount(id, field, numericValue);
   };
 
+  const handleExportPDF = async () => {
+    if (!tableRef.current) return;
+    setIsExporting(true);
+    
+    try {
+      // Small delay to ensure any UI states are stable
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const canvas = await html2canvas(tableRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      });
+      
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, "PNG", 0, 10, pdfWidth, pdfHeight);
+      pdf.save(`labura-inventory-${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (error) {
+      console.error("Failed to generate PDF", error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
-    <div className="bg-card rounded-xl border shadow-sm overflow-hidden overflow-x-auto">
-      <table className="w-full text-right text-sm">
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <button
+          onClick={handleExportPDF}
+          disabled={isExporting}
+          className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+        >
+          <FileText className="w-4 h-4" />
+          <span>{isExporting ? "מפיק דוח..." : "ייצא כ-PDF"}</span>
+        </button>
+      </div>
+      
+      <div 
+        ref={tableRef}
+        className="bg-card rounded-xl border shadow-sm overflow-hidden overflow-x-auto p-2 sm:p-4"
+      >
+        <div className="mb-4 text-center">
+          <h2 className="text-xl font-bold">ספירת מלאי לה בורה</h2>
+          <p className="text-sm text-muted-foreground">{new Date().toLocaleDateString('he-IL')}</p>
+        </div>
+        <table className="w-full text-right text-sm">
         <thead className="bg-muted/50 text-muted-foreground">
           <tr>
             <th className="px-4 py-3 font-medium whitespace-nowrap">#</th>
@@ -94,7 +147,8 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
             </tr>
           )}
         </tbody>
-      </table>
+        </table>
+      </div>
     </div>
   );
 }
