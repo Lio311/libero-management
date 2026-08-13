@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { updateLaburaInventoryCount } from "./actions";
 import { Printer } from "lucide-react";
