@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { updateLaburaInventoryCount } from "./actions";
 import { Printer } from "lucide-react";
 
@@ -18,6 +18,13 @@ type LaburaItem = {
 export default function LaburaCountClient({ initialData }: { initialData: LaburaItem[] }) {
   // Use any to allow empty strings for the input fields while they are being edited
   const [data, setData] = useState<any[]>(initialData);
+  const [printMode, setPrintMode] = useState<'all' | 'cartons-order'>('all');
+
+  useEffect(() => {
+    const handleAfterPrint = () => setPrintMode('all');
+    window.addEventListener('afterprint', handleAfterPrint);
+    return () => window.removeEventListener('afterprint', handleAfterPrint);
+  }, []);
 
   const handleUpdate = async (id: string, field: keyof LaburaItem, value: string) => {
     let newLocalValue: number | "" = value === "" ? "" : parseInt(value, 10);
@@ -34,8 +41,22 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
   };
 
   const handleExportPDF = () => {
-    window.print();
+    setPrintMode('all');
+    setTimeout(() => {
+      window.print();
+    }, 100);
   };
+
+  const handlePrintCartonsOrder = () => {
+    setPrintMode('cartons-order');
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  };
+
+  const displayData = printMode === 'cartons-order'
+    ? data.filter(item => typeof item.cartonsToOrder === 'number' ? item.cartonsToOrder > 0 : false)
+    : data;
 
   return (
     <div className="space-y-4">
@@ -51,7 +72,14 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
         }
       `}</style>
       
-      <div className="flex justify-end print-hide">
+      <div className="flex justify-end gap-3 print-hide">
+        <button
+          onClick={handlePrintCartonsOrder}
+          className="flex items-center gap-2 bg-secondary text-secondary-foreground border border-border px-4 py-2 rounded-md shadow-sm hover:bg-secondary/80 transition-colors"
+        >
+          <Printer className="w-4 h-4" />
+          <span>הדפס הזמנת קרטונים</span>
+        </button>
         <button
           onClick={handleExportPDF}
           className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-sm hover:bg-primary/90 transition-colors"
@@ -66,7 +94,9 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
         className="bg-card rounded-xl border shadow-sm overflow-hidden overflow-x-auto print:overflow-visible print:border-none print:shadow-none p-2 sm:p-4"
       >
         <div className="mb-4 text-center">
-          <h2 className="text-xl font-bold">ספירת מלאי לה בורה</h2>
+          <h2 className="text-xl font-bold">
+            {printMode === 'cartons-order' ? 'הזמנת קרטונים לה בורה' : 'ספירת מלאי לה בורה'}
+          </h2>
           <p className="text-sm text-muted-foreground">{new Date().toLocaleDateString('he-IL')}</p>
         </div>
         <table className="w-full text-right text-sm">
@@ -74,44 +104,58 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           <tr>
             <th className="px-4 py-3 font-medium whitespace-nowrap">#</th>
             <th className="px-4 py-3 font-medium whitespace-nowrap">שם החמאה</th>
-            <th className="px-4 py-3 font-medium whitespace-nowrap">מספר יחידות ממוצר מוגמר</th>
-            <th className="px-4 py-3 font-medium whitespace-nowrap">אריזות קרטון</th>
+            {printMode === 'all' && (
+              <>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">מספר יחידות ממוצר מוגמר</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">אריזות קרטון</th>
+              </>
+            )}
             <th className="px-4 py-3 font-medium whitespace-nowrap">כמות להזמנה מקרטונים</th>
-            <th className="px-4 py-3 font-medium whitespace-nowrap">מדבקות</th>
-            <th className="px-4 py-3 font-medium whitespace-nowrap">מדבקות קטנות לדוגמיות</th>
+            {printMode === 'all' && (
+              <>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">מדבקות</th>
+                <th className="px-4 py-3 font-medium whitespace-nowrap">מדבקות קטנות לדוגמיות</th>
+              </>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
-          {data.map((item, index) => (
+          {displayData.map((item, index) => (
             <tr key={item.id} className="hover:bg-muted/30 transition-colors">
               <td className="px-4 py-3 text-muted-foreground w-12">{index + 1}</td>
               <td className="px-4 py-3 font-medium min-w-[200px]">{item.butterName}</td>
-              <td className="px-4 py-3 w-40">
-                <input
-                  type="number"
-                  value={item.finishedProductUnits}
-                  onChange={(e) => handleUpdate(item.id, 'finishedProductUnits', e.target.value)}
-                  onWheel={(e) => e.currentTarget.blur()}
-                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
-                  dir="ltr"
-                />
-                <span className="hidden print-show text-left w-full">
-                  {item.finishedProductUnits === "" ? "0" : item.finishedProductUnits}
-                </span>
-              </td>
-              <td className="px-4 py-3 w-40">
-                <input
-                  type="number"
-                  value={item.cartonPackages}
-                  onChange={(e) => handleUpdate(item.id, 'cartonPackages', e.target.value)}
-                  onWheel={(e) => e.currentTarget.blur()}
-                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
-                  dir="ltr"
-                />
-                <span className="hidden print-show text-left w-full">
-                  {item.cartonPackages === "" ? "0" : item.cartonPackages}
-                </span>
-              </td>
+              
+              {printMode === 'all' && (
+                <>
+                  <td className="px-4 py-3 w-40">
+                    <input
+                      type="number"
+                      value={item.finishedProductUnits}
+                      onChange={(e) => handleUpdate(item.id, 'finishedProductUnits', e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                      dir="ltr"
+                    />
+                    <span className="hidden print-show text-left w-full">
+                      {item.finishedProductUnits === "" ? "0" : item.finishedProductUnits}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 w-40">
+                    <input
+                      type="number"
+                      value={item.cartonPackages}
+                      onChange={(e) => handleUpdate(item.id, 'cartonPackages', e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                      dir="ltr"
+                    />
+                    <span className="hidden print-show text-left w-full">
+                      {item.cartonPackages === "" ? "0" : item.cartonPackages}
+                    </span>
+                  </td>
+                </>
+              )}
+
               <td className="px-4 py-3 w-40">
                 <input
                   type="number"
@@ -125,35 +169,40 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                   {item.cartonsToOrder === "" ? "0" : item.cartonsToOrder}
                 </span>
               </td>
-              <td className="px-4 py-3 w-40">
-                <input
-                  type="number"
-                  value={item.stickers}
-                  onChange={(e) => handleUpdate(item.id, 'stickers', e.target.value)}
-                  onWheel={(e) => e.currentTarget.blur()}
-                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
-                  dir="ltr"
-                />
-                <span className="hidden print-show text-left w-full">
-                  {item.stickers === "" ? "0" : item.stickers}
-                </span>
-              </td>
-              <td className="px-4 py-3 w-40">
-                <input
-                  type="number"
-                  value={item.smallStickersForSamples}
-                  onChange={(e) => handleUpdate(item.id, 'smallStickersForSamples', e.target.value)}
-                  onWheel={(e) => e.currentTarget.blur()}
-                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
-                  dir="ltr"
-                />
-                <span className="hidden print-show text-left w-full">
-                  {item.smallStickersForSamples === "" ? "0" : item.smallStickersForSamples}
-                </span>
-              </td>
+
+              {printMode === 'all' && (
+                <>
+                  <td className="px-4 py-3 w-40">
+                    <input
+                      type="number"
+                      value={item.stickers}
+                      onChange={(e) => handleUpdate(item.id, 'stickers', e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                      dir="ltr"
+                    />
+                    <span className="hidden print-show text-left w-full">
+                      {item.stickers === "" ? "0" : item.stickers}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 w-40">
+                    <input
+                      type="number"
+                      value={item.smallStickersForSamples}
+                      onChange={(e) => handleUpdate(item.id, 'smallStickersForSamples', e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
+                      className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                      dir="ltr"
+                    />
+                    <span className="hidden print-show text-left w-full">
+                      {item.smallStickersForSamples === "" ? "0" : item.smallStickersForSamples}
+                    </span>
+                  </td>
+                </>
+              )}
             </tr>
           ))}
-          {data.length === 0 && (
+          {displayData.length === 0 && (
             <tr>
               <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                 אין נתונים בטבלה
