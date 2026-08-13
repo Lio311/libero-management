@@ -326,6 +326,7 @@ export const laburaInventoryCounts = pgTable("labura_inventory_counts", {
   finishedProductUnits: integer("finished_product_units").default(0).notNull(),
   cartonPackages: integer("carton_packages").default(0).notNull(),
   cartonsToOrder: integer("cartons_to_order").default(0).notNull(),
+  bodyButtersToOrder: integer("body_butters_to_order").default(0).notNull(),
   stickers: integer("stickers").default(0).notNull(),
   smallStickersForSamples: integer("small_stickers_for_samples").default(0).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

@@ -11,6 +11,7 @@ type LaburaItem = {
   finishedProductUnits: number;
   cartonPackages: number;
   cartonsToOrder: number;
+  bodyButtersToOrder: number;
   stickers: number;
   smallStickersForSamples: number;
 };
@@ -18,7 +19,7 @@ type LaburaItem = {
 export default function LaburaCountClient({ initialData }: { initialData: LaburaItem[] }) {
   // Use any to allow empty strings for the input fields while they are being edited
   const [data, setData] = useState<any[]>(initialData);
-  const [printMode, setPrintMode] = useState<'all' | 'cartons-order'>('all');
+  const [printMode, setPrintMode] = useState<'all' | 'cartons-order' | 'body-butters-order'>('all');
 
   useEffect(() => {
     const handleAfterPrint = () => setPrintMode('all');
@@ -54,12 +55,26 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
     }, 100);
   };
 
+  const handlePrintBodyButtersOrder = () => {
+    setPrintMode('body-butters-order');
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  };
+
   const displayData = printMode === 'cartons-order'
     ? data.filter(item => typeof item.cartonsToOrder === 'number' ? item.cartonsToOrder > 0 : false)
+    : printMode === 'body-butters-order'
+    ? data.filter(item => typeof item.bodyButtersToOrder === 'number' ? item.bodyButtersToOrder > 0 : false)
     : data;
 
   const totalCartonsToOrder = displayData.reduce(
     (sum, item) => sum + (typeof item.cartonsToOrder === 'number' && !isNaN(item.cartonsToOrder) ? item.cartonsToOrder : 0), 
+    0
+  );
+
+  const totalBodyButtersToOrder = displayData.reduce(
+    (sum, item) => sum + (typeof item.bodyButtersToOrder === 'number' && !isNaN(item.bodyButtersToOrder) ? item.bodyButtersToOrder : 0), 
     0
   );
 
@@ -78,6 +93,13 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
       `}</style>
       
       <div className="flex justify-end gap-3 print-hide">
+        <button
+          onClick={handlePrintBodyButtersOrder}
+          className="flex items-center gap-2 bg-secondary text-secondary-foreground border border-border px-4 py-2 rounded-md shadow-sm hover:bg-secondary/80 transition-colors"
+        >
+          <Printer className="w-4 h-4" />
+          <span>הדפס הזמנת חמאות גוף</span>
+        </button>
         <button
           onClick={handlePrintCartonsOrder}
           className="flex items-center gap-2 bg-secondary text-secondary-foreground border border-border px-4 py-2 rounded-md shadow-sm hover:bg-secondary/80 transition-colors"
@@ -100,7 +122,9 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
       >
         <div className="mb-4 text-center">
           <h2 className="text-xl font-bold">
-            {printMode === 'cartons-order' ? 'הזמנת קרטונים לה בורה' : 'ספירת מלאי לה בורה'}
+            {printMode === 'cartons-order' ? 'הזמנת קרטונים לה בורה' 
+             : printMode === 'body-butters-order' ? 'הזמנת חמאות גוף לה בורה' 
+             : 'ספירת מלאי לה בורה'}
           </h2>
           <p className="text-sm text-muted-foreground">{new Date().toLocaleDateString('he-IL')}</p>
         </div>
@@ -115,7 +139,12 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                 <th className="px-4 py-3 font-medium whitespace-nowrap">אריזות קרטון</th>
               </>
             )}
-            <th className="px-4 py-3 font-medium whitespace-nowrap">כמות להזמנה מקרטונים</th>
+            {(printMode === 'all' || printMode === 'cartons-order') && (
+              <th className="px-4 py-3 font-medium whitespace-nowrap">כמות להזמנה מקרטונים</th>
+            )}
+            {(printMode === 'all' || printMode === 'body-butters-order') && (
+              <th className="px-4 py-3 font-medium whitespace-nowrap">כמות להזמנה מחמאות גוף</th>
+            )}
             {printMode === 'all' && (
               <>
                 <th className="px-4 py-3 font-medium whitespace-nowrap">מדבקות</th>
@@ -161,19 +190,37 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                 </>
               )}
 
-              <td className="px-4 py-3 w-40">
-                <input
-                  type="number"
-                  value={item.cartonsToOrder}
-                  onChange={(e) => handleUpdate(item.id, 'cartonsToOrder', e.target.value)}
-                  onWheel={(e) => e.currentTarget.blur()}
-                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
-                  dir="ltr"
-                />
-                <span className="hidden print-show text-left w-full">
-                  {item.cartonsToOrder === "" ? "0" : item.cartonsToOrder}
-                </span>
-              </td>
+              {(printMode === 'all' || printMode === 'cartons-order') && (
+                <td className="px-4 py-3 w-40">
+                  <input
+                    type="number"
+                    value={item.cartonsToOrder}
+                    onChange={(e) => handleUpdate(item.id, 'cartonsToOrder', e.target.value)}
+                    onWheel={(e) => e.currentTarget.blur()}
+                    className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                    dir="ltr"
+                  />
+                  <span className="hidden print-show text-left w-full">
+                    {item.cartonsToOrder === "" ? "0" : item.cartonsToOrder}
+                  </span>
+                </td>
+              )}
+
+              {(printMode === 'all' || printMode === 'body-butters-order') && (
+                <td className="px-4 py-3 w-40">
+                  <input
+                    type="number"
+                    value={item.bodyButtersToOrder}
+                    onChange={(e) => handleUpdate(item.id, 'bodyButtersToOrder', e.target.value)}
+                    onWheel={(e) => e.currentTarget.blur()}
+                    className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                    dir="ltr"
+                  />
+                  <span className="hidden print-show text-left w-full">
+                    {item.bodyButtersToOrder === "" ? "0" : item.bodyButtersToOrder}
+                  </span>
+                </td>
+              )}
 
               {printMode === 'all' && (
                 <>
@@ -209,7 +256,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           ))}
           {displayData.length === 0 && (
             <tr>
-              <td colSpan={printMode === 'cartons-order' ? 3 : 7} className="px-4 py-8 text-center text-muted-foreground">
+              <td colSpan={printMode === 'all' ? 8 : 3} className="px-4 py-8 text-center text-muted-foreground">
                 אין נתונים בטבלה
               </td>
             </tr>
@@ -220,6 +267,14 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
             <tr>
               <td colSpan={2} className="px-4 py-4 text-left">סה״כ קרטונים להזמנה:</td>
               <td className="px-4 py-4">{totalCartonsToOrder}</td>
+            </tr>
+          </tfoot>
+        )}
+        {printMode === 'body-butters-order' && displayData.length > 0 && (
+          <tfoot className="bg-muted/10 border-t-2 border-border font-bold text-base">
+            <tr>
+              <td colSpan={2} className="px-4 py-4 text-left">סה״כ חמאות גוף להזמנה:</td>
+              <td className="px-4 py-4">{totalBodyButtersToOrder}</td>
             </tr>
           </tfoot>
         )}
