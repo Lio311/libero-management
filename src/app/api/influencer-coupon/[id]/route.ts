@@ -251,6 +251,14 @@ export async function GET(
                 let commRate = 0.10;
                 if (id === 'orika') {
                     commRate = 0;
+                } else if (o.brand === 'labura') {
+                    if (id === 'noa' || id === 'reut') {
+                        commRate = 0.15;
+                    } else {
+                        commRate = 0.10;
+                    }
+                } else if (id === 'amit' && o.brand === 'velour') {
+                    commRate = 0.10;
                 } else if (o.coupon_used.toLowerCase().includes('15') || id === 'reut') {
                     commRate = 0.15;
                 }
@@ -286,6 +294,14 @@ export async function GET(
                 let commRate = 0.10;
                 if (id === 'orika') {
                     commRate = 0;
+                } else if (o.brand === 'labura') {
+                    if (id === 'noa' || id === 'reut') {
+                        commRate = 0.15;
+                    } else {
+                        commRate = 0.10;
+                    }
+                } else if (id === 'amit' && o.brand === 'velour') {
+                    commRate = 0.10;
                 } else if (o.coupon_used.toLowerCase().includes('15') || id === 'reut') {
                     commRate = 0.15;
                 }
