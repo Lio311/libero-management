@@ -1,10 +1,6 @@
-"use client";
-
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { updateLaburaInventoryCount } from "./actions";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
-import { FileText } from "lucide-react";
+import { Printer } from "lucide-react";
 
 type LaburaItem = {
   id: string;
@@ -18,8 +14,6 @@ type LaburaItem = {
 
 export default function LaburaCountClient({ initialData }: { initialData: LaburaItem[] }) {
   const [data, setData] = useState<LaburaItem[]>(initialData);
-  const [isExporting, setIsExporting] = useState(false);
-  const tableRef = useRef<HTMLDivElement>(null);
 
   const handleUpdate = async (id: string, field: keyof LaburaItem, value: string) => {
     // Parse integer, allow empty string
@@ -35,50 +29,43 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
     await updateLaburaInventoryCount(id, field, numericValue);
   };
 
-  const handleExportPDF = async () => {
-    if (!tableRef.current) return;
-    setIsExporting(true);
-    
-    try {
-      // Small delay to ensure any UI states are stable
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const canvas = await html2canvas(tableRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-      });
-      
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      pdf.addImage(imgData, "PNG", 0, 10, pdfWidth, pdfHeight);
-      pdf.save(`labura-inventory-${new Date().toISOString().split('T')[0]}.pdf`);
-    } catch (error) {
-      console.error("Failed to generate PDF", error);
-    } finally {
-      setIsExporting(false);
-    }
+  const handleExportPDF = () => {
+    window.print();
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <style>{`
+        @media print {
+          @page { margin: 10mm; }
+          body { background: white !important; }
+          body * { visibility: hidden; }
+          #print-area, #print-area * { visibility: visible; }
+          #print-area {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            border: none;
+            box-shadow: none;
+          }
+          .print-hide { display: none !important; }
+          .print-show { display: inline-block !important; }
+        }
+      `}</style>
+      
+      <div className="flex justify-end print-hide">
         <button
           onClick={handleExportPDF}
-          disabled={isExporting}
-          className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md shadow-sm hover:bg-primary/90 transition-colors"
         >
-          <FileText className="w-4 h-4" />
-          <span>{isExporting ? "מפיק דוח..." : "ייצא כ-PDF"}</span>
+          <Printer className="w-4 h-4" />
+          <span>הדפס / שמור כ-PDF</span>
         </button>
       </div>
       
       <div 
-        ref={tableRef}
+        id="print-area"
         className="bg-card rounded-xl border shadow-sm overflow-hidden overflow-x-auto p-2 sm:p-4"
       >
         <div className="mb-4 text-center">
@@ -106,36 +93,48 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                   type="number"
                   value={item.finishedProductUnits === 0 ? "" : item.finishedProductUnits}
                   onChange={(e) => handleUpdate(item.id, 'finishedProductUnits', e.target.value)}
-                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left"
+                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
+                <span className="hidden print-show text-left w-full">
+                  {item.finishedProductUnits === 0 ? "0" : item.finishedProductUnits}
+                </span>
               </td>
               <td className="px-4 py-3 w-40">
                 <input
                   type="number"
                   value={item.cartonPackages === 0 ? "" : item.cartonPackages}
                   onChange={(e) => handleUpdate(item.id, 'cartonPackages', e.target.value)}
-                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left"
+                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
+                <span className="hidden print-show text-left w-full">
+                  {item.cartonPackages === 0 ? "0" : item.cartonPackages}
+                </span>
               </td>
               <td className="px-4 py-3 w-40">
                 <input
                   type="number"
                   value={item.stickers === 0 ? "" : item.stickers}
                   onChange={(e) => handleUpdate(item.id, 'stickers', e.target.value)}
-                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left"
+                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
+                <span className="hidden print-show text-left w-full">
+                  {item.stickers === 0 ? "0" : item.stickers}
+                </span>
               </td>
               <td className="px-4 py-3 w-40">
                 <input
                   type="number"
                   value={item.smallStickersForSamples === 0 ? "" : item.smallStickersForSamples}
                   onChange={(e) => handleUpdate(item.id, 'smallStickersForSamples', e.target.value)}
-                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left"
+                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
+                <span className="hidden print-show text-left w-full">
+                  {item.smallStickersForSamples === 0 ? "0" : item.smallStickersForSamples}
+                </span>
               </td>
             </tr>
           ))}
