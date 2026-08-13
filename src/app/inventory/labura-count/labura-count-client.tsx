@@ -266,7 +266,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           <tfoot className="bg-muted/10 border-t-2 border-border font-bold text-base">
             <tr>
               <td colSpan={2} className="px-4 py-4 text-left">סה״כ קרטונים להזמנה:</td>
-              <td className="px-4 py-4">{totalCartonsToOrder}</td>
+              <td className="px-4 py-4 text-left" dir="ltr">{totalCartonsToOrder}</td>
             </tr>
           </tfoot>
         )}
@@ -274,7 +274,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           <tfoot className="bg-muted/10 border-t-2 border-border font-bold text-base">
             <tr>
               <td colSpan={2} className="px-4 py-4 text-left">סה״כ חמאות גוף להזמנה:</td>
-              <td className="px-4 py-4">{totalBodyButtersToOrder}</td>
+              <td className="px-4 py-4 text-left" dir="ltr">{totalBodyButtersToOrder}</td>
             </tr>
           </tfoot>
         )}
