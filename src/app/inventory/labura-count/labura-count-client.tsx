@@ -10,6 +10,7 @@ type LaburaItem = {
   butterName: string;
   finishedProductUnits: number;
   cartonPackages: number;
+  cartonsToOrder: number;
   stickers: number;
   smallStickersForSamples: number;
 };
@@ -75,6 +76,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
             <th className="px-4 py-3 font-medium whitespace-nowrap">שם החמאה</th>
             <th className="px-4 py-3 font-medium whitespace-nowrap">מספר יחידות ממוצר מוגמר</th>
             <th className="px-4 py-3 font-medium whitespace-nowrap">אריזות קרטון</th>
+            <th className="px-4 py-3 font-medium whitespace-nowrap">כמות להזמנה מקרטונים</th>
             <th className="px-4 py-3 font-medium whitespace-nowrap">מדבקות</th>
             <th className="px-4 py-3 font-medium whitespace-nowrap">מדבקות קטנות לדוגמיות</th>
           </tr>
@@ -108,6 +110,19 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                 />
                 <span className="hidden print-show text-left w-full">
                   {item.cartonPackages === "" ? "0" : item.cartonPackages}
+                </span>
+              </td>
+              <td className="px-4 py-3 w-40">
+                <input
+                  type="number"
+                  value={item.cartonsToOrder}
+                  onChange={(e) => handleUpdate(item.id, 'cartonsToOrder', e.target.value)}
+                  onWheel={(e) => e.currentTarget.blur()}
+                  className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
+                  dir="ltr"
+                />
+                <span className="hidden print-show text-left w-full">
+                  {item.cartonsToOrder === "" ? "0" : item.cartonsToOrder}
                 </span>
               </td>
               <td className="px-4 py-3 w-40">
