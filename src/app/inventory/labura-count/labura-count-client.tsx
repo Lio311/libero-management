@@ -58,6 +58,11 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
     ? data.filter(item => typeof item.cartonsToOrder === 'number' ? item.cartonsToOrder > 0 : false)
     : data;
 
+  const totalCartonsToOrder = displayData.reduce(
+    (sum, item) => sum + (typeof item.cartonsToOrder === 'number' && !isNaN(item.cartonsToOrder) ? item.cartonsToOrder : 0), 
+    0
+  );
+
   return (
     <div className="space-y-4">
       <style>{`
@@ -204,12 +209,20 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           ))}
           {displayData.length === 0 && (
             <tr>
-              <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+              <td colSpan={printMode === 'cartons-order' ? 3 : 7} className="px-4 py-8 text-center text-muted-foreground">
                 אין נתונים בטבלה
               </td>
             </tr>
           )}
         </tbody>
+        {printMode === 'cartons-order' && displayData.length > 0 && (
+          <tfoot className="bg-muted/10 border-t-2 border-border font-bold text-base">
+            <tr>
+              <td colSpan={2} className="px-4 py-4 text-left">סה״כ קרטונים להזמנה:</td>
+              <td className="px-4 py-4">{totalCartonsToOrder}</td>
+            </tr>
+          </tfoot>
+        )}
         </table>
       </div>
     </div>
