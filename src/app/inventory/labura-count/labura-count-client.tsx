@@ -93,6 +93,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                   type="number"
                   value={item.finishedProductUnits === 0 ? "" : item.finishedProductUnits}
                   onChange={(e) => handleUpdate(item.id, 'finishedProductUnits', e.target.value)}
+                  onWheel={(e) => e.currentTarget.blur()}
                   className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
@@ -105,6 +106,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                   type="number"
                   value={item.cartonPackages === 0 ? "" : item.cartonPackages}
                   onChange={(e) => handleUpdate(item.id, 'cartonPackages', e.target.value)}
+                  onWheel={(e) => e.currentTarget.blur()}
                   className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
@@ -117,6 +119,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                   type="number"
                   value={item.stickers === 0 ? "" : item.stickers}
                   onChange={(e) => handleUpdate(item.id, 'stickers', e.target.value)}
+                  onWheel={(e) => e.currentTarget.blur()}
                   className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
@@ -129,6 +132,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                   type="number"
                   value={item.smallStickersForSamples === 0 ? "" : item.smallStickersForSamples}
                   onChange={(e) => handleUpdate(item.id, 'smallStickersForSamples', e.target.value)}
+                  onWheel={(e) => e.currentTarget.blur()}
                   className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
