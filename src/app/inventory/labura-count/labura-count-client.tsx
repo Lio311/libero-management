@@ -39,7 +39,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
     <div className="space-y-4">
       <style>{`
         @media print {
-          @page { margin: 10mm; }
+          @page { size: landscape; margin: 10mm; }
           body { background: white !important; }
           body * { visibility: hidden; }
           #print-area, #print-area * { visibility: visible; }
