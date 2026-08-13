@@ -15,19 +15,20 @@ type LaburaItem = {
 };
 
 export default function LaburaCountClient({ initialData }: { initialData: LaburaItem[] }) {
-  const [data, setData] = useState<LaburaItem[]>(initialData);
+  // Use any to allow empty strings for the input fields while they are being edited
+  const [data, setData] = useState<any[]>(initialData);
 
   const handleUpdate = async (id: string, field: keyof LaburaItem, value: string) => {
-    // Parse integer, allow empty string
-    let numericValue = parseInt(value, 10);
-    if (isNaN(numericValue)) numericValue = 0;
+    let newLocalValue: number | "" = value === "" ? "" : parseInt(value, 10);
+    if (typeof newLocalValue === "number" && isNaN(newLocalValue)) newLocalValue = 0;
 
     // Optimistically update UI
     setData(prev => 
-      prev.map(item => item.id === id ? { ...item, [field]: numericValue } : item)
+      prev.map(item => item.id === id ? { ...item, [field]: newLocalValue } : item)
     );
 
     // Call server action
+    const numericValue = newLocalValue === "" ? 0 : newLocalValue;
     await updateLaburaInventoryCount(id, field, numericValue);
   };
 
@@ -93,53 +94,53 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
               <td className="px-4 py-3 w-40">
                 <input
                   type="number"
-                  value={item.finishedProductUnits === 0 ? "" : item.finishedProductUnits}
+                  value={item.finishedProductUnits}
                   onChange={(e) => handleUpdate(item.id, 'finishedProductUnits', e.target.value)}
                   onWheel={(e) => e.currentTarget.blur()}
                   className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
                 <span className="hidden print-show text-left w-full">
-                  {item.finishedProductUnits === 0 ? "0" : item.finishedProductUnits}
+                  {item.finishedProductUnits === "" ? "0" : item.finishedProductUnits}
                 </span>
               </td>
               <td className="px-4 py-3 w-40">
                 <input
                   type="number"
-                  value={item.cartonPackages === 0 ? "" : item.cartonPackages}
+                  value={item.cartonPackages}
                   onChange={(e) => handleUpdate(item.id, 'cartonPackages', e.target.value)}
                   onWheel={(e) => e.currentTarget.blur()}
                   className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
                 <span className="hidden print-show text-left w-full">
-                  {item.cartonPackages === 0 ? "0" : item.cartonPackages}
+                  {item.cartonPackages === "" ? "0" : item.cartonPackages}
                 </span>
               </td>
               <td className="px-4 py-3 w-40">
                 <input
                   type="number"
-                  value={item.stickers === 0 ? "" : item.stickers}
+                  value={item.stickers}
                   onChange={(e) => handleUpdate(item.id, 'stickers', e.target.value)}
                   onWheel={(e) => e.currentTarget.blur()}
                   className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
                 <span className="hidden print-show text-left w-full">
-                  {item.stickers === 0 ? "0" : item.stickers}
+                  {item.stickers === "" ? "0" : item.stickers}
                 </span>
               </td>
               <td className="px-4 py-3 w-40">
                 <input
                   type="number"
-                  value={item.smallStickersForSamples === 0 ? "" : item.smallStickersForSamples}
+                  value={item.smallStickersForSamples}
                   onChange={(e) => handleUpdate(item.id, 'smallStickersForSamples', e.target.value)}
                   onWheel={(e) => e.currentTarget.blur()}
                   className="w-full bg-transparent border border-input rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 text-left print-hide"
                   dir="ltr"
                 />
                 <span className="hidden print-show text-left w-full">
-                  {item.smallStickersForSamples === 0 ? "0" : item.smallStickersForSamples}
+                  {item.smallStickersForSamples === "" ? "0" : item.smallStickersForSamples}
                 </span>
               </td>
             </tr>
