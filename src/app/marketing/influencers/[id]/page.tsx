@@ -92,17 +92,25 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
     const hasVat = !noVatAddBack.includes(influencerId);
     const influencerBrands = Array.from(new Set(influencerConfig?.coupons.map(c => c.brand) || []));
     
-    const commissionRates = Array.from(new Set(influencerConfig?.coupons.map(c => 
-        (influencerId === 'orika') ? 0 : ((c.code.toLowerCase().includes('15') || influencerId === 'reut') ? 15 : 10)
-    ) || []));
+    const commissionRates = Array.from(new Set(influencerConfig?.coupons.map(c => {
+        if (influencerId === 'orika') return 0;
+        if (c.brand === 'labura') return (influencerId === 'noa' || influencerId === 'reut') ? 15 : 10;
+        if (influencerId === 'amit' && c.brand === 'velour') return 10;
+        if (c.code.toLowerCase().includes('15') || influencerId === 'reut') return 15;
+        return 10;
+    }) || []));
     const commissionRateStr = commissionRates.length > 0 ? `${commissionRates.sort((a, b) => a - b).join('% - ')}%` : '';
 
     const getBrandCommissionRateStr = (brand: string) => {
         const brandCoupons = influencerConfig?.coupons.filter(c => c.brand === brand) || [];
         if (brandCoupons.length === 0) return '';
-        const rates = Array.from(new Set(brandCoupons.map(c => 
-            (influencerId === 'orika') ? 0 : ((c.code.toLowerCase().includes('15') || influencerId === 'reut') ? 15 : 10)
-        )));
+        const rates = Array.from(new Set(brandCoupons.map(c => {
+            if (influencerId === 'orika') return 0;
+            if (c.brand === 'labura') return (influencerId === 'noa' || influencerId === 'reut') ? 15 : 10;
+            if (influencerId === 'amit' && c.brand === 'velour') return 10;
+            if (c.code.toLowerCase().includes('15') || influencerId === 'reut') return 15;
+            return 10;
+        })));
         return rates.length > 0 ? `${rates.sort((a,b) => a - b).join('% - ')}%` : '';
     };
     
