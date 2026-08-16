@@ -126,8 +126,6 @@ export async function GET(request: Request) {
     const hotProducts = newProducts.filter(isHotProduct);
     const regularProducts = newProducts.filter((p: any) => !isHotProduct(p));
 
-    let emailsSent = 0;
-
     // Helper to generate email HTML
     const generateHtml = (products: any[], title: string) => {
       return `

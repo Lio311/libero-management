@@ -31,6 +31,8 @@ export const config = {
      * - api/sync (cron sync)
      * - api/qc-sync (cron QC sync)
      * - api/qc-notify (cron QC notify)
+     * - api/cron/wholesale-scanner (cron wholesale scanner)
+     * - api/cron/generate-qc-report (cron qc report)
      * - api/oded-coupon (public Oded report API)
      * - api/influencer-coupon (public influencer report API)
      * - marketing/oded (public Oded report page)
@@ -45,6 +47,6 @@ export const config = {
      * - influencers (influencer images)
      * - brands (brand images)
      */
-    '/((?!login|api/webhooks|api/sync|api/qc-sync|api/qc-notify|api/oded-coupon|api/influencer-coupon|marketing/oded|marketing/influencers|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-d.png|oded.png|influencers|brands).*)',
+    '/((?!login|api/webhooks|api/sync|api/qc-sync|api/qc-notify|api/cron/wholesale-scanner|api/cron/generate-qc-report|api/oded-coupon|api/influencer-coupon|marketing/oded|marketing/influencers|_next/static|_next/image|favicon.ico|sw.js|manifest.json|libero-d.png|oded.png|influencers|brands).*)',
   ],
 };
