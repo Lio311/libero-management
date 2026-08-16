@@ -88,6 +88,69 @@ export default function ShiftsClient() {
     }
   }, [mounted, fetchShifts]);
 
+  const handleDragStart = (e: React.DragEvent, shiftId: string) => {
+    e.dataTransfer.setData("shiftId", shiftId);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Necessary to allow dropping
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetDate: string, targetDept: string) => {
+    e.preventDefault();
+    const shiftId = e.dataTransfer.getData("shiftId");
+    if (!shiftId) return;
+    
+    // Find the shift being dragged
+    const shiftToMove = shifts.find(s => s.id === shiftId);
+    if (!shiftToMove) return;
+    
+    const isCopy = e.altKey || e.ctrlKey || e.metaKey;
+
+    // If it's dropped in the exact same spot and not copying, do nothing
+    if (!isCopy && shiftToMove.date === targetDate && shiftToMove.department === targetDept) return;
+
+    if (isCopy) {
+      // Create a temporary ID for optimistic UI
+      const tempId = "temp-" + Date.now();
+      const newShift = { ...shiftToMove, id: tempId, date: targetDate, department: targetDept };
+      setShifts(prev => [...prev, newShift]);
+      
+      const result = await addShift({
+        date: targetDate, 
+        department: targetDept,
+        employeeName: shiftToMove.employeeName,
+        startTime: shiftToMove.startTime || "",
+        endTime: shiftToMove.endTime || "",
+        notes: shiftToMove.notes || ""
+      });
+      
+      if (!result.success) {
+        toast.error("שגיאה בשכפול המשמרת");
+      }
+      // Always re-fetch to get the real ID from DB
+      fetchShifts();
+    } else {
+      // Optimistically update the UI
+      setShifts(prev => prev.map(s => s.id === shiftId ? { ...s, date: targetDate, department: targetDept } : s));
+      
+      // Send update to server
+      const result = await updateShift(shiftId, { 
+        date: targetDate, 
+        department: targetDept,
+        employeeName: shiftToMove.employeeName,
+        startTime: shiftToMove.startTime || "",
+        endTime: shiftToMove.endTime || "",
+        notes: shiftToMove.notes || ""
+      });
+      
+      if (!result.success) {
+        toast.error("שגיאה בהעברת המשמרת");
+        fetchShifts(); // Revert optimistic UI update
+      }
+    }
+  };
+
   if (!mounted) {
     return (
       <div className="p-8 flex justify-center items-center">
@@ -295,15 +358,22 @@ export default function ShiftsClient() {
                   );
                   
                   return (
-                    <div key={dateStr} className="p-2 border-l last:border-0 min-h-[100px] relative group">
+                    <div 
+                      key={dateStr} 
+                      className="p-2 border-l last:border-0 min-h-[100px] relative group"
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleDrop(e, dateStr, dept)}
+                    >
                       <div className="space-y-2 mb-6">
                         {dayShifts.map(shift => {
                           const employeeColor = EMPLOYEE_COLORS[shift.employeeName] || "bg-muted text-foreground";
                           return (
                           <div 
-                            key={shift.id} 
+                            key={shift.id}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, shift.id)}
                             onClick={() => openEditModal(shift)}
-                            className={`p-2 rounded text-sm relative group/shift cursor-pointer shadow-sm ${employeeColor}`}
+                            className={`p-2 rounded text-sm relative group/shift cursor-pointer shadow-sm ${employeeColor} hover:opacity-90 active:scale-95 transition-all`}
                           >
                             <div className="font-semibold">{shift.employeeName}</div>
                             {(shift.startTime || shift.endTime) && (
