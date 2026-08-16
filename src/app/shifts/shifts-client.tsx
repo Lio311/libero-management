@@ -304,10 +304,10 @@ export default function ShiftsClient() {
           <Button variant="outline" onClick={handleToday}>
             היום
           </Button>
-          <Button variant="outline" size="icon" onClick={handleNextWeek}>
+          <Button variant="outline" size="icon" onClick={handlePrevWeek}>
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={handlePrevWeek}>
+          <Button variant="outline" size="icon" onClick={handleNextWeek}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
         </div>
