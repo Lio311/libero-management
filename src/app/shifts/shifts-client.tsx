@@ -384,7 +384,7 @@ export default function ShiftsClient() {
       <div className="overflow-x-auto print:overflow-visible">
         <div className="min-w-[800px] print:min-w-0 border rounded-xl overflow-hidden bg-card text-card-foreground">
           {/* Header Row (Days) */}
-          <div className="grid grid-cols-8 border-b bg-muted/50 print:bg-gray-100">
+          <div className="grid grid-cols-8 border-b bg-muted/50">
             <div className="p-3 font-semibold flex items-center justify-center border-l">
               אגף
             </div>
