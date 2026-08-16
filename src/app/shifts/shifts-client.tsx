@@ -58,6 +58,8 @@ export default function ShiftsClient() {
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 }); // Sunday
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+  const weekStartStr = format(weekStart, "yyyy-MM-dd");
+  const weekEndStr = format(weekEnd, "yyyy-MM-dd");
 
   const [mounted, setMounted] = useState(false);
 
@@ -67,17 +69,14 @@ export default function ShiftsClient() {
 
   const fetchShifts = useCallback(async () => {
     setLoading(true);
-    const startStr = format(weekStart, "yyyy-MM-dd");
-    const endStr = format(weekEnd, "yyyy-MM-dd");
-    
-    const result = await getShifts(startStr, endStr);
+    const result = await getShifts(weekStartStr, weekEndStr);
     if (result.success && result.data) {
       setShifts(result.data as Shift[]);
     } else {
       toast.error("שגיאה בטעינת משמרות");
     }
     setLoading(false);
-  }, [weekStart, weekEnd]);
+  }, [weekStartStr, weekEndStr]);
 
   useEffect(() => {
     if (mounted) {
