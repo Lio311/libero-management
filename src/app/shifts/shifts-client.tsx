@@ -372,9 +372,9 @@ export default function ShiftsClient() {
         </div>
       </div>
 
-      {/* Print Only Header */}
-      <div className="hidden print:block mb-4 text-center">
-        <h2 className="text-2xl font-bold">לוח משמרות שבועי</h2>
+      {/* Print Header */}
+      <div className="hidden print:block mb-2 text-center">
+        <h1 className="text-2xl font-bold">לוח משמרות שבועי</h1>
         <p className="text-lg">
           {format(weekStart, "dd/MM/yyyy")} - {format(weekEnd, "dd/MM/yyyy")}
         </p>
@@ -385,7 +385,7 @@ export default function ShiftsClient() {
         <div className="min-w-[800px] print:min-w-0 border rounded-xl overflow-hidden bg-card text-card-foreground">
           {/* Header Row (Days) */}
           <div className="grid grid-cols-8 border-b bg-muted/50">
-            <div className="p-3 font-semibold flex items-center justify-center border-l">
+            <div className="p-3 print:p-1 font-semibold flex items-center justify-center border-l print:text-sm">
               אגף
             </div>
             {days.map((day) => {
@@ -393,10 +393,10 @@ export default function ShiftsClient() {
               const isCurrentDay = isToday(day);
               
               return (
-              <div key={day.toISOString()} className={`p-3 text-center font-medium border-l last:border-0 flex flex-col items-center justify-center relative ${isNoWork ? 'bg-muted/80 dark:bg-muted/40' : ''} ${isCurrentDay ? 'bg-foreground/5' : ''}`}>
-                {isCurrentDay && <div className="absolute top-0 left-0 right-0 h-1 bg-foreground"></div>}
-                <div className={isNoWork ? 'text-primary' : (isCurrentDay ? 'text-foreground font-bold' : '')}>{format(day, "EEEE", { locale: he })}</div>
-                <div className={`text-sm ${isNoWork ? 'text-primary/80' : (isCurrentDay ? 'text-foreground font-bold' : 'text-muted-foreground')}`}>{format(day, "dd/MM")}</div>
+              <div key={day.toISOString()} className={`p-3 print:p-1 text-center font-medium border-l last:border-0 flex flex-col items-center justify-center relative ${isNoWork ? 'bg-muted/80 dark:bg-muted/40' : ''} ${isCurrentDay ? 'bg-foreground/5' : ''}`}>
+                {isCurrentDay && <div className="absolute top-0 left-0 right-0 h-1 bg-foreground print:hidden"></div>}
+                <div className={isNoWork ? 'text-primary print:text-sm' : (isCurrentDay ? 'text-foreground font-bold print:text-sm' : 'print:text-sm')}>{format(day, "EEEE", { locale: he })}</div>
+                <div className={`text-sm print:text-xs ${isNoWork ? 'text-primary/80' : (isCurrentDay ? 'text-foreground font-bold' : 'text-muted-foreground')}`}>{format(day, "dd/MM")}</div>
                 {label && <div className="text-xs text-primary font-bold mt-1 bg-primary/10 px-2 py-0.5 rounded-full">{label}</div>}
               </div>
             )})}
@@ -411,7 +411,7 @@ export default function ShiftsClient() {
             DEPARTMENTS.map((dept) => (
               <div key={dept} className="grid grid-cols-8 border-b last:border-0">
                 {/* Department Name */}
-                <div className="p-3 font-semibold flex items-center justify-center border-l bg-muted/20">
+                <div className="p-3 print:p-1 font-semibold flex items-center justify-center border-l bg-muted/20 print:text-sm">
                   {dept}
                 </div>
                 
@@ -428,11 +428,11 @@ export default function ShiftsClient() {
                   return (
                     <div 
                       key={dateStr} 
-                      className={`p-2 border-l last:border-0 min-h-[100px] relative group ${isNoWork ? 'bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.03)_10px,rgba(0,0,0,0.03)_20px)] dark:bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)]' : ''} ${isCurrentDay ? 'bg-foreground/10' : ''}`}
+                      className={`p-2 print:p-1 border-l last:border-0 min-h-[100px] print:min-h-0 relative group ${isNoWork ? 'bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.03)_10px,rgba(0,0,0,0.03)_20px)] dark:bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)]' : ''} ${isCurrentDay ? 'bg-foreground/10' : ''}`}
                       onDragOver={isCellBlocked ? undefined : handleDragOver}
                       onDrop={isCellBlocked ? undefined : ((e) => handleDrop(e, dateStr, dept))}
                     >
-                      <div className="space-y-2 mb-6">
+                      <div className="space-y-2 print:space-y-1 mb-6 print:mb-0">
                         {dayShifts.map(shift => {
                           const employeeColor = EMPLOYEE_COLORS[shift.employeeName] || "bg-muted text-foreground";
                           return (
@@ -441,7 +441,7 @@ export default function ShiftsClient() {
                             draggable={!isCellBlocked}
                             onDragStart={isCellBlocked ? undefined : ((e) => handleDragStart(e, shift.id))}
                             onClick={() => openEditModal(shift)}
-                            className={`p-2 rounded text-sm relative group/shift cursor-pointer shadow-sm ${employeeColor} hover:opacity-90 active:scale-95 transition-all`}
+                            className={`p-2 print:p-1 rounded text-sm print:text-xs relative group/shift cursor-pointer shadow-sm ${employeeColor} hover:opacity-90 active:scale-95 transition-all`}
                           >
                             <div className="font-semibold">{shift.employeeName}</div>
                             {(shift.startTime || shift.endTime) && (

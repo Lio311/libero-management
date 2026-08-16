@@ -175,6 +175,9 @@
     transform: none;
   }
 }@media print {
+  @page {
+    margin: 10mm; /* Reduce default margins to fit more on a single page */
+  }
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
