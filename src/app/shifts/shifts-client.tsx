@@ -393,10 +393,10 @@ export default function ShiftsClient() {
               const isCurrentDay = isToday(day);
               
               return (
-              <div key={day.toISOString()} className={`p-3 text-center font-medium border-l last:border-0 flex flex-col items-center justify-center relative ${isNoWork ? 'bg-muted/80 dark:bg-muted/40' : ''} ${isCurrentDay ? 'bg-primary/5' : ''}`}>
-                {isCurrentDay && <div className="absolute top-0 left-0 right-0 h-1 bg-primary"></div>}
-                <div className={isNoWork ? 'text-primary' : (isCurrentDay ? 'text-primary font-bold' : '')}>{format(day, "EEEE", { locale: he })}</div>
-                <div className={`text-sm ${isNoWork ? 'text-primary/80' : (isCurrentDay ? 'text-primary font-bold' : 'text-muted-foreground')}`}>{format(day, "dd/MM")}</div>
+              <div key={day.toISOString()} className={`p-3 text-center font-medium border-l last:border-0 flex flex-col items-center justify-center relative ${isNoWork ? 'bg-muted/80 dark:bg-muted/40' : ''} ${isCurrentDay ? 'bg-foreground/5' : ''}`}>
+                {isCurrentDay && <div className="absolute top-0 left-0 right-0 h-1 bg-foreground"></div>}
+                <div className={isNoWork ? 'text-primary' : (isCurrentDay ? 'text-foreground font-bold' : '')}>{format(day, "EEEE", { locale: he })}</div>
+                <div className={`text-sm ${isNoWork ? 'text-primary/80' : (isCurrentDay ? 'text-foreground font-bold' : 'text-muted-foreground')}`}>{format(day, "dd/MM")}</div>
                 {label && <div className="text-xs text-primary font-bold mt-1 bg-primary/10 px-2 py-0.5 rounded-full">{label}</div>}
               </div>
             )})}
@@ -428,7 +428,7 @@ export default function ShiftsClient() {
                   return (
                     <div 
                       key={dateStr} 
-                      className={`p-2 border-l last:border-0 min-h-[100px] relative group ${isNoWork ? 'bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.03)_10px,rgba(0,0,0,0.03)_20px)] dark:bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)]' : ''} ${isCurrentDay ? 'bg-primary/5 ring-1 ring-inset ring-primary/20' : ''}`}
+                      className={`p-2 border-l last:border-0 min-h-[100px] relative group ${isNoWork ? 'bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.03)_10px,rgba(0,0,0,0.03)_20px)] dark:bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)]' : ''} ${isCurrentDay ? 'bg-foreground/5 ring-1 ring-inset ring-foreground/20' : ''}`}
                       onDragOver={isCellBlocked ? undefined : handleDragOver}
                       onDrop={isCellBlocked ? undefined : ((e) => handleDrop(e, dateStr, dept))}
                     >
