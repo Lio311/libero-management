@@ -202,26 +202,26 @@ export default function ShiftsClient() {
     <div className="space-y-4 print:space-y-2">
       {/* Controls */}
       <div className="flex items-center justify-between glass-panel p-4 rounded-xl print:hidden">
+        <div className="text-lg font-semibold">
+          {format(weekStart, "dd/MM/yyyy")} - {format(weekEnd, "dd/MM/yyyy")}
+        </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleCopyPreviousWeek} disabled={isSubmitting} className="mr-2 gap-2">
+            <Copy className="h-4 w-4" />
+            שכפל שבוע קודם
+          </Button>
+          <Button variant="secondary" onClick={() => window.print()} className="mr-4 gap-2">
+            שמור כ-PDF / הדפס
+          </Button>
+          <Button variant="outline" onClick={handleToday}>
+            היום
+          </Button>
           <Button variant="outline" size="icon" onClick={handleNextWeek}>
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="icon" onClick={handlePrevWeek}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" onClick={handleToday}>
-            היום
-          </Button>
-          <Button variant="secondary" onClick={() => window.print()} className="ml-4 gap-2">
-            שמור כ-PDF / הדפס
-          </Button>
-          <Button variant="outline" onClick={handleCopyPreviousWeek} disabled={isSubmitting} className="ml-2 gap-2">
-            <Copy className="h-4 w-4" />
-            שכפל שבוע קודם
-          </Button>
-        </div>
-        <div className="text-lg font-semibold">
-          {format(weekStart, "dd/MM/yyyy")} - {format(weekEnd, "dd/MM/yyyy")}
         </div>
       </div>
 
