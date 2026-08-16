@@ -68,6 +68,7 @@ export default function ShiftsClient() {
   }, []);
 
   const [editingShiftId, setEditingShiftId] = useState<string | null>(null);
+  const [additionalDates, setAdditionalDates] = useState<string[]>([]);
 
   const fetchShifts = useCallback(async () => {
     setLoading(true);
@@ -121,6 +122,7 @@ export default function ShiftsClient() {
   const openAddModal = (dateStr: string, dept: string) => {
     setEditingShiftId(null);
     setSelectedDate(dateStr);
+    setAdditionalDates([]);
     setSelectedDept(dept);
     setEmployeeName(EMPLOYEES[0]);
     setStartTime("");
@@ -132,6 +134,7 @@ export default function ShiftsClient() {
   const openEditModal = (shift: Shift) => {
     setEditingShiftId(shift.id);
     setSelectedDate(shift.date);
+    setAdditionalDates([]);
     setSelectedDept(shift.department);
     setEmployeeName(shift.employeeName);
     setStartTime(shift.startTime || "");
@@ -143,6 +146,7 @@ export default function ShiftsClient() {
   const openDuplicateModal = (shift: Shift) => {
     setEditingShiftId(null); // Add mode, not edit
     setSelectedDate(shift.date);
+    setAdditionalDates([]);
     setSelectedDept(shift.department);
     setEmployeeName(shift.employeeName);
     setStartTime(shift.startTime || "");
@@ -155,8 +159,7 @@ export default function ShiftsClient() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    const payload = {
-      date: selectedDate,
+    const payloadTemplate = {
       department: selectedDept,
       employeeName,
       startTime,
@@ -164,17 +167,31 @@ export default function ShiftsClient() {
       notes,
     };
 
-    const result = editingShiftId 
-      ? await updateShift(editingShiftId, payload)
-      : await addShift(payload);
-    
-    if (result.success) {
-      toast.success(editingShiftId ? "המשמרת עודכנה בהצלחה" : "המשמרת נוספה בהצלחה");
-      setIsModalOpen(false);
-      fetchShifts();
+    if (editingShiftId) {
+      const result = await updateShift(editingShiftId, { ...payloadTemplate, date: selectedDate });
+      if (result.success) {
+        toast.success("המשמרת עודכנה בהצלחה");
+        setIsModalOpen(false);
+        fetchShifts();
+      } else {
+        toast.error("שגיאה בעדכון המשמרת");
+      }
     } else {
-      toast.error(editingShiftId ? "שגיאה בעדכון המשמרת" : "שגיאה בהוספת המשמרת");
+      const allDates = [selectedDate, ...additionalDates];
+      let allSuccess = true;
+      for (const d of allDates) {
+        const result = await addShift({ ...payloadTemplate, date: d });
+        if (!result.success) allSuccess = false;
+      }
+      if (allSuccess) {
+        toast.success("המשמרת נוספה בהצלחה");
+        setIsModalOpen(false);
+        fetchShifts();
+      } else {
+        toast.error("חלק מהמשמרות לא נשמרו, אנא נסה שוב");
+      }
     }
+    
     setIsSubmitting(false);
   };
 
@@ -341,7 +358,7 @@ export default function ShiftsClient() {
               <form onSubmit={handleSaveShift} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">תאריך</label>
+                    <label className="text-sm font-medium">תאריך {(!editingShiftId) && "עיקרי"}</label>
                     <input 
                       type="date"
                       value={selectedDate}
@@ -364,6 +381,32 @@ export default function ShiftsClient() {
                     </select>
                   </div>
                 </div>
+
+                {!editingShiftId && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">החל גם על ימים נוספים (לשבוע הנוכחי)</label>
+                    <div className="flex flex-wrap gap-2">
+                      {days.map(day => {
+                         const dStr = format(day, "yyyy-MM-dd");
+                         if (dStr === selectedDate) return null;
+                         return (
+                           <label key={dStr} className="flex items-center gap-1.5 bg-muted/50 px-2 py-1.5 rounded cursor-pointer hover:bg-muted transition-colors border">
+                             <input 
+                               type="checkbox" 
+                               checked={additionalDates.includes(dStr)}
+                               onChange={(e) => {
+                                 if (e.target.checked) setAdditionalDates([...additionalDates, dStr]);
+                                 else setAdditionalDates(additionalDates.filter(d => d !== dStr));
+                               }}
+                               className="rounded border-input text-primary focus:ring-primary"
+                             />
+                             <span className="text-sm">{format(day, "EEEE", { locale: he })}</span>
+                           </label>
+                         )
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">עובד/ת</label>
