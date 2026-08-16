@@ -45,6 +45,7 @@ export default function ShiftsClient() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
+  const [endDateRange, setEndDateRange] = useState("");
   const [selectedDept, setSelectedDept] = useState("");
   
   // Form state
@@ -186,6 +187,7 @@ export default function ShiftsClient() {
   const openAddModal = (dateStr: string, dept: string) => {
     setEditingShiftId(null);
     setSelectedDate(dateStr);
+    setEndDateRange("");
     setAdditionalDates([]);
     setSelectedDept(dept);
     setEmployeeName(EMPLOYEES[0]);
@@ -198,6 +200,7 @@ export default function ShiftsClient() {
   const openEditModal = (shift: Shift) => {
     setEditingShiftId(shift.id);
     setSelectedDate(shift.date);
+    setEndDateRange("");
     setAdditionalDates([]);
     setSelectedDept(shift.department);
     setEmployeeName(shift.employeeName);
@@ -210,6 +213,7 @@ export default function ShiftsClient() {
   const openDuplicateModal = (shift: Shift) => {
     setEditingShiftId(null); // Add mode, not edit
     setSelectedDate(shift.date);
+    setEndDateRange("");
     setAdditionalDates([]);
     setSelectedDept(shift.department);
     setEmployeeName(shift.employeeName);
@@ -231,11 +235,27 @@ export default function ShiftsClient() {
       notes,
     };
 
+    let datesToProcess: string[] = [];
+    if (endDateRange && new Date(endDateRange) >= new Date(selectedDate)) {
+      try {
+        const daysInRange = eachDayOfInterval({ start: new Date(selectedDate), end: new Date(endDateRange) });
+        datesToProcess = daysInRange.map(d => format(d, "yyyy-MM-dd"));
+      } catch (e) {
+        datesToProcess = [selectedDate];
+      }
+    } else {
+      datesToProcess = [selectedDate];
+    }
+    
+    // Combine with manually checked additional dates and remove duplicates
+    const allDates = Array.from(new Set([...datesToProcess, ...additionalDates]));
+    const extraDatesToAdd = allDates.filter(d => d !== selectedDate);
+
     if (editingShiftId) {
       const result = await updateShift(editingShiftId, { ...payloadTemplate, date: selectedDate });
       let allSuccess = result.success;
       
-      for (const d of additionalDates) {
+      for (const d of extraDatesToAdd) {
         const addResult = await addShift({ ...payloadTemplate, date: d });
         if (!addResult.success) allSuccess = false;
       }
@@ -248,7 +268,6 @@ export default function ShiftsClient() {
         toast.error("חלק מהמשמרות לא נשמרו, אנא נסה שוב");
       }
     } else {
-      const allDates = [selectedDate, ...additionalDates];
       let allSuccess = true;
       for (const d of allDates) {
         const result = await addShift({ ...payloadTemplate, date: d });
@@ -436,7 +455,7 @@ export default function ShiftsClient() {
               <form onSubmit={handleSaveShift} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">תאריך {(!editingShiftId) && "עיקרי"}</label>
+                    <label className="text-sm font-medium">מתאריך</label>
                     <input 
                       type="date"
                       value={selectedDate}
@@ -445,6 +464,19 @@ export default function ShiftsClient() {
                       required
                     />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">עד תאריך (לרצף ימים)</label>
+                    <input 
+                      type="date"
+                      value={endDateRange}
+                      onChange={(e) => setEndDateRange(e.target.value)}
+                      min={selectedDate}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">אגף</label>
                     <select 
@@ -455,6 +487,19 @@ export default function ShiftsClient() {
                     >
                       {DEPARTMENTS.map(dept => (
                         <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">עובד/ת</label>
+                    <select 
+                      value={employeeName}
+                      onChange={(e) => setEmployeeName(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      required
+                    >
+                      {EMPLOYEES.map(emp => (
+                        <option key={emp} value={emp}>{emp}</option>
                       ))}
                     </select>
                   </div>
@@ -482,20 +527,6 @@ export default function ShiftsClient() {
                        )
                     })}
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">עובד/ת</label>
-                  <select 
-                    value={employeeName}
-                    onChange={(e) => setEmployeeName(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    required
-                  >
-                    {EMPLOYEES.map(emp => (
-                      <option key={emp} value={emp}>{emp}</option>
-                    ))}
-                  </select>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
