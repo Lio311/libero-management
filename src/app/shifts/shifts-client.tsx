@@ -389,12 +389,12 @@ export default function ShiftsClient() {
               אגף
             </div>
             {days.map((day) => {
-              const { label } = getHolidayInfo(day);
+              const { isNoWork, label } = getHolidayInfo(day);
               return (
-              <div key={day.toISOString()} className="p-3 text-center font-medium border-l last:border-0 flex flex-col items-center justify-center">
-                <div>{format(day, "EEEE", { locale: he })}</div>
-                <div className="text-sm text-muted-foreground">{format(day, "dd/MM")}</div>
-                {label && <div className="text-xs text-primary font-semibold mt-1">{label}</div>}
+              <div key={day.toISOString()} className={`p-3 text-center font-medium border-l last:border-0 flex flex-col items-center justify-center ${isNoWork ? 'bg-muted/80 dark:bg-muted/40' : ''}`}>
+                <div className={isNoWork ? 'text-primary' : ''}>{format(day, "EEEE", { locale: he })}</div>
+                <div className={`text-sm ${isNoWork ? 'text-primary/80' : 'text-muted-foreground'}`}>{format(day, "dd/MM")}</div>
+                {label && <div className="text-xs text-primary font-bold mt-1 bg-primary/10 px-2 py-0.5 rounded-full">{label}</div>}
               </div>
             )})}
           </div>
@@ -423,7 +423,7 @@ export default function ShiftsClient() {
                   return (
                     <div 
                       key={dateStr} 
-                      className={`p-2 border-l last:border-0 min-h-[100px] relative group ${isNoWork ? 'bg-muted/30' : ''}`}
+                      className={`p-2 border-l last:border-0 min-h-[100px] relative group ${isNoWork ? 'bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.03)_10px,rgba(0,0,0,0.03)_20px)] dark:bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)]' : ''}`}
                       onDragOver={isNoWork ? undefined : handleDragOver}
                       onDrop={isNoWork ? undefined : ((e) => handleDrop(e, dateStr, dept))}
                     >
