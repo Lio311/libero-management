@@ -86,7 +86,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden flex h-[calc(5rem_+_env(safe-area-inset-top))] pt-[calc(1.5rem_+_env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative z-50 justify-center">
+      <div className="md:hidden print:hidden flex h-[calc(5rem_+_env(safe-area-inset-top))] pt-[calc(1.5rem_+_env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative z-50 justify-center">
         {isAuthenticated ? (
           <>
             <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4">
