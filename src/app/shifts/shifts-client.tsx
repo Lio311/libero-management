@@ -148,9 +148,9 @@ export default function ShiftsClient() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 print:space-y-2">
       {/* Controls */}
-      <div className="flex items-center justify-between glass-panel p-4 rounded-xl">
+      <div className="flex items-center justify-between glass-panel p-4 rounded-xl print:hidden">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" onClick={handleNextWeek}>
             <ChevronRight className="h-4 w-4" />
@@ -161,17 +161,28 @@ export default function ShiftsClient() {
           <Button variant="outline" onClick={handleToday}>
             היום
           </Button>
+          <Button variant="secondary" onClick={() => window.print()} className="ml-4 gap-2">
+            שמור כ-PDF / הדפס
+          </Button>
         </div>
         <div className="text-lg font-semibold">
           {format(weekStart, "dd/MM/yyyy")} - {format(weekEnd, "dd/MM/yyyy")}
         </div>
       </div>
 
+      {/* Print Only Header */}
+      <div className="hidden print:block mb-4 text-center">
+        <h2 className="text-2xl font-bold">לוח משמרות שבועי</h2>
+        <p className="text-lg">
+          {format(weekStart, "dd/MM/yyyy")} - {format(weekEnd, "dd/MM/yyyy")}
+        </p>
+      </div>
+
       {/* Grid */}
-      <div className="overflow-x-auto">
-        <div className="min-w-[800px] border rounded-xl overflow-hidden bg-card text-card-foreground">
+      <div className="overflow-x-auto print:overflow-visible">
+        <div className="min-w-[800px] print:min-w-0 border rounded-xl overflow-hidden bg-card text-card-foreground">
           {/* Header Row (Days) */}
-          <div className="grid grid-cols-8 border-b bg-muted/50">
+          <div className="grid grid-cols-8 border-b bg-muted/50 print:bg-gray-100">
             <div className="p-3 font-semibold flex items-center justify-center border-l">
               אגף
             </div>
@@ -225,7 +236,7 @@ export default function ShiftsClient() {
                             {/* Delete Button */}
                             <button
                               onClick={() => handleDeleteShift(shift.id)}
-                              className="absolute top-1 left-1 p-1 bg-background/80 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-destructive"
+                              className="absolute top-1 left-1 p-1 bg-background/80 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-destructive print:hidden"
                               title="מחק משמרת"
                             >
                               <Trash2 className="h-3 w-3" />
@@ -237,7 +248,7 @@ export default function ShiftsClient() {
                       {/* Add Button */}
                       <button
                         onClick={() => openAddModal(dateStr, dept)}
-                        className="absolute bottom-2 right-2 left-2 flex items-center justify-center py-1 rounded bg-secondary/50 text-secondary-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary"
+                        className="absolute bottom-2 right-2 left-2 flex items-center justify-center py-1 rounded bg-secondary/50 text-secondary-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary print:hidden"
                       >
                         <Plus className="h-4 w-4" />
                       </button>
