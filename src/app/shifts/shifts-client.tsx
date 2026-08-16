@@ -121,8 +121,8 @@ export default function ShiftsClient() {
         date: targetDate, 
         department: targetDept,
         employeeName: shiftToMove.employeeName,
-        startTime: shiftToMove.startTime || "",
-        endTime: shiftToMove.endTime || "",
+        startTime: targetDept === "חופשות" ? "" : (shiftToMove.startTime || ""),
+        endTime: targetDept === "חופשות" ? "" : (shiftToMove.endTime || ""),
         notes: shiftToMove.notes || ""
       });
       
@@ -133,15 +133,21 @@ export default function ShiftsClient() {
       fetchShifts();
     } else {
       // Optimistically update the UI
-      setShifts(prev => prev.map(s => s.id === shiftId ? { ...s, date: targetDate, department: targetDept } : s));
+      setShifts(prev => prev.map(s => s.id === shiftId ? { 
+        ...s, 
+        date: targetDate, 
+        department: targetDept,
+        startTime: targetDept === "חופשות" ? "" : s.startTime,
+        endTime: targetDept === "חופשות" ? "" : s.endTime 
+      } : s));
       
       // Send update to server
       const result = await updateShift(shiftId, { 
         date: targetDate, 
         department: targetDept,
         employeeName: shiftToMove.employeeName,
-        startTime: shiftToMove.startTime || "",
-        endTime: shiftToMove.endTime || "",
+        startTime: targetDept === "חופשות" ? "" : (shiftToMove.startTime || ""),
+        endTime: targetDept === "חופשות" ? "" : (shiftToMove.endTime || ""),
         notes: shiftToMove.notes || ""
       });
       
@@ -230,8 +236,8 @@ export default function ShiftsClient() {
     const payloadTemplate = {
       department: selectedDept,
       employeeName,
-      startTime,
-      endTime,
+      startTime: selectedDept === "חופשות" ? "" : startTime,
+      endTime: selectedDept === "חופשות" ? "" : endTime,
       notes,
     };
 
@@ -529,24 +535,26 @@ export default function ShiftsClient() {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">שעת התחלה</label>
-                    <Input 
-                      type="time" 
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                    />
+                {selectedDept !== "חופשות" && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">שעת התחלה</label>
+                      <Input 
+                        type="time" 
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">שעת סיום</label>
+                      <Input 
+                        type="time" 
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">שעת סיום</label>
-                    <Input 
-                      type="time" 
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                    />
-                  </div>
-                </div>
+                )}
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">הערות (אופציונלי)</label>
