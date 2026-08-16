@@ -170,12 +170,19 @@ export default function ShiftsClient() {
 
     if (editingShiftId) {
       const result = await updateShift(editingShiftId, { ...payloadTemplate, date: selectedDate });
-      if (result.success) {
-        toast.success("המשמרת עודכנה בהצלחה");
+      let allSuccess = result.success;
+      
+      for (const d of additionalDates) {
+        const addResult = await addShift({ ...payloadTemplate, date: d });
+        if (!addResult.success) allSuccess = false;
+      }
+      
+      if (allSuccess) {
+        toast.success("המשמרת עודכנה ונשמרה בהצלחה");
         setIsModalOpen(false);
         fetchShifts();
       } else {
-        toast.error("שגיאה בעדכון המשמרת");
+        toast.error("חלק מהמשמרות לא נשמרו, אנא נסה שוב");
       }
     } else {
       const allDates = [selectedDate, ...additionalDates];
@@ -383,31 +390,29 @@ export default function ShiftsClient() {
                   </div>
                 </div>
 
-                {!editingShiftId && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">החל גם על ימים נוספים (לשבוע הנוכחי)</label>
-                    <div className="flex flex-wrap gap-2">
-                      {days.map(day => {
-                         const dStr = format(day, "yyyy-MM-dd");
-                         if (dStr === selectedDate) return null;
-                         return (
-                           <label key={dStr} className="flex items-center gap-1.5 bg-muted/50 px-2 py-1.5 rounded cursor-pointer hover:bg-muted transition-colors border">
-                             <input 
-                               type="checkbox" 
-                               checked={additionalDates.includes(dStr)}
-                               onChange={(e) => {
-                                 if (e.target.checked) setAdditionalDates([...additionalDates, dStr]);
-                                 else setAdditionalDates(additionalDates.filter(d => d !== dStr));
-                               }}
-                               className="rounded border-input text-primary focus:ring-primary"
-                             />
-                             <span className="text-sm">{format(day, "EEEE", { locale: he })}</span>
-                           </label>
-                         )
-                      })}
-                    </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">החל גם על ימים נוספים (לשבוע הנוכחי)</label>
+                  <div className="flex flex-wrap gap-2">
+                    {days.map(day => {
+                       const dStr = format(day, "yyyy-MM-dd");
+                       if (dStr === selectedDate) return null;
+                       return (
+                         <label key={dStr} className="flex items-center gap-1.5 bg-muted/50 px-2 py-1.5 rounded cursor-pointer hover:bg-muted transition-colors border">
+                           <input 
+                             type="checkbox" 
+                             checked={additionalDates.includes(dStr)}
+                             onChange={(e) => {
+                               if (e.target.checked) setAdditionalDates([...additionalDates, dStr]);
+                               else setAdditionalDates(additionalDates.filter(d => d !== dStr));
+                             }}
+                             className="rounded border-input text-primary focus:ring-primary"
+                           />
+                           <span className="text-sm">{format(day, "EEEE", { locale: he })}</span>
+                         </label>
+                       )
+                    })}
                   </div>
-                )}
+                </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">עובד/ת</label>
