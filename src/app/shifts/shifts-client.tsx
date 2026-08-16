@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
 import { he } from "date-fns/locale";
-import { ChevronRight, ChevronLeft, Plus, X, Trash2, Loader2 } from "lucide-react";
+import { ChevronRight, ChevronLeft, Plus, X, Trash2, Loader2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
