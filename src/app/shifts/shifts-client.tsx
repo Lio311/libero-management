@@ -12,7 +12,7 @@ import { getShifts, addShift, deleteShift, updateShift, copyPreviousWeekShifts }
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/useConfirm";
 
-const DEPARTMENTS = ["משרד", "הנהלה", "חנות", "מחסן"];
+const DEPARTMENTS = ["משרד", "הנהלה", "חנות", "מחסן", "חופשות"];
 const EMPLOYEES = ["ליאור", "רותי", "אור דוד", "צדוק", "אבישי", "אריאל", "ישראל", "טל", "יוליה"];
 
 const EMPLOYEE_COLORS: Record<string, string> = {
