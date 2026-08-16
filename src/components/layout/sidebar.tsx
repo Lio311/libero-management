@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ClipboardCheck, UserCog, ShoppingBag, FileText } from "lucide-react";
+import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ClipboardCheck, UserCog, ShoppingBag, FileText, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { influencersConfig } from "@/config/influencers";
@@ -66,6 +66,7 @@ const navigation: NavItem[] = [
   { name: "כספים", href: "/finance", icon: DollarSign },
   { name: "בעלי תפקידים", href: "/team", icon: Users },
   { name: "מעקב בונוסים", href: "/bonus", icon: Award },
+  { name: "לוח משמרות", href: "/shifts", icon: CalendarDays },
 ];
 
 export function Sidebar({ children, isAuthenticated = true }: { children?: React.ReactNode; isAuthenticated?: boolean }) {

@@ -332,3 +332,14 @@ export const laburaInventoryCounts = pgTable("labura_inventory_counts", {
   isArchived: boolean("is_archived").default(false).notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const shifts = pgTable("shifts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  date: date("date").notNull(),
+  employeeName: text("employee_name").notNull(),
+  department: text("department").notNull(),
+  startTime: text("start_time"),
+  endTime: text("end_time"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
