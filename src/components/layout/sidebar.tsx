@@ -86,13 +86,13 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
   return (
     <>
       {/* Mobile Header */}
-      <div className="md:hidden flex h-[calc(4rem_+_env(safe-area-inset-top))] pt-[calc(1.5rem_+_env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative z-50 justify-center">
+      <div className="md:hidden flex h-[calc(5rem_+_env(safe-area-inset-top))] pt-[calc(1.5rem_+_env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative z-50 justify-center">
         {isAuthenticated ? (
           <>
             <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4">
               <Menu className="h-6 w-6" />
             </button>
-            <div className="relative h-10 w-28 overflow-hidden mx-auto">
+            <div className="relative h-16 w-44 overflow-hidden mx-auto">
               <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center" priority />
             </div>
             <div className="absolute left-4">{children}</div>
@@ -102,7 +102,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
             <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4">
               <Menu className="h-6 w-6" />
             </button>
-            <div className="relative h-10 w-28 overflow-hidden mx-auto">
+            <div className="relative h-16 w-44 overflow-hidden mx-auto">
               <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center" priority />
             </div>
           </>
@@ -122,8 +122,8 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
         "fixed inset-y-0 right-0 z-50 flex h-full w-64 flex-col glass-panel text-card-foreground shadow-sm transition-transform duration-300 md:relative md:translate-x-0 print:hidden",
         isOpen ? "translate-x-0" : "translate-x-full"
       )}>
-        <div className="flex h-[calc(4rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center px-6 border-b border-border/50 relative justify-center">
-          <div className="relative h-10 w-28 overflow-hidden mx-auto">
+        <div className="flex h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center px-6 border-b border-border/50 relative justify-center">
+          <div className="relative h-16 w-44 overflow-hidden mx-auto">
             <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center" priority />
           </div>
           

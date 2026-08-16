@@ -59,6 +59,12 @@ export default function ShiftsClient() {
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const fetchShifts = useCallback(async () => {
     setLoading(true);
     const startStr = format(weekStart, "yyyy-MM-dd");
@@ -74,8 +80,18 @@ export default function ShiftsClient() {
   }, [weekStart, weekEnd]);
 
   useEffect(() => {
-    fetchShifts();
-  }, [fetchShifts]);
+    if (mounted) {
+      fetchShifts();
+    }
+  }, [mounted, fetchShifts]);
+
+  if (!mounted) {
+    return (
+      <div className="p-8 flex justify-center items-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const handleNextWeek = () => setCurrentDate(addWeeks(currentDate, 1));
   const handlePrevWeek = () => setCurrentDate(subWeeks(currentDate, 1));
