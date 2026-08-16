@@ -16,6 +16,7 @@ type NavItem = {
 
 const navigation: NavItem[] = [
   { name: "לוח שנה", href: "/", icon: Calendar },
+  { name: "לוח משמרות", href: "/shifts", icon: CalendarDays },
   { name: "בנק משימות", href: "/tasks", icon: CheckSquare },
   { name: "שיווק ומשפיענים", icon: Megaphone, subItems: [
     { name: "לוח שיווק", href: "/marketing" },
@@ -66,7 +67,6 @@ const navigation: NavItem[] = [
   { name: "כספים", href: "/finance", icon: DollarSign },
   { name: "בעלי תפקידים", href: "/team", icon: Users },
   { name: "מעקב בונוסים", href: "/bonus", icon: Award },
-  { name: "לוח משמרות", href: "/shifts", icon: CalendarDays },
 ];
 
 export function Sidebar({ children, isAuthenticated = true }: { children?: React.ReactNode; isAuthenticated?: boolean }) {
