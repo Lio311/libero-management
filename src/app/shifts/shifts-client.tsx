@@ -419,13 +419,14 @@ export default function ShiftsClient() {
                     (s) => s.date === dateStr && s.department === dept
                   );
                   const { isNoWork } = getHolidayInfo(day);
+                  const isCellBlocked = isNoWork && dept !== "חופשות";
                   
                   return (
                     <div 
                       key={dateStr} 
                       className={`p-2 border-l last:border-0 min-h-[100px] relative group ${isNoWork ? 'bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.03)_10px,rgba(0,0,0,0.03)_20px)] dark:bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)]' : ''}`}
-                      onDragOver={isNoWork ? undefined : handleDragOver}
-                      onDrop={isNoWork ? undefined : ((e) => handleDrop(e, dateStr, dept))}
+                      onDragOver={isCellBlocked ? undefined : handleDragOver}
+                      onDrop={isCellBlocked ? undefined : ((e) => handleDrop(e, dateStr, dept))}
                     >
                       <div className="space-y-2 mb-6">
                         {dayShifts.map(shift => {
@@ -433,8 +434,8 @@ export default function ShiftsClient() {
                           return (
                           <div 
                             key={shift.id}
-                            draggable={!isNoWork}
-                            onDragStart={isNoWork ? undefined : ((e) => handleDragStart(e, shift.id))}
+                            draggable={!isCellBlocked}
+                            onDragStart={isCellBlocked ? undefined : ((e) => handleDragStart(e, shift.id))}
                             onClick={() => openEditModal(shift)}
                             className={`p-2 rounded text-sm relative group/shift cursor-pointer shadow-sm ${employeeColor} hover:opacity-90 active:scale-95 transition-all`}
                           >
@@ -447,7 +448,7 @@ export default function ShiftsClient() {
                             )}
                             
                             {/* Duplicate Button */}
-                            {!isNoWork && (
+                            {!isCellBlocked && (
                               <button
                                 onClick={(e) => { e.stopPropagation(); openDuplicateModal(shift); }}
                                 className="absolute top-1 left-7 p-1 bg-background/80 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-primary print:hidden"
@@ -470,7 +471,7 @@ export default function ShiftsClient() {
                       </div>
                       
                       {/* Add Button */}
-                      {!isNoWork && (
+                      {!isCellBlocked && (
                         <button
                           onClick={() => openAddModal(dateStr, dept)}
                           className="absolute bottom-2 right-2 left-2 flex items-center justify-center py-1 rounded bg-secondary/50 text-secondary-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary print:hidden"
