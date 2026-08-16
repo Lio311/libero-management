@@ -402,7 +402,7 @@ export default function ShiftsClient() {
                           >
                             <div className="font-semibold">{shift.employeeName}</div>
                             {(shift.startTime || shift.endTime) && (
-                              <div className="text-xs opacity-90">{shift.startTime} - {shift.endTime}</div>
+                              <div className="text-xs opacity-90"><span dir="ltr">{shift.startTime} - {shift.endTime}</span></div>
                             )}
                             {shift.notes && (
                               <div className="text-xs mt-1 truncate opacity-80">{shift.notes}</div>
