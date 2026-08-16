@@ -7,7 +7,7 @@ import { ChevronRight, ChevronLeft, Plus, X, Trash2, Loader2 } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { getShifts, addShift, deleteShift } from "@/app/actions/shifts";
+import { getShifts, addShift, deleteShift, updateShift, copyPreviousWeekShifts } from "@/app/actions/shifts";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/useConfirm";
 
@@ -67,6 +67,8 @@ export default function ShiftsClient() {
     setMounted(true);
   }, []);
 
+  const [editingShiftId, setEditingShiftId] = useState<string | null>(null);
+
   const fetchShifts = useCallback(async () => {
     setLoading(true);
     const result = await getShifts(weekStartStr, weekEndStr);
@@ -96,7 +98,28 @@ export default function ShiftsClient() {
   const handlePrevWeek = () => setCurrentDate(subWeeks(currentDate, 1));
   const handleToday = () => setCurrentDate(new Date());
 
+  const handleCopyPreviousWeek = async () => {
+    const isConfirmed = await confirm({
+      title: "שכפול שבוע קודם",
+      message: "האם אתה בטוח שברצונך להעתיק את כל המשמרות מהשבוע הקודם לשבוע הנוכחי? (פעולה זו לא תמחק משמרות קיימות אלא תוסיף עליהן)",
+      confirmText: "העתק",
+      cancelText: "ביטול"
+    });
+    if (!isConfirmed) return;
+
+    setIsSubmitting(true);
+    const result = await copyPreviousWeekShifts(weekStartStr, weekEndStr);
+    if (result.success) {
+      toast.success(`הועתקו ${result.count} משמרות בהצלחה`);
+      fetchShifts();
+    } else {
+      toast.error(result.error || "שגיאה בהעתקת משמרות");
+    }
+    setIsSubmitting(false);
+  };
+
   const openAddModal = (dateStr: string, dept: string) => {
+    setEditingShiftId(null);
     setSelectedDate(dateStr);
     setSelectedDept(dept);
     setEmployeeName(EMPLOYEES[0]);
@@ -106,29 +129,57 @@ export default function ShiftsClient() {
     setIsModalOpen(true);
   };
 
-  const handleAddShift = async (e: React.FormEvent) => {
+  const openEditModal = (shift: Shift) => {
+    setEditingShiftId(shift.id);
+    setSelectedDate(shift.date);
+    setSelectedDept(shift.department);
+    setEmployeeName(shift.employeeName);
+    setStartTime(shift.startTime || "");
+    setEndTime(shift.endTime || "");
+    setNotes(shift.notes || "");
+    setIsModalOpen(true);
+  };
+
+  const openDuplicateModal = (shift: Shift) => {
+    setEditingShiftId(null); // Add mode, not edit
+    setSelectedDate(shift.date);
+    setSelectedDept(shift.department);
+    setEmployeeName(shift.employeeName);
+    setStartTime(shift.startTime || "");
+    setEndTime(shift.endTime || "");
+    setNotes(shift.notes || "");
+    setIsModalOpen(true);
+  };
+
+  const handleSaveShift = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const result = await addShift({
+    
+    const payload = {
       date: selectedDate,
       department: selectedDept,
       employeeName,
       startTime,
       endTime,
       notes,
-    });
+    };
+
+    const result = editingShiftId 
+      ? await updateShift(editingShiftId, payload)
+      : await addShift(payload);
     
     if (result.success) {
-      toast.success("המשמרת נוספה בהצלחה");
+      toast.success(editingShiftId ? "המשמרת עודכנה בהצלחה" : "המשמרת נוספה בהצלחה");
       setIsModalOpen(false);
       fetchShifts();
     } else {
-      toast.error("שגיאה בהוספת המשמרת");
+      toast.error(editingShiftId ? "שגיאה בעדכון המשמרת" : "שגיאה בהוספת המשמרת");
     }
     setIsSubmitting(false);
   };
 
-  const handleDeleteShift = async (id: string) => {
+  const handleDeleteShift = async (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     const isConfirmed = await confirm({
       title: "מחיקת משמרת",
       message: "האם אתה בטוח שברצונך למחוק משמרת זו?",
@@ -164,6 +215,10 @@ export default function ShiftsClient() {
           <Button variant="secondary" onClick={() => window.print()} className="ml-4 gap-2">
             שמור כ-PDF / הדפס
           </Button>
+          <Button variant="outline" onClick={handleCopyPreviousWeek} disabled={isSubmitting} className="ml-2 gap-2">
+            <Copy className="h-4 w-4" />
+            שכפל שבוע קודם
+          </Button>
         </div>
         <div className="text-lg font-semibold">
           {format(weekStart, "dd/MM/yyyy")} - {format(weekEnd, "dd/MM/yyyy")}
@@ -187,8 +242,8 @@ export default function ShiftsClient() {
               אגף
             </div>
             {days.map((day) => (
-              <div key={day.toString()} className="p-3 text-center border-l last:border-0">
-                <div className="font-bold">{format(day, "EEEE", { locale: he })}</div>
+              <div key={day.toISOString()} className="p-3 text-center font-medium border-l last:border-0">
+                <div>{format(day, "EEEE", { locale: he })}</div>
                 <div className="text-sm text-muted-foreground">{format(day, "dd/MM")}</div>
               </div>
             ))}
@@ -201,8 +256,8 @@ export default function ShiftsClient() {
             </div>
           ) : (
             DEPARTMENTS.map((dept) => (
-              <div key={dept} className="grid grid-cols-8 border-b last:border-0 min-h-[120px]">
-                {/* Department Cell */}
+              <div key={dept} className="grid grid-cols-8 border-b last:border-0">
+                {/* Department Name */}
                 <div className="p-3 font-semibold flex items-center justify-center border-l bg-muted/20">
                   {dept}
                 </div>
@@ -210,32 +265,41 @@ export default function ShiftsClient() {
                 {/* Days Cells */}
                 {days.map((day) => {
                   const dateStr = format(day, "yyyy-MM-dd");
-                  const cellShifts = shifts.filter(
-                    (s) => s.department === dept && s.date === dateStr
+                  const dayShifts = shifts.filter(
+                    (s) => s.date === dateStr && s.department === dept
                   );
-
+                  
                   return (
-                    <div key={day.toString()} className="p-2 border-l last:border-0 relative group hover:bg-muted/10 transition-colors">
-                      <div className="space-y-2 mb-8">
-                        {cellShifts.map((shift) => {
-                          const colorClass = EMPLOYEE_COLORS[shift.employeeName] || "bg-primary/10 text-primary border-primary/20";
+                    <div key={dateStr} className="p-2 border-l last:border-0 min-h-[100px] relative group">
+                      <div className="space-y-2 mb-6">
+                        {dayShifts.map(shift => {
+                          const employeeColor = EMPLOYEE_COLORS[shift.employeeName] || "bg-muted text-foreground";
                           return (
-                          <div key={shift.id} className={`text-xs border rounded p-2 relative group/shift ${colorClass}`}>
-                            <div className="font-bold">{shift.employeeName}</div>
+                          <div 
+                            key={shift.id} 
+                            onClick={() => openEditModal(shift)}
+                            className={`p-2 rounded text-sm relative group/shift cursor-pointer shadow-sm ${employeeColor}`}
+                          >
+                            <div className="font-semibold">{shift.employeeName}</div>
                             {(shift.startTime || shift.endTime) && (
-                              <div className="opacity-80">
-                                {shift.startTime} - {shift.endTime}
-                              </div>
+                              <div className="text-xs opacity-90">{shift.startTime} - {shift.endTime}</div>
                             )}
                             {shift.notes && (
-                              <div className="opacity-80 truncate" title={shift.notes}>
-                                {shift.notes}
-                              </div>
+                              <div className="text-xs mt-1 truncate opacity-80">{shift.notes}</div>
                             )}
                             
+                            {/* Duplicate Button */}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); openDuplicateModal(shift); }}
+                              className="absolute top-1 left-7 p-1 bg-background/80 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-primary print:hidden"
+                              title="שכפל משמרת"
+                            >
+                              <Copy className="h-3 w-3 text-foreground" />
+                            </button>
+
                             {/* Delete Button */}
                             <button
-                              onClick={() => handleDeleteShift(shift.id)}
+                              onClick={(e) => handleDeleteShift(shift.id, e)}
                               className="absolute top-1 left-1 p-1 bg-background/80 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-destructive print:hidden"
                               title="מחק משמרת"
                             >
@@ -261,20 +325,46 @@ export default function ShiftsClient() {
         </div>
       </div>
 
-      {/* Add Shift Modal */}
+      {/* Add/Edit Shift Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <Card className="w-full max-w-md shadow-lg border-0">
             <div className="flex justify-between items-center p-4 border-b">
               <h3 className="font-semibold text-lg">
-                הוספת משמרת - {selectedDept} ({format(new Date(selectedDate), "dd/MM/yyyy")})
+                {editingShiftId ? "עריכת משמרת" : "הוספת משמרת"}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="p-1 hover:bg-muted rounded-full">
                 <X className="h-5 w-5" />
               </button>
             </div>
             <CardContent className="p-4">
-              <form onSubmit={handleAddShift} className="space-y-4">
+              <form onSubmit={handleSaveShift} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">תאריך</label>
+                    <input 
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">אגף</label>
+                    <select 
+                      value={selectedDept}
+                      onChange={(e) => setSelectedDept(e.target.value)}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      required
+                    >
+                      {DEPARTMENTS.map(dept => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium">עובד/ת</label>
                   <select 
