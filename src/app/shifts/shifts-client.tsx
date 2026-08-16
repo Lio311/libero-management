@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getShifts, addShift, deleteShift, updateShift, copyPreviousWeekShifts } from "@/app/actions/shifts";
 import { toast } from "sonner";
 import { useConfirm } from "@/hooks/useConfirm";
+import { HebrewCalendar, HDate, flags } from "@hebcal/core";
 
 const DEPARTMENTS = ["משרד", "הנהלה", "חנות", "מחסן", "חופשות"];
 const EMPLOYEES = ["ליאור", "רותי", "אור דוד", "צדוק", "אבישי", "אריאל", "ישראל", "טל", "יוליה"];
@@ -35,6 +36,39 @@ type Shift = {
   startTime: string | null;
   endTime: string | null;
   notes: string | null;
+};
+
+const getHolidayInfo = (date: Date) => {
+  const hdate = new HDate(date);
+  const events = HebrewCalendar.getHolidaysOnDate(hdate, true) || [];
+  let isNoWork = false;
+  let isShabbat = date.getDay() === 6;
+  let label = "";
+
+  for (const ev of events) {
+    const desc = ev.render('he');
+    const evFlags = ev.getFlags();
+    
+    // Remove niqqud for string matching and display
+    const cleanDesc = desc.replace(/[\u0591-\u05C7]/g, '');
+
+    if ((evFlags & flags.CHAG) !== 0 || cleanDesc.includes("עצמאות")) {
+      isNoWork = true;
+      if (!label) label = cleanDesc;
+    } else if ((evFlags & flags.EREV) !== 0 || (evFlags & flags.CHOL_HAMOED) !== 0) {
+      if (!label) label = cleanDesc;
+    } else if (cleanDesc.includes("פורים") || cleanDesc.includes("חנוכה")) {
+      if (!label) label = cleanDesc;
+    }
+  }
+
+  if (isShabbat) {
+    isNoWork = true;
+    if (!label) label = "שבת";
+    else label = `שבת, ${label}`;
+  }
+
+  return { isNoWork, label };
 };
 
 export default function ShiftsClient() {
@@ -354,12 +388,15 @@ export default function ShiftsClient() {
             <div className="p-3 font-semibold flex items-center justify-center border-l">
               אגף
             </div>
-            {days.map((day) => (
-              <div key={day.toISOString()} className="p-3 text-center font-medium border-l last:border-0">
+            {days.map((day) => {
+              const { label } = getHolidayInfo(day);
+              return (
+              <div key={day.toISOString()} className="p-3 text-center font-medium border-l last:border-0 flex flex-col items-center justify-center">
                 <div>{format(day, "EEEE", { locale: he })}</div>
                 <div className="text-sm text-muted-foreground">{format(day, "dd/MM")}</div>
+                {label && <div className="text-xs text-primary font-semibold mt-1">{label}</div>}
               </div>
-            ))}
+            )})}
           </div>
 
           {/* Body Rows (Departments) */}
@@ -381,13 +418,14 @@ export default function ShiftsClient() {
                   const dayShifts = shifts.filter(
                     (s) => s.date === dateStr && s.department === dept
                   );
+                  const { isNoWork } = getHolidayInfo(day);
                   
                   return (
                     <div 
                       key={dateStr} 
-                      className="p-2 border-l last:border-0 min-h-[100px] relative group"
-                      onDragOver={handleDragOver}
-                      onDrop={(e) => handleDrop(e, dateStr, dept)}
+                      className={`p-2 border-l last:border-0 min-h-[100px] relative group ${isNoWork ? 'bg-muted/30' : ''}`}
+                      onDragOver={isNoWork ? undefined : handleDragOver}
+                      onDrop={isNoWork ? undefined : ((e) => handleDrop(e, dateStr, dept))}
                     >
                       <div className="space-y-2 mb-6">
                         {dayShifts.map(shift => {
@@ -395,8 +433,8 @@ export default function ShiftsClient() {
                           return (
                           <div 
                             key={shift.id}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, shift.id)}
+                            draggable={!isNoWork}
+                            onDragStart={isNoWork ? undefined : ((e) => handleDragStart(e, shift.id))}
                             onClick={() => openEditModal(shift)}
                             className={`p-2 rounded text-sm relative group/shift cursor-pointer shadow-sm ${employeeColor} hover:opacity-90 active:scale-95 transition-all`}
                           >
@@ -409,13 +447,15 @@ export default function ShiftsClient() {
                             )}
                             
                             {/* Duplicate Button */}
-                            <button
-                              onClick={(e) => { e.stopPropagation(); openDuplicateModal(shift); }}
-                              className="absolute top-1 left-7 p-1 bg-background/80 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-primary print:hidden"
-                              title="שכפל משמרת"
-                            >
-                              <Copy className="h-3 w-3 text-foreground" />
-                            </button>
+                            {!isNoWork && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); openDuplicateModal(shift); }}
+                                className="absolute top-1 left-7 p-1 bg-background/80 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-primary print:hidden"
+                                title="שכפל משמרת"
+                              >
+                                <Copy className="h-3 w-3 text-foreground" />
+                              </button>
+                            )}
 
                             {/* Delete Button */}
                             <button
@@ -430,12 +470,14 @@ export default function ShiftsClient() {
                       </div>
                       
                       {/* Add Button */}
-                      <button
-                        onClick={() => openAddModal(dateStr, dept)}
-                        className="absolute bottom-2 right-2 left-2 flex items-center justify-center py-1 rounded bg-secondary/50 text-secondary-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary print:hidden"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
+                      {!isNoWork && (
+                        <button
+                          onClick={() => openAddModal(dateStr, dept)}
+                          className="absolute bottom-2 right-2 left-2 flex items-center justify-center py-1 rounded bg-secondary/50 text-secondary-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary print:hidden"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   );
                 })}

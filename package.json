@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@hebcal/core": "^6.9.2",
     "@neondatabase/serverless": "^1.1.0",
     "@vercel/blob": "^2.6.1",
     "class-variance-authority": "^0.7.1",
