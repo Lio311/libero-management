@@ -6,6 +6,17 @@ import { Package, Search } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
+function ClientDate({ date }: { date: Date | string }) {
+  const [mounted, setMounted] = useState(false);
+  
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+  return <>{format(new Date(date), "dd/MM/yyyy HH:mm", { locale: he })}</>;
+}
+
 interface ScannedProduct {
   id: number;
   productName: string;
@@ -119,8 +130,8 @@ export default function LindoClient({ products }: { products: ScannedProduct[] }
                     <td className="py-3 px-4 text-center">
                       <span className="text-sm text-gray-600">{product.stock || "—"}</span>
                     </td>
-                    <td suppressHydrationWarning className="py-3 px-4 text-center text-sm text-gray-500">
-                      {format(new Date(product.scannedAt), "dd/MM/yyyy HH:mm", { locale: he })}
+                    <td className="py-3 px-4 text-center text-sm text-gray-500">
+                      <ClientDate date={product.scannedAt} />
                     </td>
                   </tr>
                 ))}
