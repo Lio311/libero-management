@@ -76,36 +76,31 @@ export async function GET(request: Request) {
 
     const allProducts = catalogData.data;
 
-    // Filter to products that have a dt_created
-    const productsWithDate = allProducts.filter((p: any) => p.dt_created != null);
-
-    // Sort descending by dt_created to get the latest
-    productsWithDate.sort((a: any, b: any) => {
-      return new Date(b.dt_created).getTime() - new Date(a.dt_created).getTime();
-    });
-
-    // We only need to check the top 50 newest products to save DB overhead
-    const recentProducts = productsWithDate.slice(0, 50);
-
-    if (recentProducts.length === 0) {
+    if (!allProducts || allProducts.length === 0) {
       return NextResponse.json({ success: true, message: "No products found" });
     }
 
-    const recentProductIds = recentProducts.map((p: any) => p.id);
-
-    // 3. Find which of these IDs have already been scanned
+    // 3. Find which IDs have already been scanned
+    // We fetch all scanned IDs from the database to check against the entire catalog,
+    // ensuring we don't miss products that were created long ago but only published today.
     const alreadyScanned = await db
       .select({ id: scannedWholesaleProducts.id })
-      .from(scannedWholesaleProducts)
-      .where(inArray(scannedWholesaleProducts.id, recentProductIds));
+      .from(scannedWholesaleProducts);
 
     const scannedIdsSet = new Set(alreadyScanned.map((s) => s.id));
 
-    const newProducts = recentProducts.filter((p: any) => !scannedIdsSet.has(p.id));
+    const newProducts = allProducts.filter((p: any) => !scannedIdsSet.has(p.id));
 
     if (newProducts.length === 0) {
       return NextResponse.json({ success: true, message: "No new products", count: 0 });
     }
+
+    // Sort new products descending by dt_created so the newest show at the top of the email
+    newProducts.sort((a: any, b: any) => {
+      const dateA = a.dt_created ? new Date(a.dt_created).getTime() : 0;
+      const dateB = b.dt_created ? new Date(b.dt_created).getTime() : 0;
+      return (Number.isNaN(dateB) ? 0 : dateB) - (Number.isNaN(dateA) ? 0 : dateA);
+    });
 
     // 4. Send emails for new products
     const gmailAddress = process.env.GMAIL_APP_USER || process.env.GMAIL_ADDRESS;
