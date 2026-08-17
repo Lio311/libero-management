@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { scannedWholesaleProducts } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import nodemailer from "nodemailer";
+import { put } from "@vercel/blob";
 
 export const maxDuration = 300; // 5 minutes max duration for cron
 export const dynamic = "force-dynamic";
@@ -109,7 +110,7 @@ export async function GET(request: Request) {
 
         if (oldPriceStr !== newPriceStr) {
           updatedProducts.push({ ...p, oldPrice: oldPriceStr });
-          productsToUpdate.push({ id: p.id, newPrice: newPriceStr });
+          productsToUpdate.push({ id: p.id, newPrice: newPriceStr, img: p.img });
         }
       } else {
         // New ID, needs to be inserted so we don't scan it as new again
@@ -128,6 +129,51 @@ export async function GET(request: Request) {
     if (trulyNewProducts.length === 0 && updatedProducts.length === 0) {
       return NextResponse.json({ success: true, message: "No new products or updates", count: 0 });
     }
+
+    // 3.5. Upload images to Vercel Blob for new and updated products
+    const uploadedImagesMap = new Map<string, string>();
+    const imagesToUpload = new Set<string>();
+    
+    for (const p of trulyNewProducts) {
+      if (p.img && !p.img.startsWith('http')) imagesToUpload.add(p.img);
+    }
+    for (const p of updatedProducts) {
+      if (p.img && !p.img.startsWith('http')) imagesToUpload.add(p.img);
+    }
+
+    for (const imgFilename of imagesToUpload) {
+      try {
+        const imgRes = await fetch(`https://elvis.lindo.co.il/img/catalog/thumbnail/${encodeURIComponent(imgFilename)}`, {
+          headers: {
+            "Cookie": cookieStr,
+            "Referer": "https://elvis.lindo.co.il/my-account/",
+          },
+          redirect: "manual",
+        });
+
+        if (imgRes.ok) {
+          const buffer = Buffer.from(await imgRes.arrayBuffer());
+          if (buffer.length > 100) {
+            const blob = await put(`lindo-products/${imgFilename}`, buffer, { access: 'public' });
+            uploadedImagesMap.set(imgFilename, blob.url);
+          }
+        }
+      } catch (err) {
+        console.warn(`Failed to upload image for ${imgFilename}:`, err);
+      }
+    }
+
+    const applyBlobUrl = (p: any) => {
+      if (p.img && uploadedImagesMap.has(p.img)) {
+        p.img = uploadedImagesMap.get(p.img);
+      }
+    };
+
+    trulyNewProducts.forEach(applyBlobUrl);
+    updatedProducts.forEach(applyBlobUrl);
+    productsToInsert.forEach(applyBlobUrl);
+    productsToUpdate.forEach(applyBlobUrl);
+
 
     // Sort descending by dt_created
     const sortByDate = (a: any, b: any) => {
@@ -159,42 +205,9 @@ export async function GET(request: Request) {
       const regularNew = trulyNewProducts.filter((p: any) => !isHotProduct(p));
       const regularUpdated = updatedProducts.filter((p: any) => !isHotProduct(p));
 
-      // Pre-fetch all product images using the authenticated Lindo session
-      const allEmailProducts = [...hotNew, ...hotUpdated, ...regularNew, ...regularUpdated];
-      const imageAttachments: { filename: string; content: Buffer; cid: string }[] = [];
-      const cidMap = new Map<string, string>(); // img filename -> cid
-
-      for (const p of allEmailProducts) {
-        if (!p.img || cidMap.has(p.img)) continue;
-        try {
-          const imgRes = await fetch(`https://elvis.lindo.co.il/img/catalog/thumbnail/${encodeURIComponent(p.img)}`, {
-            headers: {
-              "Cookie": cookieStr,
-              "Referer": "https://elvis.lindo.co.il/my-account/",
-            },
-            redirect: "manual",
-          });
-          if (imgRes.ok) {
-            const buffer = Buffer.from(await imgRes.arrayBuffer());
-            if (buffer.length > 100) { // Ensure it's not an empty/redirect response
-              const cid = `img_${imageAttachments.length}@lindo`;
-              cidMap.set(p.img, cid);
-              imageAttachments.push({
-                filename: p.img,
-                content: buffer,
-                cid,
-              });
-            }
-          }
-        } catch (imgErr) {
-          console.warn(`Failed to fetch image for ${p.img}:`, imgErr);
-        }
-      }
-
       const generateHtml = (newItems: any[], updatedItems: any[], title: string) => {
         const getImgTag = (p: any) => {
-          const cid = p.img ? cidMap.get(p.img) : null;
-          return cid ? `<img src="cid:${cid}" width="80" />` : '—';
+          return p.img ? `<img src="${p.img}" width="80" />` : '—';
         };
 
         let html = `<div dir="rtl" style="font-family: Arial, sans-serif;"><h2>${title}</h2>`;
@@ -269,15 +282,11 @@ export async function GET(request: Request) {
       if (hotNew.length > 0 || hotUpdated.length > 0) {
         try {
           const totalHot = hotNew.length + hotUpdated.length;
-          // Only include attachments used by hot products
-          const hotImgs = [...hotNew, ...hotUpdated].map(p => p.img).filter(Boolean);
-          const hotAttachments = imageAttachments.filter(a => hotImgs.includes(a.filename));
           await transporter.sendMail({
             from: gmailAddress,
             to: HOT_EMAILS.join(", "),
             subject: `🔥 עדכון מוצרים חמים מהאתר הסיטונאי (${totalHot})`,
             html: generateHtml(hotNew, hotUpdated, `עדכון לגבי ${totalHot} מוצרים חמים!`),
-            attachments: hotAttachments,
           });
           emailsSent++;
         } catch (err) {
@@ -289,14 +298,11 @@ export async function GET(request: Request) {
       if (regularNew.length > 0 || regularUpdated.length > 0) {
         try {
           const totalRegular = regularNew.length + regularUpdated.length;
-          const regularImgs = [...regularNew, ...regularUpdated].map(p => p.img).filter(Boolean);
-          const regularAttachments = imageAttachments.filter(a => regularImgs.includes(a.filename));
           await transporter.sendMail({
             from: gmailAddress,
             to: NORMAL_EMAILS.join(", "),
             subject: `📦 עדכון מוצרים רגילים מהאתר הסיטונאי (${totalRegular})`,
             html: generateHtml(regularNew, regularUpdated, `עדכון לגבי ${totalRegular} מוצרים`),
-            attachments: regularAttachments,
           });
           emailsSent++;
         } catch (err) {
@@ -321,8 +327,12 @@ export async function GET(request: Request) {
 
     if (productsToUpdate.length > 0) {
       for (const u of productsToUpdate) {
+        const updateData: any = { price: u.newPrice };
+        if (u.img && u.img.startsWith('http')) {
+          updateData.img = u.img;
+        }
         await db.update(scannedWholesaleProducts)
-          .set({ price: u.newPrice })
+          .set(updateData)
           .where(eq(scannedWholesaleProducts.id, u.id));
       }
     }

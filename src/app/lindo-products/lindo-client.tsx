@@ -96,7 +96,7 @@ export default function LindoClient({ products }: { products: ScannedProduct[] }
                       <div className="flex items-center gap-3">
                         {product.img ? (
                           <img
-                            src={`https://elvis.lindo.co.il/img/catalog/thumbnail/${product.img}`}
+                            src={product.img.startsWith('http') ? product.img : `https://elvis.lindo.co.il/img/catalog/thumbnail/${product.img}`}
                             alt={product.productName}
                             className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0"
                           />
