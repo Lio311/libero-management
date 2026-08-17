@@ -15,7 +15,7 @@ export async function getLaburaInventoryCounts() {
   }
 }
 
-export async function updateLaburaInventoryCount(id: string, field: string, value: number) {
+export async function updateLaburaInventoryCount(id: string, field: string, value: number | string) {
   try {
     await db.update(laburaInventoryCounts)
       .set({ 

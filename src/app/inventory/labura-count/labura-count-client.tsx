@@ -15,6 +15,7 @@ type LaburaItem = {
   stickers: number;
   smallStickersForSamples: number;
   isArchived: boolean;
+  factoryName: string;
 };
 
 export default function LaburaCountClient({ initialData }: { initialData: LaburaItem[] }) {
@@ -31,6 +32,16 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
   }, []);
 
   const handleUpdate = async (id: string, field: keyof LaburaItem, value: string) => {
+    if (field === 'butterName' || field === 'factoryName') {
+      // Optimistically update UI
+      setData(prev => 
+        prev.map(item => item.id === id ? { ...item, [field]: value } : item)
+      );
+      // Call server action
+      await updateLaburaInventoryCount(id, field, value);
+      return;
+    }
+
     let newLocalValue: number | "" = value === "" ? "" : parseInt(value, 10);
     if (typeof newLocalValue === "number" && isNaN(newLocalValue)) newLocalValue = 0;
 
@@ -170,6 +181,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           <tr>
             <th className="px-2 py-3 font-medium whitespace-nowrap">#</th>
             <th className="px-2 py-3 font-medium whitespace-nowrap">שם החמאה</th>
+            <th className="px-2 py-3 font-medium whitespace-nowrap">שם מפעל</th>
             {printMode === 'all' && (
               <th className="px-2 py-3 font-medium min-w-[100px] leading-tight text-center">מספר יחידות ממוצר מוגמר</th>
             )}
@@ -195,7 +207,29 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           {displayData.map((item, index) => (
             <tr key={item.id} className="hover:bg-muted/30 transition-colors">
               <td className="px-2 py-3 text-muted-foreground w-10 text-center">{index + 1}</td>
-              <td className="px-2 py-3 font-medium min-w-[180px]">{item.butterName}</td>
+              <td className="px-2 py-3 min-w-[180px]">
+                <input
+                  type="text"
+                  value={item.butterName}
+                  onChange={(e) => handleUpdate(item.id, 'butterName', e.target.value)}
+                  className="w-full bg-transparent border border-transparent hover:border-input focus:border-input font-medium px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-md transition-colors print-hide"
+                />
+                <span className="hidden print-show font-medium">
+                  {item.butterName}
+                </span>
+              </td>
+              <td className="px-2 py-3 min-w-[140px]">
+                <input
+                  type="text"
+                  value={item.factoryName || ''}
+                  onChange={(e) => handleUpdate(item.id, 'factoryName', e.target.value)}
+                  className="w-full bg-transparent border border-transparent hover:border-input focus:border-input font-medium px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-md transition-colors print-hide"
+                  placeholder="שם מפעל..."
+                />
+                <span className="hidden print-show font-medium">
+                  {item.factoryName}
+                </span>
+              </td>
               
               {printMode === 'all' && (
                   <td className="px-2 py-3 w-28">
@@ -304,7 +338,7 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
           ))}
           {displayData.length === 0 && (
             <tr>
-              <td colSpan={printMode === 'all' ? 9 : 3} className="px-4 py-8 text-center text-muted-foreground">
+              <td colSpan={printMode === 'all' ? 10 : 4} className="px-4 py-8 text-center text-muted-foreground">
                 אין נתונים בטבלה
               </td>
             </tr>
@@ -358,8 +392,9 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
             <table className="w-full text-right text-sm">
               <thead className="bg-muted/50 text-muted-foreground">
                 <tr>
-                  <th className="px-2 py-3 font-medium whitespace-nowrap">#</th>
+                  <th className="px-2 py-3 font-medium whitespace-nowrap w-10">#</th>
                   <th className="px-2 py-3 font-medium whitespace-nowrap">שם החמאה</th>
+                  <th className="px-2 py-3 font-medium whitespace-nowrap">שם מפעל</th>
                   <th className="px-2 py-3 font-medium text-center">פעולות</th>
                 </tr>
               </thead>
@@ -367,7 +402,23 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
                 {archivedData.map((item, index) => (
                   <tr key={item.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-2 py-3 text-muted-foreground w-10 text-center">{index + 1}</td>
-                    <td className="px-2 py-3 font-medium min-w-[180px]">{item.butterName}</td>
+                    <td className="px-2 py-3 min-w-[180px]">
+                      <input
+                        type="text"
+                        value={item.butterName}
+                        onChange={(e) => handleUpdate(item.id, 'butterName', e.target.value)}
+                        className="w-full bg-transparent border border-transparent hover:border-input focus:border-input font-medium px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-md transition-colors"
+                      />
+                    </td>
+                    <td className="px-2 py-3 min-w-[140px]">
+                      <input
+                        type="text"
+                        value={item.factoryName || ''}
+                        onChange={(e) => handleUpdate(item.id, 'factoryName', e.target.value)}
+                        className="w-full bg-transparent border border-transparent hover:border-input focus:border-input font-medium px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-md transition-colors"
+                        placeholder="שם מפעל..."
+                      />
+                    </td>
                     <td className="px-2 py-3 w-32 text-center">
                       <div className="flex items-center justify-center gap-2">
                         <button
