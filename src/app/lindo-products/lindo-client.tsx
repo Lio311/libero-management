@@ -96,7 +96,7 @@ export default function LindoClient({ products }: { products: ScannedProduct[] }
                       <div className="flex items-center gap-3">
                         {product.img ? (
                           <img
-                            src={product.img.startsWith('http') ? product.img : `https://elvis.lindo.co.il/img/catalog/thumbnail/${product.img}`}
+                            src={product.img.startsWith('http') ? product.img : `/api/lindo-image?filename=${product.img}`}
                             alt={product.productName}
                             className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0"
                           />
@@ -119,7 +119,7 @@ export default function LindoClient({ products }: { products: ScannedProduct[] }
                     <td className="py-3 px-4 text-center">
                       <span className="text-sm text-gray-600">{product.stock || "—"}</span>
                     </td>
-                    <td className="py-3 px-4 text-center text-sm text-gray-500">
+                    <td suppressHydrationWarning className="py-3 px-4 text-center text-sm text-gray-500">
                       {format(new Date(product.scannedAt), "dd/MM/yyyy HH:mm", { locale: he })}
                     </td>
                   </tr>
