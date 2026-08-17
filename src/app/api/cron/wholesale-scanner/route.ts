@@ -181,7 +181,7 @@ export async function GET(request: Request) {
               <tbody>
                 ${newItems.map(p => `
                   <tr>
-                    <td><img src="${baseUrl}/api/lindo-image?img=${p.img}" width="80" /></td>
+                    <td>${p.img ? `<img src="${baseUrl}/api/lindo-image?img=${encodeURIComponent(p.img)}" width="80" />` : '—'}</td>
                     <td>${p.brand}</td>
                     <td>${p.product_name}</td>
                     <td>₪${p.price}</td>
@@ -212,7 +212,7 @@ export async function GET(request: Request) {
               <tbody>
                 ${updatedItems.map(p => `
                   <tr>
-                    <td><img src="${baseUrl}/api/lindo-image?img=${p.img}" width="80" /></td>
+                    <td>${p.img ? `<img src="${baseUrl}/api/lindo-image?img=${encodeURIComponent(p.img)}" width="80" />` : '—'}</td>
                     <td>${p.brand}</td>
                     <td>${p.product_name}</td>
                     <td style="color: red; font-weight: bold;">₪${p.price}</td>
