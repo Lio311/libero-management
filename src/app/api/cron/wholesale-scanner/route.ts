@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { scannedWholesaleProducts } from "@/lib/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import nodemailer from "nodemailer";
 
 export const maxDuration = 300; // 5 minutes max duration for cron
@@ -80,29 +80,66 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, message: "No products found" });
     }
 
-    // 3. Find which IDs have already been scanned
-    // We fetch all scanned IDs from the database to check against the entire catalog,
-    // ensuring we don't miss products that were created long ago but only published today.
+    // 3. Find which IDs and names have already been scanned
     const alreadyScanned = await db
-      .select({ id: scannedWholesaleProducts.id })
+      .select({ 
+        id: scannedWholesaleProducts.id, 
+        productName: scannedWholesaleProducts.productName,
+        price: scannedWholesaleProducts.price
+      })
       .from(scannedWholesaleProducts);
 
-    const scannedIdsSet = new Set(alreadyScanned.map((s) => s.id));
+    const scannedIdsMap = new Map(alreadyScanned.map((s) => [s.id, s]));
+    const scannedNamesMap = new Map(alreadyScanned.map((s) => [(s.productName || "").trim().toLowerCase(), s]));
 
-    const newProducts = allProducts.filter((p: any) => !scannedIdsSet.has(p.id));
+    const trulyNewProducts: any[] = [];
+    const updatedProducts: any[] = [];
+    
+    const productsToInsert: any[] = [];
+    const productsToUpdate: any[] = [];
 
-    if (newProducts.length === 0) {
-      return NextResponse.json({ success: true, message: "No new products", count: 0 });
+    for (const p of allProducts) {
+      const existingById = scannedIdsMap.get(p.id);
+      const existingByName = scannedNamesMap.get((p.product_name || "").trim().toLowerCase());
+
+      if (existingById) {
+        // ID already exists. Check if the price has changed.
+        const oldPriceStr = existingById.price ? String(existingById.price) : null;
+        const newPriceStr = p.price ? String(p.price) : null;
+
+        if (oldPriceStr !== newPriceStr) {
+          updatedProducts.push({ ...p, oldPrice: oldPriceStr });
+          productsToUpdate.push({ id: p.id, newPrice: newPriceStr });
+        }
+      } else {
+        // New ID, needs to be inserted so we don't scan it as new again
+        productsToInsert.push(p);
+
+        if (existingByName) {
+          // Name already exists, so it's a re-upload or price update
+          updatedProducts.push({ ...p, oldPrice: existingByName.price });
+        } else {
+          // Truly new product
+          trulyNewProducts.push(p);
+        }
+      }
     }
 
-    // Sort new products descending by dt_created so the newest show at the top of the email
-    newProducts.sort((a: any, b: any) => {
+    if (trulyNewProducts.length === 0 && updatedProducts.length === 0) {
+      return NextResponse.json({ success: true, message: "No new products or updates", count: 0 });
+    }
+
+    // Sort descending by dt_created
+    const sortByDate = (a: any, b: any) => {
       const dateA = a.dt_created ? new Date(a.dt_created).getTime() : 0;
       const dateB = b.dt_created ? new Date(b.dt_created).getTime() : 0;
       return (Number.isNaN(dateB) ? 0 : dateB) - (Number.isNaN(dateA) ? 0 : dateA);
-    });
+    };
 
-    // 4. Send emails for new products
+    trulyNewProducts.sort(sortByDate);
+    updatedProducts.sort(sortByDate);
+
+    // 4. Send emails
     const gmailAddress = process.env.GMAIL_APP_USER || process.env.GMAIL_ADDRESS;
     const gmailPassword = process.env.GMAIL_APP_PASSWORD;
 
@@ -116,93 +153,142 @@ export async function GET(request: Request) {
         auth: { user: gmailAddress, pass: gmailPassword },
       });
 
+      const hotNew = trulyNewProducts.filter(isHotProduct);
+      const hotUpdated = updatedProducts.filter(isHotProduct);
 
+      const regularNew = trulyNewProducts.filter((p: any) => !isHotProduct(p));
+      const regularUpdated = updatedProducts.filter((p: any) => !isHotProduct(p));
 
-    const hotProducts = newProducts.filter(isHotProduct);
-    const regularProducts = newProducts.filter((p: any) => !isHotProduct(p));
+      const baseUrl = new URL(request.url).origin;
 
-    const baseUrl = new URL(request.url).origin;
+      const generateHtml = (newItems: any[], updatedItems: any[], title: string) => {
+        let html = `<div dir="rtl" style="font-family: Arial, sans-serif;"><h2>${title}</h2>`;
 
-    // Helper to generate email HTML
-    const generateHtml = (products: any[], title: string) => {
-      return `
-        <div dir="rtl" style="font-family: Arial, sans-serif;">
-          <h2>${title}</h2>
-          <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
-            <thead>
-              <tr style="background-color: #f2f2f2;">
-                <th>תמונה</th>
-                <th>מותג</th>
-                <th>שם המוצר</th>
-                <th>מחיר</th>
-                <th>מלאי</th>
-                <th>תאריך העלאה</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${products.map(p => `
-                <tr>
-                  <td><img src="${baseUrl}/api/lindo-image?img=${p.img}" width="80" /></td>
-                  <td>${p.brand}</td>
-                  <td>${p.product_name}</td>
-                  <td>₪${p.price}</td>
-                  <td>${p.stock}</td>
-                  <td>${p.dt_created}</td>
+        if (newItems.length > 0) {
+          html += `<h3>✨ מוצרים חדשים</h3>`;
+          html += `
+            <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
+              <thead>
+                <tr style="background-color: #f2f2f2;">
+                  <th>תמונה</th>
+                  <th>מותג</th>
+                  <th>שם המוצר</th>
+                  <th>מחיר</th>
+                  <th>מלאי</th>
+                  <th>תאריך העלאה</th>
                 </tr>
-              `).join("")}
-            </tbody>
-          </table>
-        </div>
-      `;
-    };
+              </thead>
+              <tbody>
+                ${newItems.map(p => `
+                  <tr>
+                    <td><img src="${baseUrl}/api/lindo-image?img=${p.img}" width="80" /></td>
+                    <td>${p.brand}</td>
+                    <td>${p.product_name}</td>
+                    <td>₪${p.price}</td>
+                    <td>${p.stock}</td>
+                    <td>${p.dt_created}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          `;
+        }
 
-    // Send Hot Products Email
-    if (hotProducts.length > 0 && gmailAddress) {
-      try {
-        await transporter.sendMail({
-          from: gmailAddress,
-          to: HOT_EMAILS.join(", "),
-          subject: `🔥 מוצרים חמים חדשים עלו לאתר הסיטונאי (${hotProducts.length})`,
-          html: generateHtml(hotProducts, `עלו ${hotProducts.length} מוצרים חמים חדשים!`),
-        });
-        emailsSent++;
-      } catch (err) {
-        console.error("Failed to send hot products email:", err);
-      }
-    }
+        if (updatedItems.length > 0) {
+          html += `<h3>🔄 עדכוני מחיר / חזר למלאי</h3>`;
+          html += `
+            <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
+              <thead>
+                <tr style="background-color: #f2f2f2;">
+                  <th>תמונה</th>
+                  <th>מותג</th>
+                  <th>שם המוצר</th>
+                  <th>מחיר עדכני</th>
+                  <th>מחיר קודם</th>
+                  <th>מלאי</th>
+                  <th>תאריך העלאה</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${updatedItems.map(p => `
+                  <tr>
+                    <td><img src="${baseUrl}/api/lindo-image?img=${p.img}" width="80" /></td>
+                    <td>${p.brand}</td>
+                    <td>${p.product_name}</td>
+                    <td style="color: red; font-weight: bold;">₪${p.price}</td>
+                    <td style="text-decoration: line-through; color: #888;">${p.oldPrice ? `₪${p.oldPrice}` : 'לא ידוע'}</td>
+                    <td>${p.stock}</td>
+                    <td>${p.dt_created}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          `;
+        }
 
-    // Send Regular Products Email
-    if (regularProducts.length > 0 && gmailAddress) {
-      try {
-        await transporter.sendMail({
-          from: gmailAddress,
-          to: NORMAL_EMAILS.join(", "),
-          subject: `📦 מוצרים רגילים חדשים עלו לאתר הסיטונאי (${regularProducts.length})`,
-          html: generateHtml(regularProducts, `עלו ${regularProducts.length} מוצרים חדשים`),
-        });
-        emailsSent++;
-      } catch (err) {
-        console.error("Failed to send regular products email:", err);
+        html += `</div>`;
+        return html;
+      };
+
+      // Send Hot Products Email
+      if (hotNew.length > 0 || hotUpdated.length > 0) {
+        try {
+          const totalHot = hotNew.length + hotUpdated.length;
+          await transporter.sendMail({
+            from: gmailAddress,
+            to: HOT_EMAILS.join(", "),
+            subject: `🔥 עדכון מוצרים חמים מהאתר הסיטונאי (${totalHot})`,
+            html: generateHtml(hotNew, hotUpdated, `עדכון לגבי ${totalHot} מוצרים חמים!`),
+          });
+          emailsSent++;
+        } catch (err) {
+          console.error("Failed to send hot products email:", err);
+        }
       }
-    }
+
+      // Send Regular Products Email
+      if (regularNew.length > 0 || regularUpdated.length > 0) {
+        try {
+          const totalRegular = regularNew.length + regularUpdated.length;
+          await transporter.sendMail({
+            from: gmailAddress,
+            to: NORMAL_EMAILS.join(", "),
+            subject: `📦 עדכון מוצרים רגילים מהאתר הסיטונאי (${totalRegular})`,
+            html: generateHtml(regularNew, regularUpdated, `עדכון לגבי ${totalRegular} מוצרים`),
+          });
+          emailsSent++;
+        } catch (err) {
+          console.error("Failed to send regular products email:", err);
+        }
+      }
     } // close the else block for email configuration check
 
-    // 5. Insert newly scanned IDs into database
-    const insertData = newProducts.map((p: any) => ({
-      id: p.id,
-      productName: p.product_name || "Unknown",
-      brand: p.brand || "",
-      img: p.img || "",
-      price: p.price ? String(p.price) : null,
-      stock: p.stock ? String(p.stock) : null,
-    }));
+    // 5. Update database
+    if (productsToInsert.length > 0) {
+      const insertData = productsToInsert.map((p: any) => ({
+        id: p.id,
+        productName: p.product_name || "Unknown",
+        brand: p.brand || "",
+        img: p.img || "",
+        price: p.price ? String(p.price) : null,
+        stock: p.stock ? String(p.stock) : null,
+      }));
+      await db.insert(scannedWholesaleProducts).values(insertData);
+    }
 
-    await db.insert(scannedWholesaleProducts).values(insertData);
+    if (productsToUpdate.length > 0) {
+      for (const u of productsToUpdate) {
+        await db.update(scannedWholesaleProducts)
+          .set({ price: u.newPrice })
+          .where(eq(scannedWholesaleProducts.id, u.id));
+      }
+    }
 
     return NextResponse.json({
       success: true,
       message: "Scanned successfully",
-      newProductsCount: newProducts.length,
+      newProductsCount: trulyNewProducts.length,
+      updatedProductsCount: updatedProducts.length,
       emailsSent,
     });
   } catch (error: any) {
