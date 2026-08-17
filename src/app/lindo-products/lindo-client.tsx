@@ -104,22 +104,9 @@ export default function LindoClient({ products }: { products: ScannedProduct[] }
                     className="bg-white hover:bg-gray-50/80 border-r-4 border-r-gray-200 transition-colors"
                   >
                     <td className="py-3 px-4 text-right">
-                      <div className="flex items-center gap-3">
-                        {product.img && product.img.startsWith('http') ? (
-                          <img
-                            src={product.img}
-                            alt={product.productName}
-                            className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                            <Package className="w-5 h-5 text-gray-400" />
-                          </div>
-                        )}
-                        <span className="text-sm font-medium text-gray-900 block">
-                          {product.productName}
-                        </span>
-                      </div>
+                      <span className="text-sm font-medium text-gray-900 block">
+                        {product.productName}
+                      </span>
                     </td>
                     <td className="py-3 px-4 text-center">
                       <span className="text-sm text-gray-600">{product.brand || "—"}</span>

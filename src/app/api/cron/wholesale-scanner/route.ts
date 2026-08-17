@@ -130,51 +130,6 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, message: "No new products or updates", count: 0 });
     }
 
-    // 3.5. Upload images to Vercel Blob for new and updated products
-    const uploadedImagesMap = new Map<string, string>();
-    const imagesToUpload = new Set<string>();
-    
-    for (const p of trulyNewProducts) {
-      if (p.img && !p.img.startsWith('http')) imagesToUpload.add(p.img);
-    }
-    for (const p of updatedProducts) {
-      if (p.img && !p.img.startsWith('http')) imagesToUpload.add(p.img);
-    }
-
-    for (const imgFilename of imagesToUpload) {
-      try {
-        const imgRes = await fetch(`https://elvis.lindo.co.il/img/catalog/thumbnail/${encodeURIComponent(imgFilename)}`, {
-          headers: {
-            "Cookie": cookieStr,
-            "Referer": "https://elvis.lindo.co.il/my-account/",
-          },
-          redirect: "manual",
-        });
-
-        if (imgRes.ok) {
-          const buffer = Buffer.from(await imgRes.arrayBuffer());
-          if (buffer.length > 100) {
-            const blob = await put(`lindo-products/${imgFilename}`, buffer, { access: 'public' });
-            uploadedImagesMap.set(imgFilename, blob.url);
-          }
-        }
-      } catch (err) {
-        console.warn(`Failed to upload image for ${imgFilename}:`, err);
-      }
-    }
-
-    const applyBlobUrl = (p: any) => {
-      if (p.img && uploadedImagesMap.has(p.img)) {
-        p.img = uploadedImagesMap.get(p.img);
-      }
-    };
-
-    trulyNewProducts.forEach(applyBlobUrl);
-    updatedProducts.forEach(applyBlobUrl);
-    productsToInsert.forEach(applyBlobUrl);
-    productsToUpdate.forEach(applyBlobUrl);
-
-
     // Sort descending by dt_created
     const sortByDate = (a: any, b: any) => {
       const dateA = a.dt_created ? new Date(a.dt_created).getTime() : 0;
@@ -206,10 +161,6 @@ export async function GET(request: Request) {
       const regularUpdated = updatedProducts.filter((p: any) => !isHotProduct(p));
 
       const generateHtml = (newItems: any[], updatedItems: any[], title: string) => {
-        const getImgTag = (p: any) => {
-          return p.img ? `<img src="${p.img}" width="80" />` : '—';
-        };
-
         let html = `<div dir="rtl" style="font-family: Arial, sans-serif;"><h2>${title}</h2>`;
 
         if (newItems.length > 0) {
@@ -218,7 +169,6 @@ export async function GET(request: Request) {
             <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%; margin-bottom: 20px;">
               <thead>
                 <tr style="background-color: #f2f2f2;">
-                  <th>תמונה</th>
                   <th>מותג</th>
                   <th>שם המוצר</th>
                   <th>מחיר</th>
@@ -229,7 +179,6 @@ export async function GET(request: Request) {
               <tbody>
                 ${newItems.map(p => `
                   <tr>
-                    <td>${getImgTag(p)}</td>
                     <td>${p.brand}</td>
                     <td>${p.product_name}</td>
                     <td>₪${p.price}</td>
@@ -248,7 +197,6 @@ export async function GET(request: Request) {
             <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
               <thead>
                 <tr style="background-color: #f2f2f2;">
-                  <th>תמונה</th>
                   <th>מותג</th>
                   <th>שם המוצר</th>
                   <th>מחיר עדכני</th>
@@ -260,7 +208,6 @@ export async function GET(request: Request) {
               <tbody>
                 ${updatedItems.map(p => `
                   <tr>
-                    <td>${getImgTag(p)}</td>
                     <td>${p.brand}</td>
                     <td>${p.product_name}</td>
                     <td style="color: red; font-weight: bold;">₪${p.price}</td>
