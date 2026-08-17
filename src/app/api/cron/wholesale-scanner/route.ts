@@ -121,6 +121,8 @@ export async function GET(request: Request) {
     const hotProducts = newProducts.filter(isHotProduct);
     const regularProducts = newProducts.filter((p: any) => !isHotProduct(p));
 
+    const baseUrl = new URL(request.url).origin;
+
     // Helper to generate email HTML
     const generateHtml = (products: any[], title: string) => {
       return `
@@ -140,7 +142,7 @@ export async function GET(request: Request) {
             <tbody>
               ${products.map(p => `
                 <tr>
-                  <td><img src="https://elvis.lindo.co.il/img/catalog/thumbnail/${p.img}" width="80" /></td>
+                  <td><img src="${baseUrl}/api/lindo-image?img=${p.img}" width="80" /></td>
                   <td>${p.brand}</td>
                   <td>${p.product_name}</td>
                   <td>₪${p.price}</td>
