@@ -47,9 +47,14 @@ export async function GET(request: Request) {
 
   // If we got redirected (likely to login), it means the cookie expired or was invalid
   if (imgRes.status === 302 || imgRes.status === 301) {
+     const debugInfo = {
+       loginCookie: !!cachedCookie,
+       imgStatus: imgRes.status,
+       imgLocation: imgRes.headers.get("location"),
+     };
      cachedCookie = "";
      cookieExpires = 0;
-     return new NextResponse("Unauthorized or Expired", { status: 401 });
+     return new NextResponse(`Unauthorized or Expired: ${JSON.stringify(debugInfo)}`, { status: 401 });
   }
 
   if (!imgRes.ok) {
