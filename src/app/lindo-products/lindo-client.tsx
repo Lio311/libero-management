@@ -105,9 +105,9 @@ export default function LindoClient({ products }: { products: ScannedProduct[] }
                   >
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center gap-3">
-                        {product.img ? (
+                        {product.img && product.img.startsWith('http') ? (
                           <img
-                            src={product.img.startsWith('http') ? product.img : `/api/lindo-image?img=${product.img}`}
+                            src={product.img}
                             alt={product.productName}
                             className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0"
                           />
