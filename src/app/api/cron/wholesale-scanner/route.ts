@@ -159,9 +159,44 @@ export async function GET(request: Request) {
       const regularNew = trulyNewProducts.filter((p: any) => !isHotProduct(p));
       const regularUpdated = updatedProducts.filter((p: any) => !isHotProduct(p));
 
-      const baseUrl = new URL(request.url).origin;
+      // Pre-fetch all product images using the authenticated Lindo session
+      const allEmailProducts = [...hotNew, ...hotUpdated, ...regularNew, ...regularUpdated];
+      const imageAttachments: { filename: string; content: Buffer; cid: string }[] = [];
+      const cidMap = new Map<string, string>(); // img filename -> cid
+
+      for (const p of allEmailProducts) {
+        if (!p.img || cidMap.has(p.img)) continue;
+        try {
+          const imgRes = await fetch(`https://elvis.lindo.co.il/img/catalog/thumbnail/${encodeURIComponent(p.img)}`, {
+            headers: {
+              "Cookie": cookieStr,
+              "Referer": "https://elvis.lindo.co.il/my-account/",
+            },
+            redirect: "manual",
+          });
+          if (imgRes.ok) {
+            const buffer = Buffer.from(await imgRes.arrayBuffer());
+            if (buffer.length > 100) { // Ensure it's not an empty/redirect response
+              const cid = `img_${imageAttachments.length}@lindo`;
+              cidMap.set(p.img, cid);
+              imageAttachments.push({
+                filename: p.img,
+                content: buffer,
+                cid,
+              });
+            }
+          }
+        } catch (imgErr) {
+          console.warn(`Failed to fetch image for ${p.img}:`, imgErr);
+        }
+      }
 
       const generateHtml = (newItems: any[], updatedItems: any[], title: string) => {
+        const getImgTag = (p: any) => {
+          const cid = p.img ? cidMap.get(p.img) : null;
+          return cid ? `<img src="cid:${cid}" width="80" />` : '—';
+        };
+
         let html = `<div dir="rtl" style="font-family: Arial, sans-serif;"><h2>${title}</h2>`;
 
         if (newItems.length > 0) {
@@ -181,7 +216,7 @@ export async function GET(request: Request) {
               <tbody>
                 ${newItems.map(p => `
                   <tr>
-                    <td>${p.img ? `<img src="${baseUrl}/api/lindo-image?img=${encodeURIComponent(p.img)}" width="80" />` : '—'}</td>
+                    <td>${getImgTag(p)}</td>
                     <td>${p.brand}</td>
                     <td>${p.product_name}</td>
                     <td>₪${p.price}</td>
@@ -212,7 +247,7 @@ export async function GET(request: Request) {
               <tbody>
                 ${updatedItems.map(p => `
                   <tr>
-                    <td>${p.img ? `<img src="${baseUrl}/api/lindo-image?img=${encodeURIComponent(p.img)}" width="80" />` : '—'}</td>
+                    <td>${getImgTag(p)}</td>
                     <td>${p.brand}</td>
                     <td>${p.product_name}</td>
                     <td style="color: red; font-weight: bold;">₪${p.price}</td>
@@ -234,11 +269,15 @@ export async function GET(request: Request) {
       if (hotNew.length > 0 || hotUpdated.length > 0) {
         try {
           const totalHot = hotNew.length + hotUpdated.length;
+          // Only include attachments used by hot products
+          const hotImgs = [...hotNew, ...hotUpdated].map(p => p.img).filter(Boolean);
+          const hotAttachments = imageAttachments.filter(a => hotImgs.includes(a.filename));
           await transporter.sendMail({
             from: gmailAddress,
             to: HOT_EMAILS.join(", "),
             subject: `🔥 עדכון מוצרים חמים מהאתר הסיטונאי (${totalHot})`,
             html: generateHtml(hotNew, hotUpdated, `עדכון לגבי ${totalHot} מוצרים חמים!`),
+            attachments: hotAttachments,
           });
           emailsSent++;
         } catch (err) {
@@ -250,11 +289,14 @@ export async function GET(request: Request) {
       if (regularNew.length > 0 || regularUpdated.length > 0) {
         try {
           const totalRegular = regularNew.length + regularUpdated.length;
+          const regularImgs = [...regularNew, ...regularUpdated].map(p => p.img).filter(Boolean);
+          const regularAttachments = imageAttachments.filter(a => regularImgs.includes(a.filename));
           await transporter.sendMail({
             from: gmailAddress,
             to: NORMAL_EMAILS.join(", "),
             subject: `📦 עדכון מוצרים רגילים מהאתר הסיטונאי (${totalRegular})`,
             html: generateHtml(regularNew, regularUpdated, `עדכון לגבי ${totalRegular} מוצרים`),
+            attachments: regularAttachments,
           });
           emailsSent++;
         } catch (err) {
@@ -262,6 +304,7 @@ export async function GET(request: Request) {
         }
       }
     } // close the else block for email configuration check
+
 
     // 5. Update database
     if (productsToInsert.length > 0) {
