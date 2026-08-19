@@ -147,11 +147,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
           {(() => {
             let allNavigation = [...navigation];
             if (isAdmin) {
-              allNavigation.push({
-                name: "הגדרות סריקה",
-                href: "/shipping-scanner/settings",
-                icon: Settings
-              });
+
               allNavigation.push({
                 name: "אישור משתמשים",
                 href: "/admin/users",
