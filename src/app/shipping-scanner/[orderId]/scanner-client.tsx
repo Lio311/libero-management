@@ -331,18 +331,18 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           
           <div className="flex items-center gap-3 h-10">
           {localOrderStatus === "processing" && (
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center gap-2">
-              <ScanLine className="w-4 h-4" /> בתהליך סריקה
+            <span className="px-4 py-2 rounded-xl font-medium bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center gap-2 h-10">
+              <ScanLine className="w-5 h-5" /> בתהליך סריקה
             </span>
           )}
           {localOrderStatus === "on_hold" && (
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-orange-500/10 text-orange-500 border border-orange-500/20 flex items-center gap-2">
-              <Pause className="w-4 h-4" /> מושהה (חוסרים)
+            <span className="px-4 py-2 rounded-xl font-medium bg-orange-500/10 text-orange-500 border border-orange-500/20 flex items-center gap-2 h-10">
+              <Pause className="w-5 h-5" /> מושהה (חוסרים)
             </span>
           )}
           {localOrderStatus === "completed" && (
-            <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-500/10 text-green-500 border border-green-500/20 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" /> כלל המוצרים בהזמנה נסרקו
+            <span className="px-4 py-2 rounded-xl font-medium bg-green-500/10 text-green-500 border border-green-500/20 flex items-center gap-2 h-10">
+              <CheckCircle2 className="w-5 h-5" /> כלל המוצרים בהזמנה נסרקו
             </span>
           )}
           </div>
