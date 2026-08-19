@@ -24,6 +24,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/qc-sync(.*)',
   '/api/qc-notify(.*)',
   '/api/lionwheel/proxy-pdf(.*)',
+  '/api/lionwheel/auto-print(.*)',
   '/api/cron/wholesale-scanner(.*)',
   '/api/cron/generate-qc-report(.*)',
   '/api/lindo-image(.*)',

@@ -278,7 +278,15 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
       if (res.success && res.labelUrl) {
         toast.success("מדבקה נוצרה בהצלחה! פותח להדפסה...");
-        window.open(res.labelUrl, '_blank');
+        
+        // On mobile, use server-side proxy that extracts the real PDF
+        // so Android shows it inline with a print button instead of a download screen
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        if (isMobile) {
+          window.open(`/api/lionwheel/proxy-pdf?url=${encodeURIComponent(res.labelUrl)}`, '_blank');
+        } else {
+          window.open(res.labelUrl, '_blank');
+        }
       } else {
         toast.error("שגיאה ביצירת המדבקה: " + (res.error || "לא ידוע"));
       }

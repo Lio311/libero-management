@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <title>Lionwheel | Generate Labels </title>
+  <script>
+//<![CDATA[
+window.gon={};gon.mapa={"token":"g8EapQFfMQGcJ6Y7gAqG1WfLo5IpX23MWtxcF4Z7d4UNmsqul58yM_tsyH274pnAqImoaCRG3UHOvzSKdZYH-g.."};gon.scale_units={"metric":false,"imperial":false};gon.sentry={"dsn":"https://c27c051564bb3e1343495380d880fd53@o4511777269547008.ingest.de.sentry.io/4511779760635984","environment":"production","release":"2081438569fb303e1173a0f470ccdd4d623be68a"};gon.locale="en";gon.action="public_labels_data";gon.ids="JFPEXNZ5ER";gon.return_only=null;gon.labels_on_page=null;gon.print_indexes=null;gon.start_position=0;
+//]]>
+</script>
+  <script src="/packs/js/runtime-bcaf97132ed0969644d3.js" defer="defer"></script>
+<script src="/packs/js/74692-a777fdcc5ec3ba8e452c.js" defer="defer"></script>
+<script src="/packs/js/labels-4133ec087722dcc1c7c4.js" defer="defer"></script>
+  <meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="gPKW76OWvw2exUFFediSvAKyB9OId6JQ1uVJ-CEoJurIJD26g-saVcFCQyZryXbSzv-MeqtPdS0kGerresZuJA" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1.0" name="viewport" />
+  <link rel="shortcut icon" href="/lionwheel-logo.png" />
+</head>
+<body style="margin: 0">
+<div id="label"></div>
+
+</body>
+</html>
