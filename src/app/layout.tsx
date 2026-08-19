@@ -51,7 +51,7 @@ export default async function RootLayout({
             <LayoutWrapper sidebar={
               <Sidebar isAuthenticated={!!user} isAdmin={isAdmin}>
                 <div className="flex items-center gap-3">
-                  <UserButton afterSignOutUrl="/login" />
+                  <UserButton />
                   <GlobalNotifications />
                 </div>
               </Sidebar>
