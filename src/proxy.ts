@@ -32,18 +32,25 @@ const isPublicRoute = createRouteMatcher([
   '/api/influencer-coupon(.*)',
   '/marketing/oded(.*)',
   '/marketing/influencers(.*)',
-  '/pending-approval(.*)',
   '/manifest.json'
 ]);
 
 const isFinanceRoute = createRouteMatcher(['/finance(.*)']);
+const isPendingApprovalRoute = createRouteMatcher(['/pending-approval(.*)']);
 
 export default clerkMiddleware(async (auth, request) => {
+  // Fully public routes — no auth needed at all
   if (isPublicRoute(request)) {
     return NextResponse.next();
   }
 
-  // Protect the route with Clerk
+  // pending-approval: allow both logged-in and logged-out users through
+  // (logged-in users need Clerk session active so sign-out button works)
+  if (isPendingApprovalRoute(request)) {
+    return NextResponse.next();
+  }
+
+  // All other routes require authentication
   await auth.protect();
 
   const authData = await auth();
@@ -53,7 +60,8 @@ export default clerkMiddleware(async (auth, request) => {
   if (userId) {
     let isApproved = sessionClaims?.publicMetadata?.isApproved;
     
-    // If not approved in the JWT, check if they are the admin
+    // If not approved in the JWT, check the actual Clerk backend data
+    // (the JWT may be stale after admin approves a user)
     if (!isApproved) {
       try {
         const client = await clerkClient();
@@ -61,8 +69,9 @@ export default clerkMiddleware(async (auth, request) => {
         const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
         const email = user.emailAddresses[0]?.emailAddress;
         
-        if (email === adminEmail) {
-          isApproved = true; // Admin bypasses approval
+        // Admin always bypasses, or check the actual publicMetadata from Clerk's DB
+        if (email === adminEmail || !!user.publicMetadata?.isApproved) {
+          isApproved = true;
         }
       } catch (error) {
         console.error("Failed to fetch user in middleware:", error);
