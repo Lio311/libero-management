@@ -49,8 +49,8 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
       const deltaX = touchEndX - touchStartX;
       const deltaY = touchEndY - touchStartY;
 
-      // Start near right edge (< 50px) and swipe left (> 70px)
-      if (window.innerWidth - touchStartX < 50 && deltaX < -70 && Math.abs(deltaY) < 50) {
+      // Start near left edge (< 50px) and swipe right (> 70px)
+      if (touchStartX < 50 && deltaX > 70 && Math.abs(deltaY) < 50) {
         router.push("/shipping-scanner");
       }
     };
