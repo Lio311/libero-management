@@ -61,6 +61,21 @@ export default function ScannerListClient({
   return (
     <div className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+
+      <div className="flex bg-secondary/50 p-1.5 rounded-xl w-fit mb-4 border border-border/50">
+        <button 
+          onClick={() => router.push("?store=libero")}
+          className={`px-8 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          ליברו
+        </button>
+        <button 
+          onClick={() => router.push("?store=velour")}
+          className={`px-8 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          וולור
+        </button>
+      </div>
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
           סריקת משלוחים
         </h2>
