@@ -273,16 +273,137 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   
   const handlePrintLabel = async () => {
     setIsPrinting(true);
+    
+    // Open window synchronously to avoid popup blockers
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write('<html dir="rtl"><head><title>מכין לייבל...</title></head><body style="font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;"><h2>מייצר מדבקת משלוח...</h2></body></html>');
+    }
+
     try {
       toast.info("מייצר מדבקת משלוח...");
       const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
-      if (res.success && res.labelUrl) {
-        toast.success("מדבקה נוצרה בהצלחה! פותח להדפסה...");
-        window.open(res.labelUrl, '_blank');
+      
+      if (res.success && res.barcode) {
+        toast.success("מדבקה נוצרה בהצלחה! שולח להדפסה...");
+        
+        if (!printWindow) {
+           toast.error("לא הצלחנו לפתוח חלון הדפסה. נסה לאשר חלונות קופצים.");
+           return;
+        }
+
+        const dateStr = new Date().toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const timeStr = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+        
+        const html = `
+          <!DOCTYPE html>
+          <html dir="rtl" lang="he">
+          <head>
+            <meta charset="utf-8">
+            <title>לייבל - ${order.id}</title>
+            <style>
+              @page { size: 100mm 150mm; margin: 0; }
+              body { 
+                font-family: Arial, sans-serif; 
+                margin: 0; 
+                padding: 10mm; 
+                width: 100mm;
+                height: 150mm;
+                box-sizing: border-box;
+                background: white;
+              }
+              .label-container {
+                border: 2px solid #000;
+                padding: 15px;
+                border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                height: 100%;
+                box-sizing: border-box;
+              }
+              .header {
+                display: flex;
+                justify-content: space-between;
+                border-bottom: 2px solid #000;
+                padding-bottom: 10px;
+              }
+              .routing {
+                font-size: 24px;
+                font-weight: bold;
+              }
+              .date {
+                font-size: 14px;
+                color: #333;
+                text-align: left;
+              }
+              .customer-info {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                font-size: 18px;
+                flex-grow: 1;
+              }
+              .customer-name {
+                font-size: 24px;
+                font-weight: bold;
+              }
+              .barcode-container {
+                text-align: center;
+                margin-top: auto;
+                border-top: 2px solid #000;
+                padding-top: 15px;
+              }
+              .barcode-container img {
+                max-width: 100%;
+                height: 80px;
+              }
+              .order-id {
+                text-align: center;
+                font-size: 14px;
+                margin-top: 10px;
+                color: #555;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="label-container">
+              <div class="header">
+                <div class="routing">${res.region || "משלוח רגיל"}</div>
+                <div class="date">${dateStr}<br/>${timeStr}</div>
+              </div>
+              <div class="customer-info">
+                <div class="customer-name">${order.customerName || "לקוח כללי"}</div>
+                <div>${order.shippingAddress || ""} ${order.city ? ", " + order.city : ""}</div>
+                <div style="direction: ltr; text-align: right;">${order.phone || ""}</div>
+                ${order.notes ? `<div style="font-size: 14px; margin-top: 10px;"><strong>הערות:</strong> ${order.notes}</div>` : ""}
+              </div>
+              <div class="barcode-container">
+                <img src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${res.barcode}&scale=3&includetext" alt="Barcode" onload="window.print();" onerror="window.print();" />
+              </div>
+              <div class="order-id">הזמנה #${order.id}</div>
+            </div>
+          </body>
+          </html>
+        `;
+
+        printWindow.document.open();
+        printWindow.document.write(html);
+        printWindow.document.close();
+
+      } else if (res.success && res.labelUrl) {
+        // Fallback to old flow if we couldn't get a barcode
+        if (printWindow) {
+            printWindow.location.href = res.labelUrl;
+        } else {
+            window.open(res.labelUrl, '_blank');
+        }
       } else {
+        if (printWindow) printWindow.close();
         toast.error("שגיאה ביצירת המדבקה: " + (res.error || "לא ידוע"));
       }
     } catch (e) {
+      if (printWindow) printWindow.close();
       toast.error("שגיאה בתקשורת עם השרת");
     } finally {
       setIsPrinting(false);

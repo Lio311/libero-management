@@ -346,8 +346,10 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
 
     const data = await response.json();
     const labelUrl = data.label || data.pdf_link || data.label_url || "";
+    const barcode = data.barcode || "";
+    const region = data.destination_region_str || "";
     
-    return { success: true, labelUrl };
+    return { success: true, labelUrl, barcode, region };
   } catch (error: any) {
     console.error('Error creating Lionwheel label:', error);
     return { success: false, error: error.message };
