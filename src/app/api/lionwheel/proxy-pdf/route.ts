@@ -9,9 +9,16 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const pdfReq = await fetch(url);
+    console.log("Fetching PDF from:", url);
+    const pdfReq = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/pdf,application/json,text/html,*/*'
+      }
+    });
     if (!pdfReq.ok) {
-      return new NextResponse('Failed to fetch PDF', { status: pdfReq.status });
+      console.warn("Failed to fetch PDF via proxy, redirecting to original url. Status:", pdfReq.status);
+      return NextResponse.redirect(url);
     }
 
     const arrayBuffer = await pdfReq.arrayBuffer();
