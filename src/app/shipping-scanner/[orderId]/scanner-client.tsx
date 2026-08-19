@@ -130,12 +130,14 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
 
   const handleScan = (e: React.FormEvent) => {
     e.preventDefault();
-    const sku = scanInput.trim();
+    // Read directly from ref to avoid React state update race conditions with fast hardware scanners
+    const sku = inputRef.current?.value.trim() || scanInput.trim();
     if (!sku) return;
 
     if (localOrderStatus !== "processing") {
       toast.error(`ההזמנה בסטטוס ${localOrderStatus === 'on_hold' ? 'מושהה' : 'הושלם'} ואינה ניתנת לסריקה`);
       setScanInput("");
+      if (inputRef.current) inputRef.current.value = "";
       return;
     }
 
@@ -163,7 +165,10 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
     }
     
     setScanInput("");
-    if (inputRef.current) inputRef.current.focus();
+    if (inputRef.current) {
+      inputRef.current.value = "";
+      inputRef.current.focus();
+    }
   };
 
   const markItemAsScanned = (id: number) => {
