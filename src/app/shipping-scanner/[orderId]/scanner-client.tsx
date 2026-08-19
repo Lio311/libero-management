@@ -273,14 +273,6 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
             inputMode="none"
             value={scanInput}
             onChange={(e) => setScanInput(e.target.value)}
-            onBlur={() => {
-              // Automatically refocus the input when it loses focus, unless we are in missing mode
-              if (localOrderStatus === "processing" && !missingMode) {
-                setTimeout(() => {
-                  if (inputRef.current) inputRef.current.focus();
-                }, 100);
-              }
-            }}
             placeholder="סרוק מקט..."
             className="w-full px-4 py-3 pl-10 bg-background border border-border rounded-lg text-lg focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50"
             disabled={localOrderStatus !== "processing" || missingMode}
