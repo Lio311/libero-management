@@ -58,6 +58,11 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
     window.addEventListener("touchstart", handleTouchStart);
     window.addEventListener("touchend", handleTouchEnd);
 
+    // Initial focus
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+
     return () => {
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchend", handleTouchEnd);
@@ -263,10 +268,19 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
         <form onSubmit={handleScan} className="w-full relative">
           <input
             ref={inputRef}
+            autoFocus
             type="text"
             inputMode="none"
             value={scanInput}
             onChange={(e) => setScanInput(e.target.value)}
+            onBlur={() => {
+              // Automatically refocus the input when it loses focus, unless we are in missing mode
+              if (localOrderStatus === "processing" && !missingMode) {
+                setTimeout(() => {
+                  if (inputRef.current) inputRef.current.focus();
+                }, 100);
+              }
+            }}
             placeholder="סרוק מקט..."
             className="w-full px-4 py-3 pl-10 bg-background border border-border rounded-lg text-lg focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50"
             disabled={localOrderStatus !== "processing" || missingMode}
