@@ -3,9 +3,11 @@ import { SignOutButton } from '@clerk/nextjs';
 import Image from 'next/image';
 import { currentUser, clerkClient } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+import { ForceRefresh } from './ForceRefresh';
 
 export default async function PendingApprovalPage() {
   const user = await currentUser();
+  let isActuallyApproved = false;
   
   if (user) {
     const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
@@ -13,18 +15,16 @@ export default async function PendingApprovalPage() {
     
     // Auto-approve the admin
     if (email === adminEmail) {
-      let success = false;
       try {
         await (await clerkClient()).users.updateUserMetadata(user.id, {
           publicMetadata: { isApproved: true }
         });
-        success = true;
+        isActuallyApproved = true;
       } catch (error) {
         console.error("Failed to auto-approve admin:", error);
       }
-      if (success) {
-        redirect('/');
-      }
+    } else {
+      isActuallyApproved = !!user.publicMetadata?.isApproved;
     }
   }
 
@@ -46,16 +46,24 @@ export default async function PendingApprovalPage() {
               <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center brightness-0 invert opacity-90" priority />
             </div>
             
-            <h1 className="text-2xl font-bold text-white mb-4">ממתין לאישור</h1>
+            <h1 className="text-2xl font-bold text-white mb-4">
+              {isActuallyApproved ? 'החשבון אושר' : 'ממתין לאישור'}
+            </h1>
             <p className="text-zinc-400 text-sm tracking-wide leading-relaxed mb-8">
-              החשבון שלך נוצר בהצלחה. עם זאת, הוא דורש אישור של מנהל המערכת לפני שתוכל לגשת אליו. אנא המתן בסבלנות.
+              {isActuallyApproved 
+                ? 'מעדכן נתונים מול השרת...' 
+                : 'החשבון שלך נוצר בהצלחה. עם זאת, הוא דורש אישור של מנהל המערכת לפני שתוכל לגשת אליו. אנא המתן בסבלנות.'}
             </p>
 
-            <SignOutButton>
-              <div className="w-full bg-zinc-900/50 border border-white/10 hover:bg-white/10 hover:border-white/30 rounded-xl py-3 text-white transition-all duration-300 cursor-pointer">
-                התנתק
-              </div>
-            </SignOutButton>
+            {isActuallyApproved ? (
+              <ForceRefresh />
+            ) : (
+              <SignOutButton>
+                <div className="w-full bg-zinc-900/50 border border-white/10 hover:bg-white/10 hover:border-white/30 rounded-xl py-3 text-white transition-all duration-300 cursor-pointer">
+                  התנתק
+                </div>
+              </SignOutButton>
+            )}
           </div>
         </div>
       </div>
