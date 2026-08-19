@@ -41,3 +41,4 @@ Deleting this directory while Next.js is running can lead to undefined behavior.
 ✓ Ready in 331ms
 ✓ Running next.config.ts took 701ms
 
+✓ Compiled in 6ms

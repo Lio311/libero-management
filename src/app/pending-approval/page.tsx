@@ -1,8 +1,25 @@
 import { Clock } from 'lucide-react';
 import { SignOutButton } from '@clerk/nextjs';
 import Image from 'next/image';
+import { currentUser, clerkClient } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
 
-export default function PendingApprovalPage() {
+export default async function PendingApprovalPage() {
+  const user = await currentUser();
+  
+  if (user) {
+    const adminEmail = process.env.admin_email || 'lior31197@gmail.com';
+    const email = user.emailAddresses[0]?.emailAddress;
+    
+    // Auto-approve the admin
+    if (email === adminEmail) {
+      await (await clerkClient()).users.updateUserMetadata(user.id, {
+        publicMetadata: { isApproved: true }
+      });
+      redirect('/');
+    }
+  }
+
   return (
     <div className="min-h-screen w-full bg-black flex items-center justify-center relative overflow-hidden">
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-zinc-800 rounded-full mix-blend-screen filter blur-[100px] opacity-50 animate-pulse"></div>

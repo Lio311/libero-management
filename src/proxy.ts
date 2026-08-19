@@ -1,7 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
-import { clerkClient } from '@clerk/nextjs/server';
 
 async function verifyGoogleAuth(request: any) {
   const authCookie = request.cookies.get('auth');
@@ -54,18 +53,8 @@ export default clerkMiddleware(async (auth, request) => {
     const isApproved = sessionClaims?.publicMetadata?.isApproved;
     
     if (!isApproved) {
-      const user = await (await clerkClient()).users.getUser(userId);
-      const email = user.emailAddresses[0]?.emailAddress;
-      
-      if (email === (process.env.admin_email || 'lior31197@gmail.com')) {
-        // Auto-approve the admin
-        await (await clerkClient()).users.updateUserMetadata(userId, {
-          publicMetadata: { isApproved: true }
-        });
-      } else {
-        if (request.nextUrl.pathname !== '/pending-approval') {
-          return NextResponse.redirect(new URL('/pending-approval', request.url));
-        }
+      if (request.nextUrl.pathname !== '/pending-approval') {
+        return NextResponse.redirect(new URL('/pending-approval', request.url));
       }
     }
   }
