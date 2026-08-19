@@ -23,7 +23,7 @@ import { cookies } from 'next/headers';
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { Sidebar } from "@/components/layout/sidebar";
 import { GlobalNotifications } from "@/components/layout/global-notifications";
-import { ClerkProvider } from '@clerk/nextjs';
+import { ClerkProvider, UserButton } from '@clerk/nextjs';
 import { heIL } from '@clerk/localizations';
 import { currentUser } from '@clerk/nextjs/server';
 
@@ -50,7 +50,10 @@ export default async function RootLayout({
           <ConfirmProvider>
             <LayoutWrapper sidebar={
               <Sidebar isAuthenticated={!!user} isAdmin={isAdmin}>
-                <GlobalNotifications />
+                <div className="flex items-center gap-3">
+                  <UserButton afterSignOutUrl="/login" />
+                  <GlobalNotifications />
+                </div>
               </Sidebar>
             }>
               {children}
