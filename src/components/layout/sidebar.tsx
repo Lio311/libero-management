@@ -141,7 +141,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false }: {
           )}
         </div>
         <nav className={cn(
-          "flex-1 space-y-0 px-2 py-2 overflow-y-auto",
+          "flex-1 space-y-0 px-2 py-2 overflow-y-auto scrollbar-none",
           !isAuthenticated && "blur-sm pointer-events-none select-none opacity-50"
         )}>
           {(() => {
@@ -169,7 +169,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false }: {
                   <button
                     onClick={() => toggleDropdown(item.name)}
                     className={cn(
-                      "w-full group flex justify-between items-center px-3 py-1.5 text-sm font-medium rounded-lg hover-scale",
+                      "w-full group flex justify-between items-center px-3 py-1 text-sm font-medium rounded-lg hover-scale",
                       isActive
                         ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
@@ -196,7 +196,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false }: {
                     href={item.href!}
                     onClick={closeSidebar}
                     className={cn(
-                      "group flex items-center px-3 py-1.5 text-sm font-medium rounded-lg hover-scale",
+                      "group flex items-center px-3 py-1 text-sm font-medium rounded-lg hover-scale",
                       isActive
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
@@ -223,7 +223,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false }: {
                           href={subItem.href}
                           onClick={closeSidebar}
                           className={cn(
-                            "group flex items-center pr-9 pl-3 py-1 text-sm font-medium rounded-lg hover-scale",
+                            "group flex items-center pr-9 pl-3 py-0.5 text-sm font-medium rounded-lg hover-scale",
                             isSubActive
                               ? "bg-primary text-primary-foreground shadow-sm"
                               : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
