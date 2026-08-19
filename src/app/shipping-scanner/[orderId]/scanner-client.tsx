@@ -32,6 +32,38 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
   const [missingMode, setMissingMode] = useState(false);
   const [selectedForMissing, setSelectedForMissing] = useState<number[]>([]);
 
+  // Swipe to go back gesture (pulling from right edge)
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+
+      // Start near right edge (< 50px) and swipe left (> 70px)
+      if (window.innerWidth - touchStartX < 50 && deltaX < -70 && Math.abs(deltaY) < 50) {
+        router.push("/shipping-scanner");
+      }
+    };
+
+    window.addEventListener("touchstart", handleTouchStart);
+    window.addEventListener("touchend", handleTouchEnd);
+
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
+    };
+  }, [router]);
+
   // Initialize state from local storage or order
   useEffect(() => {
     const storageKey = `scanner_order_${order.id}`;
