@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { wcOrders, wcProducts, settings } from "@/lib/db/schema";
+import { wcOrders, wcProducts, settings, qcProducts } from "@/lib/db/schema";
 import { eq, desc, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -124,6 +124,31 @@ export async function getOrderById(orderId: number): Promise<ScannerOrder | null
     
     const shippingLines = Array.isArray(order.shippingLines) ? order.shippingLines : [];
     const isPickup = shippingLines.some((sl: any) => sl.method_id === 'local_pickup' || sl.method_title?.includes('איסוף עצמי'));
+    const rawLineItems = Array.isArray(order.lineItems) ? order.lineItems : [];
+    const productIds = rawLineItems.map((item: any) => item.product_id).filter(Boolean);
+    
+    let imageMap = new Map();
+    if (productIds.length > 0) {
+      const productsImages = await db.select({
+        id: qcProducts.wooProductId,
+        image: qcProducts.productImage,
+      }).from(qcProducts)
+        .where(inArray(qcProducts.wooProductId, productIds));
+        
+      productsImages.forEach(p => {
+        if (p.image) imageMap.set(p.id, p.image);
+      });
+    }
+
+    const lineItems = rawLineItems.map((item: any) => {
+      // Prioritize the image we fetched from qcProducts, fallback to item.image.src
+      const dbImage = imageMap.get(item.product_id);
+      if (dbImage) {
+        if (!item.image) item.image = {};
+        item.image.src = dbImage;
+      }
+      return item;
+    });
       
     return {
       id: order.id,
@@ -131,7 +156,7 @@ export async function getOrderById(orderId: number): Promise<ScannerOrder | null
       total: order.total || '0',
       dateCreated: order.dateCreated ? new Date(order.dateCreated).toISOString() : new Date().toISOString(),
       status: order.status || 'processing',
-      lineItems: Array.isArray(order.lineItems) ? order.lineItems : [],
+      lineItems,
       isPickup,
     };
   } catch (error: any) {

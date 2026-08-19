@@ -227,8 +227,8 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
         </div>
       </div>
 
-      <div className="flex justify-between items-center bg-card p-4 rounded-xl shadow-sm border border-border/50">
-        <form onSubmit={handleScan} className="flex-1 max-w-sm relative">
+      <div className="bg-card p-4 rounded-xl shadow-sm border border-border/50 flex flex-col gap-4">
+        <form onSubmit={handleScan} className="w-full relative">
           <input
             ref={inputRef}
             type="text"
@@ -236,37 +236,37 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
             value={scanInput}
             onChange={(e) => setScanInput(e.target.value)}
             placeholder="סרוק מקט..."
-            className="w-full px-4 py-2 pl-10 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50"
+            className="w-full px-4 py-3 pl-10 bg-background border border-border rounded-lg text-lg focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50"
             disabled={localOrderStatus !== "processing" || missingMode}
           />
-          <ScanLine className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <ScanLine className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         </form>
 
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {!missingMode ? (
             <button
               onClick={() => setMissingMode(true)}
               disabled={localOrderStatus !== "processing"}
-              className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors disabled:opacity-50"
+              className="px-4 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors disabled:opacity-50 text-sm h-full flex items-center justify-center"
             >
-              סימון חסר פריט
+              סימון חסר
             </button>
           ) : (
             <>
+              <button
+                onClick={submitMissing}
+                className="px-2 py-3 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors text-sm h-full flex items-center justify-center"
+              >
+                אישור ({selectedForMissing.length})
+              </button>
               <button
                 onClick={() => {
                   setMissingMode(false);
                   setSelectedForMissing([]);
                 }}
-                className="px-4 py-2 bg-ghost text-foreground rounded-lg font-medium hover:bg-secondary transition-colors"
+                className="px-2 py-3 border border-border text-foreground rounded-lg font-medium hover:bg-secondary transition-colors text-sm h-full flex items-center justify-center"
               >
-                ביטול
-              </button>
-              <button
-                onClick={submitMissing}
-                className="px-4 py-2 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors"
-              >
-                אישור חסרים ({selectedForMissing.length})
+                ביטול חסר
               </button>
             </>
           )}
@@ -277,7 +277,7 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
                 setLocalOrderStatus("processing");
                 toast.info("ההזמנה נפתחה מחדש לסריקה");
               }}
-              className="px-4 py-2 border border-border rounded-lg text-sm hover:bg-secondary transition-colors"
+              className="px-4 py-3 border border-border rounded-lg text-sm hover:bg-secondary transition-colors font-medium h-full flex items-center justify-center"
             >
               ביטול השלמה
             </button>
@@ -287,7 +287,7 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
                 setLocalOrderStatus("completed");
                 toast.success("ההזמנה הושלמה ידנית");
               }}
-              className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors font-medium"
+              className="px-4 py-3 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors font-medium h-full flex items-center justify-center"
             >
               סגירת הזמנה
             </button>
@@ -295,28 +295,28 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
 
           <button
             onClick={resetOrder}
-            className="px-4 py-2 border border-border rounded-lg text-sm hover:bg-secondary transition-colors"
+            className="px-4 py-3 border border-border rounded-lg text-sm hover:bg-secondary transition-colors font-medium h-full flex items-center justify-center"
           >
             איפוס סריקה
           </button>
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((item) => {
           const isDone = item.scanned >= item.expected;
           const isMissingSelected = selectedForMissing.includes(item.id);
           
           return (
-            <div 
-              key={item.id} 
-              className={`p-4 rounded-xl border flex items-center justify-between transition-colors ${
-                item.isMissing 
-                  ? 'bg-destructive/5 border-destructive/20' 
-                  : isDone 
-                    ? 'bg-green-500/5 border-green-500/20' 
+            <div
+              key={item.id}
+              className={`p-4 rounded-xl border flex flex-col gap-3 transition-colors ${
+                isDone 
+                  ? 'bg-green-500/5 border-green-500/20' 
+                  : item.isMissing 
+                    ? 'bg-red-500/5 border-red-500/20 opacity-75' 
                     : isMissingSelected
-                      ? 'bg-orange-500/10 border-orange-500/50'
+                      ? 'bg-orange-500/10 border-orange-500/30'
                       : 'bg-card border-border/50'
               }`}
               onClick={() => {
@@ -325,37 +325,69 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
                 }
               }}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-3 w-full relative">
+                {/* Checkbox for Missing Mode */}
                 {missingMode && !isDone && !item.isMissing && (
-                  <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${isMissingSelected ? 'bg-orange-500 border-orange-500 text-white' : 'border-input'}`}>
-                    {isMissingSelected && <Check className="w-3 h-3" />}
+                  <div className="absolute -right-2 -top-2">
+                    <div className={`w-6 h-6 rounded-full border shadow-sm flex items-center justify-center shrink-0 ${isMissingSelected ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-input'}`}>
+                      {isMissingSelected && <Check className="w-4 h-4" />}
+                    </div>
                   </div>
                 )}
                 
+                {/* Image */}
                 {item.imageUrl ? (
-                  <img src={item.imageUrl} alt={item.name} className="w-12 h-12 rounded-md object-cover border border-border shrink-0" />
+                  <img src={item.imageUrl} alt={item.name} className="w-16 h-16 rounded-md object-cover border border-border shrink-0" />
                 ) : (
-                  <div className="w-12 h-12 rounded-md bg-secondary flex items-center justify-center shrink-0">
-                    <Package className="w-6 h-6 text-muted-foreground" />
+                  <div className="w-16 h-16 rounded-md bg-secondary flex items-center justify-center shrink-0">
+                    <Package className="w-8 h-8 text-muted-foreground" />
                   </div>
                 )}
                 
-                <div>
-                  <h4 className={`font-medium ${isDone ? 'text-green-500' : item.isMissing ? 'text-destructive line-through' : ''}`}>
+                {/* Details */}
+                <div className="flex-1 min-w-0">
+                  <h4 className={`font-medium text-sm leading-tight mb-1 ${isDone ? 'text-green-500' : item.isMissing ? 'text-destructive line-through' : ''}`}>
                     {item.name}
                   </h4>
-                  <p className="text-sm text-muted-foreground font-mono mt-1">
-                    <span className="font-bold text-foreground">{item.sku || 'ללא מק"ט'}</span> {item.isManual && <span className="text-xs bg-secondary px-2 py-0.5 rounded-full mr-2 font-sans">אישור ידני</span>}
+                  <p className="text-sm text-muted-foreground font-mono">
+                    <span className="font-bold text-foreground">{item.sku || 'ללא מק"ט'}</span>
                   </p>
+                  {item.isManual && (
+                    <span className="inline-block mt-1 text-xs bg-secondary px-2 py-0.5 rounded-full font-sans">
+                      אישור ידני
+                    </span>
+                  )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-6">
-                <div className="text-center">
-                  <div className="text-xs text-muted-foreground mb-1">כמות</div>
-                  <div className="font-semibold text-lg whitespace-nowrap">
+              {/* Actions and Progress Bottom Bar */}
+              <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  {!isDone && !item.isMissing && localOrderStatus === "processing" && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        markItemAsScanned(item.id);
+                      }}
+                      className="h-10 px-4 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white flex items-center gap-2 transition-colors font-medium text-sm"
+                    >
+                      <Check className="w-4 h-4" />
+                      אישור {item.isManual && "ידני"}
+                    </button>
+                  )}
+                  {isDone && !item.isMissing && (
+                    <div className="h-10 px-3 rounded-lg bg-green-500/10 text-green-500 flex items-center gap-1 font-medium text-sm">
+                      <CheckCircle2 className="w-4 h-4" />
+                      נסרק
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-left">
+                  <div className="text-[10px] text-muted-foreground mb-0.5">נסרקו / סה״כ</div>
+                  <div className="font-semibold text-base whitespace-nowrap">
                     {item.isMissing ? (
-                      <span className="text-destructive"><AlertTriangle className="w-5 h-5 inline mr-1" /> חסר</span>
+                      <span className="text-destructive"><AlertTriangle className="w-4 h-4 inline mr-1" /> חסר</span>
                     ) : (
                       <span className={isDone ? 'text-green-500' : item.scanned > 0 ? 'text-orange-500' : 'text-red-500'}>
                         {item.scanned} מתוך {item.expected}
@@ -363,31 +395,6 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
                     )}
                   </div>
                 </div>
-
-                {!isDone && !item.isMissing && localOrderStatus === "processing" && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      markItemAsScanned(item.id);
-                    }}
-                    className="w-10 h-10 rounded-full bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white flex items-center justify-center transition-colors"
-                    title="אשר איסוף ידני"
-                  >
-                    <Check className="w-5 h-5" />
-                  </button>
-                )}
-                
-                {isDone && !item.isMissing && (
-                  <div className="w-10 h-10 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center">
-                    <Check className="w-5 h-5" />
-                  </div>
-                )}
-                
-                {item.isMissing && (
-                  <div className="w-10 h-10 rounded-full bg-destructive/10 text-destructive flex items-center justify-center">
-                    <X className="w-5 h-5" />
-                  </div>
-                )}
               </div>
             </div>
           );
