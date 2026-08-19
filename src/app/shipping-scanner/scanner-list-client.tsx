@@ -62,6 +62,7 @@ export default function ScannerListClient({
     <div className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
 
+      
       <div className="flex bg-secondary/50 p-1.5 rounded-xl w-fit mb-4 border border-border/50">
         <button 
           onClick={() => router.push("?store=libero")}
@@ -74,6 +75,30 @@ export default function ScannerListClient({
           className={`px-8 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
         >
           וולור
+        </button>
+        <button 
+          onClick={async (e) => {
+            const btn = e.currentTarget;
+            const originalText = btn.innerText;
+            btn.innerText = "מסנכרן...";
+            btn.disabled = true;
+            try {
+              const res = await fetch(`/api/sync/wc-data?store=${store}`);
+              if (res.ok) {
+                router.refresh();
+              } else {
+                alert("שגיאה בסנכרון");
+              }
+            } catch (err) {
+              alert("שגיאה בסנכרון");
+            } finally {
+              btn.innerText = "סנכרן נתונים עכשיו";
+              btn.disabled = false;
+            }
+          }}
+          className="ml-2 px-4 py-2.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-lg font-medium transition-all flex items-center gap-2"
+        >
+          סנכרן נתונים עכשיו
         </button>
       </div>
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
