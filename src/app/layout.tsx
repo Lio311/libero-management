@@ -29,6 +29,7 @@ import { currentUser } from '@clerk/nextjs/server';
 
 import { Toaster } from 'sonner';
 import { ConfirmProvider } from '@/hooks/useConfirm';
+import { PwaRegistration } from '@/components/PwaRegistration';
 
 export default async function RootLayout({
   children,
@@ -49,6 +50,7 @@ export default async function RootLayout({
       <html lang="he" dir="rtl">
         <body className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row`}>
           <ConfirmProvider>
+            <PwaRegistration />
             <LayoutWrapper sidebar={
               <Sidebar isAuthenticated={!!user} isAdmin={isAdmin} isWarehouse={isWarehouse}>
                 <div className="flex items-center gap-3">
