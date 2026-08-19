@@ -64,7 +64,7 @@ export default function ScannerListClient({
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
           סריקת משלוחים
         </h2>
-      <div className="flex gap-4 mb-4 items-stretch">
+      <div className="flex gap-2 mb-4 items-stretch">
         <div className="flex bg-secondary/50 p-1.5 rounded-xl w-fit border border-border/50">
           <button 
             onClick={() => router.push("?store=libero")}
@@ -105,7 +105,7 @@ export default function ScannerListClient({
               btn.disabled = false;
             }
           }}
-          className="px-6 py-2.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl font-medium transition-all flex items-center gap-2 h-full"
+          className="px-4 py-1.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center"
         >
           סנכרן נתונים עכשיו
         </button>
