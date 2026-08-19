@@ -1,0 +1,156 @@
+"use client";
+
+import Link from "next/link";
+import { Package, CalendarIcon, User, Truck, Store, PlayCircle } from "lucide-react";
+import { format } from "date-fns";
+import { he } from "date-fns/locale";
+import { useEffect, useState } from "react";
+import { ScannerOrder } from "@/app/actions/scanner-actions";
+
+export default function ScannerListClient({ orders }: { orders: ScannerOrder[] }) {
+  const [mounted, setMounted] = useState(false);
+  const [partiallyScannedIds, setPartiallyScannedIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    const partials: number[] = [];
+    orders.forEach(o => {
+      if (o.status === 'processing') {
+        const saved = localStorage.getItem(`scanner_order_${o.id}`);
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            if (parsed.status !== 'completed' && parsed.items?.some((i: any) => i.scanned > 0 || i.isMissing)) {
+              partials.push(o.id);
+            }
+          } catch (e) {}
+        }
+      }
+    });
+    setPartiallyScannedIds(partials);
+    setMounted(true);
+  }, [orders]);
+
+  const processingOrders = orders.filter(o => o.status === 'processing');
+  const completedOrders = orders.filter(o => o.status === 'completed');
+  
+  const partialOrders = processingOrders.filter(o => partiallyScannedIds.includes(o.id));
+  const pickupOrders = processingOrders.filter(o => o.isPickup && !partiallyScannedIds.includes(o.id));
+  const shippingOrders = processingOrders.filter(o => !o.isPickup && !partiallyScannedIds.includes(o.id));
+
+  return (
+    <div className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
+          סריקת משלוחים
+          <span className="text-sm px-3 py-1 rounded-full bg-secondary text-foreground font-medium whitespace-nowrap">
+            סה״כ הזמנות פתוחות: {processingOrders.length}
+          </span>
+        </h2>
+      </div>
+
+      {processingOrders.length === 0 ? (
+        <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border border-border">
+          אין הזמנות פתוחות להכנה
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {mounted && partialOrders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-purple-500">
+                <PlayCircle className="w-6 h-6" />
+                בהכנה ({partialOrders.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {partialOrders.map(order => (
+                  <OrderCard key={order.id} order={order} statusLabel="בתהליך סריקה" statusColor="purple" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {pickupOrders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-orange-500">
+                <Store className="w-6 h-6" />
+                איסוף עצמי ממתין לסריקה ({pickupOrders.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {pickupOrders.map(order => (
+                  <OrderCard key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {shippingOrders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-blue-500">
+                <Truck className="w-6 h-6" />
+                משלוחים ממתינים לסריקה ({shippingOrders.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {shippingOrders.map(order => (
+                  <OrderCard key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {completedOrders.length > 0 && (
+        <div className="space-y-4 pt-8 border-t border-border">
+          <h3 className="text-xl font-semibold flex items-center gap-2 text-green-500">
+            <Package className="w-6 h-6" />
+            הזמנות שהושלמו לאחרונה ({completedOrders.length})
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 opacity-75">
+            {completedOrders.map(order => (
+              <OrderCard key={order.id} order={order} statusLabel="הושלם" statusColor="green" />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function OrderCard({ order, statusLabel, statusColor }: { order: any, statusLabel: string, statusColor: 'blue' | 'purple' | 'green' }) {
+  const colorClasses = {
+    blue: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    purple: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+    green: "bg-green-500/10 text-green-500 border-green-500/20"
+  };
+
+  return (
+    <Link href={`/shipping-scanner/${order.id}`} className="block h-full">
+      <div className="glass-panel p-6 rounded-xl hover-scale cursor-pointer group hover:border-primary/50 transition-colors h-full flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary group-hover:text-primary/80" />
+            הזמנה #{order.id}
+          </h3>
+          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border shrink-0 ${colorClasses[statusColor]}`}>
+            {statusLabel}
+          </span>
+        </div>
+        
+        <div className="space-y-2 text-sm text-muted-foreground flex-1">
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4 shrink-0" />
+            <span className="truncate">{order.customerName}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 shrink-0" />
+            <span>{format(new Date(order.dateCreated), 'dd/MM/yyyy HH:mm', { locale: he })}</span>
+          </div>
+        </div>
+        
+        <div className="mt-4 pt-4 border-t border-border/50 text-foreground font-medium flex justify-between items-center">
+          <span>סה"כ לתשלום:</span>
+          <span>₪{parseFloat(order.total).toFixed(2)}</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
