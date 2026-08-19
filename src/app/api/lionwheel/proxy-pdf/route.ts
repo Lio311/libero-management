@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
       args: chromium.args,
       defaultViewport: { width: 1200, height: 800 },
       executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
+      headless: 'shell' as any,
     });
 
     const page = await browser.newPage();
