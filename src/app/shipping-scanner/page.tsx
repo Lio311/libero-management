@@ -15,10 +15,10 @@ export default async function ShippingScannerPage() {
 
   return (
     <div className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
           סריקת משלוחים
-          <span className="text-sm px-3 py-1 rounded-full bg-secondary text-foreground font-medium">
+          <span className="text-sm px-3 py-1 rounded-full bg-secondary text-foreground font-medium whitespace-nowrap">
             סה״כ הזמנות פתוחות: {processingOrders.length}
           </span>
         </h2>
