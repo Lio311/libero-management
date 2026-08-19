@@ -327,7 +327,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+        <div className="flex flex-row items-center gap-3">
           <button 
             onClick={handlePrintLabel}
             disabled={isPrinting}
