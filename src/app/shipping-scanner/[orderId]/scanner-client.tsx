@@ -28,7 +28,7 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
   const inputRef = useRef<HTMLInputElement>(null);
   const [items, setItems] = useState<ItemStatus[]>([]);
   const [scanInput, setScanInput] = useState("");
-  const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "on_hold" | "completed">("processing");
+  const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed">("processing");
   const [missingMode, setMissingMode] = useState(false);
   const [selectedForMissing, setSelectedForMissing] = useState<number[]>([]);
 
@@ -192,8 +192,8 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
         setLocalOrderStatus("on_hold");
         toast.warning("סריקה הסתיימה, אך יש פריטים חסרים. הסטטוס שונה למושהה.");
       } else {
-        setLocalOrderStatus("completed");
-        toast.success("כל הפריטים נסרקו! ההזמנה הושלמה.");
+        setLocalOrderStatus("ready");
+        toast.success("כל הפריטים נסרקו! יש לסגור את ההזמנה ידנית.");
       }
     }
   };
@@ -313,21 +313,23 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
             </>
           )}
           
-          {localOrderStatus === "completed" ? (
+          {localOrderStatus === "completed" && (
             <button
               onClick={() => {
-                setLocalOrderStatus("processing");
-                toast.info("ההזמנה נפתחה מחדש לסריקה");
+                setLocalOrderStatus("ready");
+                toast.info("ההזמנה חזרה למצב מוכן לסגירה");
               }}
               className="px-4 py-3 border border-border rounded-lg text-sm hover:bg-secondary transition-colors font-medium h-full flex items-center justify-center"
             >
-              ביטול השלמה
+              ביטול סגירה
             </button>
-          ) : (
+          )}
+
+          {localOrderStatus === "ready" && (
             <button
               onClick={() => {
                 setLocalOrderStatus("completed");
-                toast.success("ההזמנה הושלמה ידנית");
+                toast.success("ההזמנה נסגרה בהצלחה!");
               }}
               className="px-4 py-3 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors font-medium h-full flex items-center justify-center"
             >

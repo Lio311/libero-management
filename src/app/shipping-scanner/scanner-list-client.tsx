@@ -10,16 +10,20 @@ import { ScannerOrder } from "@/app/actions/scanner-actions";
 export default function ScannerListClient({ orders }: { orders: ScannerOrder[] }) {
   const [mounted, setMounted] = useState(false);
   const [partiallyScannedIds, setPartiallyScannedIds] = useState<number[]>([]);
+  const [readyIds, setReadyIds] = useState<number[]>([]);
 
   useEffect(() => {
     const partials: number[] = [];
+    const readys: number[] = [];
     orders.forEach(o => {
       if (o.status === 'processing') {
         const saved = localStorage.getItem(`scanner_order_${o.id}`);
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
-            if (parsed.status !== 'completed' && parsed.items?.some((i: any) => i.scanned > 0 || i.isMissing)) {
+            if (parsed.status === 'ready') {
+              readys.push(o.id);
+            } else if (parsed.status !== 'completed' && parsed.items?.some((i: any) => i.scanned > 0 || i.isMissing)) {
               partials.push(o.id);
             }
           } catch (e) {}
@@ -27,15 +31,17 @@ export default function ScannerListClient({ orders }: { orders: ScannerOrder[] }
       }
     });
     setPartiallyScannedIds(partials);
+    setReadyIds(readys);
     setMounted(true);
   }, [orders]);
 
   const processingOrders = orders.filter(o => o.status === 'processing');
   const completedOrders = orders.filter(o => o.status === 'completed');
   
-  const partialOrders = processingOrders.filter(o => partiallyScannedIds.includes(o.id));
-  const pickupOrders = processingOrders.filter(o => o.isPickup && !partiallyScannedIds.includes(o.id));
-  const shippingOrders = processingOrders.filter(o => !o.isPickup && !partiallyScannedIds.includes(o.id));
+  const readyOrders = processingOrders.filter(o => readyIds.includes(o.id));
+  const partialOrders = processingOrders.filter(o => partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
+  const pickupOrders = processingOrders.filter(o => o.isPickup && !partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
+  const shippingOrders = processingOrders.filter(o => !o.isPickup && !partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
 
   return (
     <div className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
@@ -54,6 +60,20 @@ export default function ScannerListClient({ orders }: { orders: ScannerOrder[] }
         </div>
       ) : (
         <div className="space-y-8">
+          {mounted && readyOrders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-green-500">
+                <PlayCircle className="w-6 h-6" />
+                כל המוצרים נסרקו - ממתין לסגירה ({readyOrders.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {readyOrders.map(order => (
+                  <OrderCard key={order.id} order={order} statusLabel="ממתין לסגירה" statusColor="green" />
+                ))}
+              </div>
+            </div>
+          )}
+
           {mounted && partialOrders.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold flex items-center gap-2 text-purple-500">
