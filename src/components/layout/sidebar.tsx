@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ClipboardCheck, UserCog, ShoppingBag, FileText, CalendarDays } from "lucide-react";
+import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ClipboardCheck, UserCog, ShoppingBag, FileText, CalendarDays, UserCheck, ScanBarcode } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { influencersConfig } from "@/config/influencers";
@@ -27,8 +27,7 @@ const navigation: NavItem[] = [
       href: inf.id === 'oded' ? '/marketing/oded' : `/marketing/influencers/${inf.id}`
     }))
   ] },
-  { 
-    name: "קופונים", 
+  { name: "קופונים", 
     icon: Ticket, 
     subItems: [
       { name: "ליברו", href: "/coupons/libero" },
@@ -36,6 +35,7 @@ const navigation: NavItem[] = [
       { name: "לה בורה", href: "/coupons/labura" },
     ]
   },
+  { name: "סריקת משלוחים", href: "/shipping-scanner", icon: ScanBarcode },
   { name: "הזמנות וספקים", href: "/inventory", icon: Package },
   { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
   { name: "ניתוח מלאי חכם", href: "/inventory-analysis", icon: BarChart },
@@ -69,7 +69,7 @@ const navigation: NavItem[] = [
   { name: "מעקב בונוסים", href: "/bonus", icon: Award },
 ];
 
-export function Sidebar({ children, isAuthenticated = true }: { children?: React.ReactNode; isAuthenticated?: boolean }) {
+export function Sidebar({ children, isAuthenticated = true, isAdmin = false }: { children?: React.ReactNode; isAuthenticated?: boolean; isAdmin?: boolean }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<string[]>([]);
@@ -144,14 +144,23 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
           "flex-1 space-y-0 px-2 py-2 overflow-y-auto",
           !isAuthenticated && "blur-sm pointer-events-none select-none opacity-50"
         )}>
-          {navigation.map((item) => {
-            const hasSubItems = !!item.subItems;
-            const isDropdownOpen = openDropdowns.includes(item.name);
-            const isActive = item.href ? pathname === item.href : item.subItems?.some(sub => pathname === sub.href);
+          {(() => {
+            const allNavigation = [...navigation];
+            if (isAdmin) {
+              allNavigation.push({
+                name: "אישור משתמשים",
+                href: "/admin/users",
+                icon: UserCheck
+              });
+            }
+            return allNavigation.map((item) => {
+              const hasSubItems = !!item.subItems;
+              const isDropdownOpen = openDropdowns.includes(item.name);
+              const isActive = item.href ? pathname === item.href : item.subItems?.some(sub => pathname === sub.href);
 
-            return (
-              <div key={item.name}>
-                {hasSubItems ? (
+              return (
+                <div key={item.name}>
+                  {hasSubItems ? (
                   <button
                     onClick={() => toggleDropdown(item.name)}
                     className={cn(
@@ -223,7 +232,7 @@ export function Sidebar({ children, isAuthenticated = true }: { children?: React
                 )}
               </div>
             );
-          })}
+          })})()}
         </nav>
         <div className={cn(
           "p-4 border-t border-border/50",

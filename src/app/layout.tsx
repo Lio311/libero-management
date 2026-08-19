@@ -23,6 +23,9 @@ import { cookies } from 'next/headers';
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { Sidebar } from "@/components/layout/sidebar";
 import { GlobalNotifications } from "@/components/layout/global-notifications";
+import { ClerkProvider } from '@clerk/nextjs';
+import { heIL } from '@clerk/localizations';
+import { currentUser } from '@clerk/nextjs/server';
 
 import { Toaster } from 'sonner';
 import { ConfirmProvider } from '@/hooks/useConfirm';
@@ -34,22 +37,28 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies();
   const authCookie = cookieStore.get('auth');
-  const isAuthenticated = !!authCookie?.value;
+  const hasFinanceAuth = !!authCookie?.value;
+
+  const user = await currentUser();
+  const adminEmail = process.env.admin_email || 'lior31197@gmail.com';
+  const isAdmin = user?.emailAddresses[0]?.emailAddress === adminEmail;
 
   return (
-    <html lang="he" dir="rtl">
-      <body className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row`}>
-        <ConfirmProvider>
-          <LayoutWrapper sidebar={
-            <Sidebar isAuthenticated={isAuthenticated}>
-              <GlobalNotifications />
-            </Sidebar>
-          }>
-            {children}
-          </LayoutWrapper>
-          <Toaster richColors position="top-center" />
-        </ConfirmProvider>
-      </body>
-    </html>
+    <ClerkProvider localization={heIL}>
+      <html lang="he" dir="rtl">
+        <body className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row`}>
+          <ConfirmProvider>
+            <LayoutWrapper sidebar={
+              <Sidebar isAuthenticated={!!user} isAdmin={isAdmin}>
+                <GlobalNotifications />
+              </Sidebar>
+            }>
+              {children}
+            </LayoutWrapper>
+            <Toaster richColors position="top-center" />
+          </ConfirmProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

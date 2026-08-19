@@ -21,7 +21,7 @@ export default function LoginPage() {
     try {
       const res = await login(token);
       if (res.success) {
-        router.push('/');
+        router.push('/finance');
         router.refresh();
       } else {
         setError(res.error || 'שגיאה בהתחברות');
