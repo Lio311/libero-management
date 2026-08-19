@@ -10,7 +10,7 @@
     },
     {
       "path": "/api/sync/wc-data",
-      "schedule": "0 2 * * *"
+      "schedule": "0 * * * *"
     },
     {
       "path": "/api/mist-monitor",
@@ -26,7 +26,7 @@
     },
     {
       "path": "/api/sync/wc-data?store=velour",
-      "schedule": "0 2 * * *"
+      "schedule": "0 * * * *"
     }
   ]
 }
