@@ -12,6 +12,7 @@ export type ScannerOrder = {
   dateCreated: string;
   status: string;
   lineItems: any[];
+  isPickup: boolean;
 };
 
 export async function getScannerSettings(): Promise<string[]> {
@@ -53,6 +54,7 @@ export async function getProcessingOrders(): Promise<ScannerOrder[]> {
       dateCreated: wcOrders.dateCreated,
       status: wcOrders.status,
       lineItems: wcOrders.lineItems,
+      shippingLines: wcOrders.shippingLines,
       billing: wcOrders.billing,
       customerId: wcOrders.customerId,
     }).from(wcOrders)
@@ -63,6 +65,10 @@ export async function getProcessingOrders(): Promise<ScannerOrder[]> {
       const billing = order.billing as any;
       const customerName = billing ? `${billing.first_name || ''} ${billing.last_name || ''}`.trim() : `לקוח ${order.customerId || 'אורח'}`;
       
+      const shippingLines = Array.isArray(order.shippingLines) ? order.shippingLines : [];
+      // "local_pickup" is the typical WooCommerce method ID for local pickup
+      const isPickup = shippingLines.some((sl: any) => sl.method_id === 'local_pickup' || sl.method_title?.includes('איסוף עצמי'));
+      
       return {
         id: order.id,
         customerName: customerName || `הזמנה #${order.id}`,
@@ -70,6 +76,7 @@ export async function getProcessingOrders(): Promise<ScannerOrder[]> {
         dateCreated: order.dateCreated ? new Date(order.dateCreated).toISOString() : new Date().toISOString(),
         status: order.status || 'processing',
         lineItems: Array.isArray(order.lineItems) ? order.lineItems : [],
+        isPickup,
       };
     });
   } catch (error: any) {
@@ -86,6 +93,7 @@ export async function getOrderById(orderId: number): Promise<ScannerOrder | null
       dateCreated: wcOrders.dateCreated,
       status: wcOrders.status,
       lineItems: wcOrders.lineItems,
+      shippingLines: wcOrders.shippingLines,
       billing: wcOrders.billing,
       customerId: wcOrders.customerId,
     }).from(wcOrders)
@@ -97,6 +105,9 @@ export async function getOrderById(orderId: number): Promise<ScannerOrder | null
     const order = orders[0];
     const billing = order.billing as any;
     const customerName = billing ? `${billing.first_name || ''} ${billing.last_name || ''}`.trim() : `לקוח ${order.customerId || 'אורח'}`;
+    
+    const shippingLines = Array.isArray(order.shippingLines) ? order.shippingLines : [];
+    const isPickup = shippingLines.some((sl: any) => sl.method_id === 'local_pickup' || sl.method_title?.includes('איסוף עצמי'));
       
     return {
       id: order.id,
@@ -105,6 +116,7 @@ export async function getOrderById(orderId: number): Promise<ScannerOrder | null
       dateCreated: order.dateCreated ? new Date(order.dateCreated).toISOString() : new Date().toISOString(),
       status: order.status || 'processing',
       lineItems: Array.isArray(order.lineItems) ? order.lineItems : [],
+      isPickup,
     };
   } catch (error: any) {
     console.error('getOrderById error:', error);

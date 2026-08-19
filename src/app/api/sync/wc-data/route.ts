@@ -203,7 +203,7 @@ export async function GET(request: Request) {
     }
 
     // 2. Fetch & Sync Orders
-    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed&_fields=id,total,date_created,line_items,customer_id,status,billing');
+    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed&_fields=id,total,date_created,line_items,shipping_lines,customer_id,status,billing');
     
     if (orders.length > 0) {
       const orderValues = orders.map((o: any) => ({
@@ -213,6 +213,7 @@ export async function GET(request: Request) {
         dateCreated: o.date_created ? new Date(o.date_created) : new Date(),
         status: o.status || 'processing',
         lineItems: o.line_items || [],
+        shippingLines: o.shipping_lines || [],
         billing: o.billing || null,
         updatedAt: new Date(),
       }));
@@ -228,6 +229,7 @@ export async function GET(request: Request) {
               dateCreated: sql`EXCLUDED.date_created`,
               status: sql`EXCLUDED.status`,
               lineItems: sql`EXCLUDED.line_items`,
+              shippingLines: sql`EXCLUDED.shipping_lines`,
               billing: sql`EXCLUDED.billing`,
               updatedAt: sql`EXCLUDED.updated_at`,
             }

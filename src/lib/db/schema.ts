@@ -277,6 +277,7 @@ export const wcOrders = pgTable("wc_orders", {
   dateCreated: timestamp("date_created", { withTimezone: true }),
   status: varchar("status", { length: 50 }),
   lineItems: jsonb("line_items"),
+  shippingLines: jsonb("shipping_lines"),
   billing: jsonb("billing"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
