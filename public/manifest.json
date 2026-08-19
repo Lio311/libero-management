@@ -4,16 +4,16 @@
   "description": "B2B/B2C fragrance and decant business management",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#09090b",
+  "background_color": "#ffffff",
   "theme_color": "#09090b",
   "icons": [
     {
-      "src": "/libero-d.png",
+      "src": "/libero-icon-white.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/libero-d.png",
+      "src": "/libero-icon-white.png",
       "sizes": "512x512",
       "type": "image/png"
     }
