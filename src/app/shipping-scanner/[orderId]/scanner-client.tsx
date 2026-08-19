@@ -31,6 +31,7 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
   const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed">("processing");
   const [missingMode, setMissingMode] = useState(false);
   const [selectedForMissing, setSelectedForMissing] = useState<number[]>([]);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   // Refs for global keydown scanner
   const scanBuffer = useRef("");
@@ -259,11 +260,20 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
   };
 
   const resetOrder = () => {
-    if (confirm("האם לאפס את כל התקדמות הסריקה בהזמנה זו?")) {
-      initFromOrder();
-      setLocalOrderStatus("processing");
-      toast.info("ההזמנה אופסה");
-    }
+    toast.error("האם לאפס את כל התקדמות הסריקה בהזמנה זו?", {
+      action: {
+        label: "כן, אפס",
+        onClick: () => {
+          initFromOrder();
+          setLocalOrderStatus("processing");
+          toast.info("ההזמנה אופסה");
+        }
+      },
+      cancel: {
+        label: "ביטול",
+        onClick: () => {}
+      }
+    });
   };
 
   return (
@@ -410,7 +420,12 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
                 
                 {/* Image */}
                 {item.imageUrl ? (
-                  <img src={item.imageUrl} alt={item.name} className="w-16 h-16 rounded-md object-cover border border-border shrink-0" />
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.name} 
+                    className="w-16 h-16 rounded-md object-cover border border-border shrink-0 cursor-pointer" 
+                    onClick={() => setZoomedImage(item.imageUrl!)}
+                  />
                 ) : (
                   <div className="w-16 h-16 rounded-md bg-secondary flex items-center justify-center shrink-0">
                     <Package className="w-8 h-8 text-muted-foreground" />
@@ -472,6 +487,29 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
           );
         })}
       </div>
+
+      {/* Image Zoom Overlay */}
+      {zoomedImage && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 cursor-pointer"
+          onClick={() => setZoomedImage(null)}
+        >
+          <button 
+            className="absolute top-4 right-4 text-white hover:text-gray-300 p-2"
+            onClick={(e) => {
+              e.stopPropagation();
+              setZoomedImage(null);
+            }}
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <img 
+            src={zoomedImage} 
+            alt="Zoomed product" 
+            className="max-w-full max-h-[90vh] object-contain rounded-lg"
+          />
+        </div>
+      )}
     </div>
   );
 }

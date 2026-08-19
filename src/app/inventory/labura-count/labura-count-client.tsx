@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 
 import { useState, useEffect } from "react";
 import { updateLaburaInventoryCount, addLaburaItem, toggleArchiveLaburaItem, deleteLaburaItem } from "./actions";
@@ -80,10 +81,20 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("האם אתה בטוח שברצונך למחוק חמאה זו לצמיתות?")) {
-      setData(prev => prev.filter(item => item.id !== id));
-      await deleteLaburaItem(id);
-    }
+    toast.error("האם אתה בטוח שברצונך למחוק חמאה זו לצמיתות?", {
+      action: {
+        label: "כן, מחק",
+        onClick: async () => {
+          setData(prev => prev.filter(item => item.id !== id));
+          await deleteLaburaItem(id);
+          toast.success("נמחק בהצלחה");
+        }
+      },
+      cancel: {
+        label: "ביטול",
+        onClick: () => {}
+      }
+    });
   };
 
   const handleExportPDF = () => {

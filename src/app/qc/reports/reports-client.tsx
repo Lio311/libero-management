@@ -1,4 +1,5 @@
 'use client';
+import { toast } from "sonner";
 
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
@@ -69,7 +70,7 @@ export default function QCReportsClient({ initialReports, priceChanges = [] }: {
       setActivePriceChanges(details.priceChanges as any);
     } catch (error) {
       console.error('Failed to load report details', error);
-      alert('שגיאה בטעינת פרטי הדוח');
+      toast.error('שגיאה בטעינת פרטי הדוח');
     } finally {
       setLoadingReportId(null);
     }
