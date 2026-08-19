@@ -1,9 +1,11 @@
 import { Clock } from 'lucide-react';
-import { SignOutButton } from '@clerk/nextjs';
 import Image from 'next/image';
 import { currentUser, clerkClient } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { ForceRefresh } from './ForceRefresh';
+import { CustomSignOutButton } from './CustomSignOutButton';
+
+export const dynamic = 'force-dynamic';
 
 export default async function PendingApprovalPage() {
   const user = await currentUser();
@@ -58,11 +60,7 @@ export default async function PendingApprovalPage() {
             {isActuallyApproved ? (
               <ForceRefresh />
             ) : (
-              <SignOutButton>
-                <div className="w-full bg-zinc-900/50 border border-white/10 hover:bg-white/10 hover:border-white/30 rounded-xl py-3 text-white transition-all duration-300 cursor-pointer">
-                  התנתק
-                </div>
-              </SignOutButton>
+              <CustomSignOutButton />
             )}
           </div>
         </div>
