@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ClipboardCheck, UserCog, ShoppingBag, FileText, CalendarDays, UserCheck, ScanBarcode } from "lucide-react";
+import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ClipboardCheck, UserCog, ShoppingBag, FileText, CalendarDays, UserCheck, ScanBarcode, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { influencersConfig } from "@/config/influencers";
@@ -147,6 +147,11 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false }: {
           {(() => {
             const allNavigation = [...navigation];
             if (isAdmin) {
+              allNavigation.push({
+                name: "הגדרות סריקה",
+                href: "/shipping-scanner/settings",
+                icon: Settings
+              });
               allNavigation.push({
                 name: "אישור משתמשים",
                 href: "/admin/users",

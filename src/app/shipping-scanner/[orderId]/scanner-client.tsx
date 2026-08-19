@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 
 interface ScannerClientProps {
   order: ScannerOrder;
+  manualKeywords: string[];
 }
 
 type ItemStatus = {
@@ -17,11 +18,11 @@ type ItemStatus = {
   name: string;
   expected: number;
   scanned: number;
-  isMini: boolean;
+  isManual: boolean;
   isMissing: boolean;
 };
 
-export default function ScannerClient({ order }: ScannerClientProps) {
+export default function ScannerClient({ order, manualKeywords }: ScannerClientProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [items, setItems] = useState<ItemStatus[]>([]);
@@ -46,18 +47,22 @@ export default function ScannerClient({ order }: ScannerClientProps) {
     } else {
       initFromOrder();
     }
-  }, [order]);
+  }, [order, manualKeywords]);
 
   const initFromOrder = () => {
-    const initialItems = order.lineItems.map((item: any) => ({
-      id: item.id,
-      sku: item.sku || "",
-      name: item.name || "",
-      expected: item.quantity || 1,
-      scanned: 0,
-      isMini: (item.name || "").includes("מיני"),
-      isMissing: false,
-    }));
+    const initialItems = order.lineItems.map((item: any) => {
+      const name = item.name || "";
+      const isManual = manualKeywords.some(kw => name.includes(kw));
+      return {
+        id: item.id,
+        sku: item.sku || "",
+        name: name,
+        expected: item.quantity || 1,
+        scanned: 0,
+        isManual,
+        isMissing: false,
+      };
+    });
     setItems(initialItems);
   };
 
@@ -93,13 +98,13 @@ export default function ScannerClient({ order }: ScannerClientProps) {
       return;
     }
 
-    const itemIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && !item.isMini);
+    const itemIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && !item.isManual);
     
     if (itemIndex === -1) {
-      // Check if it's a mini item
-      const miniIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && item.isMini);
-      if (miniIndex !== -1) {
-        toast.info("מוצר מיני בושם - יש לאשר ידנית עם כפתור ה-V");
+      // Check if it's a manual item
+      const manualIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && item.isManual);
+      if (manualIndex !== -1) {
+        toast.info("מוצר ללא ברקוד - יש לאשר ידנית עם כפתור ה-V");
       } else {
         toast.error(`מק"ט לא חוקי: ${sku} לא נמצא בהזמנה זו!`);
       }
@@ -120,9 +125,9 @@ export default function ScannerClient({ order }: ScannerClientProps) {
     if (inputRef.current) inputRef.current.focus();
   };
 
-  const markMiniAsScanned = (id: number) => {
+  const markManualAsScanned = (id: number) => {
     const newItems = items.map(item => {
-      if (item.id === id && item.isMini) {
+      if (item.id === id && item.isManual) {
         return { ...item, scanned: item.expected };
       }
       return item;
@@ -306,7 +311,7 @@ export default function ScannerClient({ order }: ScannerClientProps) {
                     {item.name}
                   </h4>
                   <p className="text-sm text-muted-foreground font-mono mt-1">
-                    {item.sku || 'ללא מק"ט'} {item.isMini && <span className="text-xs bg-secondary px-2 py-0.5 rounded-full mr-2">מוצר מיני</span>}
+                    {item.sku || 'ללא מק"ט'} {item.isManual && <span className="text-xs bg-secondary px-2 py-0.5 rounded-full mr-2">אישור ידני</span>}
                   </p>
                 </div>
               </div>
@@ -325,14 +330,14 @@ export default function ScannerClient({ order }: ScannerClientProps) {
                   </div>
                 </div>
 
-                {item.isMini && !isDone && !item.isMissing && localOrderStatus === "processing" && (
+                {item.isManual && !isDone && !item.isMissing && localOrderStatus === "processing" && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      markMiniAsScanned(item.id);
+                      markManualAsScanned(item.id);
                     }}
                     className="w-10 h-10 rounded-full bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white flex items-center justify-center transition-colors"
-                    title="אשר איסוף מיני בושם"
+                    title="אשר איסוף ידני"
                   >
                     <Check className="w-5 h-5" />
                   </button>
