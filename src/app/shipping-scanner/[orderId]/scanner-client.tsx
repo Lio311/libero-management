@@ -275,7 +275,6 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
             ref={inputRef}
             autoFocus
             type="text"
-            inputMode="none"
             value={scanInput}
             onChange={(e) => setScanInput(e.target.value)}
             placeholder="סרוק מקט..."
