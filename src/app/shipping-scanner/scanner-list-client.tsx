@@ -1,13 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Package, CalendarIcon, User, Truck, Store, PlayCircle } from "lucide-react";
+import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import { ScannerOrder } from "@/app/actions/scanner-actions";
 
-export default function ScannerListClient({ orders }: { orders: ScannerOrder[] }) {
+export default function ScannerListClient({ 
+  orders,
+  stats
+}: { 
+  orders: ScannerOrder[];
+  stats: { completedToday: number; remainingToProcess: number };
+}) {
   const [mounted, setMounted] = useState(false);
   const [partiallyScannedIds, setPartiallyScannedIds] = useState<number[]>([]);
   const [readyIds, setReadyIds] = useState<number[]>([]);
@@ -48,10 +54,25 @@ export default function ScannerListClient({ orders }: { orders: ScannerOrder[] }
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
           סריקת משלוחים
-          <span className="text-sm px-3 py-1 rounded-full bg-secondary text-foreground font-medium whitespace-nowrap">
-            סה״כ הזמנות פתוחות: {processingOrders.length}
-          </span>
         </h2>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 max-w-2xl">
+        <div className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center shadow-sm">
+          <div className="flex items-center gap-2 text-muted-foreground mb-2">
+            <CheckCircle2 className="w-5 h-5 text-green-500" />
+            <span className="font-medium text-sm">הושלמו היום</span>
+          </div>
+          <span className="text-3xl font-bold text-foreground">{stats.completedToday}</span>
+        </div>
+        
+        <div className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center shadow-sm">
+          <div className="flex items-center gap-2 text-muted-foreground mb-2">
+            <ListTodo className="w-5 h-5 text-orange-500" />
+            <span className="font-medium text-sm">נשארו לביצוע</span>
+          </div>
+          <span className="text-3xl font-bold text-foreground">{stats.remainingToProcess}</span>
+        </div>
       </div>
 
       {processingOrders.length === 0 ? (

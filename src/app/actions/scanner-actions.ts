@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { wcOrders, wcProducts, settings, qcProducts } from "@/lib/db/schema";
-import { eq, desc, inArray } from "drizzle-orm";
+import { eq, desc, inArray, and, gte, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export type ScannerOrder = {
@@ -162,5 +162,25 @@ export async function getOrderById(orderId: number): Promise<ScannerOrder | null
   } catch (error: any) {
     console.error('getOrderById error:', error);
     throw new Error(`שגיאה בשליפת הזמנה: ${error?.message || 'שגיאה לא ידועה'}`);
+  }
+}
+
+export async function getScannerStats() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  try {
+    const processing = await db.select({ id: wcOrders.id }).from(wcOrders).where(eq(wcOrders.status, 'processing'));
+    const completed = await db.select({ id: wcOrders.id, updatedAt: wcOrders.updatedAt })
+      .from(wcOrders)
+      .where(and(eq(wcOrders.status, 'completed'), gte(wcOrders.updatedAt, today)));
+      
+    return {
+      completedToday: completed.length,
+      remainingToProcess: processing.length
+    };
+  } catch (error) {
+    console.error('getScannerStats error:', error);
+    return { completedToday: 0, remainingToProcess: 0 };
   }
 }
