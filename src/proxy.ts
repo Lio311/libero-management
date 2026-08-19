@@ -32,7 +32,8 @@ const isPublicRoute = createRouteMatcher([
   '/api/influencer-coupon(.*)',
   '/marketing/oded(.*)',
   '/marketing/influencers(.*)',
-  '/pending-approval(.*)'
+  '/pending-approval(.*)',
+  '/manifest.json'
 ]);
 
 const isFinanceRoute = createRouteMatcher(['/finance(.*)']);

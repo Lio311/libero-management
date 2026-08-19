@@ -1,4 +1,5 @@
 import { SignIn } from "@clerk/nextjs";
+import Image from "next/image";
 
 export default function Page() {
   return (
@@ -12,7 +13,9 @@ export default function Page() {
         {/* Logo */}
         <div className="mb-10 text-center">
           <div className="bg-white/5 backdrop-blur-md p-6 rounded-3xl border border-white/10 shadow-2xl mb-6 inline-block">
-            <img src="/libero-w-white.png" alt="Libero Logo" className="w-[240px] h-auto object-contain mx-auto" />
+            <div className="relative h-20 w-52 mx-auto">
+              <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7] brightness-0 invert" priority />
+            </div>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
             ברוכים הבאים למערכת ההנהלה
