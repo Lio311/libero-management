@@ -286,7 +286,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       if (res.success && res.labelUrl) {
         toast.success("מדבקה נוצרה בהצלחה! פותח להדפסה...");
         
-        const proxyUrl = `/api/lionwheel/proxy-pdf?url=${encodeURIComponent(res.labelUrl)}`;
+        const proxyUrl = res.labelUrl; // It turns out Lionwheel returns an HTML page, not a direct PDF!
         
         if (newWindow) {
           newWindow.location.href = proxyUrl;
