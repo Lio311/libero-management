@@ -3,7 +3,7 @@
 import { clerkClient, currentUser } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 
-export async function toggleUserApproval(userId: string, isApproved: boolean) {
+export async function updateUserRole(userId: string, role: 'unapproved' | 'user' | 'warehouse') {
   const admin = await currentUser();
   const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
   if (admin?.emailAddresses[0]?.emailAddress !== adminEmail) {
@@ -12,21 +12,25 @@ export async function toggleUserApproval(userId: string, isApproved: boolean) {
 
   const client = await clerkClient();
   
+  const isApproved = role !== 'unapproved';
+  const assignedRole = role === 'unapproved' ? 'user' : role;
+  
   // Update the user's metadata
   await client.users.updateUserMetadata(userId, {
-    publicMetadata: { isApproved }
+    publicMetadata: { isApproved, role: assignedRole }
   });
 
   // Verify the update actually took effect
   const updatedUser = await client.users.getUser(userId);
   const actualStatus = !!updatedUser.publicMetadata?.isApproved;
+  const actualRole = updatedUser.publicMetadata?.role;
   
-  if (actualStatus !== isApproved) {
-    console.error(`toggleUserApproval FAILED: expected isApproved=${isApproved}, got ${actualStatus} for user ${userId}`);
-    throw new Error('Failed to update user approval status');
+  if (actualStatus !== isApproved || actualRole !== assignedRole) {
+    console.error(`updateUserRole FAILED: expected isApproved=${isApproved} role=${assignedRole}, got isApproved=${actualStatus} role=${actualRole} for user ${userId}`);
+    throw new Error('Failed to update user role');
   }
 
-  console.log(`toggleUserApproval SUCCESS: user ${userId} (${updatedUser.emailAddresses[0]?.emailAddress}) isApproved=${actualStatus}`);
+  console.log(`updateUserRole SUCCESS: user ${userId} isApproved=${actualStatus} role=${actualRole}`);
 
   revalidatePath('/admin/users');
 }

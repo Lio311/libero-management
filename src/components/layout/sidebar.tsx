@@ -69,7 +69,7 @@ const navigation: NavItem[] = [
   { name: "מעקב בונוסים", href: "/bonus", icon: Award },
 ];
 
-export function Sidebar({ children, isAuthenticated = true, isAdmin = false }: { children?: React.ReactNode; isAuthenticated?: boolean; isAdmin?: boolean }) {
+export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isWarehouse = false }: { children?: React.ReactNode; isAuthenticated?: boolean; isAdmin?: boolean; isWarehouse?: boolean }) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<string[]>([]);
@@ -145,7 +145,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false }: {
           !isAuthenticated && "blur-sm pointer-events-none select-none opacity-50"
         )}>
           {(() => {
-            const allNavigation = [...navigation];
+            let allNavigation = [...navigation];
             if (isAdmin) {
               allNavigation.push({
                 name: "הגדרות סריקה",
@@ -157,6 +157,9 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false }: {
                 href: "/admin/users",
                 icon: UserCheck
               });
+            }
+            if (isWarehouse) {
+              allNavigation = allNavigation.filter(item => item.name === "סריקת משלוחים");
             }
             return allNavigation.map((item) => {
               const hasSubItems = !!item.subItems;

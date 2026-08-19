@@ -42,6 +42,7 @@ export default async function RootLayout({
   const user = await currentUser();
   const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
   const isAdmin = user?.emailAddresses[0]?.emailAddress === adminEmail;
+  const isWarehouse = user?.publicMetadata?.role === 'warehouse';
 
   return (
     <ClerkProvider localization={heIL}>
@@ -49,7 +50,7 @@ export default async function RootLayout({
         <body className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row`}>
           <ConfirmProvider>
             <LayoutWrapper sidebar={
-              <Sidebar isAuthenticated={!!user} isAdmin={isAdmin}>
+              <Sidebar isAuthenticated={!!user} isAdmin={isAdmin} isWarehouse={isWarehouse}>
                 <div className="flex items-center gap-3">
                   <UserButton />
                   <GlobalNotifications />

@@ -58,6 +58,7 @@ export default clerkMiddleware(async (auth, request) => {
 
   if (userId) {
     let isApproved = sessionClaims?.publicMetadata?.isApproved;
+    let role = sessionClaims?.publicMetadata?.role;
     
     // If not approved in the JWT, check the actual Clerk backend data
     // (the JWT may be stale after admin approves a user)
@@ -71,7 +72,9 @@ export default clerkMiddleware(async (auth, request) => {
         const approvedInBackend = !!user.publicMetadata?.isApproved;
         const isAdmin = email === adminEmail;
         
-        console.log(`[Middleware] User ${email} (${userId}): JWT.isApproved=${sessionClaims?.publicMetadata?.isApproved}, Backend.isApproved=${approvedInBackend}, isAdmin=${isAdmin}`);
+        role = user.publicMetadata?.role || 'user';
+        
+        console.log(`[Middleware] User ${email} (${userId}): JWT.isApproved=${sessionClaims?.publicMetadata?.isApproved}, Backend.isApproved=${approvedInBackend}, isAdmin=${isAdmin}, role=${role}`);
         
         if (isAdmin || approvedInBackend) {
           isApproved = true;
@@ -85,6 +88,15 @@ export default clerkMiddleware(async (auth, request) => {
       if (request.nextUrl.pathname !== '/pending-approval') {
         console.log(`[Middleware] Redirecting unapproved user ${userId} to /pending-approval`);
         return NextResponse.redirect(new URL('/pending-approval', request.url));
+      }
+    } else {
+      // User is approved. Restrict warehouse role.
+      if (role === 'warehouse') {
+        const isShippingScannerRoute = request.nextUrl.pathname.startsWith('/shipping-scanner');
+        if (!isShippingScannerRoute && request.nextUrl.pathname !== '/pending-approval') {
+          console.log(`[Middleware] Redirecting warehouse user ${userId} to /shipping-scanner from ${request.nextUrl.pathname}`);
+          return NextResponse.redirect(new URL('/shipping-scanner', request.url));
+        }
       }
     }
   }

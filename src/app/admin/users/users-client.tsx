@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { toggleUserApproval } from './actions';
+import { updateUserRole } from './actions';
 import { toast } from 'sonner';
-import { UserCheck, UserX, ShieldAlert, Mail, User as UserIcon } from 'lucide-react';
+import { ShieldAlert, Mail, User as UserIcon } from 'lucide-react';
 import { format } from 'date-fns';
 
 type UserData = {
@@ -14,16 +14,17 @@ type UserData = {
   imageUrl: string;
   createdAt: number;
   isApproved: boolean;
+  role: string;
 };
 
 export default function UsersClient({ users, adminEmail }: { users: UserData[], adminEmail: string }) {
   const [isPending, startTransition] = useTransition();
 
-  const handleToggle = (userId: string, currentStatus: boolean) => {
+  const handleRoleChange = (userId: string, role: 'unapproved' | 'user' | 'warehouse') => {
     startTransition(async () => {
       try {
-        await toggleUserApproval(userId, !currentStatus);
-        toast.success(currentStatus ? 'הרשאת משתמש בוטלה' : 'המשתמש אושר בהצלחה');
+        await updateUserRole(userId, role);
+        toast.success('הרשאות המשתמש עודכנו בהצלחה');
       } catch (e) {
         toast.error('שגיאה בעדכון הרשאות המשתמש');
       }
@@ -69,31 +70,29 @@ export default function UsersClient({ users, adminEmail }: { users: UserData[], 
                 הצטרף ב: {format(new Date(user.createdAt), 'dd/MM/yyyy')}
               </span>
               
-              <button
-                onClick={() => handleToggle(user.id, user.isApproved)}
-                disabled={isPending || user.email === adminEmail}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  user.email === adminEmail 
-                    ? 'bg-primary/10 text-primary cursor-not-allowed opacity-70'
-                    : user.isApproved 
+              {user.email === adminEmail ? (
+                <span className="px-3 py-1.5 rounded-lg text-sm font-medium bg-primary/10 text-primary opacity-70 cursor-not-allowed">
+                  מנהל מערכת
+                </span>
+              ) : (
+                <select
+                  disabled={isPending}
+                  value={user.isApproved ? user.role : 'unapproved'}
+                  onChange={(e) => handleRoleChange(user.id, e.target.value as 'unapproved' | 'user' | 'warehouse')}
+                  className={`text-sm px-3 py-1.5 rounded-lg font-medium border border-border/50 focus:ring-2 focus:ring-primary outline-none transition-colors cursor-pointer appearance-none ${
+                    !user.isApproved 
                       ? 'bg-red-500/10 text-red-500 hover:bg-red-500/20' 
-                      : 'bg-green-500/10 text-green-500 hover:bg-green-500/20'
-                }`}
-              >
-                {user.email === adminEmail ? (
-                  <>מנהל מערכת</>
-                ) : user.isApproved ? (
-                  <>
-                    <UserX className="w-4 h-4" />
-                    הסר הרשאה
-                  </>
-                ) : (
-                  <>
-                    <UserCheck className="w-4 h-4" />
-                    אשר משתמש
-                  </>
-                )}
-              </button>
+                      : user.role === 'warehouse'
+                        ? 'bg-blue-500/10 text-blue-500 hover:bg-blue-500/20'
+                        : 'bg-green-500/10 text-green-500 hover:bg-green-500/20'
+                  }`}
+                  style={{ textAlignLast: 'center' }}
+                >
+                  <option value="unapproved" className="bg-background text-foreground">לא מאושר</option>
+                  <option value="user" className="bg-background text-foreground">משתמש רגיל</option>
+                  <option value="warehouse" className="bg-background text-foreground">מחסנאי</option>
+                </select>
+              )}
             </div>
           </div>
         ))}

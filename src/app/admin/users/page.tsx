@@ -26,6 +26,7 @@ export default async function AdminUsersPage() {
     imageUrl: u.imageUrl,
     createdAt: u.createdAt,
     isApproved: !!u.publicMetadata?.isApproved,
+    role: (u.publicMetadata?.role as string) || 'user',
   }));
 
   return <UsersClient users={formattedUsers} adminEmail={adminEmail} />;
