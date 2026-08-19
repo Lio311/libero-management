@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ScannerOrder, markOrderCompleted } from "@/app/actions/scanner-actions";
+import { ScannerOrder, markOrderCompleted, reportMissingItemsAction } from "@/app/actions/scanner-actions";
 import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2, Package } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -227,11 +227,13 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
     }
   };
 
-  const submitMissing = () => {
+  const submitMissing = async () => {
     if (selectedForMissing.length === 0) {
       setMissingMode(false);
       return;
     }
+
+    const newlyMissingItems = items.filter(item => selectedForMissing.includes(item.id));
 
     const newItems = items.map(item => {
       if (selectedForMissing.includes(item.id)) {
@@ -248,6 +250,23 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
     setLocalOrderStatus("on_hold");
     toast.warning("פריטים סומנו כחסרים. ההזמנה הועברה לסטטוס מושהה.");
     checkCompletion(newItems);
+
+    try {
+      await reportMissingItemsAction({
+        orderId: order.id,
+        store: store || "libero",
+        customerName: order.customerName,
+        missingItems: newlyMissingItems.map(item => ({
+          sku: item.sku,
+          name: item.name,
+          expected: item.expected,
+          scanned: item.scanned
+        }))
+      });
+      toast.success("נשלח דיווח אוטומטי למנהל המערכת על החוסרים");
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const resetOrder = () => {

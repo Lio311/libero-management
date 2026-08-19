@@ -1,4 +1,5 @@
 "use server";
+import nodemailer from "nodemailer";
 
 import { db } from "@/lib/db";
 import { wcOrders, wcProducts, velourOrders, velourProducts, laburaOrders, laburaProducts, settings, qcProducts } from "@/lib/db/schema";
@@ -221,5 +222,77 @@ export async function markOrderCompleted(orderId: number, store: "libero" | "vel
   } catch (error) {
     console.error('markOrderCompleted error:', error);
     return false;
+  }
+}
+
+
+export async function reportMissingItemsAction(data: {
+  orderId: number;
+  store: string;
+  customerName: string;
+  missingItems: Array<{ sku: string; name: string; expected: number; scanned: number }>;
+}) {
+  const gmailAddress = process.env.GMAIL_ADDRESS;
+  const gmailPassword = process.env.GMAIL_PASSWORD;
+
+  if (!gmailAddress || !gmailPassword) {
+    console.error("Missing GMAIL_ADDRESS or GMAIL_PASSWORD in env");
+    return { success: false, error: "Missing email configuration" };
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: { user: gmailAddress, pass: gmailPassword },
+  });
+
+  const storeNames: Record<string, string> = {
+    libero: "ליברו",
+    velour: "וולור",
+    labura: "לה בורה",
+  };
+  const storeNameHe = storeNames[data.store] || data.store;
+
+  let itemsHtml = data.missingItems.map(item => 
+    `<li>
+      <strong>מק"ט:</strong> ${item.sku} <br/>
+      <strong>שם מוצר:</strong> ${item.name} <br/>
+      <strong>כמות שהוזמנה:</strong> ${item.expected} <br/>
+      <strong>כמות שנסרקה בפועל:</strong> ${item.scanned}
+    </li>`
+  ).join("<br/>");
+
+  const htmlBody = `
+    <div dir="rtl" style="font-family: Arial, sans-serif; font-size: 16px;">
+      <h2 style="color: #e63946;">התראה: מוצרים חסרים בהזמנה</h2>
+      <p>שלום,</p>
+      <p>מחסנאי סימן את המוצרים הבאים כחסרים במערכת הסורק.</p>
+      
+      <div style="background: #f1faee; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <strong>חנות:</strong> ${storeNameHe} <br/>
+        <strong>מספר הזמנה:</strong> #${data.orderId} <br/>
+        <strong>שם לקוח:</strong> ${data.customerName}
+      </div>
+
+      <h3>פירוט החוסרים:</h3>
+      <ul>
+        ${itemsHtml}
+      </ul>
+      
+      <p>נא לבדוק את ההזמנה ולטפל בהתאם.</p>
+      <p><small>הודעה זו נשלחה אוטומטית ממערכת הסורק</small></p>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: gmailAddress,
+      to: "lior31197@gmail.com", // You can use gmailAddress to send to the admin, or another specific email. Let's use gmailAddress for now as the admin, or let's use the provided email or process.env.ADMIN_EMAIL. Let's send to gmailAddress.
+      subject: `התראת חוסר - חנות ${storeNameHe} הזמנה #${data.orderId}`,
+      html: htmlBody,
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to send missing items email", error);
+    return { success: false, error: error?.message || "Unknown error" };
   }
 }
