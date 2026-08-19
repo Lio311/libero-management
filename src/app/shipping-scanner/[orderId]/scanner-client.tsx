@@ -164,41 +164,13 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore typing if they are somehow focused on a real input (though we made ours readOnly)
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        if (!e.target.readOnly) return;
-      }
-
-      if (e.key === "Enter") {
-        e.preventDefault();
-        if (scanBuffer.current.trim()) {
-          processBarcode(scanBuffer.current.trim());
-          setScanInput(scanBuffer.current.trim());
-          setTimeout(() => setScanInput(""), 1000); // clear UI after 1s
-          scanBuffer.current = "";
-        }
-      } else if (e.key.length === 1) {
-        scanBuffer.current += e.key;
-        
-        if (scanTimeout.current) clearTimeout(scanTimeout.current);
-        scanTimeout.current = setTimeout(() => {
-          scanBuffer.current = "";
-        }, 300);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [items, localOrderStatus, missingMode]);
-
   const handleScan = (e: React.FormEvent) => {
     e.preventDefault();
-    // This is just a fallback for manual submit button (if any)
     const sku = scanInput.trim();
-    processBarcode(sku);
-    setScanInput("");
+    if (sku) {
+      processBarcode(sku);
+      setScanInput("");
+    }
   };
 
   const markItemAsScanned = (id: number) => {
@@ -313,10 +285,9 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
           <input
             ref={inputRef}
             type="text"
-            readOnly
             value={scanInput}
-            onChange={() => {}}
-            placeholder="סרוק מקט..."
+            onChange={(e) => setScanInput(e.target.value)}
+            placeholder="סרוק מוצר או הזן ברקוד..."
             className="w-full px-4 py-3 pl-10 bg-background border border-border rounded-lg text-lg focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50"
             disabled={localOrderStatus !== "processing" || missingMode}
           />
