@@ -276,9 +276,43 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
     try {
       toast.info("מייצר מדבקת משלוח...");
       const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
-      if (res.success && res.labelUrl) {
-        toast.success("מדבקה נוצרה בהצלחה! פותח להדפסה...");
-        window.open(res.labelUrl, '_blank');
+      if (res.success && (res.pdfBase64 || res.labelUrl)) {
+        toast.success("מדבקה נוצרה בהצלחה! מכין להדפסה...");
+        
+        if (res.pdfBase64) {
+          try {
+            const byteCharacters = atob(res.pdfBase64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], {type: 'application/pdf'});
+            const blobUrl = URL.createObjectURL(blob);
+            
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobile) {
+              window.open(blobUrl, '_blank');
+            } else {
+              const iframe = document.createElement('iframe');
+              iframe.style.display = 'none';
+              iframe.src = blobUrl;
+              document.body.appendChild(iframe);
+              
+              iframe.onload = () => {
+                setTimeout(() => {
+                  iframe.contentWindow?.focus();
+                  iframe.contentWindow?.print();
+                }, 200);
+              };
+            }
+          } catch (err) {
+            console.error("Print via iframe failed", err);
+            window.open(res.labelUrl, '_blank');
+          }
+        } else if (res.labelUrl) {
+          window.open(res.labelUrl, '_blank');
+        }
       } else {
         toast.error("שגיאה ביצירת המדבקה: " + (res.error || "לא ידוע"));
       }

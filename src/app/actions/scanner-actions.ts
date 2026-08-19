@@ -298,7 +298,7 @@ export async function reportMissingItemsAction(data: {
 }
 
 
-export async function createOrderLabel(orderId: number, store: "libero" | "velour" | "labura" = "libero"): Promise<{ success: boolean; labelUrl?: string; error?: string }> {
+export async function createOrderLabel(orderId: number, store: "libero" | "velour" | "labura" = "libero"): Promise<{ success: boolean; labelUrl?: string; pdfBase64?: string; error?: string }> {
   const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
   
   try {
@@ -347,7 +347,20 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
     const data = await response.json();
     const labelUrl = data.label || data.pdf_link || data.label_url || "";
     
-    return { success: true, labelUrl };
+    let pdfBase64;
+    if (labelUrl) {
+      try {
+        const pdfReq = await fetch(labelUrl);
+        if (pdfReq.ok) {
+          const arrayBuffer = await pdfReq.arrayBuffer();
+          pdfBase64 = Buffer.from(arrayBuffer).toString('base64');
+        }
+      } catch (err) {
+        console.error("Failed to fetch PDF for base64", err);
+      }
+    }
+    
+    return { success: true, labelUrl, pdfBase64 };
   } catch (error: any) {
     console.error('Error creating Lionwheel label:', error);
     return { success: false, error: error.message };
