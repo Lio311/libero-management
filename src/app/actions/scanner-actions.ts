@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { wcOrders, wcProducts, settings } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export type ScannerOrder = {
@@ -48,7 +48,7 @@ export async function saveScannerSettings(keywords: string[]) {
 
 export async function getProcessingOrders(): Promise<ScannerOrder[]> {
   try {
-    const orders = await db.select({
+    const processingOrders = await db.select({
       id: wcOrders.id,
       total: wcOrders.total,
       dateCreated: wcOrders.dateCreated,
@@ -60,6 +60,22 @@ export async function getProcessingOrders(): Promise<ScannerOrder[]> {
     }).from(wcOrders)
     .where(eq(wcOrders.status, 'processing'))
     .orderBy(desc(wcOrders.dateCreated));
+
+    const completedOrders = await db.select({
+      id: wcOrders.id,
+      total: wcOrders.total,
+      dateCreated: wcOrders.dateCreated,
+      status: wcOrders.status,
+      lineItems: wcOrders.lineItems,
+      shippingLines: wcOrders.shippingLines,
+      billing: wcOrders.billing,
+      customerId: wcOrders.customerId,
+    }).from(wcOrders)
+    .where(eq(wcOrders.status, 'completed'))
+    .orderBy(desc(wcOrders.updatedAt))
+    .limit(30); // Show last 30 completed orders
+
+    const orders = [...processingOrders, ...completedOrders];
 
     return orders.map(order => {
       const billing = order.billing as any;

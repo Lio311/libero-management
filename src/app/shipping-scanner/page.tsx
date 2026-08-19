@@ -7,31 +7,34 @@ import { he } from "date-fns/locale";
 export default async function ShippingScannerPage() {
   const orders = await getProcessingOrders();
   
-  const pickupOrders = orders.filter(o => o.isPickup);
-  const shippingOrders = orders.filter(o => !o.isPickup);
+  const processingOrders = orders.filter(o => o.status === 'processing');
+  const completedOrders = orders.filter(o => o.status === 'completed');
+  
+  const pickupOrders = processingOrders.filter(o => o.isPickup);
+  const shippingOrders = processingOrders.filter(o => !o.isPickup);
 
   return (
-    <div className="flex-1 space-y-8 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
+    <div className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight flex items-center gap-3">
           סריקת משלוחים
           <span className="text-sm px-3 py-1 rounded-full bg-secondary text-foreground font-medium">
-            סה״כ הזמנות פתוחות: {orders.length}
+            סה״כ הזמנות פתוחות: {processingOrders.length}
           </span>
         </h2>
       </div>
 
-      {orders.length === 0 ? (
+      {processingOrders.length === 0 ? (
         <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border border-border">
           אין הזמנות פתוחות להכנה
         </div>
       ) : (
-        <>
+        <div className="space-y-8">
           {pickupOrders.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold flex items-center gap-2 text-orange-500">
                 <Store className="w-6 h-6" />
-                איסוף עצמי ({pickupOrders.length})
+                איסוף עצמי בטיפול ({pickupOrders.length})
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {pickupOrders.map(order => (
@@ -45,7 +48,7 @@ export default async function ShippingScannerPage() {
             <div className="space-y-4">
               <h3 className="text-xl font-semibold flex items-center gap-2 text-blue-500">
                 <Truck className="w-6 h-6" />
-                משלוחים ({shippingOrders.length})
+                משלוחים בטיפול ({shippingOrders.length})
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {shippingOrders.map(order => (
@@ -54,7 +57,21 @@ export default async function ShippingScannerPage() {
               </div>
             </div>
           )}
-        </>
+        </div>
+      )}
+
+      {completedOrders.length > 0 && (
+        <div className="space-y-4 pt-8 border-t border-border">
+          <h3 className="text-xl font-semibold flex items-center gap-2 text-green-500">
+            <Package className="w-6 h-6" />
+            הזמנות שהושלמו לאחרונה ({completedOrders.length})
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 opacity-75">
+            {completedOrders.map(order => (
+              <OrderCard key={order.id} order={order} />
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

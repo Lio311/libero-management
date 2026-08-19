@@ -353,12 +353,12 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
               <div className="flex items-center gap-6">
                 <div className="text-center">
                   <div className="text-xs text-muted-foreground mb-1">כמות</div>
-                  <div className="font-semibold text-lg">
+                  <div className="font-semibold text-lg whitespace-nowrap">
                     {item.isMissing ? (
                       <span className="text-destructive"><AlertTriangle className="w-5 h-5 inline mr-1" /> חסר</span>
                     ) : (
-                      <span className={isDone ? 'text-green-500' : ''}>
-                        {item.scanned} / {item.expected}
+                      <span className={isDone ? 'text-green-500' : item.scanned > 0 ? 'text-orange-500' : 'text-red-500'}>
+                        {item.scanned} מתוך {item.expected}
                       </span>
                     )}
                   </div>
