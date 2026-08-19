@@ -160,7 +160,10 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         const newItems = [...items];
         newItems[itemIndex].scanned += 1;
         setItems(newItems);
-        toast.success(`נסרק בהצלחה: ${item.name}`);
+        const isAllDone = newItems.every(i => i.scanned >= i.expected || i.isMissing);
+        if (!isAllDone) {
+          toast.success(`נסרק בהצלחה: ${item.name}`, { id: `scan_${item.id}_${newItems[itemIndex].scanned}` });
+        }
         checkCompletion(newItems);
       }
     }
@@ -193,7 +196,10 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       return item;
     });
     setItems(newItems);
-    toast.success("מוצר סומן בהצלחה");
+    const isAllDone = newItems.every(i => i.scanned >= i.expected || i.isMissing);
+    if (!isAllDone) {
+      toast.success("מוצר סומן בהצלחה", { id: `manual_scan_${id}` });
+    }
     checkCompletion(newItems);
   };
 
@@ -204,10 +210,10 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
     if (allDone) {
       if (hasMissing) {
         setLocalOrderStatus("on_hold");
-        toast.warning("סריקה הסתיימה, אך יש פריטים חסרים. הסטטוס שונה למושהה.");
+        toast.warning("סריקה הסתיימה, אך יש פריטים חסרים. הסטטוס שונה למושהה.", { id: "all_done_missing" });
       } else {
         setLocalOrderStatus("ready");
-        toast.success("כל הפריטים נסרקו! יש לסגור את ההזמנה ידנית.");
+        toast.success("כל הפריטים נסרקו! יש לסגור את ההזמנה ידנית.", { id: "all_done" });
       }
     }
   };
