@@ -15,6 +15,10 @@ export type ScannerOrder = {
   status: string;
   lineItems: any[];
   isPickup: boolean;
+  shippingAddress?: string;
+  city?: string;
+  phone?: string;
+  notes?: string;
 };
 
 export async function getScannerSettings(): Promise<string[]> {
@@ -95,6 +99,10 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
         status: order.status || 'processing',
         lineItems: Array.isArray(order.lineItems) ? order.lineItems : [],
         isPickup,
+        shippingAddress: (order.billing as any)?.address_1 || '',
+        city: (order.billing as any)?.city || '',
+        phone: (order.billing as any)?.phone || '',
+        notes: (order as any).customer_note || '',
       };
     });
   } catch (error: any) {
@@ -160,6 +168,10 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
       status: order.status || 'processing',
       lineItems,
       isPickup,
+      shippingAddress: (order.billing as any)?.address_1 || '',
+      city: (order.billing as any)?.city || '',
+      phone: (order.billing as any)?.phone || '',
+      notes: (order as any).customer_note || '',
     };
   } catch (error: any) {
     console.error('getOrderById error:', error);
@@ -298,7 +310,7 @@ export async function reportMissingItemsAction(data: {
 }
 
 
-export async function createOrderLabel(orderId: number, store: "libero" | "velour" | "labura" = "libero"): Promise<{ success: boolean; labelUrl?: string; error?: string }> {
+export async function createOrderLabel(orderId: number, store: "libero" | "velour" | "labura" = "libero"): Promise<{ success: boolean; labelUrl?: string; error?: string; barcode?: string; region?: string }> {
   const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
   
   try {
