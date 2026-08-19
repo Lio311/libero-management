@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 export function LayoutWrapper({ children, sidebar }: { children: React.ReactNode, sidebar: React.ReactNode }) {
   const pathname = usePathname();
   
-  if (pathname === '/login' || pathname === '/setup-2fa') {
+  if (pathname === '/login' || pathname === '/setup-2fa' || pathname === '/pending-approval') {
     return (
       <main className="flex-1 w-full h-screen bg-black overflow-y-auto">
         {children}
