@@ -17,8 +17,8 @@ async function verifyGoogleAuth(request: any) {
 
 const isPublicRoute = createRouteMatcher([
   '/login(.*)',
-  '/sign-in(.*)',
   '/sign-up(.*)',
+  '/finance-auth(.*)',
   '/setup-2fa(.*)',
   '/api/webhooks(.*)',
   '/api/sync(.*)',
@@ -38,7 +38,7 @@ const isPublicRoute = createRouteMatcher([
 
 const isFinanceRoute = createRouteMatcher(['/finance(.*)']);
 
-export const proxy = clerkMiddleware(async (auth, request) => {
+export default clerkMiddleware(async (auth, request) => {
   if (isPublicRoute(request)) {
     return NextResponse.next();
   }
@@ -73,7 +73,7 @@ export const proxy = clerkMiddleware(async (auth, request) => {
   if (isFinanceRoute(request)) {
     const isGoogleAuthenticated = await verifyGoogleAuth(request);
     if (!isGoogleAuthenticated) {
-      const url = new URL('/login', request.url);
+      const url = new URL('/finance-auth', request.url);
       return NextResponse.redirect(url);
     }
   }
