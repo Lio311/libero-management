@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function ScannerSettingsPage() {
   const admin = await currentUser();
-  const adminEmail = process.env.admin_email || 'lior31197@gmail.com';
+  const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
   
   if (admin?.emailAddresses[0]?.emailAddress !== adminEmail) {
     redirect('/shipping-scanner');

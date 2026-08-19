@@ -40,7 +40,7 @@ export default async function RootLayout({
   const hasFinanceAuth = !!authCookie?.value;
 
   const user = await currentUser();
-  const adminEmail = process.env.admin_email || 'lior31197@gmail.com';
+  const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
   const isAdmin = user?.emailAddresses[0]?.emailAddress === adminEmail;
 
   return (

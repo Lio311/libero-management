@@ -53,3 +53,6 @@ venv_xlsx/
 mist-monitor/known_products.json
 mist-monitor/monitor.log
 mist-monitor/monitor.pid
+
+# clerk configuration (can include secrets)
+/.clerk/

@@ -1,4 +1,4 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher, clerkClient } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
@@ -51,8 +51,24 @@ export default clerkMiddleware(async (auth, request) => {
   const sessionClaims = authData.sessionClaims as any;
 
   if (userId) {
-    const isApproved = sessionClaims?.publicMetadata?.isApproved;
+    let isApproved = sessionClaims?.publicMetadata?.isApproved;
     
+    // If not approved in the JWT, check if they are the admin
+    if (!isApproved) {
+      try {
+        const client = await clerkClient();
+        const user = await client.users.getUser(userId);
+        const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
+        const email = user.emailAddresses[0]?.emailAddress;
+        
+        if (email === adminEmail) {
+          isApproved = true; // Admin bypasses approval
+        }
+      } catch (error) {
+        console.error("Failed to fetch user in middleware:", error);
+      }
+    }
+
     if (!isApproved) {
       if (request.nextUrl.pathname !== '/pending-approval') {
         return NextResponse.redirect(new URL('/pending-approval', request.url));

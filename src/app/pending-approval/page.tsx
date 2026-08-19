@@ -8,7 +8,7 @@ export default async function PendingApprovalPage() {
   const user = await currentUser();
   
   if (user) {
-    const adminEmail = process.env.admin_email || 'lior31197@gmail.com';
+    const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
     const email = user.emailAddresses[0]?.emailAddress;
     
     // Auto-approve the admin

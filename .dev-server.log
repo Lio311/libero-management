@@ -42,3 +42,13 @@ Deleting this directory while Next.js is running can lead to undefined behavior.
 ✓ Running next.config.ts took 701ms
 
 ✓ Compiled in 6ms
+Clerk - DEPRECATION WARNING: "createRouteMatcher" is deprecated and will be removed in the next major release.
+Use resource-based auth checks instead. Move auth checks into each page, layout, API route, or Server Function that accesses protected data. Middleware-based auth checks rely on path matching, which can diverge from how Next.js routes requests and leave protected resources reachable. For a migration guide, see: https://clerk.com/docs/guides/development/upgrading/upgrade-guides/migrate-from-create-route-matcher
+
+[35m
+[Clerk]:[0m You are running in keyless mode.
+You can [35mclaim your keys[0m by visiting https://dashboard.clerk.com/apps/claim?framework=nextjs&token=fh3q1u684xqhzkxn6ovvea7nkzmaftket3f0ghos&return_url=http%3A%2F%2Flocalhost%3A3001%2F
+
+ GET /pending-approval 200 in 7.2s (next.js: 2.2s, proxy.ts: 192ms, application-code: 4.8s)
+✓ Compiled in 77ms
+✓ Compiled in 59ms
