@@ -273,33 +273,16 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   
   const handlePrintLabel = async () => {
     setIsPrinting(true);
-    
-    // Open blank window synchronously to bypass popup blockers (especially Safari)
-    const newWindow = window.open('', '_blank');
-    if (newWindow) {
-      newWindow.document.write('<html dir="rtl"><head><title>טוען לייבל...</title></head><body style="font-family:sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;"><h2>מייצר מדבקת משלוח, אנא המתן...</h2></body></html>');
-    }
-
     try {
       toast.info("מייצר מדבקת משלוח...");
       const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
       if (res.success && res.labelUrl) {
         toast.success("מדבקה נוצרה בהצלחה! פותח להדפסה...");
-        
-        const proxyUrl = res.labelUrl; // It turns out Lionwheel returns an HTML page, not a direct PDF!
-        
-        if (newWindow) {
-          newWindow.location.href = proxyUrl;
-        } else {
-          // Fallback if popup blocker blocked the initial synchronous window.open
-          window.open(proxyUrl, '_blank');
-        }
+        window.open(res.labelUrl, '_blank');
       } else {
-        if (newWindow) newWindow.close();
         toast.error("שגיאה ביצירת המדבקה: " + (res.error || "לא ידוע"));
       }
     } catch (e) {
-      if (newWindow) newWindow.close();
       toast.error("שגיאה בתקשורת עם השרת");
     } finally {
       setIsPrinting(false);
