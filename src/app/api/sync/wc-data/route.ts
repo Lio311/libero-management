@@ -3,16 +3,18 @@ import { BRAND_CONFIG } from '@/lib/wc-config';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { db } from '@/lib/db';
-import { wcProducts, wcOrders, qcProducts, priceHistory } from '@/lib/db/schema';
+import { wcProducts, wcOrders, velourProducts, velourOrders, qcProducts, priceHistory } from '@/lib/db/schema';
 import { eq, sql, inArray } from 'drizzle-orm';
 
-const LIBERO_CONFIG = BRAND_CONFIG.libero;
 
-async function fetchFromWooCommerce(endpoint: string, queryParams: string = '') {
-  const auth = Buffer.from(`${LIBERO_CONFIG.ck}:${LIBERO_CONFIG.cs}`).toString('base64');
+
+async function fetchFromWooCommerce(endpoint: string, queryParams: string = '', store: 'libero' | 'velour' = 'libero') {
+  const config = BRAND_CONFIG[store];
+  const auth = Buffer.from(`${config.ck}:${config.cs}`).toString('base64');
+  
   let allData: any[] = [];
   
-  const firstUrl = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/${endpoint}?per_page=100&page=1${queryParams ? `&${queryParams}` : ''}`;
+  const firstUrl = `${config.baseUrl}/wp-json/wc/v3/${endpoint}?per_page=100&page=1${queryParams ? `&${queryParams}` : ''}`;
   console.log(`Fetching: ${firstUrl}`);
   const firstRes = await fetch(firstUrl, {
     method: 'GET',
@@ -34,7 +36,7 @@ async function fetchFromWooCommerce(endpoint: string, queryParams: string = '') 
   const pagesToFetch = Math.min(totalPages, 150); // limit to 15,000 items max
 
   const fetchPage = async (p: number) => {
-    const url = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/${endpoint}?per_page=100&page=${p}${queryParams ? `&${queryParams}` : ''}`;
+    const url = `${config.baseUrl}/wp-json/wc/v3/${endpoint}?per_page=100&page=${p}${queryParams ? `&${queryParams}` : ''}`;
     const res = await fetch(url, {
       method: 'GET',
       headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/json' },
@@ -88,6 +90,10 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const mode = url.searchParams.get('mode') || 'incremental';
+  const store = (url.searchParams.get('store') as 'libero' | 'velour') || 'libero';
+
+  const targetProductsTable = store === 'velour' ? velourProducts : wcProducts;
+  const targetOrdersTable = store === 'velour' ? velourOrders : wcOrders;
   let queryParams = '';
 
   if (mode === 'incremental') {
@@ -113,10 +119,10 @@ export async function GET(request: Request) {
     };
 
     // 1. Fetch & Sync Products
-    const products = await fetchFromWooCommerce('products', queryParams + '&status=any&_fields=id,name,sku,price,stock_quantity,date_created,date_modified,categories,status');
+    const products = await fetchFromWooCommerce('products', queryParams + '&status=any&_fields=id,name,sku,price,stock_quantity,date_created,date_modified,categories,status', store);
     
     if (products.length > 0) {
-      const existingProducts = await db.select({ id: wcProducts.id, stockQuantity: wcProducts.stockQuantity, price: wcProducts.price, name: wcProducts.name }).from(wcProducts);
+      const existingProducts = await db.select({ id: targetProductsTable.id, stockQuantity: targetProductsTable.stockQuantity, price: targetProductsTable.price, name: targetProductsTable.name }).from(targetProductsTable);
       const stockMap = new Map(existingProducts.map(p => [p.id, p.stockQuantity || 0]));
       const priceMap = new Map(existingProducts.map(p => [p.id, p.price || '0']));
       const nameMap = new Map(existingProducts.map(p => [p.id, p.name]));
@@ -160,9 +166,9 @@ export async function GET(request: Request) {
 
       const productChunks = chunkArray(productValues, 500);
       for (const chunk of productChunks) {
-        await db.insert(wcProducts).values(chunk)
+        await db.insert(targetProductsTable).values(chunk)
           .onConflictDoUpdate({
-            target: wcProducts.id,
+            target: targetProductsTable.id,
             set: {
               name: sql`EXCLUDED.name`,
               sku: sql`EXCLUDED.sku`,
@@ -176,7 +182,7 @@ export async function GET(request: Request) {
           });
       }
 
-      if (restockedProductIds.length > 0) {
+      if (store === 'libero' && restockedProductIds.length > 0) {
         // Update qcProducts with the new restock date
         const restockChunks = chunkArray(restockedProductIds, 500);
         for (const chunk of restockChunks) {
@@ -187,7 +193,7 @@ export async function GET(request: Request) {
       }
 
       // Save price changes to history
-      if (priceChanges.length > 0) {
+      if (store === 'libero' && priceChanges.length > 0) {
         const priceHistoryValues = priceChanges.map(pc => ({
           wooProductId: pc.wooProductId,
           productName: pc.productName,
@@ -203,7 +209,7 @@ export async function GET(request: Request) {
     }
 
     // 2. Fetch & Sync Orders
-    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed&_fields=id,total,date_created,line_items,shipping_lines,customer_id,status,billing');
+    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed&_fields=id,total,date_created,line_items,shipping_lines,customer_id,status,billing', store);
     
     if (orders.length > 0) {
       const orderValues = orders.map((o: any) => ({
@@ -220,9 +226,9 @@ export async function GET(request: Request) {
 
       const orderChunks = chunkArray(orderValues, 500);
       for (const chunk of orderChunks) {
-        await db.insert(wcOrders).values(chunk)
+        await db.insert(targetOrdersTable).values(chunk)
           .onConflictDoUpdate({
-            target: wcOrders.id,
+            target: targetOrdersTable.id,
             set: {
               total: sql`EXCLUDED.total`,
               customerId: sql`EXCLUDED.customer_id`,

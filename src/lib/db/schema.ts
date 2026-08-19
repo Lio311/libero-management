@@ -282,6 +282,30 @@ export const wcOrders = pgTable("wc_orders", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const velourProducts = pgTable("velour_products", {
+  id: integer("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  sku: varchar("sku", { length: 100 }),
+  price: decimal("price"),
+  stockQuantity: integer("stock_quantity"),
+  dateCreated: timestamp("date_created", { withTimezone: true }),
+  status: varchar("status", { length: 50 }),
+  categories: jsonb("categories"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const velourOrders = pgTable("velour_orders", {
+  id: integer("id").primaryKey(),
+  total: decimal("total"),
+  customerId: integer("customer_id"),
+  dateCreated: timestamp("date_created", { withTimezone: true }),
+  status: varchar("status", { length: 50 }),
+  lineItems: jsonb("line_items"),
+  shippingLines: jsonb("shipping_lines"),
+  billing: jsonb("billing"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export const generatedShippingLabels = pgTable("generated_shipping_labels", {
   id: uuid("id").defaultRandom().primaryKey(),
   orderId: text("order_id"),

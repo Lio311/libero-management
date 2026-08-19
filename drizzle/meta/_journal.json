@@ -15,6 +15,13 @@
       "when": 1786460426335,
       "tag": "0001_shocking_shard",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787133042963,
+      "tag": "0002_funny_proemial_gods",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { wcOrders, wcProducts, settings, qcProducts } from "@/lib/db/schema";
+import { wcOrders, wcProducts, velourOrders, velourProducts, settings, qcProducts } from "@/lib/db/schema";
 import { eq, desc, inArray, and, gte, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -46,34 +46,35 @@ export async function saveScannerSettings(keywords: string[]) {
   }
 }
 
-export async function getProcessingOrders(): Promise<ScannerOrder[]> {
+export async function getProcessingOrders(store: "libero" | "velour" = "libero"): Promise<ScannerOrder[]> {
+  const targetOrders = store === "velour" ? velourOrders : wcOrders;
   try {
     const processingOrders = await db.select({
-      id: wcOrders.id,
-      total: wcOrders.total,
-      dateCreated: wcOrders.dateCreated,
-      status: wcOrders.status,
-      lineItems: wcOrders.lineItems,
-      shippingLines: wcOrders.shippingLines,
-      billing: wcOrders.billing,
-      customerId: wcOrders.customerId,
-    }).from(wcOrders)
-    .where(eq(wcOrders.status, 'processing'))
-    .orderBy(desc(wcOrders.dateCreated));
+      id: targetOrders.id,
+      total: targetOrders.total,
+      dateCreated: targetOrders.dateCreated,
+      status: targetOrders.status,
+      lineItems: targetOrders.lineItems,
+      shippingLines: targetOrders.shippingLines,
+      billing: targetOrders.billing,
+      customerId: targetOrders.customerId,
+    }).from(targetOrders)
+    .where(eq(targetOrders.status, 'processing'))
+    .orderBy(desc(targetOrders.dateCreated));
 
     const completedOrders = await db.select({
-      id: wcOrders.id,
-      total: wcOrders.total,
-      dateCreated: wcOrders.dateCreated,
-      status: wcOrders.status,
-      lineItems: wcOrders.lineItems,
-      shippingLines: wcOrders.shippingLines,
-      billing: wcOrders.billing,
-      customerId: wcOrders.customerId,
-    }).from(wcOrders)
-    .where(eq(wcOrders.status, 'completed'))
-    .orderBy(desc(wcOrders.updatedAt))
-    .limit(30); // Show last 30 completed orders
+      id: targetOrders.id,
+      total: targetOrders.total,
+      dateCreated: targetOrders.dateCreated,
+      status: targetOrders.status,
+      lineItems: targetOrders.lineItems,
+      shippingLines: targetOrders.shippingLines,
+      billing: targetOrders.billing,
+      customerId: targetOrders.customerId,
+    }).from(targetOrders)
+    .where(eq(targetOrders.status, 'completed'))
+    .orderBy(desc(targetOrders.updatedAt))
+    .limit(30);
 
     const orders = [...processingOrders, ...completedOrders];
 
@@ -82,7 +83,6 @@ export async function getProcessingOrders(): Promise<ScannerOrder[]> {
       const customerName = billing ? `${billing.first_name || ''} ${billing.last_name || ''}`.trim() : `לקוח ${order.customerId || 'אורח'}`;
       
       const shippingLines = Array.isArray(order.shippingLines) ? order.shippingLines : [];
-      // "local_pickup" is the typical WooCommerce method ID for local pickup
       const isPickup = shippingLines.some((sl: any) => sl.method_id === 'local_pickup' || sl.method_title?.includes('איסוף עצמי'));
       
       return {
@@ -101,19 +101,20 @@ export async function getProcessingOrders(): Promise<ScannerOrder[]> {
   }
 }
 
-export async function getOrderById(orderId: number): Promise<ScannerOrder | null> {
+export async function getOrderById(orderId: number, store: "libero" | "velour" = "libero"): Promise<ScannerOrder | null> {
+  const targetOrders = store === "velour" ? velourOrders : wcOrders;
   try {
     const orders = await db.select({
-      id: wcOrders.id,
-      total: wcOrders.total,
-      dateCreated: wcOrders.dateCreated,
-      status: wcOrders.status,
-      lineItems: wcOrders.lineItems,
-      shippingLines: wcOrders.shippingLines,
-      billing: wcOrders.billing,
-      customerId: wcOrders.customerId,
-    }).from(wcOrders)
-    .where(eq(wcOrders.id, orderId))
+      id: targetOrders.id,
+      total: targetOrders.total,
+      dateCreated: targetOrders.dateCreated,
+      status: targetOrders.status,
+      lineItems: targetOrders.lineItems,
+      shippingLines: targetOrders.shippingLines,
+      billing: targetOrders.billing,
+      customerId: targetOrders.customerId,
+    }).from(targetOrders)
+    .where(eq(targetOrders.id, orderId))
     .limit(1);
 
     if (orders.length === 0) return null;
@@ -141,7 +142,6 @@ export async function getOrderById(orderId: number): Promise<ScannerOrder | null
     }
 
     const lineItems = rawLineItems.map((item: any) => {
-      // Prioritize the image we fetched from qcProducts, fallback to item.image.src
       const dbImage = imageMap.get(item.product_id);
       if (dbImage) {
         if (!item.image) item.image = {};
@@ -165,15 +165,16 @@ export async function getOrderById(orderId: number): Promise<ScannerOrder | null
   }
 }
 
-export async function getScannerStats() {
+export async function getScannerStats(store: "libero" | "velour" = "libero") {
+  const targetOrders = store === "velour" ? velourOrders : wcOrders;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   try {
-    const processing = await db.select({ id: wcOrders.id }).from(wcOrders).where(eq(wcOrders.status, 'processing'));
-    const completed = await db.select({ id: wcOrders.id, updatedAt: wcOrders.updatedAt })
-      .from(wcOrders)
-      .where(and(eq(wcOrders.status, 'completed'), gte(wcOrders.updatedAt, today)));
+    const processing = await db.select({ id: targetOrders.id }).from(targetOrders).where(eq(targetOrders.status, 'processing'));
+    const completed = await db.select({ id: targetOrders.id, updatedAt: targetOrders.updatedAt })
+      .from(targetOrders)
+      .where(and(eq(targetOrders.status, 'completed'), gte(targetOrders.updatedAt, today)));
       
     return {
       completedToday: completed.length,

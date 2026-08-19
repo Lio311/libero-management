@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 interface ScannerClientProps {
   order: ScannerOrder;
   manualKeywords: string[];
+  store?: string;
 }
 
 type ItemStatus = {
@@ -23,7 +24,7 @@ type ItemStatus = {
   imageUrl?: string;
 };
 
-export default function ScannerClient({ order, manualKeywords }: ScannerClientProps) {
+export default function ScannerClient({ order, manualKeywords, store = "libero" }: ScannerClientProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [items, setItems] = useState<ItemStatus[]>([]);
@@ -56,7 +57,7 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
 
       // Start near right edge (> innerWidth - 50px) and swipe left (deltaX < -70px)
       if (touchStartX > window.innerWidth - 50 && deltaX < -70 && Math.abs(deltaY) < 50) {
-        router.push("/shipping-scanner");
+        router.push(`/shipping-scanner?store=${store}`);
       }
     };
 
@@ -76,8 +77,9 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
 
   // Initialize state from local storage or order
   useEffect(() => {
-    const storageKey = `scanner_order_${order.id}`;
-    const saved = localStorage.getItem(storageKey);
+    const storageKey = `scanner_order_${store}_${order.id}`;
+    let saved = localStorage.getItem(storageKey);
+    if (!saved && store === "libero") saved = localStorage.getItem(`scanner_order_${order.id}`);
     
     if (saved) {
       try {
@@ -115,7 +117,7 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
   // Save to local storage on change
   useEffect(() => {
     if (items.length > 0) {
-      const storageKey = `scanner_order_${order.id}`;
+      const storageKey = `scanner_order_${store}_${order.id}`;
       localStorage.setItem(storageKey, JSON.stringify({ items, status: localOrderStatus }));
     }
   }, [items, localOrderStatus, order.id]);
@@ -262,7 +264,7 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <Link href="/shipping-scanner" className="p-2 hover:bg-secondary rounded-full transition-colors">
+          <Link href={`/shipping-scanner?store=${store}`} className="p-2 hover:bg-secondary rounded-full transition-colors">
             <ArrowRight className="w-6 h-6" />
           </Link>
           <div>

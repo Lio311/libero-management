@@ -7,13 +7,21 @@ import { he } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import { ScannerOrder } from "@/app/actions/scanner-actions";
 
+import { useRouter } from "next/navigation";
+
 export default function ScannerListClient({ 
-  orders,
-  stats
+  initialOrders,
+  initialStats,
+  initialStore
 }: { 
-  orders: ScannerOrder[];
-  stats: { completedToday: number; remainingToProcess: number };
+  initialOrders: ScannerOrder[];
+  initialStats: { completedToday: number; remainingToProcess: number };
+  initialStore: "libero" | "velour";
 }) {
+  const orders = initialOrders;
+  const stats = initialStats;
+  const store = initialStore;
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [partiallyScannedIds, setPartiallyScannedIds] = useState<number[]>([]);
   const [readyIds, setReadyIds] = useState<number[]>([]);
@@ -23,7 +31,8 @@ export default function ScannerListClient({
     const readys: number[] = [];
     orders.forEach(o => {
       if (o.status === 'processing') {
-        const saved = localStorage.getItem(`scanner_order_${o.id}`);
+        let saved = localStorage.getItem(`scanner_order_${store}_${o.id}`);
+        if (!saved && store === "libero") saved = localStorage.getItem(`scanner_order_${o.id}`);
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
@@ -89,7 +98,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {readyOrders.map(order => (
-                  <OrderCard key={order.id} order={order} statusLabel="ממתין לסגירה" statusColor="green" />
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="ממתין לסגירה" statusColor="green" />
                 ))}
               </div>
             </div>
@@ -103,7 +112,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {partialOrders.map(order => (
-                  <OrderCard key={order.id} order={order} statusLabel="בתהליך סריקה" statusColor="purple" />
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בתהליך סריקה" statusColor="purple" />
                 ))}
               </div>
             </div>
@@ -117,7 +126,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {pickupOrders.map(order => (
-                  <OrderCard key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" />
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" />
                 ))}
               </div>
             </div>
@@ -131,7 +140,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {shippingOrders.map(order => (
-                  <OrderCard key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" />
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" />
                 ))}
               </div>
             </div>
@@ -147,7 +156,7 @@ export default function ScannerListClient({
           </h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 opacity-75">
             {completedOrders.map(order => (
-              <OrderCard key={order.id} order={order} statusLabel="הושלם" statusColor="green" />
+              <OrderCard store={store} key={order.id} order={order} statusLabel="הושלם" statusColor="green" />
             ))}
           </div>
         </div>
@@ -156,7 +165,7 @@ export default function ScannerListClient({
   );
 }
 
-function OrderCard({ order, statusLabel, statusColor }: { order: any, statusLabel: string, statusColor: 'blue' | 'purple' | 'green' }) {
+function OrderCard({ order, statusLabel, statusColor, store }: { order: any, statusLabel: string, statusColor: 'blue' | 'purple' | 'green', store: string }) {
   const colorClasses = {
     blue: "bg-blue-500/10 text-blue-500 border-blue-500/20",
     purple: "bg-purple-500/10 text-purple-500 border-purple-500/20",
@@ -164,7 +173,7 @@ function OrderCard({ order, statusLabel, statusColor }: { order: any, statusLabe
   };
 
   return (
-    <Link href={`/shipping-scanner/${order.id}`} className="block h-full">
+    <Link href={`/shipping-scanner/${order.id}?store=${store}`} className="block h-full">
       <div className="glass-panel p-6 rounded-xl hover-scale cursor-pointer group hover:border-primary/50 transition-colors h-full flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">
