@@ -33,6 +33,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const [missingMode, setMissingMode] = useState(false);
   const [selectedForMissing, setSelectedForMissing] = useState<number[]>([]);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
 
   // Refs for global keydown scanner
   const scanBuffer = useRef("");
@@ -213,7 +214,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         toast.warning("סריקה הסתיימה, אך יש פריטים חסרים. הסטטוס שונה למושהה.", { id: "all_done_missing" });
       } else {
         setLocalOrderStatus("ready");
-        toast.success("כל הפריטים נסרקו! יש לסגור את ההזמנה ידנית.", { id: "all_done" });
+        setShowCompletionModal(true);
       }
     }
   };
@@ -499,6 +500,50 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           />
         </div>
       )}
+
+      {/* Completion Modal */}
+      {showCompletionModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
+          <div className="bg-card border border-border p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6">
+            <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-10 h-10" />
+            </div>
+            <h2 className="text-3xl font-bold text-foreground">כל הפריטים נסרקו!</h2>
+            <p className="text-muted-foreground text-lg">מה תרצה לעשות כעת?</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+              <button
+                onClick={() => {
+                  setLocalOrderStatus("completed");
+                  setShowCompletionModal(false);
+                  toast.success("ההזמנה נסגרה בהצלחה!");
+                  router.push(`/shipping-scanner?store=${store}`);
+                }}
+                className="px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                סגירת הזמנה
+              </button>
+              <button
+                onClick={() => {
+                  setShowCompletionModal(false);
+                  router.push(`/shipping-scanner?store=${store}`);
+                }}
+                className="px-6 py-4 bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <ArrowRight className="w-5 h-5" />
+                חזרה להזמנות
+              </button>
+            </div>
+            <button 
+              onClick={() => setShowCompletionModal(false)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
