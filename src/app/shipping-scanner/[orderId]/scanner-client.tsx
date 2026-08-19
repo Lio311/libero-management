@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ScannerOrder, markOrderCompleted, reportMissingItemsAction } from "@/app/actions/scanner-actions";
-import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2, Package } from "lucide-react";
+import { ScannerOrder, markOrderCompleted, reportMissingItemsAction, createOrderLabel } from "@/app/actions/scanner-actions";
+import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2, Package, Printer } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -34,6 +34,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const [selectedForMissing, setSelectedForMissing] = useState<number[]>([]);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   // Refs for global keydown scanner
   const scanBuffer = useRef("");
@@ -269,6 +270,25 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
     }
   };
 
+  
+  const handlePrintLabel = async () => {
+    setIsPrinting(true);
+    try {
+      toast.info("מייצר מדבקת משלוח...");
+      const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
+      if (res.success && res.labelUrl) {
+        toast.success("מדבקה נוצרה בהצלחה! פותח להדפסה...");
+        window.open(res.labelUrl, '_blank');
+      } else {
+        toast.error("שגיאה ביצירת המדבקה: " + (res.error || "לא ידוע"));
+      }
+    } catch (e) {
+      toast.error("שגיאה בתקשורת עם השרת");
+    } finally {
+      setIsPrinting(false);
+    }
+  };
+
   const resetOrder = () => {
     toast.error("האם לאפס את כל התקדמות הסריקה בהזמנה זו?", {
       action: {
@@ -288,7 +308,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-4">
           <Link href={`/shipping-scanner?store=${store}`} className="p-2 hover:bg-secondary rounded-full transition-colors">
             <ArrowRight className="w-6 h-6" />
@@ -299,7 +319,17 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+          <button 
+            onClick={handlePrintLabel}
+            disabled={isPrinting}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-10"
+          >
+            <Printer className="w-5 h-5" />
+            {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל"}
+          </button>
+          
+          <div className="flex items-center gap-3 h-10">
           {localOrderStatus === "processing" && (
             <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center gap-2">
               <ScanLine className="w-4 h-4" /> בתהליך סריקה
@@ -315,6 +345,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               <CheckCircle2 className="w-4 h-4" /> כלל המוצרים בהזמנה נסרקו
             </span>
           )}
+          </div>
         </div>
       </div>
 

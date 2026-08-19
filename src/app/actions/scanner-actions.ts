@@ -296,3 +296,60 @@ export async function reportMissingItemsAction(data: {
     return { success: false, error: error?.message || "Unknown error" };
   }
 }
+
+
+export async function createOrderLabel(orderId: number, store: "libero" | "velour" | "labura" = "libero"): Promise<{ success: boolean; labelUrl?: string; error?: string }> {
+  const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
+  
+  try {
+    const orders = await db.select().from(targetOrders).where(eq(targetOrders.id, orderId)).limit(1);
+    if (orders.length === 0) return { success: false, error: 'Order not found' };
+
+    const order = orders[0];
+    const billing = order.billing as any || {};
+    
+    const customerName = `${billing.first_name || ''} ${billing.last_name || ''}`.trim() || "לא ידוע";
+    
+    const today = new Date();
+    const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
+
+    const LIONWHEEL_API_KEY = (process.env.LIONWHEEL_API_KEY || "c_key_ea2313a9-c33a-436a-bd4b-ed2978e51a70").replace(/['"]/g, '').trim();
+    const LIONWHEEL_ENDPOINT = "https://members.lionwheel.com/api/v1/tasks/create";
+
+    // Prepare Lionwheel payload
+    const payload = {
+      pickup_at: formattedDate,
+      original_order_id: `${orderId}-${Date.now()}`, // Prevent duplicate order IDs in lionwheel
+      destination_city: billing.city || "לא ידוע",
+      destination_street: billing.address_1 || "לא ידוע",
+      destination_number: "0",
+      destination_recipient_name: customerName,
+      destination_phone: billing.phone || "לא ידוע",
+      destination_email: billing.email || "",
+      notes: `הופק ממערכת סורק - חנות ${store}`,
+    };
+
+    const response = await fetch(`${LIONWHEEL_ENDPOINT}?key=${LIONWHEEL_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Lionwheel error for order ${orderId}:`, errorText);
+      return { success: false, error: errorText };
+    }
+
+    const data = await response.json();
+    const labelUrl = data.label || data.pdf_link || data.label_url || "";
+    
+    return { success: true, labelUrl };
+  } catch (error: any) {
+    console.error('Error creating Lionwheel label:', error);
+    return { success: false, error: error.message };
+  }
+}
