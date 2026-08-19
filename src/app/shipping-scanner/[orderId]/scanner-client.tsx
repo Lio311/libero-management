@@ -401,10 +401,9 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
                         e.stopPropagation();
                         markItemAsScanned(item.id);
                       }}
-                      className="h-10 px-4 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white flex items-center gap-2 transition-colors font-medium text-sm"
+                      className="h-10 px-4 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white flex items-center gap-2 transition-colors font-medium text-sm"
                     >
-                      <Check className="w-4 h-4" />
-                      אישור {item.isManual && "ידני"}
+                      סמן ידנית
                     </button>
                   )}
                   {isDone && !item.isMissing && (
