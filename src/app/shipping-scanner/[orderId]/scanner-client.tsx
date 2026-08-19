@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ScannerOrder } from "@/app/actions/scanner-actions";
-import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2, Package } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,7 @@ type ItemStatus = {
   scanned: number;
   isManual: boolean;
   isMissing: boolean;
+  imageUrl?: string;
 };
 
 export default function ScannerClient({ order, manualKeywords }: ScannerClientProps) {
@@ -53,6 +54,8 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
     const initialItems = order.lineItems.map((item: any) => {
       const name = item.name || "";
       const isManual = manualKeywords.some(kw => name.includes(kw));
+      // Extract image URL from WooCommerce item format if available
+      const imageUrl = item.image?.src || (item.meta_data?.find((m: any) => m.key === '_image_url')?.value) || undefined;
       return {
         id: item.id,
         sku: item.sku || "",
@@ -61,6 +64,7 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
         scanned: 0,
         isManual,
         isMissing: false,
+        imageUrl,
       };
     });
     setItems(initialItems);
@@ -323,8 +327,16 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
             >
               <div className="flex items-center gap-4">
                 {missingMode && !isDone && !item.isMissing && (
-                  <div className={`w-5 h-5 rounded border flex items-center justify-center ${isMissingSelected ? 'bg-orange-500 border-orange-500 text-white' : 'border-input'}`}>
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${isMissingSelected ? 'bg-orange-500 border-orange-500 text-white' : 'border-input'}`}>
                     {isMissingSelected && <Check className="w-3 h-3" />}
+                  </div>
+                )}
+                
+                {item.imageUrl ? (
+                  <img src={item.imageUrl} alt={item.name} className="w-12 h-12 rounded-md object-cover border border-border shrink-0" />
+                ) : (
+                  <div className="w-12 h-12 rounded-md bg-secondary flex items-center justify-center shrink-0">
+                    <Package className="w-6 h-6 text-muted-foreground" />
                   </div>
                 )}
                 
@@ -333,7 +345,7 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
                     {item.name}
                   </h4>
                   <p className="text-sm text-muted-foreground font-mono mt-1">
-                    {item.sku || 'ללא מק"ט'} {item.isManual && <span className="text-xs bg-secondary px-2 py-0.5 rounded-full mr-2">אישור ידני</span>}
+                    <span className="font-bold text-foreground">{item.sku || 'ללא מק"ט'}</span> {item.isManual && <span className="text-xs bg-secondary px-2 py-0.5 rounded-full mr-2 font-sans">אישור ידני</span>}
                   </p>
                 </div>
               </div>
