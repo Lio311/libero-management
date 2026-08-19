@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { wcOrders, wcProducts, velourOrders, velourProducts, laburaOrders, laburaProducts, settings, qcProducts } from "@/lib/db/schema";
 import { eq, desc, inArray, and, gte, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { BRAND_CONFIG } from "@/lib/wc-config";
 
 export type ScannerOrder = {
   id: number;
@@ -183,5 +184,42 @@ export async function getScannerStats(store: "libero" | "velour" | "labura" = "l
   } catch (error) {
     console.error('getScannerStats error:', error);
     return { completedToday: 0, remainingToProcess: 0 };
+  }
+}
+
+
+export async function markOrderCompleted(orderId: number, store: "libero" | "velour" | "labura" = "libero"): Promise<boolean> {
+  const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
+  const config = BRAND_CONFIG[store];
+  const auth = Buffer.from(`${config.ck}:${config.cs}`).toString('base64');
+  
+  try {
+    // 1. Update WooCommerce
+    const res = await fetch(`${config.baseUrl}/wp-json/wc/v3/orders/${orderId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: 'completed' }),
+    });
+
+    if (!res.ok) {
+      console.error(`Failed to update WC order ${orderId}`, await res.text());
+      return false;
+    }
+
+    // 2. Update local DB
+    await db.update(targetOrders)
+      .set({ status: 'completed', updatedAt: new Date() })
+      .where(eq(targetOrders.id, orderId));
+
+    revalidatePath('/shipping-scanner');
+    revalidatePath(`/shipping-scanner/${orderId}`);
+    
+    return true;
+  } catch (error) {
+    console.error('markOrderCompleted error:', error);
+    return false;
   }
 }

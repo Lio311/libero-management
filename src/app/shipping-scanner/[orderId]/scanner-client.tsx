@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ScannerOrder } from "@/app/actions/scanner-actions";
+import { ScannerOrder, markOrderCompleted } from "@/app/actions/scanner-actions";
 import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2, Package } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -356,11 +356,22 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
 
           {localOrderStatus === "ready" && (
             <button
-              onClick={() => {
-                setLocalOrderStatus("completed");
-                toast.success("ההזמנה נסגרה בהצלחה!");
+              onClick={async (e) => {
+                const btn = e.currentTarget;
+                btn.disabled = true;
+                btn.innerText = "סוגר...";
+                const success = await markOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
+                if (success) {
+                  setLocalOrderStatus("completed");
+                  toast.success("ההזמנה נסגרה בהצלחה ובאתר!");
+                  router.push(`/shipping-scanner?store=${store}`);
+                } else {
+                  toast.error("שגיאה בסגירת ההזמנה באתר");
+                  btn.disabled = false;
+                  btn.innerText = "סגירת הזמנה";
+                }
               }}
-              className="px-4 py-3 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors font-medium h-full flex items-center justify-center"
+              className="px-4 py-3 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors font-medium h-full flex items-center justify-center disabled:opacity-50"
             >
               סגירת הזמנה
             </button>
@@ -512,11 +523,21 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             <p className="text-muted-foreground text-lg">מה תרצה לעשות כעת?</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
               <button
-                onClick={() => {
-                  setLocalOrderStatus("completed");
-                  setShowCompletionModal(false);
-                  toast.success("ההזמנה נסגרה בהצלחה!");
-                  router.push(`/shipping-scanner?store=${store}`);
+                onClick={async (e) => {
+                  const btn = e.currentTarget;
+                  btn.disabled = true;
+                  btn.innerHTML = "סוגר הזמנה...";
+                  const success = await markOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
+                  if (success) {
+                    setLocalOrderStatus("completed");
+                    setShowCompletionModal(false);
+                    toast.success("ההזמנה נסגרה בהצלחה ובאתר!");
+                    router.push(`/shipping-scanner?store=${store}`);
+                  } else {
+                    toast.error("שגיאה בסגירת ההזמנה באתר, נסה שוב");
+                    btn.disabled = false;
+                    btn.innerHTML = "<svg class='w-5 h-5 mr-2 inline' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg> סגירת הזמנה";
+                  }
                 }}
                 className="px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
               >
