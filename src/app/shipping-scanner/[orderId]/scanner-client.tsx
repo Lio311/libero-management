@@ -125,15 +125,15 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
     if (inputRef.current) inputRef.current.focus();
   };
 
-  const markManualAsScanned = (id: number) => {
+  const markItemAsScanned = (id: number) => {
     const newItems = items.map(item => {
-      if (item.id === id && item.isManual) {
+      if (item.id === id) {
         return { ...item, scanned: item.expected };
       }
       return item;
     });
     setItems(newItems);
-    toast.success("מוצר סומן כנאסף");
+    toast.success("מוצר סומן בהצלחה");
     checkCompletion(newItems);
   };
 
@@ -217,7 +217,7 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
           )}
           {localOrderStatus === "completed" && (
             <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-500/10 text-green-500 border border-green-500/20 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" /> סריקה הושלמה
+              <CheckCircle2 className="w-4 h-4" /> כלל המוצרים בהזמנה נסרקו
             </span>
           )}
         </div>
@@ -228,12 +228,12 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
           <input
             ref={inputRef}
             type="text"
+            inputMode="none"
             value={scanInput}
             onChange={(e) => setScanInput(e.target.value)}
             placeholder="סרוק מקט..."
             className="w-full px-4 py-2 pl-10 bg-background border border-border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50"
             disabled={localOrderStatus !== "processing" || missingMode}
-            autoFocus
           />
           <ScanLine className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         </form>
@@ -267,6 +267,28 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
             </>
           )}
           
+          {localOrderStatus === "completed" ? (
+            <button
+              onClick={() => {
+                setLocalOrderStatus("processing");
+                toast.info("ההזמנה נפתחה מחדש לסריקה");
+              }}
+              className="px-4 py-2 border border-border rounded-lg text-sm hover:bg-secondary transition-colors"
+            >
+              ביטול השלמה
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setLocalOrderStatus("completed");
+                toast.success("ההזמנה הושלמה ידנית");
+              }}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors font-medium"
+            >
+              סגירת הזמנה
+            </button>
+          )}
+
           <button
             onClick={resetOrder}
             className="px-4 py-2 border border-border rounded-lg text-sm hover:bg-secondary transition-colors"
@@ -330,11 +352,11 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
                   </div>
                 </div>
 
-                {item.isManual && !isDone && !item.isMissing && localOrderStatus === "processing" && (
+                {!isDone && !item.isMissing && localOrderStatus === "processing" && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      markManualAsScanned(item.id);
+                      markItemAsScanned(item.id);
                     }}
                     className="w-10 h-10 rounded-full bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white flex items-center justify-center transition-colors"
                     title="אשר איסוף ידני"
