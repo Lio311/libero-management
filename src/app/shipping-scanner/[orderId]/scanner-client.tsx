@@ -164,12 +164,22 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
     }
   };
 
+  const isProcessingRef = useRef(false);
+
   const handleScan = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isProcessingRef.current) return;
+    
     const sku = scanInput.trim();
     if (sku) {
+      isProcessingRef.current = true;
       processBarcode(sku);
       setScanInput("");
+      
+      // Release lock after 300ms
+      setTimeout(() => {
+        isProcessingRef.current = false;
+      }, 300);
     }
   };
 
