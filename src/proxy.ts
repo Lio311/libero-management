@@ -44,8 +44,7 @@ export default clerkMiddleware(async (auth, request) => {
     return NextResponse.next();
   }
 
-  // pending-approval: allow both logged-in and logged-out users through
-  // (logged-in users need Clerk session active so sign-out button works)
+  // pending-approval: let it through but don't require auth
   if (isPendingApprovalRoute(request)) {
     return NextResponse.next();
   }
@@ -69,17 +68,22 @@ export default clerkMiddleware(async (auth, request) => {
         const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
         const email = user.emailAddresses[0]?.emailAddress;
         
-        // Admin always bypasses, or check the actual publicMetadata from Clerk's DB
-        if (email === adminEmail || !!user.publicMetadata?.isApproved) {
+        const approvedInBackend = !!user.publicMetadata?.isApproved;
+        const isAdmin = email === adminEmail;
+        
+        console.log(`[Middleware] User ${email} (${userId}): JWT.isApproved=${sessionClaims?.publicMetadata?.isApproved}, Backend.isApproved=${approvedInBackend}, isAdmin=${isAdmin}`);
+        
+        if (isAdmin || approvedInBackend) {
           isApproved = true;
         }
       } catch (error) {
-        console.error("Failed to fetch user in middleware:", error);
+        console.error("[Middleware] Failed to fetch user from Clerk:", error);
       }
     }
 
     if (!isApproved) {
       if (request.nextUrl.pathname !== '/pending-approval') {
+        console.log(`[Middleware] Redirecting unapproved user ${userId} to /pending-approval`);
         return NextResponse.redirect(new URL('/pending-approval', request.url));
       }
     }

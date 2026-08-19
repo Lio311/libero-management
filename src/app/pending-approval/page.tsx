@@ -15,6 +15,8 @@ export default async function PendingApprovalPage() {
     const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
     const email = user.emailAddresses[0]?.emailAddress;
     
+    console.log(`[PendingApproval] User: ${email}, publicMetadata:`, JSON.stringify(user.publicMetadata));
+    
     // Auto-approve the admin
     if (email === adminEmail) {
       try {
@@ -26,7 +28,23 @@ export default async function PendingApprovalPage() {
         console.error("Failed to auto-approve admin:", error);
       }
     } else {
-      isActuallyApproved = !!user.publicMetadata?.isApproved;
+      // For regular users, also check directly from the Clerk backend
+      // in case currentUser() returned stale data
+      try {
+        const client = await clerkClient();
+        const freshUser = await client.users.getUser(user.id);
+        isActuallyApproved = !!freshUser.publicMetadata?.isApproved;
+        console.log(`[PendingApproval] Fresh check for ${email}: isApproved=${isActuallyApproved}, metadata:`, JSON.stringify(freshUser.publicMetadata));
+      } catch (error) {
+        console.error("Failed to fetch fresh user data:", error);
+        // Fallback to currentUser data
+        isActuallyApproved = !!user.publicMetadata?.isApproved;
+      }
+    }
+    
+    // If approved, redirect immediately (server-side)
+    if (isActuallyApproved) {
+      redirect('/');
     }
   }
 
@@ -48,20 +66,12 @@ export default async function PendingApprovalPage() {
               <Image src="/libero-d.png" alt="Libero Logo" fill className="object-cover object-center brightness-0 invert opacity-90" priority />
             </div>
             
-            <h1 className="text-2xl font-bold text-white mb-4">
-              {isActuallyApproved ? 'החשבון אושר' : 'ממתין לאישור'}
-            </h1>
+            <h1 className="text-2xl font-bold text-white mb-4">ממתין לאישור</h1>
             <p className="text-zinc-400 text-sm tracking-wide leading-relaxed mb-8">
-              {isActuallyApproved 
-                ? 'מעדכן נתונים מול השרת...' 
-                : 'החשבון שלך נוצר בהצלחה. עם זאת, הוא דורש אישור של מנהל המערכת לפני שתוכל לגשת אליו. אנא המתן בסבלנות.'}
+              החשבון שלך נוצר בהצלחה. עם זאת, הוא דורש אישור של מנהל המערכת לפני שתוכל לגשת אליו. אנא המתן בסבלנות.
             </p>
 
-            {isActuallyApproved ? (
-              <ForceRefresh />
-            ) : (
-              <CustomSignOutButton />
-            )}
+            <CustomSignOutButton />
           </div>
         </div>
       </div>
