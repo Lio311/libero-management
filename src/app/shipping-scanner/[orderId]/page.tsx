@@ -11,7 +11,7 @@ export default async function OrderScannerPage({
 }) {
   const resolvedParams = await params;
   const resolvedSearch = await searchParams;
-  const store = (resolvedSearch.store === "velour" ? "velour" : "libero") as "libero" | "velour";
+  const store = (resolvedSearch.store === "velour" ? "velour" : resolvedSearch.store === "labura" ? "labura" : "libero") as "libero" | "velour" | "labura";
   
   const orderId = parseInt(resolvedParams.orderId, 10);
   

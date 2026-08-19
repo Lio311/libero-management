@@ -16,7 +16,7 @@ export default function ScannerListClient({
 }: { 
   initialOrders: ScannerOrder[];
   initialStats: { completedToday: number; remainingToProcess: number };
-  initialStore: "libero" | "velour";
+  initialStore: "libero" | "velour" | "labura";
 }) {
   const orders = initialOrders;
   const stats = initialStats;
@@ -64,24 +64,31 @@ export default function ScannerListClient({
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
           סריקת משלוחים
         </h2>
-      <div className="flex bg-secondary/50 p-1.5 rounded-xl w-fit mb-4 border border-border/50">
-
-        <button 
-          onClick={() => router.push("?store=libero")}
-          className={`px-8 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
-        >
-          ליברו
-        </button>
-        <button 
-          onClick={() => router.push("?store=velour")}
-          className={`px-8 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
-        >
-          וולור
-        </button>
+      <div className="flex gap-4 mb-4 items-stretch">
+        <div className="flex bg-secondary/50 p-1.5 rounded-xl w-fit border border-border/50">
+          <button 
+            onClick={() => router.push("?store=libero")}
+            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            ליברו
+          </button>
+          <button 
+            onClick={() => router.push("?store=velour")}
+            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            וולור
+          </button>
+          <button 
+            onClick={() => router.push("?store=labura")}
+            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            לה בורה
+          </button>
+        </div>
+        
         <button 
           onClick={async (e) => {
             const btn = e.currentTarget;
-            const originalText = btn.innerText;
             btn.innerText = "מסנכרן...";
             btn.disabled = true;
             try {
@@ -98,11 +105,10 @@ export default function ScannerListClient({
               btn.disabled = false;
             }
           }}
-          className="ml-2 px-4 py-2.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-lg font-medium transition-all flex items-center gap-2"
+          className="px-6 py-2.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl font-medium transition-all flex items-center gap-2 h-full"
         >
           סנכרן נתונים עכשיו
         </button>
-      
       </div>
       </div>
 

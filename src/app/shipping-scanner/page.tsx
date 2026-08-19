@@ -3,7 +3,7 @@ import ScannerListClient from "./scanner-list-client";
 
 export default async function ShippingScannerPage({ searchParams }: { searchParams: Promise<{ store?: string }> }) {
   const resolvedParams = await searchParams;
-  const store = (resolvedParams.store === "velour" ? "velour" : "libero") as "libero" | "velour";
+  const store = (resolvedParams.store === "velour" ? "velour" : resolvedParams.store === "labura" ? "labura" : "libero") as "libero" | "velour" | "labura";
   
   const [orders, stats] = await Promise.all([
     getProcessingOrders(store),
