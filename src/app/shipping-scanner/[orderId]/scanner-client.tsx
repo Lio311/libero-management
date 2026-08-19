@@ -32,6 +32,10 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
   const [missingMode, setMissingMode] = useState(false);
   const [selectedForMissing, setSelectedForMissing] = useState<number[]>([]);
 
+  // Refs for global keydown scanner
+  const scanBuffer = useRef("");
+  const scanTimeout = useRef<NodeJS.Timeout | null>(null);
+
   // Swipe to go back gesture (pulling from right edge)
   useEffect(() => {
     let touchStartX = 0;
@@ -128,26 +132,20 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
     return () => window.removeEventListener("click", focusInput);
   }, [missingMode]);
 
-  const handleScan = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Read directly from ref to avoid React state update race conditions with fast hardware scanners
-    const sku = inputRef.current?.value.trim() || scanInput.trim();
+  const processBarcode = (sku: string) => {
     if (!sku) return;
 
     if (localOrderStatus !== "processing") {
       toast.error(`ההזמנה בסטטוס ${localOrderStatus === 'on_hold' ? 'מושהה' : 'הושלם'} ואינה ניתנת לסריקה`);
-      setScanInput("");
-      if (inputRef.current) inputRef.current.value = "";
       return;
     }
 
     const itemIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && !item.isManual);
     
     if (itemIndex === -1) {
-      // Check if it's a manual item
       const manualIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && item.isManual);
       if (manualIndex !== -1) {
-        toast.info("מוצר ללא ברקוד - יש לאשר ידנית עם כפתור ה-V");
+        toast.info("מוצר ללא ברקוד - יש לאשר ידנית עם כפתור ה-סמן ידנית");
       } else {
         toast.error(`מק"ט לא חוקי: ${sku} לא נמצא בהזמנה זו!`);
       }
@@ -163,12 +161,43 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
         checkCompletion(newItems);
       }
     }
-    
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore typing if they are somehow focused on a real input (though we made ours readOnly)
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        if (!e.target.readOnly) return;
+      }
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (scanBuffer.current.trim()) {
+          processBarcode(scanBuffer.current.trim());
+          setScanInput(scanBuffer.current.trim());
+          setTimeout(() => setScanInput(""), 1000); // clear UI after 1s
+          scanBuffer.current = "";
+        }
+      } else if (e.key.length === 1) {
+        scanBuffer.current += e.key;
+        
+        if (scanTimeout.current) clearTimeout(scanTimeout.current);
+        scanTimeout.current = setTimeout(() => {
+          scanBuffer.current = "";
+        }, 300);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [items, localOrderStatus, missingMode]);
+
+  const handleScan = (e: React.FormEvent) => {
+    e.preventDefault();
+    // This is just a fallback for manual submit button (if any)
+    const sku = scanInput.trim();
+    processBarcode(sku);
     setScanInput("");
-    if (inputRef.current) {
-      inputRef.current.value = "";
-      inputRef.current.focus();
-    }
   };
 
   const markItemAsScanned = (id: number) => {
@@ -273,10 +302,10 @@ export default function ScannerClient({ order, manualKeywords }: ScannerClientPr
         <form onSubmit={handleScan} className="w-full relative">
           <input
             ref={inputRef}
-            autoFocus
             type="text"
+            readOnly
             value={scanInput}
-            onChange={(e) => setScanInput(e.target.value)}
+            onChange={() => {}}
             placeholder="סרוק מקט..."
             className="w-full px-4 py-3 pl-10 bg-background border border-border rounded-lg text-lg focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50"
             disabled={localOrderStatus !== "processing" || missingMode}
