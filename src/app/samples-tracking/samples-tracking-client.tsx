@@ -210,6 +210,8 @@ export default function SamplesTrackingClient({ initialData }: { initialData: an
       <div className="grid gap-6">
         {SAMPLE_TIERS.map((tierInfo) => {
           const samples = monthData[tierInfo.tier] || [];
+          const isManagerTier = tierInfo.tier === 9 || tierInfo.tier === 10;
+          
           return (
             <Card key={tierInfo.tier} className="overflow-hidden border-primary/10 hover:border-primary/30 transition-colors">
               <CardHeader className="bg-secondary/30 pb-4">
@@ -223,48 +225,56 @@ export default function SamplesTrackingClient({ initialData }: { initialData: an
                       <p className="text-sm text-muted-foreground font-medium mt-1">{tierInfo.label}</p>
                     </div>
                   </div>
-                  <Button 
-                    onClick={() => handleSaveTier(tierInfo.tier)} 
-                    disabled={saving[tierInfo.tier]}
-                    size="sm"
-                  >
-                    {saving[tierInfo.tier] ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Save className="h-4 w-4 ml-2" />}
-                    שמור
-                  </Button>
+                  {!isManagerTier && (
+                    <Button 
+                      onClick={() => handleSaveTier(tierInfo.tier)} 
+                      disabled={saving[tierInfo.tier]}
+                      size="sm"
+                    >
+                      {saving[tierInfo.tier] ? <Loader2 className="h-4 w-4 animate-spin ml-2" /> : <Save className="h-4 w-4 ml-2" />}
+                      שמור
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="space-y-4">
-                  {samples.map((sample, idx) => (
-                    <div key={idx} className="flex items-center gap-3">
-                      <div className="w-8 text-center text-sm font-medium text-muted-foreground">
-                        #{idx + 1}
+                {isManagerTier ? (
+                  <div className="p-4 bg-muted/50 rounded-lg border border-border text-center text-muted-foreground font-medium">
+                    לקרוא למנהל
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {samples.map((sample, idx) => (
+                      <div key={idx} className="flex items-center gap-3">
+                        <div className="w-8 text-center text-sm font-medium text-muted-foreground">
+                          #{idx + 1}
+                        </div>
+                        <div className="flex-1">
+                          <ProductAutocomplete 
+                            value={sample} 
+                            onChange={(val) => {
+                              setMonthData(prev => {
+                                const newArr = [...prev[tierInfo.tier]];
+                                newArr[idx] = val;
+                                return { ...prev, [tierInfo.tier]: newArr };
+                              });
+                            }} 
+                          />
+                        </div>
+                        <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveSample(tierInfo.tier, idx)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <div className="flex-1">
-                        <ProductAutocomplete 
-                          value={sample} 
-                          onChange={(val) => {
-                            setMonthData(prev => {
-                              const newArr = [...prev[tierInfo.tier]];
-                              newArr[idx] = val;
-                              return { ...prev, [tierInfo.tier]: newArr };
-                            });
-                          }} 
-                        />
-                      </div>
-                      <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveSample(tierInfo.tier, idx)}>
-                        <Trash2 className="h-4 w-4" />
+                    ))}
+                    
+                    <div className="pl-11 pt-2">
+                      <Button variant="outline" size="sm" onClick={() => handleAddSample(tierInfo.tier)} className="text-xs">
+                        <Plus className="h-3 w-3 ml-1" />
+                        הוסף דוגמית
                       </Button>
                     </div>
-                  ))}
-                  
-                  <div className="pl-11 pt-2">
-                    <Button variant="outline" size="sm" onClick={() => handleAddSample(tierInfo.tier)} className="text-xs">
-                      <Plus className="h-3 w-3 ml-1" />
-                      הוסף דוגמית
-                    </Button>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           )
