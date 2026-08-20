@@ -56,7 +56,15 @@ export default function ScannerListClient({
   const readyOrders = processingOrders.filter(o => readyIds.includes(o.id));
   const partialOrders = processingOrders.filter(o => partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
   const pickupOrders = processingOrders.filter(o => o.isPickup && !partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
-  const shippingOrders = processingOrders.filter(o => !o.isPickup && !partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
+  const allShippingOrders = processingOrders.filter(o => !o.isPickup && !partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
+
+  const isLibero = store === 'libero';
+  const hasMiniPerfumes = (order: any) => order.lineItems.some((i: any) => (i.name || "").includes("מיני בושם"));
+  const hasOnlyMiniPerfumes = (order: any) => order.lineItems.every((i: any) => (i.name || "").includes("מיני בושם"));
+
+  const liberoShippingOnlyMini = isLibero ? allShippingOrders.filter(o => o.lineItems.length > 0 && hasOnlyMiniPerfumes(o)) : [];
+  const liberoShippingMixed = isLibero ? allShippingOrders.filter(o => o.lineItems.length > 0 && hasMiniPerfumes(o) && !hasOnlyMiniPerfumes(o)) : [];
+  const shippingOrders = isLibero ? allShippingOrders.filter(o => !hasMiniPerfumes(o) || o.lineItems.length === 0) : allShippingOrders;
 
   return (
     <div className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
@@ -178,11 +186,39 @@ export default function ScannerListClient({
             </div>
           )}
 
+          {liberoShippingOnlyMini.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-purple-500">
+                <Truck className="w-6 h-6" />
+                משלוחים - רק מיני בושם ({liberoShippingOnlyMini.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {liberoShippingOnlyMini.map(order => (
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {liberoShippingMixed.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-pink-500">
+                <Truck className="w-6 h-6" />
+                משלוחים - הזמנות מעורבות (עם מיני בושם) ({liberoShippingMixed.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {liberoShippingMixed.map(order => (
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" />
+                ))}
+              </div>
+            </div>
+          )}
+
           {shippingOrders.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-xl font-semibold flex items-center gap-2 text-blue-500">
                 <Truck className="w-6 h-6" />
-                משלוחים ממתינים לסריקה ({shippingOrders.length})
+                {isLibero ? `משלוחים - רגיל (ללא מיני בושם) (${shippingOrders.length})` : `משלוחים ממתינים לסריקה (${shippingOrders.length})`}
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {shippingOrders.map(order => (
