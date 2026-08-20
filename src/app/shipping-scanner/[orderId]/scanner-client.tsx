@@ -319,6 +319,17 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
+      {order.reward?.requiresManagerReview && (
+        <div className="bg-red-500/10 border-2 border-red-500 p-4 rounded-xl flex items-center gap-4 animate-pulse shadow-lg">
+          <AlertTriangle className="w-10 h-10 text-red-600" />
+          <div>
+            <h3 className="text-xl font-bold text-red-700">הזמנה מיוחדת - חובה אישור מנהל!</h3>
+            <p className="text-red-600/80 font-medium">
+              הזמנה זו דורשת התערבות מנהל (מעל 2,500₪ או שרוב ההזמנה מכילה מותגי בית). נא לא לארוז ללא אישור.
+            </p>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-4">
           <Link href={`/shipping-scanner?store=${store}`} className="p-2 hover:bg-secondary rounded-full transition-colors">
@@ -375,27 +386,21 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       {order.reward && (
         <div className="p-2 mb-6 flex flex-col sm:flex-row items-center gap-6 justify-between w-full">
             <div className="flex flex-col gap-3 flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="text-2xl font-bold text-foreground">
-                  הוראות למחסן
-                </h3>
-              </div>
-              
-              <div className="flex flex-wrap sm:flex-row gap-3 sm:gap-6">
-                {order.reward.officialSample && (
-                  <div className="flex items-center gap-2 bg-purple-500/10 px-3 py-1.5 rounded-lg border border-purple-500/20">
-                    <Package className="w-5 h-5 text-purple-600" />
-                    <span className="font-semibold text-purple-700">לצרף דוגמית רשמית</span>
+              {order.reward.gift && (
+                <>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-2xl font-bold text-foreground">
+                      הוראות למחסן
+                    </h3>
                   </div>
-                )}
-                
-                {order.reward.gift && (
-                  <div className="flex items-center gap-2 bg-pink-500/10 px-3 py-1.5 rounded-lg border border-pink-500/20">
-                    <span className="text-xl">🎁</span>
-                    <span className="font-bold text-pink-700">מתנה: {order.reward.gift}</span>
+                  <div className="flex flex-wrap sm:flex-row gap-3 sm:gap-6">
+                    <div className="flex items-center gap-2 bg-pink-500/10 px-3 py-1.5 rounded-lg border border-pink-500/20">
+                      <span className="text-xl">🎁</span>
+                      <span className="font-bold text-pink-700">מתנה: {order.reward.gift}</span>
+                    </div>
                   </div>
-                )}
-              </div>
+                </>
+              )}
             </div>
 
             <div className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 shrink-0">

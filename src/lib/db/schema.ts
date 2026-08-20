@@ -414,5 +414,6 @@ export const orderRewards = pgTable("order_rewards", {
   sampleKit: varchar("sample_kit", { length: 100 }).notNull(),
   gift: varchar("gift", { length: 100 }),
   officialSample: boolean("official_sample").default(false).notNull(),
+  requiresManagerReview: boolean("requires_manager_review").default(false).notNull(),
   calculatedAt: timestamp("calculated_at", { withTimezone: true }).defaultNow().notNull(),
 });

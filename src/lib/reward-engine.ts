@@ -11,24 +11,22 @@ export type RewardOutput = {
   sampleKit: string;
   gift: string | null;
   officialSample: boolean;
+  requiresManagerReview: boolean;
 };
 
 async function getProductCategory(item: any): Promise<'house_brand' | 'luxury' | 'designer_dupe'> {
-  if (!item.product_id) return 'designer_dupe';
+  // 1. Fallback to name-based rules if DB doesn't have it
+  const name = (item.name || '').toLowerCase();
   
   try {
-    const prod = await db.select({ categories: wcProducts.categories }).from(wcProducts).where(eq(wcProducts.id, item.product_id)).limit(1);
-    if (prod.length > 0 && prod[0].categories) {
-      const cats = Array.isArray(prod[0].categories) ? prod[0].categories : [];
-      
-      const isHouse = cats.some((c: any) => c.id === 268 || c.name === 'מותגי הבית');
-      if (isHouse) return 'house_brand';
-      
-      const isLuxury = cats.some((c: any) => c.id === 287 || c.name === 'בשמי יוקרה' || c.id === 57 || c.name === 'בשמי בוטיק ונישה');
-      if (isLuxury) return 'luxury';
+    const rules = await db.select().from(rewardBrandRules);
+    for (const rule of rules) {
+      if (name.includes(rule.keyword.toLowerCase())) {
+        return rule.classification as 'house_brand' | 'luxury' | 'designer_dupe';
+      }
     }
   } catch (error) {
-    console.error("Error fetching product category:", error);
+    console.error("Error fetching reward brand rules:", error);
   }
   
   return 'designer_dupe';
@@ -45,30 +43,64 @@ export async function calculateReward(
   const billing = currentOrder.billing || {};
   const gender = guessGender(billing.first_name || '');
   
-  // 1. Base Score calculation (Naive implementation based on PRD)
+  // Cache rules for efficiency when looping over history
+  const rules = await db.select().from(rewardBrandRules).catch(() => []);
+
+  // Calculate historical house brand spend
+  let historicalHouseBrandTotal = 0;
+  for (const pastOrder of history.pastOrders) {
+    const items = Array.isArray(pastOrder.lineItems) ? pastOrder.lineItems : [];
+    for (const item of items) {
+      const itemName = (item.name || '').toLowerCase();
+      let isHouseBrand = false;
+      for (const rule of rules) {
+        if (itemName.includes(rule.keyword.toLowerCase()) && rule.classification === 'house_brand') {
+          isHouseBrand = true;
+          break;
+        }
+      }
+      if (isHouseBrand) {
+        historicalHouseBrandTotal += parseFloat(item.total || item.price || '0');
+      }
+    }
+  }
+
+  // Virtual spend: Treat every 1 ILS spent on house brands as 1.5 ILS
+  // Example: 2000 house + 1000 designer = 3000 actual.
+  // Virtual: (2000 * 1.5) + 1000 = 4000.
+  // We can calculate this by adding (houseBrandTotal * 0.5) to totalSpent
+  const virtualTotalSpent = totalSpent + (historicalHouseBrandTotal * 0.5);
+
+  // 1. Base Score calculation (using virtual total spent)
   let score = 0;
   
   if (orderCount === 1) { // Current order is the only order
-    if (currentTotal > 1500) score += 6;
-    else if (currentTotal > 800) score += 4;
-    else if (currentTotal > 400) score += 2;
+    const virtualCurrentTotal = currentTotal + (historicalHouseBrandTotal * 0.5);
+    if (virtualCurrentTotal > 1500) score += 6;
+    else if (virtualCurrentTotal > 800) score += 4;
+    else if (virtualCurrentTotal > 400) score += 2;
     else score += 1;
   } else {
-    if (totalSpent > 5000) score += 7;
-    else if (totalSpent > 3000) score += 6;
-    else if (totalSpent > 1500) score += 4;
-    else if (totalSpent > 800) score += 2;
+    if (virtualTotalSpent > 5000) score += 7;
+    else if (virtualTotalSpent > 3000) score += 6;
+    else if (virtualTotalSpent > 1500) score += 4;
+    else if (virtualTotalSpent > 800) score += 2;
     else score += 1;
   }
 
   // Bonus for house brands in current order
   let hasHouseBrand = false;
   let hasLuxury = false;
+  let houseBrandTotal = 0;
   
   const lineItems = Array.isArray(currentOrder.lineItems) ? currentOrder.lineItems : [];
   for (const item of lineItems) {
     const cat = await getProductCategory(item);
-    if (cat === 'house_brand') hasHouseBrand = true;
+    if (cat === 'house_brand') {
+      hasHouseBrand = true;
+      const price = parseFloat(item.total || item.price || '0');
+      houseBrandTotal += price;
+    }
     if (cat === 'luxury') hasLuxury = true;
   }
 
@@ -96,12 +128,22 @@ export async function calculateReward(
 
   // 5. Determine Gift
   let gift = null;
-  if (currentTotal >= 1200 && hasHouseBrand) {
+  if (currentTotal >= 1900 && hasHouseBrand) {
     gift = 'מפיץ ריח';
-  } else if (currentTotal >= 1500 && hasLuxury) {
+  } else if (currentTotal >= 1500 && hasHouseBrand) {
     gift = 'חמאת גוף';
-  } else if (currentTotal >= 800) {
+  } else if (currentTotal >= 1000 || (currentTotal >= 800 && hasHouseBrand)) {
     gift = 'דיקאנט / בקבוק נסיעות';
+  } else if (currentTotal >= 800 || (currentTotal >= 700 && hasHouseBrand)) {
+    gift = 'דיקנט ריק';
+  }
+
+  // 6. Requires Manager Review
+  let requiresManagerReview = false;
+  if (currentTotal >= 2500) {
+    requiresManagerReview = true;
+  } else if (currentTotal > 0 && (houseBrandTotal / currentTotal) >= 0.7) {
+    requiresManagerReview = true;
   }
 
   return {
@@ -109,7 +151,8 @@ export async function calculateReward(
     customerClass,
     sampleKit,
     gift,
-    officialSample
+    officialSample,
+    requiresManagerReview
   };
 }
 
@@ -130,6 +173,7 @@ export async function getOrCalculateOrderReward(order: any, store: "libero" | "v
       sampleKit: r.sampleKit,
       gift: r.gift,
       officialSample: r.officialSample,
+      requiresManagerReview: r.requiresManagerReview,
     };
   }
 
@@ -146,6 +190,7 @@ export async function getOrCalculateOrderReward(order: any, store: "libero" | "v
       sampleKit: reward.sampleKit,
       gift: reward.gift,
       officialSample: reward.officialSample,
+      requiresManagerReview: reward.requiresManagerReview,
     });
   } catch (error) {
     console.error("Failed to save order reward:", error);
