@@ -17,7 +17,7 @@ async function run() {
   // Group by email
   const customers = new Map();
   for (const o of allOrders) {
-    const email = o.billing?.email?.toLowerCase()?.trim();
+    const email = (o.billing as any)?.email?.toLowerCase()?.trim();
     if (!email) continue;
     if (!customers.has(email)) {
       customers.set(email, []);
@@ -36,7 +36,7 @@ async function run() {
     if (i % 1000 === 0) console.log(`Processed ${i} customers...`);
     
     // Sort by date created desc
-    orders.sort((a, b) => {
+    orders.sort((a: any, b: any) => {
       const da = a.dateCreated ? new Date(a.dateCreated).getTime() : 0;
       const db = b.dateCreated ? new Date(b.dateCreated).getTime() : 0;
       return db - da;
@@ -46,7 +46,7 @@ async function run() {
     
     const history = {
       totalOrders: orders.length,
-      totalSpent: orders.reduce((sum, o) => sum + parseFloat(o.total?.toString() || '0'), 0),
+      totalSpent: orders.reduce((sum: number, o: any) => sum + parseFloat(o.total?.toString() || '0'), 0),
       pastOrders: orders
     };
     

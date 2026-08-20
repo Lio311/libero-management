@@ -14,7 +14,7 @@ async function run() {
   
   const customers = new Map();
   for (const o of allOrders) {
-    const email = o.billing?.email?.toLowerCase()?.trim();
+    const email = (o.billing as any)?.email?.toLowerCase()?.trim();
     if (!email) continue;
     if (!customers.has(email)) {
       customers.set(email, []);
@@ -27,7 +27,7 @@ async function run() {
   };
   
   for (const [email, orders] of customers.entries()) {
-    orders.sort((a, b) => {
+    orders.sort((a: any, b: any) => {
       const da = a.dateCreated ? new Date(a.dateCreated).getTime() : 0;
       const db = b.dateCreated ? new Date(b.dateCreated).getTime() : 0;
       return db - da;
@@ -35,7 +35,7 @@ async function run() {
     
     const latestOrder = orders[0];
     const totalOrders = orders.length;
-    const totalSpent = orders.reduce((sum, o) => sum + parseFloat(o.total?.toString() || '0'), 0);
+    const totalSpent = orders.reduce((sum: number, o: any) => sum + parseFloat(o.total?.toString() || '0'), 0);
     const currentTotal = parseFloat(latestOrder.total?.toString() || '0');
     
     let historicalHouseBrandTotal = 0;
@@ -99,14 +99,14 @@ async function run() {
     else if (hasLuxury) score += 1;
     
     score = Math.min(10, score);
-    if (!scoreCounts[score]) scoreCounts[score] = 0;
-    scoreCounts[score]++;
+    if (!(scoreCounts as any)[score]) (scoreCounts as any)[score] = 0;
+    (scoreCounts as any)[score]++;
   }
   
   const total = customers.size;
   console.log(`Total: ${total}`);
   for (let s = 1; s <= 10; s++) {
-    const c = scoreCounts[s] || 0;
+    const c = (scoreCounts as any)[s] || 0;
     const p = ((c / total) * 100).toFixed(2);
     console.log(`Score ${s}: ${c} customers (${p}%)`);
   }

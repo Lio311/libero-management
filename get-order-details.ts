@@ -10,7 +10,7 @@ import { calculateReward } from "./src/lib/reward-engine";
 
 async function main() {
   const orderId = 54259;
-  const store = "libero";
+  const store: string = "libero";
   const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
   
   const orders = await db.select().from(targetOrders).where(eq(targetOrders.id, orderId)).limit(1);
