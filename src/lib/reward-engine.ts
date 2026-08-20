@@ -65,17 +65,22 @@ export async function calculateReward(
     }
   }
 
-  // Virtual spend: Treat every 1 ILS spent on house brands as 1.5 ILS
+  // Virtual spend: Treat every 1 ILS spent on house brands as 3 ILS
   // Example: 2000 house + 1000 designer = 3000 actual.
-  // Virtual: (2000 * 1.5) + 1000 = 4000.
-  // We can calculate this by adding (houseBrandTotal * 0.5) to totalSpent
-  const virtualTotalSpent = totalSpent + (historicalHouseBrandTotal * 0.5);
+  // Virtual: (2000 * 3) + 1000 = 7000.
+  // We calculate this by adding (houseBrandTotal * 2.0) to totalSpent
+  const virtualTotalSpent = totalSpent + (historicalHouseBrandTotal * 2.0);
 
   // 1. Base Score calculation (using virtual total spent)
   let score = 0;
   
+  // Bonus for historical house brand loyalty (if they ever bought a house brand in the past)
+  if (historicalHouseBrandTotal > 0 && orderCount > 1) {
+    score += 2; // +2 Loyalty bonus
+  }
+  
   if (orderCount === 1) { // Current order is the only order
-    const virtualCurrentTotal = currentTotal + (historicalHouseBrandTotal * 0.5);
+    const virtualCurrentTotal = currentTotal + (historicalHouseBrandTotal * 2.0);
     if (virtualCurrentTotal > 1500) score += 6;
     else if (virtualCurrentTotal > 800) score += 4;
     else if (virtualCurrentTotal > 400) score += 2;
