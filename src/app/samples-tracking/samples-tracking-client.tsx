@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Loader2, Save, X, Plus, Trash2 } from 'lucide-react';
+import { Search, Loader2, Save, X, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { searchProducts, saveTierSamples } from './actions';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -174,16 +173,26 @@ export default function SamplesTrackingClient({ initialData }: { initialData: an
     });
   };
 
-  // Helper to generate next 12 months for select
-  const monthsOptions = [];
-  const start = new Date();
-  start.setMonth(start.getMonth() - 6);
-  for (let i = 0; i < 24; i++) {
-    const d = new Date(start.getFullYear(), start.getMonth() + i, 1);
-    const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const label = `${d.toLocaleString('he-IL', { month: 'long' })} ${d.getFullYear()}`;
-    monthsOptions.push({ value: val, label });
-  }
+  const handlePrevMonth = () => {
+    if (!selectedMonth) return;
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const d = new Date(year, month - 2, 1);
+    setSelectedMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  };
+
+  const handleNextMonth = () => {
+    if (!selectedMonth) return;
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const d = new Date(year, month, 1);
+    setSelectedMonth(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  };
+
+  const getMonthLabel = (val: string) => {
+    if (!val) return "";
+    const [year, month] = val.split('-').map(Number);
+    const d = new Date(year, month - 1, 1);
+    return `${d.toLocaleString('he-IL', { month: 'long' })} ${d.getFullYear()}`;
+  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -193,17 +202,16 @@ export default function SamplesTrackingClient({ initialData }: { initialData: an
           <p className="text-muted-foreground mt-1">בחירת דוגמיות לכל דירוג לקוח מתוך מלאי ליברו.</p>
         </div>
         
-        <div className="w-full md:w-64">
-          <Select value={selectedMonth} onValueChange={(val) => setSelectedMonth(val || "")}>
-            <SelectTrigger>
-              <SelectValue placeholder="בחר חודש" />
-            </SelectTrigger>
-            <SelectContent>
-              {monthsOptions.map(m => (
-                <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex items-center gap-2 bg-background/50 p-1 rounded-lg border">
+          <Button variant="ghost" size="icon" onClick={handlePrevMonth}>
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+          <div className="w-32 text-center font-medium">
+            {getMonthLabel(selectedMonth)}
+          </div>
+          <Button variant="ghost" size="icon" onClick={handleNextMonth}>
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
         </div>
       </div>
 
