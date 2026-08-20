@@ -5,11 +5,13 @@ export default async function MiniPerfumeLabelsPage({
   params,
   searchParams,
 }: {
-  params: { orderId: string };
-  searchParams: { store?: string };
+  params: Promise<{ orderId: string }>;
+  searchParams: Promise<{ store?: string }>;
 }) {
-  const store = (searchParams.store || "libero") as "libero" | "velour" | "labura";
-  const order = await getOrderById(Number(params.orderId), store);
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const store = (resolvedSearchParams.store || "libero") as "libero" | "velour" | "labura";
+  const order = await getOrderById(Number(resolvedParams.orderId), store);
 
   if (!order) {
     return notFound();
