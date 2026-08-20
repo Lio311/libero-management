@@ -121,7 +121,7 @@ export default async function MiniPerfumeLabelsPage({
       </head>
       <body>
         <div className="print-btn-container">
-          <button className="print-btn" onClick={() => window.print()}>
+          <button id="printBtn" className="print-btn">
             הדפס מדבקות ({labelsToPrint.length})
           </button>
         </div>
@@ -135,6 +135,11 @@ export default async function MiniPerfumeLabelsPage({
         ))}
 
         <script dangerouslySetInnerHTML={{ __html: `
+          // Attach print event listener
+          document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+          });
+          
           // Auto print on load
           window.onload = function() {
             setTimeout(function() {
