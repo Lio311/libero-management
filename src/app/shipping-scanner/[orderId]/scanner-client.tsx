@@ -328,14 +328,16 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         </div>
         
         <div className="flex flex-row items-center gap-3">
-          <button 
-            onClick={handlePrintLabel}
-            disabled={isPrinting}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-10"
-          >
-            <Printer className="w-5 h-5" />
-            {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל"}
-          </button>
+          {false && (
+            <button 
+              onClick={handlePrintLabel}
+              disabled={isPrinting}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-10"
+            >
+              <Printer className="w-5 h-5" />
+              {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל"}
+            </button>
+          )}
           
           <div className="flex items-center gap-3 h-10">
           {localOrderStatus === "processing" && (
