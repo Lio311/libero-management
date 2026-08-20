@@ -5,6 +5,9 @@ import { db } from "@/lib/db";
 import { wcOrders, wcProducts, velourOrders, velourProducts, laburaOrders, laburaProducts, settings, qcProducts } from "@/lib/db/schema";
 import { eq, desc, inArray, and, gte, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getCustomerHistory } from "@/lib/customer-history";
+import { getOrCalculateOrderReward, RewardOutput } from "@/lib/reward-engine";
+
 import { BRAND_CONFIG } from "@/lib/wc-config";
 
 export type ScannerOrder = {
@@ -19,6 +22,7 @@ export type ScannerOrder = {
   city?: string;
   phone?: string;
   notes?: string;
+  reward?: RewardOutput;
 };
 
 export async function getScannerSettings(): Promise<string[]> {
@@ -160,6 +164,14 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
       return item;
     });
       
+    const email = billing?.email;
+    const phone = billing?.phone;
+    const customerId = order.customerId;
+    
+    // Fetch history and calculate reward
+    const history = await getCustomerHistory(email, phone, customerId || undefined);
+    const reward = await getOrCalculateOrderReward(order, store, history);
+    
     return {
       id: order.id,
       customerName: customerName || `הזמנה #${order.id}`,
@@ -172,6 +184,7 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
       city: (order.billing as any)?.city || '',
       phone: (order.billing as any)?.phone || '',
       notes: (order as any).customer_note || '',
+      reward,
     };
   } catch (error: any) {
     console.error('getOrderById error:', error);
