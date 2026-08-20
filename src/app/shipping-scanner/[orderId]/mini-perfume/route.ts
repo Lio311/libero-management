@@ -34,16 +34,30 @@ export async function GET(
     
     // Extract text up to the first English letter
     // This ensures things like "א.ד.פ." are included, stopping before "Memo Paris..."
-    const match = (item.name || "").match(/^[^a-zA-Z]+/);
-    let hebrewName = match ? match[0].trim() : item.name;
+    const hebrewMatch = (item.name || "").match(/^[^a-zA-Z]+/);
+    let hebrewName = hebrewMatch ? hebrewMatch[0].trim() : item.name;
 
     // Remove trailing hyphens or pipes if any
     hebrewName = hebrewName.replace(/[\-\|]$/, "").trim();
 
+    let englishName = "";
+    if (hebrewMatch) {
+      let rest = item.name.substring(hebrewMatch[0].length);
+      // Remove known suffixes
+      rest = rest.replace(/\b\d+\s*ml\b/gi, "");
+      rest = rest.replace(/מיני בושם/g, "");
+      rest = rest.replace(/\(travel\)/gi, "");
+      // Remove any remaining Hebrew characters
+      rest = rest.replace(/[\u0590-\u05FF]+/g, "");
+      // Clean up punctuation and spaces
+      englishName = rest.replace(/^[\-\|\s\,]+/, "").replace(/[\-\|\s\,]+$/, "").trim();
+    }
+
     for (let i = 0; i < qty; i++) {
       labelsToPrint.push({
         id: `${item.id}-${i}`,
-        text: hebrewName,
+        hebrew: hebrewName,
+        english: englishName,
       });
     }
   }
@@ -75,13 +89,25 @@ export async function GET(
           .label-page:last-child {
             page-break-after: avoid;
           }
-          .label-text {
+          .label-text-container {
+            display: table-cell;
+            vertical-align: middle;
+            width: 100%;
+          }
+          .hebrew-text {
             font-size: 11pt;
             font-weight: bold;
             line-height: 1.2;
             word-wrap: break-word;
-            display: table-cell;
-            vertical-align: middle;
+            direction: rtl;
+          }
+          .english-text {
+            font-size: 10pt;
+            font-weight: bold;
+            line-height: 1.2;
+            word-wrap: break-word;
+            direction: ltr;
+            margin-top: 3px;
           }
           @media screen {
             body {
@@ -133,8 +159,9 @@ export async function GET(
 
         ${labelsToPrint.map(label => `
           <div class="label-page">
-            <div class="label-text">
-              ${label.text}
+            <div class="label-text-container">
+              <div class="hebrew-text">${label.hebrew}</div>
+              ${label.english ? `<div class="english-text">${label.english}</div>` : ''}
             </div>
           </div>
         `).join('')}
