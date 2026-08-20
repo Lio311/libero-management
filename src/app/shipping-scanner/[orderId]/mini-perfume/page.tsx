@@ -49,10 +49,6 @@ export default async function MiniPerfumeLabelsPage({
       <head>
         <title>מדבקות מיני בושם - הזמנה {order.id}</title>
         <style dangerouslySetInnerHTML={{ __html: `
-          @page {
-            size: 50mm 25mm;
-            margin: 0;
-          }
           body {
             margin: 0;
             padding: 0;
@@ -63,14 +59,12 @@ export default async function MiniPerfumeLabelsPage({
           .label-page {
             width: 50mm;
             height: 25mm;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             text-align: center;
             padding: 2mm;
             box-sizing: border-box;
             page-break-after: always;
             overflow: hidden;
+            display: table;
           }
           .label-page:last-child {
             page-break-after: avoid;
@@ -80,11 +74,8 @@ export default async function MiniPerfumeLabelsPage({
             font-weight: bold;
             line-height: 1.2;
             word-wrap: break-word;
-            max-width: 100%;
-            max-height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: table-cell;
+            vertical-align: middle;
           }
           @media screen {
             body {
@@ -98,6 +89,7 @@ export default async function MiniPerfumeLabelsPage({
             .label-page {
               background: #fff;
               box-shadow: 0 0 5px rgba(0,0,0,0.2);
+              border: 1px dashed #ccc;
             }
             .print-btn-container {
               margin-bottom: 20px;
@@ -113,8 +105,15 @@ export default async function MiniPerfumeLabelsPage({
             }
           }
           @media print {
+            @page {
+              size: 50mm 25mm;
+              margin: 0;
+            }
             .print-btn-container {
               display: none;
+            }
+            .label-page {
+              border: none;
             }
           }
         `}} />
