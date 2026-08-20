@@ -36,6 +36,9 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
 
+  const hasMiniPerfumes = order.lineItems?.some(item => (item.name || "").includes("מיני בושם"));
+  const showMiniPerfumeBtn = store === "libero" && hasMiniPerfumes;
+
   // Refs for global keydown scanner
   const scanBuffer = useRef("");
   const scanTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -328,6 +331,16 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         </div>
         
         <div className="flex flex-row items-center gap-3">
+          {showMiniPerfumeBtn && (
+            <button 
+              onClick={() => window.open(`/shipping-scanner/${order.id}/mini-perfume?store=${store}`, '_blank')}
+              className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-500 hover:bg-purple-500/20 rounded-xl font-medium transition-colors h-10"
+            >
+              <Printer className="w-5 h-5" />
+              הדפס דוגמיות
+            </button>
+          )}
+
           {false && (
             <button 
               onClick={handlePrintLabel}
