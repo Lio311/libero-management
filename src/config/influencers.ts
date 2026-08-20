@@ -174,6 +174,17 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
       { brand: 'labura', code: 'orika' },
       { brand: 'libero', code: 'orika' }
     ]
+  },
+  efrat: {
+    id: 'efrat',
+    name: "אפרת סביר",
+    image: "/influencers/efrat.jpg",
+    hasVat: false,
+    coupons: [
+      { brand: 'velour', code: 'efrat10' },
+      { brand: 'labura', code: 'efrat10' },
+      { brand: 'libero', code: 'efrat10' }
+    ]
   }
 };
 

@@ -88,7 +88,7 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
     }
 
     const influencerConfig = influencersConfig[influencerId];
-    const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav'];
+    const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav', 'efrat'];
     const hasVat = !noVatAddBack.includes(influencerId);
     const influencerBrands = Array.from(new Set(influencerConfig?.coupons.map(c => c.brand) || []));
     
