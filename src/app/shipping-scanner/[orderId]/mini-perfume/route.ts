@@ -144,13 +144,6 @@ export async function GET(
           document.getElementById('printBtn').addEventListener('click', function() {
             window.print();
           });
-          
-          // Auto print on load
-          window.onload = function() {
-            setTimeout(function() {
-              window.print();
-            }, 500);
-          };
         </script>
       </body>
     </html>
