@@ -417,3 +417,13 @@ export const orderRewards = pgTable("order_rewards", {
   requiresManagerReview: boolean("requires_manager_review").default(false).notNull(),
   calculatedAt: timestamp("calculated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const monthlyTierSamples = pgTable("monthly_tier_samples", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  monthYear: varchar("month_year", { length: 7 }).notNull(), // YYYY-MM
+  tier: integer("tier").notNull(),
+  samples: jsonb("samples").default('[]').notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+

@@ -62,6 +62,7 @@ const navigation: NavItem[] = [
     subItems: [
       { name: "מאגר לקוחות", href: "/customer-control" },
       { name: "מדבקות למשלוח", href: "/shipping-labels" },
+      { name: "מעקב דוגמיות", href: "/samples-tracking" },
     ]
   },
   { name: "כספים", href: "/finance", icon: DollarSign },

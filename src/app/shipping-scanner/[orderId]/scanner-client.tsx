@@ -403,9 +403,21 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               )}
             </div>
 
-            <div className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 shrink-0">
-              <span className="text-4xl font-black">{order.reward.score}</span>
-              <span className="text-xs font-medium opacity-80 uppercase tracking-widest">ציון לקוח</span>
+            <div className="flex items-center gap-4 shrink-0">
+              {order.gender === 'male' && (
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 shadow-sm" title="גבר">
+                  <span className="text-3xl font-black leading-none mb-1">♂</span>
+                </div>
+              )}
+              {order.gender === 'female' && (
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-pink-500/10 text-pink-500 border border-pink-500/20 shadow-sm" title="אישה">
+                  <span className="text-3xl font-black leading-none mb-1">♀</span>
+                </div>
+              )}
+              <div className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 shrink-0">
+                <span className="text-4xl font-black">{order.reward.score}</span>
+                <span className="text-xs font-medium opacity-80 uppercase tracking-widest">ציון לקוח</span>
+              </div>
             </div>
         </div>
       )}

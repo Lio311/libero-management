@@ -7,6 +7,7 @@ import { eq, desc, inArray, and, gte, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getCustomerHistory } from "@/lib/customer-history";
 import { getOrCalculateOrderReward, RewardOutput } from "@/lib/reward-engine";
+import { guessGender } from "@/lib/gender-utils";
 
 import { BRAND_CONFIG } from "@/lib/wc-config";
 
@@ -23,6 +24,7 @@ export type ScannerOrder = {
   phone?: string;
   notes?: string;
   reward?: RewardOutput;
+  gender?: 'male' | 'female' | 'unknown';
 };
 
 export async function getScannerSettings(): Promise<string[]> {
@@ -107,6 +109,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
         city: (order.billing as any)?.city || '',
         phone: (order.billing as any)?.phone || '',
         notes: (order as any).customer_note || '',
+        gender: guessGender(billing?.first_name || ''),
       };
     });
   } catch (error: any) {
@@ -185,6 +188,7 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
       phone: (order.billing as any)?.phone || '',
       notes: (order as any).customer_note || '',
       reward,
+      gender: guessGender(billing?.first_name || ''),
     };
   } catch (error: any) {
     console.error('getOrderById error:', error);
