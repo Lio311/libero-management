@@ -32,10 +32,13 @@ export async function GET(
   for (const item of miniPerfumes) {
     const qty = item.quantity || 1;
     
-    // Extract only the leading Hebrew characters
-    // Matches Hebrew letters and spaces at the start of the string
-    const match = (item.name || "").match(/^[\u0590-\u05FF\s]+/);
+    // Extract text up to the first English letter
+    // This ensures things like "א.ד.פ." are included, stopping before "Memo Paris..."
+    const match = (item.name || "").match(/^[^a-zA-Z]+/);
     let hebrewName = match ? match[0].trim() : item.name;
+
+    // Remove trailing hyphens or pipes if any
+    hebrewName = hebrewName.replace(/[\-\|]$/, "").trim();
 
     for (let i = 0; i < qty; i++) {
       labelsToPrint.push({
