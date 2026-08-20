@@ -73,7 +73,7 @@ async function seedInventory() {
     console.log(`Inserting ${inventoryData.length} inventory items...`);
     
     const client = new Client({
-      connectionString: 'postgresql://neondb_owner:npg_1aDl9LIcAfCH@ep-little-dust-a2p1cl0m-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require',
+      connectionString: process.env.DATABASE_URL,
     });
     await client.connect();
     
