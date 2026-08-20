@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { rewardBrandRules, orderRewards } from "@/lib/db/schema";
+import { rewardBrandRules, orderRewards, wcProducts } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { guessGender, Gender } from "./gender-utils";
 import { OrderHistoryStats } from "./customer-history";
@@ -14,17 +14,21 @@ export type RewardOutput = {
 };
 
 async function getProductCategory(item: any): Promise<'house_brand' | 'luxury' | 'designer_dupe'> {
-  const name = (item.name || '').toLowerCase();
+  if (!item.product_id) return 'designer_dupe';
   
   try {
-    const rules = await db.select().from(rewardBrandRules);
-    for (const rule of rules) {
-      if (name.includes(rule.keyword.toLowerCase())) {
-        return rule.classification as 'house_brand' | 'luxury' | 'designer_dupe';
-      }
+    const prod = await db.select({ categories: wcProducts.categories }).from(wcProducts).where(eq(wcProducts.id, item.product_id)).limit(1);
+    if (prod.length > 0 && prod[0].categories) {
+      const cats = Array.isArray(prod[0].categories) ? prod[0].categories : [];
+      
+      const isHouse = cats.some((c: any) => c.id === 268 || c.name === 'מותגי הבית');
+      if (isHouse) return 'house_brand';
+      
+      const isLuxury = cats.some((c: any) => c.id === 287 || c.name === 'בשמי יוקרה' || c.id === 57 || c.name === 'בשמי בוטיק ונישה');
+      if (isLuxury) return 'luxury';
     }
   } catch (error) {
-    console.error("Error fetching reward brand rules:", error);
+    console.error("Error fetching product category:", error);
   }
   
   return 'designer_dupe';
