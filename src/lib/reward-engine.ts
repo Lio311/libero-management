@@ -45,11 +45,13 @@ export async function calculateReward(
   let score = 0;
   
   if (orderCount === 1) { // Current order is the only order
-    if (currentTotal > 800) score += 4;
+    if (currentTotal > 1500) score += 6;
+    else if (currentTotal > 800) score += 4;
     else if (currentTotal > 400) score += 2;
     else score += 1;
   } else {
-    if (totalSpent > 3000) score += 6;
+    if (totalSpent > 5000) score += 7;
+    else if (totalSpent > 3000) score += 6;
     else if (totalSpent > 1500) score += 4;
     else if (totalSpent > 800) score += 2;
     else score += 1;
@@ -66,6 +68,7 @@ export async function calculateReward(
     if (cat === 'luxury') hasLuxury = true;
   }
 
+  // Can get up to +3 points here. (7 + 3 = 10 max)
   if (hasHouseBrand) score += 3;
   else if (hasLuxury) score += 1;
 
