@@ -373,7 +373,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       </div>
 
       {order.reward && (
-        <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 p-6 rounded-xl mb-6 shadow-sm flex flex-col sm:flex-row items-center gap-6 justify-between">
+        <div className="p-2 mb-6 flex flex-col sm:flex-row items-center gap-6 justify-between">
           <div className="flex items-center gap-6">
             <div className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 shrink-0">
               <span className="text-4xl font-black">{order.reward.score}</span>
