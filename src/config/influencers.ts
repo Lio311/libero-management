@@ -181,9 +181,7 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     image: "/influencers/efrat.jpg",
     hasVat: false,
     coupons: [
-      { brand: 'velour', code: 'efrat10' },
-      { brand: 'labura', code: 'efrat10' },
-      { brand: 'libero', code: 'efrat10' }
+      { brand: 'velour', code: 'efrat10' }
     ]
   }
 };
