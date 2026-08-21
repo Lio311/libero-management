@@ -14,7 +14,7 @@ import { useConfirm } from "@/hooks/useConfirm";
 import { HebrewCalendar, HDate, flags } from "@hebcal/core";
 
 const DEPARTMENTS = ["משרד", "הנהלה", "חנות", "מחסן", "חופשות"];
-const EMPLOYEES = ["ליאור", "רותי", "אור דוד", "צדוק", "אבישי", "אריאל", "ישראל", "טל", "יוליה"];
+const EMPLOYEES = ["ליאור", "רותי", "אור דוד", "צדוק", "אבישי", "אריאל", "ישראל", "טל", "יוליה", "דניאל"];
 
 const EMPLOYEE_COLORS: Record<string, string> = {
   "ליאור": "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800",
@@ -26,6 +26,7 @@ const EMPLOYEE_COLORS: Record<string, string> = {
   "ישראל": "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800",
   "טל": "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-800",
   "יוליה": "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800",
+  "דניאל": "bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-800",
 };
 
 type Shift = {
