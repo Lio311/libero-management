@@ -342,7 +342,7 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
     const today = new Date();
     const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
 
-    const LIONWHEEL_API_KEY = (process.env.LIONWHEEL_API_KEY || "c_key_ea2313a9-c33a-436a-bd4b-ed2978e51a70").replace(/['"]/g, '').trim();
+    const LIONWHEEL_API_KEY = (process.env.LIONWHEEL_API_KEY || "").replace(/['"]/g, '').trim();
     const LIONWHEEL_ENDPOINT = "https://members.lionwheel.com/api/v1/tasks/create";
 
     // Prepare Lionwheel payload

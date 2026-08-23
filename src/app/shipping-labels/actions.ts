@@ -17,7 +17,7 @@ export async function deleteShippingLabel(id: string) {
 }
 
 
-const LIONWHEEL_API_KEY = (process.env.LIONWHEEL_API_KEY || "c_key_ea2313a9-c33a-436a-bd4b-ed2978e51a70").replace(/['"]/g, '').trim();
+const LIONWHEEL_API_KEY = (process.env.LIONWHEEL_API_KEY || "").replace(/['"]/g, '').trim();
 
 export async function getLionwheelStatuses(barcodes: string[]) {
   const statuses: Record<string, string> = {};
