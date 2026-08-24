@@ -280,18 +280,17 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
   };
 
   return (
-    <Link href={`/shipping-scanner/${order.id}?store=${store}`} className="block h-full">
-      <div className={`glass-panel p-6 rounded-xl hover-scale cursor-pointer group transition-colors h-full flex flex-col relative ${isSelected ? 'border-purple-500 border-2' : 'hover:border-primary/50'}`}>
-        
-        {showCheckbox && (
-          <div className="absolute top-4 left-4 z-10" onClick={onToggle}>
-            <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${isSelected ? 'bg-purple-500 border-purple-500 text-white' : 'border-muted-foreground/30 hover:border-purple-500/50 bg-background'}`}>
-              {isSelected && <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
-            </div>
+    <div className="relative h-full">
+      {showCheckbox && (
+        <div className="absolute -right-3 -top-3 z-20 cursor-pointer" onClick={onToggle}>
+          <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors shadow-sm ${isSelected ? 'bg-purple-500 border-purple-500 text-white' : 'border-muted-foreground/30 hover:border-purple-500/50 bg-background'}`}>
+            {isSelected && <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
           </div>
-        )}
-
-        <div className="flex items-center justify-between mb-4">
+        </div>
+      )}
+      <Link href={`/shipping-scanner/${order.id}?store=${store}`} className="block h-full">
+        <div className={`glass-panel p-6 rounded-xl hover-scale cursor-pointer group transition-colors h-full flex flex-col relative ${isSelected ? 'border-purple-500 border-2' : 'hover:border-primary/50'}`}>
+          <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <Package className="w-5 h-5 text-primary group-hover:text-primary/80" />
             הזמנה #{order.id}
@@ -318,5 +317,6 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
         </div>
       </div>
     </Link>
+    </div>
   );
 }
