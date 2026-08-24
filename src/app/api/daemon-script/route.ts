@@ -115,6 +115,9 @@ async function startDaemon() {
                 await labelPage.setViewport({ width: 378, height: 567, deviceScaleFactor: 2 });
                 await labelPage.goto(labelUrl, { waitUntil: 'networkidle2', timeout: 30000 }).catch(e => console.log('    [Label Goto]', e.message));
                 await new Promise(r => setTimeout(r, 2000));
+                
+                // Inject CSS to remove any native margins that push content down
+                await labelPage.addStyleTag({ content: 'body, html { margin: 0 !important; padding: 0 !important; overflow: hidden !important; } @page { margin: 0 !important; }' });
                 await labelPage.pdf({
                   path: tempPdfPath,
                   width: '100mm',
@@ -122,7 +125,9 @@ async function startDaemon() {
                   margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
                   printBackground: true,
                   preferCSSPageSize: false,
-                  pageRanges: '1'
+                  pageRanges: '1',
+                  scale: 0.94 // Shrink slightly to ensure bottom isn't cut off,
+                  scale: 0.92 // מקטין את קנה המידה ב-8% כדי למנוע חיתוך של שוליים בהדפסה
                 });
                 await labelPage.close();
                 
