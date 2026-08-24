@@ -136,18 +136,30 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
     }
   }, [items, localOrderStatus, order.id]);
 
-  // Keep focus on input
+  // Keep focus on input on desktop only (prevent mobile keyboard popup on tap)
   useEffect(() => {
-    const focusInput = () => {
-      if (!missingMode && inputRef.current) {
+    const focusInput = (e?: MouseEvent) => {
+      // Don't auto-focus if clicking on an input/button/image or if on mobile
+      if (e) {
+        const target = e.target as HTMLElement;
+        if (['INPUT', 'BUTTON', 'IMG', 'A'].includes(target.tagName)) return;
+        // Don't focus if we're clicking inside a modal or clickable element
+        if (target.closest('button, a, input, [role="button"]')) return;
+      }
+      
+      if (!missingMode && inputRef.current && deviceType === "desktop") {
         inputRef.current.focus();
       }
     };
     
-    focusInput();
+    // Initial focus can be done on desktop
+    if (deviceType === "desktop") {
+      focusInput();
+    }
+    
     window.addEventListener("click", focusInput);
     return () => window.removeEventListener("click", focusInput);
-  }, [missingMode]);
+  }, [missingMode, deviceType]);
 
   const processBarcode = (sku: string) => {
     if (!sku) return;
