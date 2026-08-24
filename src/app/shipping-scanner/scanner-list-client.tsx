@@ -213,39 +213,35 @@ export default function ScannerListClient({
               </button>
             )}
 
-            {deviceType === "desktop" && (
-              <button
-                disabled={selectedOrderIds.length === 0}
-                onClick={handleRemotePrint}
-                className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
-                  selectedOrderIds.length > 0 
-                    ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
-                    : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-                }`}
-                title="הדפס מדבקות במחשב"
-              >
-                {selectedOrderIds.length > 0 
-                  ? `הדפס מדבקות במחשב (${selectedOrderIds.length})` 
-                  : "הדפס מדבקות במחשב"}
-              </button>
-            )}
+            <button
+              disabled={selectedOrderIds.length === 0}
+              onClick={handleRemotePrint}
+              className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
+                selectedOrderIds.length > 0 
+                  ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
+                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+              }`}
+              title="הדפס מדבקות במחשב"
+            >
+              {selectedOrderIds.length > 0 
+                ? `הדפס מדבקות במחשב (${selectedOrderIds.length})` 
+                : "הדפס מדבקות במחשב"}
+            </button>
 
-            {deviceType === "desktop" && (
-              <button
-                disabled={selectedOrderIds.length === 0}
-                onClick={handleRemotePrintShipping}
-                className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
-                  selectedOrderIds.length > 0 
-                    ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
-                    : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-                }`}
-                title="הדפס לייבלים למשלוח במחשב"
-              >
-                 {selectedOrderIds.length > 0 
-                  ? `הדפס לייבל משלוח במחשב (${selectedOrderIds.length})` 
-                  : "הדפס לייבל משלוח במחשב"}
-              </button>
-            )}
+            <button
+              disabled={selectedOrderIds.length === 0}
+              onClick={handleRemotePrintShipping}
+              className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
+                selectedOrderIds.length > 0 
+                  ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
+                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+              }`}
+              title="הדפס לייבלים למשלוח במחשב"
+            >
+               {selectedOrderIds.length > 0 
+                ? `הדפס לייבל משלוח במחשב (${selectedOrderIds.length})` 
+                : "הדפס לייבל משלוח במחשב"}
+            </button>
           </div>
         )}
       </div>
