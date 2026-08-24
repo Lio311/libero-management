@@ -317,7 +317,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const handleRemotePrintLabel = async () => {
     setIsPrinting(true);
     try {
-      toast.info("מייצר מדבקת משלוח ושולח למחשב...");
+      toast.info("מייצר מדבקת משלוח...");
       const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
       if (res.success && res.labelUrl) {
         
@@ -402,7 +402,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           {showMiniPerfumeBtn && (
             <button 
               onClick={async () => {
-                toast.info("שולח בקשה להדפסת בושם במחשב...");
+                toast.info("שולח בקשה להדפסת בושם...");
                 try {
                   const res = await fetch("/api/remote-print", {
                     method: "POST",
@@ -418,20 +418,11 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 rounded-xl font-medium transition-colors h-10 border border-purple-200"
             >
               <Printer className="w-5 h-5" />
-              הדפס מדבקות (במחשב)
+              הדפס מדבקות מיני בושם
             </button>
           )}
 
-          {deviceType === "mobile" && (
-            <button 
-              onClick={handlePrintLabel}
-              disabled={isPrinting}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-10 border border-indigo-200"
-            >
-              <Printer className="w-5 h-5" />
-              {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל (בנייד)"}
-            </button>
-          )}
+          
 
           {true && (
             <button 
@@ -440,7 +431,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-10 border border-blue-200"
             >
               <Printer className="w-5 h-5" />
-              {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל משלוח (במחשב)"}
+              {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל משלוח"}
             </button>
           )}
 

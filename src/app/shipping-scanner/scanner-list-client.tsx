@@ -194,24 +194,7 @@ export default function ScannerListClient({
         
         {store === "libero" && (
           <div className="flex flex-wrap items-center gap-2">
-            {deviceType === "mobile" && (
-              <button
-                disabled={selectedOrderIds.length === 0}
-                onClick={() => {
-                  window.open(`/shipping-scanner/bulk-mini-perfume?store=${store}&orderIds=${selectedOrderIds.join(',')}`, "_blank");
-                  setSelectedOrderIds([]);
-                }}
-                className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
-                  selectedOrderIds.length > 0 
-                    ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
-                    : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-                }`}
-              >
-                {selectedOrderIds.length > 0 
-                  ? `הדפס מדבקות בנייד (${selectedOrderIds.length})` 
-                  : "הדפס מדבקות בנייד"}
-              </button>
-            )}
+            
 
             <button
               disabled={selectedOrderIds.length === 0}
@@ -221,11 +204,11 @@ export default function ScannerListClient({
                   ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
                   : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
               }`}
-              title="הדפס מדבקות במחשב"
+              title="הדפס מדבקות מיני בושם"
             >
               {selectedOrderIds.length > 0 
-                ? `הדפס מדבקות במחשב (${selectedOrderIds.length})` 
-                : "הדפס מדבקות במחשב"}
+                ? `הדפס מדבקות מיני בושם (${selectedOrderIds.length})` 
+                : "הדפס מדבקות מיני בושם"}
             </button>
 
             <button
@@ -236,11 +219,11 @@ export default function ScannerListClient({
                   ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
                   : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
               }`}
-              title="הדפס לייבלים למשלוח במחשב"
+              title="הדפס לייבל משלוח"
             >
                {selectedOrderIds.length > 0 
-                ? `הדפס לייבל משלוח במחשב (${selectedOrderIds.length})` 
-                : "הדפס לייבל משלוח במחשב"}
+                ? `הדפס לייבל משלוח (${selectedOrderIds.length})` 
+                : "הדפס לייבל משלוח"}
             </button>
           </div>
         )}
