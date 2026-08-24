@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 const SITE_URL = 'https://libero-management.vercel.app'; 
-const PRINTER_MINI = 'Godex EZ520'; 
+const PRINTER_MINI = 'Godex mini ez520'; 
 const PRINTER_DELIVERY = 'Godex delivery EZ520';
 
 const STORE_NAME = 'libero';
