@@ -96,10 +96,10 @@ export async function GET(request: Request) {
 
   if (mode === 'incremental') {
     // 7 days ago
-    const afterDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const afterDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     queryParams = `modified_after=${afterDate}`;
   } else if (mode === 'modified') {
-    const afterDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const afterDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     queryParams = `modified_after=${afterDate}`;
   } else if (mode === 'full') {
     const afterDate = new Date(Date.now() - 730 * 24 * 60 * 60 * 1000).toISOString();
@@ -207,7 +207,7 @@ export async function GET(request: Request) {
     }
 
     // 2. Fetch & Sync Orders
-    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed,cancelled,refunded,failed&_fields=id,total,date_created,line_items,shipping_lines,customer_id,status,billing', store);
+    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed,cancelled,refunded,failed,trash&_fields=id,total,date_created,line_items,shipping_lines,customer_id,status,billing', store);
     
     if (orders.length > 0) {
       const orderValues = orders.map((o: any) => ({

@@ -192,10 +192,8 @@ export default function ScannerListClient({
           </button>
         )}
         
-        {store === "libero" && (
-          <div className="grid grid-cols-2 gap-2 w-full max-w-lg mt-2">
-            
-
+        <div className={`grid gap-2 w-full max-w-lg mt-2 ${store === "libero" ? "grid-cols-2" : "grid-cols-1"}`}>
+          {store === "libero" && (
             <button
               disabled={selectedOrderIds.length === 0}
               onClick={handleRemotePrint}
@@ -210,23 +208,23 @@ export default function ScannerListClient({
                 ? `הדפס מדבקות מיני בושם (${selectedOrderIds.length})` 
                 : "הדפס מדבקות מיני בושם"}
             </button>
+          )}
 
-            <button
-              disabled={selectedOrderIds.length === 0}
-              onClick={handleRemotePrintShipping}
-              className={`px-2 py-4 rounded-xl font-medium text-[13px] sm:text-sm transition-all flex items-center justify-center gap-1 w-full h-14 ${
-                selectedOrderIds.length > 0 
-                  ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
-                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-              }`}
-              title="הדפס לייבל משלוח"
-            >
-               {selectedOrderIds.length > 0 
-                ? `הדפס לייבל משלוח (${selectedOrderIds.length})` 
-                : "הדפס לייבל משלוח"}
-            </button>
-          </div>
-        )}
+          <button
+            disabled={selectedOrderIds.length === 0}
+            onClick={handleRemotePrintShipping}
+            className={`px-2 py-4 rounded-xl font-medium text-[13px] sm:text-sm transition-all flex items-center justify-center gap-1 w-full h-14 ${
+              selectedOrderIds.length > 0 
+                ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
+                : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+            }`}
+            title="הדפס לייבל משלוח"
+          >
+             {selectedOrderIds.length > 0 
+              ? `הדפס לייבל משלוח (${selectedOrderIds.length})` 
+              : "הדפס לייבל משלוח"}
+          </button>
+        </div>
       </div>
       </div>
 
@@ -262,7 +260,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {readyOrders.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} statusLabel="ממתין לסגירה" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={store === "libero"} />
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="ממתין לסגירה" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -276,7 +274,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {partialOrders.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} statusLabel="בתהליך סריקה" statusColor="purple" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={store === "libero"} />
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בתהליך סריקה" statusColor="purple" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -290,7 +288,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {pickupOrders.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={store === "libero"} />
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -304,7 +302,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {liberoShippingOnlyMini.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={store === "libero"} />
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -318,7 +316,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {liberoShippingMixed.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={store === "libero"} />
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -332,7 +330,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {shippingOrders.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={store === "libero"} />
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -348,7 +346,7 @@ export default function ScannerListClient({
           </h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 opacity-75">
             {completedOrders.map(order => (
-              <OrderCard store={store} key={order.id} order={order} statusLabel="הושלם" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={store === "libero"} />
+              <OrderCard store={store} key={order.id} order={order} statusLabel="הושלם" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
             ))}
           </div>
         </div>
