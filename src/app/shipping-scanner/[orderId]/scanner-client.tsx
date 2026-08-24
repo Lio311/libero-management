@@ -388,8 +388,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 w-full sm:w-auto">
-          <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
+        <div className="flex flex-row flex-wrap items-center gap-3 w-full sm:w-auto">
           {showMiniPerfumeBtn && (
             <button 
               onClick={async () => {
@@ -406,7 +405,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
                   toast.error("שגיאת תקשורת");
                 }
               }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-3 sm:py-2 bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 rounded-xl font-medium transition-colors h-16 sm:h-12 border border-purple-200 text-center text-sm w-full leading-tight"
+              className="flex flex-row items-center justify-center gap-2 px-4 py-3 sm:py-2 bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 rounded-xl font-medium transition-colors h-14 sm:h-12 border border-purple-200 flex-1 sm:flex-none"
             >
               <Printer className="w-5 h-5" />
               הדפס מדבקות מיני בושם
@@ -419,13 +418,12 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             <button 
               onClick={handleRemotePrintLabel}
               disabled={isPrinting}
-              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-3 sm:py-2 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-16 sm:h-12 border border-blue-200 text-center text-sm w-full leading-tight"
+              className="flex flex-row items-center justify-center gap-2 px-4 py-3 sm:py-2 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-14 sm:h-12 border border-blue-200 flex-1 sm:flex-none"
             >
               <Printer className="w-5 h-5" />
               {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל משלוח"}
             </button>
           )}
-          </div>
 
           
           <div className="flex items-center gap-3 h-10">
