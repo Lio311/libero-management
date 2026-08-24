@@ -11,6 +11,24 @@ interface LabelData {
   english: string;
 }
 
+
+
+
+function fixRtlForHtmlToImage(str) {
+  if (!str) return str;
+  // This splits the string into tokens of Hebrew/symbols and numbers/English
+  // Then reverses the order of characters in the Hebrew tokens, and finally reverses the token array
+  const tokens = str.match(/([\u0590-\u05FF\s\.,\-"'\/]+)|([a-zA-Z0-9]+)/g);
+  if (!tokens) return str;
+  
+  return tokens.map(token => {
+    if (/[a-zA-Z0-9]/.test(token)) {
+      return token; // Keep English/numbers as is
+    }
+    return token.split('').reverse().join(''); // Reverse Hebrew
+  }).reverse().join('');
+}
+
 export default function ClientPrinter({ labels, orderId }: { labels: LabelData[], orderId: string | number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -134,7 +152,7 @@ export default function ClientPrinter({ labels, orderId }: { labels: LabelData[]
                   fontFamily: "system-ui, -apple-system, sans-serif"
                 }}
               >
-                {label.hebrew}
+                {fixRtlForHtmlToImage(label.hebrew)}
               </div>
               {label.english && (
                 <div 

@@ -300,6 +300,40 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
     }
   };
 
+  
+  const handleRemotePrintLabel = async () => {
+    setIsPrinting(true);
+    try {
+      toast.info("מייצר מדבקת משלוח ושולח למחשב...");
+      const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
+      if (res.success && res.labelUrl) {
+        
+        const printRes = await fetch("/api/remote-print", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            store: store || "libero", 
+            orderIds: [order.id],
+            jobType: 'shipping-label',
+            metadata: { url: res.labelUrl }
+          })
+        });
+
+        if (printRes.ok) {
+          toast.success("פקודת ההדפסה נשלחה בהצלחה למחשב!");
+        } else {
+          toast.error("שגיאה בשליחת פקודת הדפסה למחשב");
+        }
+      } else {
+        toast.error("שגיאה ביצירת המדבקה: " + (res.error || "לא ידוע"));
+      }
+    } catch (e) {
+      toast.error("שגיאה בתקשורת עם השרת");
+    } finally {
+      setIsPrinting(false);
+    }
+  };
+
   const resetOrder = () => {
     toast.error("האם לאפס את כל התקדמות הסריקה בהזמנה זו?", {
       action: {
@@ -352,16 +386,16 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             </button>
           )}
 
-          {false && (
-            <button 
-              onClick={handlePrintLabel}
-              disabled={isPrinting}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-10"
-            >
-              <Printer className="w-5 h-5" />
-              {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל"}
-            </button>
-          )}
+          
+          <button 
+            onClick={handleRemotePrintLabel}
+            disabled={isPrinting}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-10 border border-indigo-200"
+          >
+            <Printer className="w-5 h-5" />
+            {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל מאנדרואיד"}
+          </button>
+
           
           <div className="flex items-center gap-3 h-10">
           {localOrderStatus === "processing" && (

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { store, orderIds } = await req.json();
+    const { store, orderIds, jobType, metadata } = await req.json();
 
     if (!store || !Array.isArray(orderIds) || orderIds.length === 0) {
       return NextResponse.json({ error: 'Missing or invalid parameters' }, { status: 400 });
@@ -22,7 +22,9 @@ export async function POST(req: Request) {
     await db.insert(printJobs).values({
       store,
       orderIds,
-      status: 'pending'
+      status: 'pending',
+      jobType: jobType || 'mini-perfume',
+      metadata
     });
 
     return NextResponse.json({ success: true });

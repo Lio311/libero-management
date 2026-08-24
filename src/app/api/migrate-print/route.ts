@@ -13,6 +13,10 @@ export async function GET() {
         "created_at" timestamp DEFAULT now() NOT NULL
       );
     `);
+    await db.execute(sql`
+      ALTER TABLE "print_jobs" ADD COLUMN IF NOT EXISTS "job_type" varchar(50) DEFAULT 'mini-perfume' NOT NULL;
+      ALTER TABLE "print_jobs" ADD COLUMN IF NOT EXISTS "metadata" jsonb;
+    `);
     return NextResponse.json({ success: true });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });

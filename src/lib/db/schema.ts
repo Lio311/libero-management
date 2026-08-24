@@ -19,6 +19,8 @@ export const tasks = pgTable("tasks", {
   isRecurring: boolean("is_recurring").default(false).notNull(),
   recurrenceDay: integer("recurrence_day"), // 1-31
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  jobType: varchar("job_type", { length: 50 }).default("mini-perfume").notNull(),
+  metadata: jsonb("metadata"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -51,6 +53,8 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   p256dh: text("p256dh").notNull(),
   auth: text("auth").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  jobType: varchar("job_type", { length: 50 }).default("mini-perfume").notNull(),
+  metadata: jsonb("metadata"),
 });
 
 export const inventoryItems = pgTable("inventory_items", {
@@ -434,5 +438,7 @@ export const printJobs = pgTable("print_jobs", {
   orderIds: jsonb("order_ids").notNull(),
   status: varchar("status", { length: 50 }).default("pending").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  jobType: varchar("job_type", { length: 50 }).default("mini-perfume").notNull(),
+  metadata: jsonb("metadata"),
 });
 
