@@ -117,6 +117,12 @@ export default function ScannerListClient({
         >
           סנכרן נתונים עכשיו
         </button>
+        <button
+          onClick={() => window.open(`/shipping-scanner/bulk-mini-perfume?store=${store}`, "_blank")}
+          className="px-4 py-1.5 bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center"
+        >
+          הדפס מדבקות בושם לכל ההזמנות
+        </button>
       </div>
       </div>
 
