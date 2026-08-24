@@ -5,6 +5,7 @@ import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, Li
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { ScannerOrder, createOrderLabel } from "@/app/actions/scanner-actions";
 
 import { useRouter } from "next/navigation";
@@ -80,14 +81,14 @@ export default function ScannerListClient({
         body: JSON.stringify({ store, orderIds: selectedOrderIds })
       });
       if (res.ok) {
-        alert("פקודת ההדפסה נשלחה בהצלחה למחשב!");
+        toast.success("פקודת ההדפסה נשלחה בהצלחה למחשב!");
         setSelectedOrderIds([]);
       } else {
-        alert("שגיאה בשליחת פקודת הדפסה");
+        toast.error("שגיאה בשליחת פקודת הדפסה");
       }
     } catch (err) {
       console.error(err);
-      alert("שגיאה בתקשורת");
+      toast.error("שגיאה בתקשורת");
     }
   };
 
@@ -170,10 +171,10 @@ export default function ScannerListClient({
                 if (res.ok) {
                   router.refresh();
                 } else {
-                  alert("שגיאה בסנכרון");
+                  toast.error("שגיאה בסנכרון");
                 }
               } catch (err) {
-                alert("שגיאה בסנכרון");
+                toast.error("שגיאה בסנכרון");
               } finally {
                 btn.innerText = "סנכרן נתונים עכשיו";
                 btn.disabled = false;
