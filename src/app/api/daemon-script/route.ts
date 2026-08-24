@@ -110,26 +110,25 @@ async function startDaemon() {
             
             if (labelUrl) {
               try {
-                console.log(\`    Downloading shipping label...\`);
-                const labelPage = await browser.newPage();
-                await labelPage.setViewport({ width: 378, height: 567, deviceScaleFactor: 2 });
-                await labelPage.goto(labelUrl, { waitUntil: 'networkidle2', timeout: 30000 }).catch(e => console.log('    [Label Goto]', e.message));
-                await new Promise(r => setTimeout(r, 2000));
+                console.log(\`    Fetching pure PDF from server for shipping label...\`);
+                const proxyUrl = \`\${SITE_URL}/api/lionwheel/proxy-pdf?url=\${encodeURIComponent(labelUrl)}\`;
                 
-                // Inject CSS to remove any native margins that push content down
-                await labelPage.addStyleTag({ content: 'body, html { margin: 0 !important; padding: 0 !important; overflow: hidden !important; } @page { margin: 0 !important; }' });
-                await labelPage.pdf({
-                  path: tempPdfPath,
-                  width: '100mm',
-                  height: '150mm',
-                  margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
-                  printBackground: true,
-                  preferCSSPageSize: false,
-                  pageRanges: '1',
-                  scale: 0.94 // Shrink slightly to ensure bottom isn't cut off,
-                  scale: 0.92 // מקטין את קנה המידה ב-8% כדי למנוע חיתוך של שוליים בהדפסה
+                await new Promise((resolve, reject) => {
+                  const lib = proxyUrl.startsWith('https') ? https : http;
+                  lib.get(proxyUrl, (res) => {
+                    if (res.statusCode !== 200) {
+                      reject(new Error(\`Failed to download PDF. Status code: \${res.statusCode}\`));
+                      return;
+                    }
+                    const fileStream = fs.createWriteStream(tempPdfPath);
+                    res.pipe(fileStream);
+                    fileStream.on('finish', () => {
+                      fileStream.close();
+                      resolve();
+                    });
+                    fileStream.on('error', reject);
+                  }).on('error', reject);
                 });
-                await labelPage.close();
                 
                 console.log(\`    Sending to delivery printer \${PRINTER_DELIVERY}...\`);
                 const cmd = \`"\${PDF_TO_PRINTER_EXE}" "\${tempPdfPath}" "\${PRINTER_DELIVERY}"\`;
@@ -144,6 +143,9 @@ async function startDaemon() {
                 console.error(\`    Error processing job #\${job.id}:\`, jobError.message);
               }
             } else {
+               console.error(\`    No URL found for shipping label job #\${job.id}\`);
+            }
+          } else {
                console.error(\`    No URL found for shipping label job #\${job.id}\`);
             }
           } else {
