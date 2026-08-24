@@ -5,7 +5,7 @@ import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, Li
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { useEffect, useState } from "react";
-import { ScannerOrder } from "@/app/actions/scanner-actions";
+import { ScannerOrder, createOrderLabel } from "@/app/actions/scanner-actions";
 
 import { useRouter } from "next/navigation";
 
@@ -33,6 +33,42 @@ export default function ScannerListClient({
     e.preventDefault();
     e.stopPropagation();
     setSelectedOrderIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  
+  const handleRemotePrintShipping = async () => {
+    if (selectedOrderIds.length === 0) return;
+    try {
+      let successCount = 0;
+      toast.info(`שולח ${selectedOrderIds.length} מדבקות למדפסת...`);
+      
+      for (const orderId of selectedOrderIds) {
+        const res = await createOrderLabel(orderId, (store || "libero") as "libero" | "velour" | "labura");
+        if (res.success && res.labelUrl) {
+          const printRes = await fetch("/api/remote-print", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              store, 
+              orderIds: [orderId],
+              jobType: 'shipping-label',
+              metadata: { url: res.labelUrl }
+            })
+          });
+          if (printRes.ok) successCount++;
+        }
+      }
+      
+      if (successCount > 0) {
+        toast.success(`${successCount} מדבקות משלוח נשלחו למדפסת!`);
+        setSelectedOrderIds([]);
+      } else {
+        toast.error("שגיאה ביצירת מדבקות משלוח");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("שגיאה בתקשורת");
+    }
   };
 
   const handleRemotePrint = async () => {
@@ -172,11 +208,24 @@ export default function ScannerListClient({
               onClick={handleRemotePrint}
               className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
                 selectedOrderIds.length > 0 
-                  ? "bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 border border-indigo-200" 
+                  ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
                   : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
               }`}
+              title="הדפס בושם"
             >
-              הדפס מאנדרואיד
+              הדפס בושם
+            </button>
+            <button
+              disabled={selectedOrderIds.length === 0}
+              onClick={handleRemotePrintShipping}
+              className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
+                selectedOrderIds.length > 0 
+                  ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
+                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+              }`}
+              title="הדפס לייבלים למשלוח"
+            >
+              הדפס לייבל משלוח
             </button>
           </>
         )}
