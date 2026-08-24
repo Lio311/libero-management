@@ -16,23 +16,23 @@ export async function GET(request: Request) {
   }
 
   try {
-    const res = await fetch(\`https://backend.lionwheel.com/api/v1/orders/label?order_ids=\${orderId}\`, {
+    const res = await fetch(`https://backend.lionwheel.com/api/v1/orders/label?order_ids=\${orderId}`, {
       method: "GET",
       headers: {
-        "Authorization": \`Bearer \${apiKey}\`,
+        "Authorization": `Bearer \${apiKey}`,
         "Content-Type": "application/json",
       },
     });
 
     if (!res.ok) {
-      return new NextResponse(\`Lionwheel returned \${res.status}\`, { status: res.status });
+      return new NextResponse(`Lionwheel returned \${res.status}`, { status: res.status });
     }
 
     const pdfBuffer = await res.arrayBuffer();
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': \`inline; filename="shipping_label_\${orderId}.pdf"\`
+        'Content-Disposition': `inline; filename="shipping_label_\${orderId}.pdf"`
       }
     });
   } catch (err: any) {
