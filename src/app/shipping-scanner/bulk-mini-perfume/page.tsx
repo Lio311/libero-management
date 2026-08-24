@@ -4,12 +4,17 @@ import ClientPrinter from "../[orderId]/mini-perfume/ClientPrinter";
 export default async function BulkMiniPerfumePage({
   searchParams,
 }: {
-  searchParams: Promise<{ store?: string }>;
+  searchParams: Promise<{ store?: string; orderIds?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
   const store = (resolvedSearchParams.store || "libero") as "libero" | "velour" | "labura";
   
-  const orders = await getProcessingOrders(store);
+  const allOrders = await getProcessingOrders(store);
+  
+  const orderIdsParam = resolvedSearchParams.orderIds;
+  const targetIds = orderIdsParam ? orderIdsParam.split(',').map(Number) : [];
+  
+  const orders = targetIds.length > 0 ? allOrders.filter(o => targetIds.includes(o.id)) : allOrders;
 
   if (!orders || orders.length === 0) {
     return (
