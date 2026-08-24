@@ -394,7 +394,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             </button>
           )}
 
-          {showMiniPerfumeBtn && deviceType === "desktop" && (
+          {showMiniPerfumeBtn && (
             <button 
               onClick={async () => {
                 toast.info("שולח בקשה להדפסת בושם במחשב...");
@@ -428,7 +428,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             </button>
           )}
 
-          {deviceType === "desktop" && (
+          {true && (
             <button 
               onClick={handleRemotePrintLabel}
               disabled={isPrinting}
