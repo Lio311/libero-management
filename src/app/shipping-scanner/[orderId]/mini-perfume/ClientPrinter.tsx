@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import { Loader2, Printer } from "lucide-react";
@@ -14,6 +14,17 @@ interface LabelData {
 export default function ClientPrinter({ labels, orderId }: { labels: LabelData[], orderId: string | number }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [hasGenerated, setHasGenerated] = useState(false);
+
+  useEffect(() => {
+    if (!hasGenerated && labels.length > 0) {
+      setHasGenerated(true);
+      // Wait a moment for fonts to load and DOM to settle
+      setTimeout(() => {
+        generatePDF();
+      }, 500);
+    }
+  }, [labels]);
 
   const generatePDF = async () => {
     if (!containerRef.current) return;
@@ -34,7 +45,7 @@ export default function ClientPrinter({ labels, orderId }: { labels: LabelData[]
         const dataUrl1 = await toPng(el1, {
           quality: 1,
           pixelRatio: 4, 
-          style: { margin: '0', padding: '2mm', background: 'white' }
+          style: { margin: '0', background: 'white' }
         });
 
         if (i > 0) {
@@ -50,7 +61,7 @@ export default function ClientPrinter({ labels, orderId }: { labels: LabelData[]
           const dataUrl2 = await toPng(el2, {
             quality: 1,
             pixelRatio: 4, 
-            style: { margin: '0', padding: '2mm', background: 'white' }
+            style: { margin: '0', background: 'white' }
           });
           // Add second label on the right (x=54.5, width=51.5)
           pdf.addImage(dataUrl2, 'PNG', 54.5, 0, 51.5, 25);
@@ -59,7 +70,8 @@ export default function ClientPrinter({ labels, orderId }: { labels: LabelData[]
 
       const pdfBlob = pdf.output("blob");
       const pdfUrl = URL.createObjectURL(pdfBlob);
-      window.open(pdfUrl, "_blank");
+      // Redirect current tab to the PDF to avoid popup blockers and extra tabs
+      window.location.replace(pdfUrl);
       
     } catch (e) {
       console.error(e);
