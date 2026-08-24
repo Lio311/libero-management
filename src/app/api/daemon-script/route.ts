@@ -114,7 +114,7 @@ async function startDaemon() {
                 const labelPage = await browser.newPage();
                 await labelPage.goto(labelUrl, { waitUntil: 'networkidle2', timeout: 30000 }).catch(e => console.log('    [Label Goto]', e.message));
                 await new Promise(r => setTimeout(r, 2000));
-                await labelPage.pdf({ path: tempPdfPath, width: '100mm', height: '150mm', printBackground: true });
+                await labelPage.pdf({ path: tempPdfPath, preferCSSPageSize: true, printBackground: true });
                 await labelPage.close();
                 
                 console.log(\`    Sending to delivery printer \${PRINTER_DELIVERY}...\`);
