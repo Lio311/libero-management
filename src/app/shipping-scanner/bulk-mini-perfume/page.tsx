@@ -12,6 +12,28 @@ export default async function BulkMiniPerfumePage({
   const allOrders = await getProcessingOrders(store);
   
   const orderIdsParam = resolvedSearchParams.orderIds;
+  
+  if (orderIdsParam && orderIdsParam.startsWith("custom:")) {
+    const encoded = orderIdsParam.substring("custom:".length);
+    try {
+      const data = JSON.parse(Buffer.from(encoded, 'base64').toString('utf8'));
+      const labels = [];
+      const copies = data.copies || 1;
+      
+      for (let i = 0; i < copies; i++) {
+        labels.push({
+          id: `custom-${i}`,
+          hebrew: data.line1 || "",
+          english: data.line2 || "",
+        });
+      }
+      
+      return <ClientPrinter labels={labels} orderId={"מדבקה מותאמת"} />;
+    } catch (e) {
+      console.error("Failed to parse custom label data", e);
+    }
+  }
+
   const targetIds = orderIdsParam ? orderIdsParam.split(',').map(Number) : [];
   
   const orders = targetIds.length > 0 ? allOrders.filter(o => targetIds.includes(o.id)) : allOrders;

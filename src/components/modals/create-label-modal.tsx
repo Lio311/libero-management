@@ -1,52 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import jsPDF from "jspdf";
 import { Loader2, Printer, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-function renderLabelToDataUrl(label: { line1: string; line2?: string }): string {
-  const pixelRatio = 4;
-  // 1mm ≈ 3.7795px at 96 DPI
-  const widthPx = Math.round(51.5 * 3.7795 * pixelRatio);
-  const heightPx = Math.round(25 * 3.7795 * pixelRatio);
-
-  const canvas = document.createElement("canvas");
-  canvas.width = widthPx;
-  canvas.height = heightPx;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return "";
-
-  // White background
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, widthPx, heightPx);
-
-  // Line 1 text
-  ctx.fillStyle = "#000000";
-  ctx.direction = "rtl";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.font = `bold ${Math.round(10.5 * pixelRatio)}px system-ui, -apple-system, sans-serif`;
-
-  const line1Y = label.line2 ? heightPx * 0.40 : heightPx * 0.50;
-  const maxTextWidth = widthPx - (4 * 3.7795 * pixelRatio); // 2mm margin on each side
-  ctx.fillText(label.line1, widthPx / 2, line1Y, maxTextWidth);
-
-  // Line 2 text if present
-  if (label.line2) {
-    ctx.direction = "rtl";
-    if (/^[a-zA-Z0-9\s.,!?-]+$/.test(label.line2)) {
-      ctx.direction = "ltr";
-    }
-    
-    ctx.font = `bold ${Math.round(8.5 * pixelRatio)}px system-ui, -apple-system, sans-serif`;
-    const line2Y = heightPx * 0.68;
-    ctx.fillText(label.line2, widthPx / 2, line2Y, maxTextWidth);
-  }
-
-  return canvas.toDataURL("image/png");
-}
 
 interface CreateLabelModalProps {
   isOpen: boolean;
@@ -69,40 +26,34 @@ export function CreateLabelModal({ isOpen, onClose }: CreateLabelModalProps) {
 
     setIsGenerating(true);
     try {
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: [106, 25]
+      const data = {
+        line1: line1.trim() || line2.trim(),
+        line2: line1.trim() ? line2.trim() : "",
+        copies: copies
+      };
+      
+      const b64Data = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+      const orderIdStr = `custom:${b64Data}`;
+
+      const res = await fetch("/api/remote-print", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          store: "libero", 
+          orderIds: [orderIdStr],
+          jobType: 'mini-perfume'
+        })
       });
 
-      const labelData = { 
-        line1: line1.trim() || line2.trim(), 
-        line2: line1.trim() ? line2.trim() : "" 
-      };
-      const dataUrl = renderLabelToDataUrl(labelData);
-
-      // Print left side
-      pdf.addImage(dataUrl, 'PNG', 0, 0, 51.5, 25);
-      
-      // If copies = 2, print right side too
-      if (copies === 2) {
-        pdf.addImage(dataUrl, 'PNG', 54.5, 0, 51.5, 25);
-      }
-
-      if (typeof window !== 'undefined' && 'onPdfGeneratedBase64' in window) {
-        const b64 = pdf.output("datauristring");
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (window as any).onPdfGeneratedBase64(b64);
+      if (res.ok) {
+        alert("נשלח בהצלחה למדפסת!");
+        onClose();
       } else {
-        const pdfBlob = pdf.output("blob");
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        window.open(pdfUrl, "_blank");
+        alert("שגיאה בשליחת פקודת הדפסה");
       }
-
-      onClose();
     } catch (e) {
       console.error(e);
-      alert("אירעה שגיאה ביצירת ה-PDF");
+      alert("אירעה שגיאה בשליחת הבקשה");
     } finally {
       setIsGenerating(false);
     }
