@@ -37,17 +37,18 @@ function renderLabelToDataUrl(label: { hebrew: string; english?: string }): stri
   ctx.direction = "rtl";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = `bold ${Math.round(13 * pixelRatio)}px system-ui, -apple-system, sans-serif`;
+  ctx.font = `bold ${Math.round(10.5 * pixelRatio)}px system-ui, -apple-system, sans-serif`;
 
   const hebrewY = label.english ? heightPx * 0.40 : heightPx * 0.50;
-  ctx.fillText(label.hebrew, widthPx / 2, hebrewY);
+  const maxTextWidth = widthPx - (4 * 3.7795 * pixelRatio); // 2mm margin on each side
+  ctx.fillText(label.hebrew, widthPx / 2, hebrewY, maxTextWidth);
 
   // English text (LTR) if present
   if (label.english) {
     ctx.direction = "ltr";
-    ctx.font = `bold ${Math.round(11 * pixelRatio)}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `bold ${Math.round(8.5 * pixelRatio)}px system-ui, -apple-system, sans-serif`;
     const englishY = heightPx * 0.68;
-    ctx.fillText(label.english, widthPx / 2, englishY);
+    ctx.fillText(label.english, widthPx / 2, englishY, maxTextWidth);
   }
 
   return canvas.toDataURL("image/png");
