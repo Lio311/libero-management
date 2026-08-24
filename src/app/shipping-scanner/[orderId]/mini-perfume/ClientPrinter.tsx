@@ -46,7 +46,7 @@ function renderLabelToDataUrl(label: { hebrew: string; english?: string }): stri
   // English text (LTR) if present
   if (label.english) {
     ctx.direction = "ltr";
-    ctx.font = `bold ${Math.round(8.5 * pixelRatio)}px system-ui, -apple-system, sans-serif`;
+    ctx.font = `bold ${Math.round(10.5 * pixelRatio)}px system-ui, -apple-system, sans-serif`;
     const englishY = heightPx * 0.68;
     ctx.fillText(label.english, widthPx / 2, englishY, maxTextWidth);
   }
