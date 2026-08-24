@@ -388,7 +388,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-500 hover:bg-purple-500/20 rounded-xl font-medium transition-colors h-10 border border-purple-200"
             >
               <Printer className="w-5 h-5" />
-              הדפס דוגמיות (בנייד)
+              הדפס מדבקות (בנייד)
             </button>
           )}
 
@@ -411,7 +411,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 rounded-xl font-medium transition-colors h-10 border border-purple-200"
             >
               <Printer className="w-5 h-5" />
-              הדפס דוגמיות (במחשב)
+              הדפס מדבקות (במחשב)
             </button>
           )}
 
@@ -433,7 +433,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-10 border border-blue-200"
             >
               <Printer className="w-5 h-5" />
-              {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל (במחשב)"}
+              {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל משלוח (במחשב)"}
             </button>
           )}
 

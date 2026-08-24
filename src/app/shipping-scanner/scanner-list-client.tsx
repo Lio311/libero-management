@@ -208,8 +208,8 @@ export default function ScannerListClient({
                 }`}
               >
                 {selectedOrderIds.length > 0 
-                  ? `הדפס בושם בנייד (${selectedOrderIds.length})` 
-                  : "הדפס בושם בנייד"}
+                  ? `הדפס מדבקות בנייד (${selectedOrderIds.length})` 
+                  : "הדפס מדבקות בנייד"}
               </button>
             )}
 
@@ -222,11 +222,11 @@ export default function ScannerListClient({
                     ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
                     : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
                 }`}
-                title="הדפס בושם במחשב"
+                title="הדפס מדבקות במחשב"
               >
                 {selectedOrderIds.length > 0 
-                  ? `הדפס בושם במחשב (${selectedOrderIds.length})` 
-                  : "הדפס בושם במחשב"}
+                  ? `הדפס מדבקות במחשב (${selectedOrderIds.length})` 
+                  : "הדפס מדבקות במחשב"}
               </button>
             )}
 
@@ -242,8 +242,8 @@ export default function ScannerListClient({
                 title="הדפס לייבלים למשלוח במחשב"
               >
                  {selectedOrderIds.length > 0 
-                  ? `הדפס משלוח במחשב (${selectedOrderIds.length})` 
-                  : "הדפס משלוח במחשב"}
+                  ? `הדפס לייבל משלוח במחשב (${selectedOrderIds.length})` 
+                  : "הדפס לייבל משלוח במחשב"}
               </button>
             )}
           </div>
