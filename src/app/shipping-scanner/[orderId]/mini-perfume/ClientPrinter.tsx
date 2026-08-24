@@ -103,7 +103,7 @@ export default function ClientPrinter({ labels, orderId }: { labels: LabelData[]
               style={{
                 width: "51.5mm", // Exact width of one label
                 height: "25mm",
-                padding: "2mm",
+                padding: "2mm 3.5mm 2mm 0.5mm", // Shifted 1.5mm to the left
                 boxSizing: "border-box",
               }}
             >
