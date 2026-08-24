@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo } from "lucide-react";
+import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { useEffect, useState } from "react";
@@ -209,31 +209,33 @@ export default function ScannerListClient({
                 <button
                   disabled={selectedOrderIds.length === 0}
                   onClick={handleRemotePrint}
-                  className={`flex-1 sm:flex-none px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 ${
+                  className={`flex-1 sm:flex-none px-2 sm:px-4 py-3 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 sm:min-w-[140px] sm:h-12 h-14 whitespace-nowrap text-xs sm:text-sm ${
                     selectedOrderIds.length > 0 
                       ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
                       : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
                   }`}
                   title="הדפס מדבקות מיני בושם"
                 >
+                  <Printer className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                   {selectedOrderIds.length > 0 
-                    ? `הדפס מדבקות מיני בושם (${selectedOrderIds.length})` 
-                    : "הדפס מדבקות מיני בושם"}
+                    ? `מדבקות (${selectedOrderIds.length})` 
+                    : "הדפס מדבקות"}
                 </button>
               )}
               <button
                 disabled={selectedOrderIds.length === 0}
                 onClick={handleRemotePrintShipping}
-                className={`flex-1 sm:flex-none px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 ${
+                className={`flex-1 sm:flex-none px-2 sm:px-4 py-3 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 sm:min-w-[140px] sm:h-12 h-14 whitespace-nowrap text-xs sm:text-sm ${
                   selectedOrderIds.length > 0 
                     ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
                     : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
                 }`}
                 title="הדפס לייבל משלוח"
               >
+                <Printer className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                  {selectedOrderIds.length > 0 
-                  ? `הדפס לייבל משלוח (${selectedOrderIds.length})` 
-                  : "הדפס לייבל משלוח"}
+                  ? `לייבלים (${selectedOrderIds.length})` 
+                  : "הדפס לייבל"}
               </button>
             </div>
           </div>
