@@ -144,7 +144,7 @@ export default function ScannerListClient({
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
           סריקת משלוחים
         </h2>
-      <div className="flex gap-2 mb-4 items-stretch flex-wrap">
+      <div className="flex gap-2 items-center justify-center flex-wrap w-full sm:w-auto">
         <div className="flex bg-secondary/50 p-1.5 rounded-xl w-fit border border-border/50">
           <button 
             onClick={() => router.push("?store=libero")}
