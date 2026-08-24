@@ -112,9 +112,18 @@ async function startDaemon() {
               try {
                 console.log(\`    Downloading shipping label...\`);
                 const labelPage = await browser.newPage();
+                await labelPage.setViewport({ width: 378, height: 567, deviceScaleFactor: 2 });
                 await labelPage.goto(labelUrl, { waitUntil: 'networkidle2', timeout: 30000 }).catch(e => console.log('    [Label Goto]', e.message));
                 await new Promise(r => setTimeout(r, 2000));
-                await labelPage.pdf({ path: tempPdfPath, preferCSSPageSize: true, printBackground: true });
+                await labelPage.pdf({
+                  path: tempPdfPath,
+                  width: '100mm',
+                  height: '150mm',
+                  margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
+                  printBackground: true,
+                  preferCSSPageSize: false,
+                  pageRanges: '1'
+                });
                 await labelPage.close();
                 
                 console.log(\`    Sending to delivery printer \${PRINTER_DELIVERY}...\`);

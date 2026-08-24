@@ -2,16 +2,13 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { printJobs } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { currentUser } from '@clerk/nextjs/server';
 
 // POST: Add new print job
+// Note: No Clerk auth check here — mobile browsers often fail to send
+// session cookies with fetch(), causing currentUser() to return null.
+// The route is already marked public in proxy.ts.
 export async function POST(req: Request) {
   try {
-    const user = await currentUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { store, orderIds, jobType, metadata } = await req.json();
 
     if (!store || !Array.isArray(orderIds) || orderIds.length === 0) {
