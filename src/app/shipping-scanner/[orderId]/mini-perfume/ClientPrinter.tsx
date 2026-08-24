@@ -24,26 +24,37 @@ export default function ClientPrinter({ labels, orderId }: { labels: LabelData[]
       const pdf = new jsPDF({
         orientation: "landscape",
         unit: "mm",
-        format: [50, 25]
+        format: [100, 25] // Full width of the roll (two 50mm labels)
       });
 
-      for (let i = 0; i < labelElements.length; i++) {
-        const el = labelElements[i];
-        
-        // Wait a small tick to ensure DOM is fully rendered
+      for (let i = 0; i < labelElements.length; i += 2) {
+        // First label in the row
+        const el1 = labelElements[i];
         await new Promise(r => setTimeout(r, 50));
-
-        const dataUrl = await toPng(el, {
+        const dataUrl1 = await toPng(el1, {
           quality: 1,
           pixelRatio: 4, 
           style: { margin: '0', padding: '2mm', background: 'white' }
         });
 
         if (i > 0) {
-          pdf.addPage([50, 25], "landscape");
+          pdf.addPage([100, 25], "landscape");
         }
         
-        pdf.addImage(dataUrl, 'PNG', 0, 0, 50, 25);
+        // Add first label on the left (x=0)
+        pdf.addImage(dataUrl1, 'PNG', 0, 0, 50, 25);
+
+        // If there is a second label for this row, add it on the right
+        if (i + 1 < labelElements.length) {
+          const el2 = labelElements[i + 1];
+          const dataUrl2 = await toPng(el2, {
+            quality: 1,
+            pixelRatio: 4, 
+            style: { margin: '0', padding: '2mm', background: 'white' }
+          });
+          // Add second label on the right (x=50)
+          pdf.addImage(dataUrl2, 'PNG', 50, 0, 50, 25);
+        }
       }
 
       const pdfBlob = pdf.output("blob");
