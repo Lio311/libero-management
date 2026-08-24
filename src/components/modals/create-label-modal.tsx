@@ -5,6 +5,8 @@ import { Loader2, Printer, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+import { toast } from "sonner";
+
 interface CreateLabelModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,7 +22,7 @@ export function CreateLabelModal({ isOpen, onClose }: CreateLabelModalProps) {
 
   const generatePDF = async () => {
     if (!line1.trim() && !line2.trim()) {
-      alert("יש להזין לפחות שורה אחת");
+      toast.error("יש להזין לפחות שורה אחת");
       return;
     }
 
@@ -46,14 +48,17 @@ export function CreateLabelModal({ isOpen, onClose }: CreateLabelModalProps) {
       });
 
       if (res.ok) {
-        alert("נשלח בהצלחה למדפסת!");
+        toast.success("פקודת ההדפסה נשלחה בהצלחה למחשב!");
+        setLine1("");
+        setLine2("");
+        setCopies(1);
         onClose();
       } else {
-        alert("שגיאה בשליחת פקודת הדפסה");
+        toast.error("שגיאה בשליחת פקודת הדפסה");
       }
     } catch (e) {
       console.error(e);
-      alert("אירעה שגיאה בשליחת הבקשה");
+      toast.error("אירעה שגיאה בשליחת הבקשה");
     } finally {
       setIsGenerating(false);
     }
