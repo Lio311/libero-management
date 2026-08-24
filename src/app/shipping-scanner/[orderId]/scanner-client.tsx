@@ -389,9 +389,10 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           </div>
         </div>
       )}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+      <div className="flex flex-col mb-8 gap-4">
+        {/* Header */}
         <div className="flex items-center gap-4">
-          <Link href={`/shipping-scanner?store=${store}`} className="p-2 hover:bg-secondary rounded-full transition-colors">
+          <Link href={`/shipping-scanner?store=${store}`} className="p-2 hover:bg-secondary rounded-full transition-colors shrink-0">
             <ArrowRight className="w-6 h-6" />
           </Link>
           <div>
@@ -400,7 +401,27 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           </div>
         </div>
         
-        <div className="flex flex-row flex-wrap items-center gap-3 w-full sm:w-auto">
+        {/* Status */}
+        <div className="w-full">
+          {localOrderStatus === "processing" && (
+            <span className="w-full justify-center px-4 py-3 rounded-xl font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center gap-2">
+              <ScanLine className="w-5 h-5" /> בתהליך סריקה
+            </span>
+          )}
+          {localOrderStatus === "on_hold" && (
+            <span className="w-full justify-center px-4 py-3 rounded-xl font-bold bg-orange-500/10 text-orange-500 border border-orange-500/20 flex items-center gap-2">
+              <Pause className="w-5 h-5" /> מושהה (חוסרים)
+            </span>
+          )}
+          {localOrderStatus === "completed" && (
+            <span className="w-full justify-center px-4 py-3 rounded-xl font-bold bg-green-500/10 text-green-500 border border-green-500/20 flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5" /> כלל המוצרים בהזמנה נסרקו
+            </span>
+          )}
+        </div>
+        
+        {/* Print Buttons */}
+        <div className="flex items-center gap-2 w-full">
           {showMiniPerfumeBtn && (
             <button 
               onClick={async () => {
@@ -417,44 +438,21 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
                   toast.error("שגיאת תקשורת");
                 }
               }}
-              className="flex flex-row items-center justify-center gap-2 px-4 py-3 sm:py-2 bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 rounded-xl font-medium transition-colors h-14 sm:h-12 border border-purple-200 flex-1 sm:flex-none"
+              className="flex items-center justify-center gap-1.5 px-2 py-3 bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 rounded-xl font-bold transition-colors h-14 border border-purple-200 flex-1 whitespace-nowrap text-xs sm:text-sm"
             >
-              <Printer className="w-5 h-5" />
-              הדפס מדבקות מיני בושם
+              <Printer className="w-4 h-4 shrink-0" />
+              הדפס מדבקות
             </button>
           )}
 
-          
-
-          {true && (
-            <button 
-              onClick={handleRemotePrintLabel}
-              disabled={isPrinting}
-              className="flex flex-row items-center justify-center gap-2 px-4 py-3 sm:py-2 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-xl font-medium transition-colors disabled:opacity-50 h-14 sm:h-12 border border-blue-200 flex-1 sm:flex-none"
-            >
-              <Printer className="w-5 h-5" />
-              {isPrinting ? "מפיק מדבקה..." : "הדפס לייבל משלוח"}
-            </button>
-          )}
-
-          
-          <div className="flex items-center gap-3 h-10">
-          {localOrderStatus === "processing" && (
-            <span className="px-4 py-2 rounded-xl font-medium bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center gap-2 h-10">
-              <ScanLine className="w-5 h-5" /> בתהליך סריקה
-            </span>
-          )}
-          {localOrderStatus === "on_hold" && (
-            <span className="px-4 py-2 rounded-xl font-medium bg-orange-500/10 text-orange-500 border border-orange-500/20 flex items-center gap-2 h-10">
-              <Pause className="w-5 h-5" /> מושהה (חוסרים)
-            </span>
-          )}
-          {localOrderStatus === "completed" && (
-            <span className="px-4 py-2 rounded-xl font-medium bg-green-500/10 text-green-500 border border-green-500/20 flex items-center gap-2 h-10">
-              <CheckCircle2 className="w-5 h-5" /> כלל המוצרים בהזמנה נסרקו
-            </span>
-          )}
-          </div>
+          <button 
+            onClick={handleRemotePrintLabel}
+            disabled={isPrinting}
+            className="flex items-center justify-center gap-1.5 px-2 py-3 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-xl font-bold transition-colors disabled:opacity-50 h-14 border border-blue-200 flex-1 whitespace-nowrap text-xs sm:text-sm"
+          >
+            <Printer className="w-4 h-4 shrink-0" />
+            {isPrinting ? "מפיק..." : "הדפס לייבל"}
+          </button>
         </div>
       </div>
 
