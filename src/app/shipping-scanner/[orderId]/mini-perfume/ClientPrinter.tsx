@@ -14,14 +14,14 @@ interface LabelData {
 
 
 
-function fixRtlForHtmlToImage(str) {
+function fixRtlForHtmlToImage(str: string) {
   if (!str) return str;
   // This splits the string into tokens of Hebrew/symbols and numbers/English
   // Then reverses the order of characters in the Hebrew tokens, and finally reverses the token array
   const tokens = str.match(/([\u0590-\u05FF\s\.,\-"'\/]+)|([a-zA-Z0-9]+)/g);
   if (!tokens) return str;
   
-  return tokens.map(token => {
+  return tokens.map((token: string) => {
     if (/[a-zA-Z0-9]/.test(token)) {
       return token; // Keep English/numbers as is
     }
