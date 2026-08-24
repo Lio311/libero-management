@@ -35,10 +35,12 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop" | null>(null);
 
   useEffect(() => {
     setDeviceType(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "mobile" : "desktop");
+    setMounted(true);
   }, []);
 
 

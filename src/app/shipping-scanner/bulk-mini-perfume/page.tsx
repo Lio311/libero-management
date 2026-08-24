@@ -63,6 +63,11 @@ export default async function BulkMiniPerfumePage({
     return (
       <div style={{ padding: "2rem", textAlign: "center", fontSize: "1.25rem" }} dir="rtl">
         לא נמצאו מוצרי מיני בושם באף אחת מההזמנות הפתוחות.
+        <script dangerouslySetInnerHTML={{ __html: `
+          if (typeof window !== 'undefined' && window.onPdfGeneratedBase64) {
+            window.onPdfGeneratedBase64("");
+          }
+        `}} />
       </div>
     );
   }

@@ -379,6 +379,8 @@ export default function ScannerListClient({
 }
 
 function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggle, showCheckbox }: { order: any, statusLabel: string, statusColor: 'blue' | 'purple' | 'green', store: string, isSelected?: boolean, onToggle?: (e: React.MouseEvent) => void, showCheckbox?: boolean }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const colorClasses = {
     blue: "bg-blue-500/10 text-blue-500 border-blue-500/20",
     purple: "bg-purple-500/10 text-purple-500 border-purple-500/20",
@@ -413,7 +415,7 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
           </div>
           <div className="flex items-center gap-2">
             <CalendarIcon className="w-4 h-4 shrink-0" />
-            <span>{format(new Date(order.dateCreated), 'dd/MM/yyyy HH:mm', { locale: he })}</span>
+            <span>{mounted ? format(new Date(order.dateCreated), 'dd/MM/yyyy HH:mm', { locale: he }) : ''}</span>
           </div>
         </div>
         
