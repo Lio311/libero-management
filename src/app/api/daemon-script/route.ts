@@ -63,6 +63,9 @@ async function downloadFile(url, dest) {
     const file = fs.createWriteStream(dest);
     const lib = url.startsWith('https') ? https : http;
     const request = lib.get(url, function(response) {
+      if (response.statusCode >= 400) {
+         return reject(new Error("Failed to download PDF, status code: " + response.statusCode));
+      }
       if (response.statusCode === 301 || response.statusCode === 302) {
          return resolve(downloadFile(response.headers.location, dest));
       }
@@ -86,6 +89,8 @@ async function startDaemon() {
   await page.exposeFunction('onPdfGeneratedBase64', (b64) => {
     if (currentResolve) currentResolve(b64);
   });
+  
+  page.on('console', msg => console.log('    [Browser Console]', msg.text()));
 
   async function checkPendingJobs() {
     try {
@@ -106,7 +111,11 @@ async function startDaemon() {
             if (labelUrl) {
               try {
                 console.log(\`    Downloading shipping label...\`);
-                await downloadFile(labelUrl, tempPdfPath);
+                const labelPage = await browser.newPage();
+                await labelPage.goto(labelUrl, { waitUntil: 'networkidle2', timeout: 30000 }).catch(e => console.log('    [Label Goto]', e.message));
+                await new Promise(r => setTimeout(r, 2000));
+                await labelPage.pdf({ path: tempPdfPath, width: '100mm', height: '150mm', printBackground: true });
+                await labelPage.close();
                 
                 console.log(\`    Sending to delivery printer \${PRINTER_DELIVERY}...\`);
                 const cmd = \`"\${PDF_TO_PRINTER_EXE}" "\${tempPdfPath}" "\${PRINTER_DELIVERY}"\`;
@@ -134,14 +143,33 @@ async function startDaemon() {
               const pdfB64 = await new Promise(async (resolve, reject) => {
                 currentResolve = resolve;
                 try {
-                  await page.goto(targetUrl, { waitUntil: 'networkidle0', timeout: 30000 });
+                  await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(e => console.log('    [Page Goto]', e.message));
+                  
+                  let waitTime = 0;
+                  const interval = setInterval(() => {
+                    waitTime += 1000;
+                    if (!currentResolve) {
+                      clearInterval(interval);
+                      return;
+                    }
+                    if (waitTime > 30000) {
+                      clearInterval(interval);
+                      reject(new Error("Timeout waiting for PDF generation"));
+                    }
+                  }, 1000);
                 } catch(e) {
                   reject(e);
                 }
               });
               
+              if (!pdfB64) {
+                console.log("    No mini perfumes found in this order (or empty labels). Skipping print.");
+                await markJobAsCompleted(job.id);
+                continue;
+              }
+              
               const tempPdfPath = path.join(PDFS_DIR, \`job_\${job.id}.pdf\`);
-              const base64Data = pdfB64.replace(/^data:application\\/pdf;base64,/, "");
+              const base64Data = pdfB64.replace(/^data:application\\/pdf.*?;base64,/, "");
               fs.writeFileSync(tempPdfPath, base64Data, 'base64');
               
               console.log(\`    Sending to printer \${PRINTER_MINI}...\`);
