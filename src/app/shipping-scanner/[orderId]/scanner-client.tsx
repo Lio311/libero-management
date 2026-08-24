@@ -461,7 +461,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           <input
             ref={inputRef}
             type="text"
-            inputMode="none"
+            
             value={scanInput}
             onChange={(e) => setScanInput(e.target.value)}
             placeholder="סרוק מוצר או הזן ברקוד..."
