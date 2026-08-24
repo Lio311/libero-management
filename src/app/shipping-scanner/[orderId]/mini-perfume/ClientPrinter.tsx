@@ -15,18 +15,9 @@ interface LabelData {
 
 
 function fixRtlForHtmlToImage(str: string) {
-  if (!str) return str;
-  // This splits the string into tokens of Hebrew/symbols and numbers/English
-  // Then reverses the order of characters in the Hebrew tokens, and finally reverses the token array
-  const tokens = str.match(/([\u0590-\u05FF\s\.,\-"'\/]+)|([a-zA-Z0-9]+)/g);
-  if (!tokens) return str;
-  
-  return tokens.map((token: string) => {
-    if (/[a-zA-Z0-9]/.test(token)) {
-      return token; // Keep English/numbers as is
-    }
-    return token.split('').reverse().join(''); // Reverse Hebrew
-  }).reverse().join('');
+  // It seems html-to-image or the browser natively handles RTL correctly now.
+  // Reversing it explicitly causes the text to appear backwards (e.g. םחל instead of לחם).
+  return str;
 }
 
 export default function ClientPrinter({ labels, orderId }: { labels: LabelData[], orderId: string | number }) {
