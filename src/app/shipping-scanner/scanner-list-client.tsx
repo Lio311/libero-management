@@ -12,11 +12,13 @@ import { useRouter } from "next/navigation";
 export default function ScannerListClient({ 
   initialOrders,
   initialStats,
-  initialStore
+  initialStore,
+  isAdmin
 }: { 
   initialOrders: ScannerOrder[];
   initialStats: { completedToday: number; remainingToProcess: number };
   initialStore: "libero" | "velour" | "labura";
+  isAdmin?: boolean;
 }) {
   const orders = initialOrders;
   const stats = initialStats;
@@ -31,6 +33,26 @@ export default function ScannerListClient({
     e.preventDefault();
     e.stopPropagation();
     setSelectedOrderIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const handleRemotePrint = async () => {
+    if (selectedOrderIds.length === 0) return;
+    try {
+      const res = await fetch("/api/remote-print", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ store, orderIds: selectedOrderIds })
+      });
+      if (res.ok) {
+        alert("פקודת ההדפסה נשלחה בהצלחה למחשב!");
+        setSelectedOrderIds([]);
+      } else {
+        alert("שגיאה בשליחת פקודת הדפסה");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("שגיאה בתקשורת");
+    }
   };
 
   useEffect(() => {
@@ -79,7 +101,7 @@ export default function ScannerListClient({
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
           סריקת משלוחים
         </h2>
-      <div className="flex gap-2 mb-4 items-stretch">
+      <div className="flex gap-2 mb-4 items-stretch flex-wrap">
         <div className="flex bg-secondary/50 p-1.5 rounded-xl w-fit border border-border/50">
           <button 
             onClick={() => router.push("?store=libero")}
@@ -101,46 +123,62 @@ export default function ScannerListClient({
           </button>
         </div>
         
-        <button 
-          onClick={async (e) => {
-            const btn = e.currentTarget;
-            btn.innerText = "מסנכרן...";
-            btn.disabled = true;
-            try {
-              const res = await fetch(`/api/sync/wc-data?store=${store}`);
-              if (res.ok) {
-                router.refresh();
-              } else {
+        {isAdmin && (
+          <button 
+            onClick={async (e) => {
+              const btn = e.currentTarget;
+              btn.innerText = "מסנכרן...";
+              btn.disabled = true;
+              try {
+                const res = await fetch(`/api/sync/wc-data?store=${store}`);
+                if (res.ok) {
+                  router.refresh();
+                } else {
+                  alert("שגיאה בסנכרון");
+                }
+              } catch (err) {
                 alert("שגיאה בסנכרון");
+              } finally {
+                btn.innerText = "סנכרן נתונים עכשיו";
+                btn.disabled = false;
               }
-            } catch (err) {
-              alert("שגיאה בסנכרון");
-            } finally {
-              btn.innerText = "סנכרן נתונים עכשיו";
-              btn.disabled = false;
-            }
-          }}
-          className="px-4 py-1.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center"
-        >
-          סנכרן נתונים עכשיו
-        </button>
-        {store === "libero" && (
-          <button
-            disabled={selectedOrderIds.length === 0}
-            onClick={() => {
-              window.open(`/shipping-scanner/bulk-mini-perfume?store=${store}&orderIds=${selectedOrderIds.join(',')}`, "_blank");
-              setSelectedOrderIds([]);
             }}
-            className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
-              selectedOrderIds.length > 0 
-                ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20" 
-                : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-            }`}
+            className="px-4 py-1.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center"
           >
-            {selectedOrderIds.length > 0 
-              ? `הדפס מדבקות בושם (${selectedOrderIds.length})` 
-              : "בחר הזמנות להדפסת בושם"}
+            סנכרן נתונים עכשיו
           </button>
+        )}
+        
+        {store === "libero" && (
+          <>
+            <button
+              disabled={selectedOrderIds.length === 0}
+              onClick={() => {
+                window.open(`/shipping-scanner/bulk-mini-perfume?store=${store}&orderIds=${selectedOrderIds.join(',')}`, "_blank");
+                setSelectedOrderIds([]);
+              }}
+              className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
+                selectedOrderIds.length > 0 
+                  ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20" 
+                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+              }`}
+            >
+              {selectedOrderIds.length > 0 
+                ? `הדפס במחשב (${selectedOrderIds.length})` 
+                : "בחר הזמנות להדפסת בושם"}
+            </button>
+            <button
+              disabled={selectedOrderIds.length === 0}
+              onClick={handleRemotePrint}
+              className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
+                selectedOrderIds.length > 0 
+                  ? "bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20 border border-indigo-200" 
+                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+              }`}
+            >
+              הדפס מאנדרואיד
+            </button>
+          </>
         )}
       </div>
       </div>

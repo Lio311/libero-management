@@ -70,8 +70,15 @@ export default function ClientPrinter({ labels, orderId }: { labels: LabelData[]
 
       const pdfBlob = pdf.output("blob");
       const pdfUrl = URL.createObjectURL(pdfBlob);
-      // Redirect current tab to the PDF to avoid popup blockers and extra tabs
-      window.location.replace(pdfUrl);
+      
+      // Expose to puppeteer if printing remotely
+      if (typeof window !== 'undefined' && (window as any).onPdfGeneratedBase64) {
+        const b64 = pdf.output("datauristring");
+        (window as any).onPdfGeneratedBase64(b64);
+      } else {
+        // Redirect current tab to the PDF to avoid popup blockers and extra tabs
+        window.location.replace(pdfUrl);
+      }
       
     } catch (e) {
       console.error(e);

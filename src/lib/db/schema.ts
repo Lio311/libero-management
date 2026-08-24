@@ -427,3 +427,12 @@ export const monthlyTierSamples = pgTable("monthly_tier_samples", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+
+export const printJobs = pgTable("print_jobs", {
+  id: serial("id").primaryKey(),
+  store: varchar("store", { length: 50 }).notNull(),
+  orderIds: jsonb("order_ids").notNull(),
+  status: varchar("status", { length: 50 }).default("pending").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
