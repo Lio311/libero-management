@@ -140,92 +140,94 @@ export default function ScannerListClient({
 
   return (
     <div className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
-          סריקת משלוחים
-        </h2>
-      <div className="flex gap-2 items-center justify-center flex-wrap w-full sm:w-auto">
-        <div className="flex bg-secondary/50 p-1.5 rounded-xl w-full sm:w-fit justify-between sm:justify-start border border-border/50 mx-auto">
-          <button 
-            onClick={() => router.push("?store=libero")}
-            className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            ליברו
-          </button>
-          <button 
-            onClick={() => router.push("?store=velour")}
-            className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            וולור
-          </button>
-          <button 
-            onClick={() => router.push("?store=labura")}
-            className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            לה בורה
-          </button>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
+            סריקת משלוחים
+          </h2>
+          <div className="flex bg-secondary/50 p-1.5 rounded-xl w-full sm:w-fit justify-between sm:justify-start border border-border/50 mx-auto sm:mx-0">
+            <button 
+              onClick={() => router.push("?store=libero")}
+              className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              ליברו
+            </button>
+            <button 
+              onClick={() => router.push("?store=velour")}
+              className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              וולור
+            </button>
+            <button 
+              onClick={() => router.push("?store=labura")}
+              className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              לה בורה
+            </button>
+          </div>
         </div>
         
-        {isAdmin && (
-          <button 
-            onClick={async (e) => {
-              const btn = e.currentTarget;
-              btn.innerText = "מסנכרן...";
-              btn.disabled = true;
-              try {
-                const res = await fetch(`/api/sync/wc-data?store=${store}`);
-                if (res.ok) {
-                  router.refresh();
-                } else {
+        <div className="flex gap-2 items-center justify-end flex-wrap w-full">
+          {isAdmin && (
+            <button 
+              onClick={async (e) => {
+                const btn = e.currentTarget;
+                btn.innerText = "מסנכרן...";
+                btn.disabled = true;
+                try {
+                  const res = await fetch(`/api/sync/wc-data?store=${store}`);
+                  if (res.ok) {
+                    router.refresh();
+                  } else {
+                    toast.error("שגיאה בסנכרון");
+                  }
+                } catch (err) {
                   toast.error("שגיאה בסנכרון");
+                } finally {
+                  btn.innerText = "סנכרן נתונים עכשיו";
+                  btn.disabled = false;
                 }
-              } catch (err) {
-                toast.error("שגיאה בסנכרון");
-              } finally {
-                btn.innerText = "סנכרן נתונים עכשיו";
-                btn.disabled = false;
-              }
-            }}
-            className="px-4 py-1.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center"
-          >
-            סנכרן נתונים עכשיו
-          </button>
-        )}
-        
-        <div className="flex items-center gap-3">
-          {store === "libero" && (
-            <button
-              disabled={selectedOrderIds.length === 0}
-              onClick={handleRemotePrint}
-              className={`px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 ${
-                selectedOrderIds.length > 0 
-                  ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
-                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-              }`}
-              title="הדפס מדבקות מיני בושם"
+              }}
+              className="px-4 py-3 sm:py-2.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 h-14 sm:h-12 min-w-[140px]"
             >
-              {selectedOrderIds.length > 0 
-                ? `הדפס מדבקות מיני בושם (${selectedOrderIds.length})` 
-                : "הדפס מדבקות מיני בושם"}
+              סנכרן נתונים עכשיו
             </button>
           )}
+          
+          <div className="flex items-center gap-2">
+            {store === "libero" && (
+              <button
+                disabled={selectedOrderIds.length === 0}
+                onClick={handleRemotePrint}
+                className={`px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 ${
+                  selectedOrderIds.length > 0 
+                    ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
+                    : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                }`}
+                title="הדפס מדבקות מיני בושם"
+              >
+                {selectedOrderIds.length > 0 
+                  ? `הדפס מדבקות מיני בושם (${selectedOrderIds.length})` 
+                  : "הדפס מדבקות מיני בושם"}
+              </button>
+            )}
 
-          <button
-            disabled={selectedOrderIds.length === 0}
-            onClick={handleRemotePrintShipping}
-            className={`px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 ${
-              selectedOrderIds.length > 0 
-                ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
-                : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-            }`}
-            title="הדפס לייבל משלוח"
-          >
-             {selectedOrderIds.length > 0 
-              ? `הדפס לייבל משלוח (${selectedOrderIds.length})` 
-              : "הדפס לייבל משלוח"}
-          </button>
+            <button
+              disabled={selectedOrderIds.length === 0}
+              onClick={handleRemotePrintShipping}
+              className={`px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 ${
+                selectedOrderIds.length > 0 
+                  ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
+                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+              }`}
+              title="הדפס לייבל משלוח"
+            >
+               {selectedOrderIds.length > 0 
+                ? `הדפס לייבל משלוח (${selectedOrderIds.length})` 
+                : "הדפס לייבל משלוח"}
+            </button>
+          </div>
         </div>
-      </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 max-w-2xl">
