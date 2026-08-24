@@ -196,45 +196,46 @@ export default function ScannerListClient({
             </button>
           )}
           
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
             <button
               onClick={() => setIsLabelModalOpen(true)}
-              className="px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 bg-gray-500/10 text-gray-600 hover:bg-gray-500/20 border border-gray-200"
+              className="order-2 sm:order-1 px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 bg-gray-500/10 text-gray-600 hover:bg-gray-500/20 border border-gray-200"
               title="יצירת מדבקה"
             >
               יצירת מדבקה
             </button>
-            {store === "libero" && (
+            <div className="order-1 sm:order-2 flex items-center gap-2 w-full sm:w-auto">
+              {store === "libero" && (
+                <button
+                  disabled={selectedOrderIds.length === 0}
+                  onClick={handleRemotePrint}
+                  className={`flex-1 sm:flex-none px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 ${
+                    selectedOrderIds.length > 0 
+                      ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
+                      : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                  }`}
+                  title="הדפס מדבקות מיני בושם"
+                >
+                  {selectedOrderIds.length > 0 
+                    ? `הדפס מדבקות מיני בושם (${selectedOrderIds.length})` 
+                    : "הדפס מדבקות מיני בושם"}
+                </button>
+              )}
               <button
                 disabled={selectedOrderIds.length === 0}
-                onClick={handleRemotePrint}
-                className={`px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 ${
+                onClick={handleRemotePrintShipping}
+                className={`flex-1 sm:flex-none px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 ${
                   selectedOrderIds.length > 0 
-                    ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
+                    ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
                     : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
                 }`}
-                title="הדפס מדבקות מיני בושם"
+                title="הדפס לייבל משלוח"
               >
-                {selectedOrderIds.length > 0 
-                  ? `הדפס מדבקות מיני בושם (${selectedOrderIds.length})` 
-                  : "הדפס מדבקות מיני בושם"}
+                 {selectedOrderIds.length > 0 
+                  ? `הדפס לייבל משלוח (${selectedOrderIds.length})` 
+                  : "הדפס לייבל משלוח"}
               </button>
-            )}
-
-            <button
-              disabled={selectedOrderIds.length === 0}
-              onClick={handleRemotePrintShipping}
-              className={`px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 ${
-                selectedOrderIds.length > 0 
-                  ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
-                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
-              }`}
-              title="הדפס לייבל משלוח"
-            >
-               {selectedOrderIds.length > 0 
-                ? `הדפס לייבל משלוח (${selectedOrderIds.length})` 
-                : "הדפס לייבל משלוח"}
-            </button>
+            </div>
           </div>
         </div>
       </div>
