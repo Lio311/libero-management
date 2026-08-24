@@ -145,22 +145,22 @@ export default function ScannerListClient({
           סריקת משלוחים
         </h2>
       <div className="flex gap-2 items-center justify-center flex-wrap w-full sm:w-auto">
-        <div className="flex bg-secondary/50 p-1.5 rounded-xl w-fit border border-border/50">
+        <div className="flex bg-secondary/50 p-1.5 rounded-xl w-full sm:w-fit justify-between sm:justify-start border border-border/50 mx-auto">
           <button 
             onClick={() => router.push("?store=libero")}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
             ליברו
           </button>
           <button 
             onClick={() => router.push("?store=velour")}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
             וולור
           </button>
           <button 
             onClick={() => router.push("?store=labura")}
-            className={`px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-background shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"}`}
           >
             לה בורה
           </button>
