@@ -207,7 +207,7 @@ export async function GET(request: Request) {
     }
 
     // 2. Fetch & Sync Orders
-    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed&_fields=id,total,date_created,line_items,shipping_lines,customer_id,status,billing', store);
+    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed,cancelled,refunded,failed&_fields=id,total,date_created,line_items,shipping_lines,customer_id,status,billing', store);
     
     if (orders.length > 0) {
       const orderValues = orders.map((o: any) => ({
