@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { ScannerOrder, createOrderLabel } from "@/app/actions/scanner-actions";
 
 import { useRouter } from "next/navigation";
+import { CreateLabelModal } from "@/components/modals/create-label-modal";
 
 export default function ScannerListClient({ 
   initialOrders,
@@ -27,6 +28,7 @@ export default function ScannerListClient({
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop" | null>(null);
+  const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
 
   useEffect(() => {
     setDeviceType(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "mobile" : "desktop");
@@ -195,6 +197,13 @@ export default function ScannerListClient({
           )}
           
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsLabelModalOpen(true)}
+              className="px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 bg-gray-500/10 text-gray-600 hover:bg-gray-500/20 border border-gray-200"
+              title="יצירת מדבקה"
+            >
+              יצירת מדבקה
+            </button>
             {store === "libero" && (
               <button
                 disabled={selectedOrderIds.length === 0}
@@ -353,6 +362,7 @@ export default function ScannerListClient({
           </div>
         </div>
       )}
+      <CreateLabelModal isOpen={isLabelModalOpen} onClose={() => setIsLabelModalOpen(false)} />
     </div>
   );
 }
