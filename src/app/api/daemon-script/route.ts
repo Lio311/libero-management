@@ -146,9 +146,6 @@ async function startDaemon() {
                console.error(\`    No URL found for shipping label job #\${job.id}\`);
             }
           } else {
-               console.error(\`    No URL found for shipping label job #\${job.id}\`);
-            }
-          } else {
             // Default: mini-perfume
             console.log(\`--> Processing MINI PERFUME job #\${job.id} for orders: \${orderIdsParam}\`);
             const targetUrl = \`\${SITE_URL}/shipping-scanner/bulk-mini-perfume?store=\${STORE_NAME}&orderIds=\${orderIdsParam}\`;
