@@ -193,13 +193,13 @@ export default function ScannerListClient({
         )}
         
         {store === "libero" && (
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="grid grid-cols-2 gap-2 w-full max-w-lg mt-2">
             
 
             <button
               disabled={selectedOrderIds.length === 0}
               onClick={handleRemotePrint}
-              className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
+              className={`px-2 py-4 rounded-xl font-medium text-[13px] sm:text-sm transition-all flex items-center justify-center gap-1 w-full h-14 ${
                 selectedOrderIds.length > 0 
                   ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
                   : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
@@ -214,7 +214,7 @@ export default function ScannerListClient({
             <button
               disabled={selectedOrderIds.length === 0}
               onClick={handleRemotePrintShipping}
-              className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all flex items-center gap-2 h-fit self-center ${
+              className={`px-2 py-4 rounded-xl font-medium text-[13px] sm:text-sm transition-all flex items-center justify-center gap-1 w-full h-14 ${
                 selectedOrderIds.length > 0 
                   ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
                   : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
