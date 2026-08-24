@@ -181,7 +181,7 @@ async function startDaemon() {
 }
 
 startDaemon().catch(console.error);
-\`;
+`;
 
   return new NextResponse(code, {
     headers: {
