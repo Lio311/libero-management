@@ -37,6 +37,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const [isPrinting, setIsPrinting] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop" | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
 
   useEffect(() => {
     setDeviceType(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "mobile" : "desktop");
@@ -153,6 +154,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
 
     if (localOrderStatus !== "processing") {
       toast.error(`ההזמנה בסטטוס ${localOrderStatus === 'on_hold' ? 'מושהה' : 'הושלם'} ואינה ניתנת לסריקה`);
+      setScanError(`ההזמנה ${localOrderStatus === 'on_hold' ? 'מושהית' : 'הושלמה'}`);
       return;
     }
 
@@ -162,13 +164,16 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       const manualIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && item.isManual);
       if (manualIndex !== -1) {
         toast.info("מוצר ללא ברקוד - יש לאשר ידנית עם כפתור ה-סמן ידנית");
+        setScanError("מוצר ללא ברקוד - יש לאשר ידנית");
       } else {
         toast.error(`מק"ט לא חוקי: ${sku} לא נמצא בהזמנה זו!`);
+        setScanError(`מק"ט שגוי: ${sku} לא נמצא בהזמנה`);
       }
     } else {
       const item = items[itemIndex];
       if (item.scanned >= item.expected) {
         toast.error(`כבר נסרקו כל הפריטים מסוג זה (${item.name})`);
+        setScanError(`כבר נסרק במלואו: ${item.name}`);
       } else {
         const newItems = [...items];
         newItems[itemIndex].scanned += 1;
@@ -506,13 +511,22 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             type="text"
             
             value={scanInput}
-            onChange={(e) => setScanInput(e.target.value)}
+            onChange={(e) => {
+              setScanInput(e.target.value);
+              if (scanError) setScanError(null);
+            }}
             placeholder="סרוק מוצר או הזן ברקוד..."
             className="w-full px-4 py-3 pl-10 bg-background border border-border rounded-lg text-lg focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50"
             disabled={localOrderStatus !== "processing" || missingMode}
           />
           <ScanLine className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
         </form>
+        {scanError && (
+          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-center font-bold text-lg animate-in fade-in slide-in-from-top-2 border border-red-200 shadow-sm flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>{scanError}</span>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {!missingMode ? (
