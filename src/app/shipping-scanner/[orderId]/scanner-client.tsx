@@ -27,7 +27,7 @@ type ItemStatus = {
 
 export default function ScannerClient({ order, manualKeywords, store = "libero" }: ScannerClientProps) {
   const router = useRouter();
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(true);
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const [items, setItems] = useState<ItemStatus[]>([]);
     const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed">("processing");
@@ -212,18 +212,29 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       });
     } else {
       if (html5QrCodeRef.current) {
-        html5QrCodeRef.current.stop().then(() => {
-          html5QrCodeRef.current?.clear();
+        try {
+          html5QrCodeRef.current.stop().then(() => {
+            html5QrCodeRef.current?.clear();
+            html5QrCodeRef.current = null;
+          }).catch(err => console.error("Error stopping camera async", err));
+        } catch (err) {
+          console.error("Error stopping camera sync", err);
+          try { html5QrCodeRef.current?.clear(); } catch(e) {}
           html5QrCodeRef.current = null;
-        }).catch(err => console.error("Error stopping camera", err));
+        }
       }
     }
     
     return () => {
       if (html5QrCodeRef.current) {
-        html5QrCodeRef.current.stop().then(() => {
-          html5QrCodeRef.current?.clear();
-        }).catch(e => console.error(e));
+        try {
+          html5QrCodeRef.current.stop().then(() => {
+            html5QrCodeRef.current?.clear();
+          }).catch(e => console.error("Async stop error unmount", e));
+        } catch (e) {
+          console.error("Sync stop error unmount", e);
+          try { html5QrCodeRef.current?.clear(); } catch(e2) {}
+        }
       }
     }
   }, [isCameraOpen]);
