@@ -260,7 +260,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const markItemAsScanned = (id: number) => {
     const newItems = items.map(item => {
       if (item.id === id) {
-        return { ...item, scanned: item.expected };
+        return { ...item, scanned: Math.min(item.expected, item.scanned + 1) };
       }
       return item;
     });
