@@ -200,8 +200,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: { width: 300, height: 100 },
-          aspectRatio: 2.5
+          qrbox: { width: 250, height: 150 }
         },
         (decodedText) => {
           if (!isProcessingRef.current) {
