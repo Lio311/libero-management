@@ -198,14 +198,34 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
 
 export async function getScannerStats(store: "libero" | "velour" | "labura" = "libero") {
   const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Jerusalem',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+  const parts = formatter.formatToParts(now);
+  const year = parts.find(p => p.type === 'year')?.value;
+  const month = parts.find(p => p.type === 'month')?.value;
+  const day = parts.find(p => p.type === 'day')?.value;
+
+  const tzFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Jerusalem',
+    timeZoneName: 'longOffset',
+  });
+  const tzParts = tzFormatter.formatToParts(now);
+  const offset = tzParts.find(p => p.type === 'timeZoneName')?.value;
+  const offsetStr = offset ? offset.replace('GMT', '') : '+03:00';
+  
+  const todayStart = new Date(`${year}-${month}-${day}T00:00:00${offsetStr}`);
 
   try {
     const processing = await db.select({ id: targetOrders.id }).from(targetOrders).where(eq(targetOrders.status, 'processing'));
     const completed = await db.select({ id: targetOrders.id, updatedAt: targetOrders.updatedAt })
       .from(targetOrders)
-      .where(and(eq(targetOrders.status, 'completed'), gte(targetOrders.updatedAt, today)));
+      .where(and(eq(targetOrders.status, 'completed'), gte(targetOrders.updatedAt, todayStart)));
       
     return {
       completedToday: completed.length,

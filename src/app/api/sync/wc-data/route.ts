@@ -207,19 +207,19 @@ export async function GET(request: Request) {
     }
 
     // 2. Fetch & Sync Orders
-    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed,cancelled,refunded,failed,trash&_fields=id,total,date_created,line_items,shipping_lines,customer_id,status,billing', store);
+    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed,cancelled,refunded,failed,trash&_fields=id,total,date_created_gmt,date_modified_gmt,date_completed_gmt,line_items,shipping_lines,customer_id,status,billing', store);
     
     if (orders.length > 0) {
       const orderValues = orders.map((o: any) => ({
         id: o.id,
         total: o.total ? o.total.toString() : '0',
         customerId: o.customer_id || 0,
-        dateCreated: o.date_created ? new Date(o.date_created) : new Date(),
+        dateCreated: o.date_created_gmt ? new Date(o.date_created_gmt + 'Z') : new Date(),
         status: o.status || 'processing',
         lineItems: o.line_items || [],
         shippingLines: o.shipping_lines || [],
         billing: o.billing || null,
-        updatedAt: new Date(),
+        updatedAt: o.date_completed_gmt ? new Date(o.date_completed_gmt + 'Z') : (o.date_modified_gmt ? new Date(o.date_modified_gmt + 'Z') : new Date()),
       }));
 
       const orderChunks = chunkArray(orderValues, 500);

@@ -42,8 +42,16 @@ export async function GET(req: Request) {
     }
 
     // Find pending jobs
+    // For 'shipping-label' jobs, we return them regardless of the store
+    // since there's typically one shipping printer for all stores.
     const jobs = await db.query.printJobs.findMany({
-      where: (jobs, { eq, and }) => and(eq(jobs.store, store), eq(jobs.status, 'pending')),
+      where: (jobs, { eq, or, and }) => and(
+        eq(jobs.status, 'pending'),
+        or(
+          eq(jobs.store, store),
+          eq(jobs.jobType, 'shipping-label')
+        )
+      ),
       orderBy: (jobs, { asc }) => [asc(jobs.createdAt)],
     });
 

@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ScannerOrder, markOrderCompleted, reportMissingItemsAction, createOrderLabel } from "@/app/actions/scanner-actions";
-import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2, Package, Printer, Camera } from "lucide-react";
-import { Html5Qrcode } from "html5-qrcode";
+import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2, Package, Printer } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -27,10 +26,10 @@ type ItemStatus = {
 
 export default function ScannerClient({ order, manualKeywords, store = "libero" }: ScannerClientProps) {
   const router = useRouter();
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [items, setItems] = useState<ItemStatus[]>([]);
-    const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed">("processing");
+  const [scanInput, setScanInput] = useState("");
+  const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed">("processing");
   const [missingMode, setMissingMode] = useState(false);
   const [selectedForMissing, setSelectedForMissing] = useState<number[]>([]);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
@@ -49,6 +48,9 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const hasMiniPerfumes = order.lineItems?.some(item => (item.name || "").includes("מיני בושם"));
   const showMiniPerfumeBtn = store === "libero" && hasMiniPerfumes;
 
+  // Refs for global keydown scanner
+  const scanBuffer = useRef("");
+  const scanTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Swipe to go back gesture (pulling from right edge)
   useEffect(() => {
@@ -76,6 +78,10 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
     window.addEventListener("touchstart", handleTouchStart);
     window.addEventListener("touchend", handleTouchEnd);
 
+    // Initial focus
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
 
     return () => {
       window.removeEventListener("touchstart", handleTouchStart);
@@ -130,7 +136,30 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
     }
   }, [items, localOrderStatus, order.id]);
 
-
+  // Keep focus on input on desktop only (prevent mobile keyboard popup on tap)
+  useEffect(() => {
+    const focusInput = (e?: MouseEvent) => {
+      // Don't auto-focus if clicking on an input/button/image or if on mobile
+      if (e) {
+        const target = e.target as HTMLElement;
+        if (['INPUT', 'BUTTON', 'IMG', 'A'].includes(target.tagName)) return;
+        // Don't focus if we're clicking inside a modal or clickable element
+        if (target.closest('button, a, input, [role="button"]')) return;
+      }
+      
+      if (!missingMode && inputRef.current && deviceType === "desktop") {
+        inputRef.current.focus();
+      }
+    };
+    
+    // Initial focus can be done on desktop
+    if (deviceType === "desktop") {
+      focusInput();
+    }
+    
+    window.addEventListener("click", focusInput);
+    return () => window.removeEventListener("click", focusInput);
+  }, [missingMode, deviceType]);
 
   const processBarcode = (sku: string) => {
     if (!sku) return;
@@ -172,63 +201,22 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
 
   const isProcessingRef = useRef(false);
 
-  useEffect(() => {
-    if (isCameraOpen) {
-      // Ensure element exists before starting
-      const readerElement = document.getElementById("reader");
-      if (!readerElement) return;
-
-      const html5QrCode = new Html5Qrcode("reader");
-      html5QrCodeRef.current = html5QrCode;
-      
-      html5QrCode.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 150 }
-        },
-        (decodedText) => {
-          if (!isProcessingRef.current) {
-             isProcessingRef.current = true;
-             processBarcode(decodedText.trim());
-             
-             // Optionally vibrate on successful scan
-             if (navigator.vibrate) {
-                navigator.vibrate(100);
-             }
-
-             setTimeout(() => {
-                isProcessingRef.current = false;
-             }, 1200);
-          }
-        },
-        (errorMessage) => {
-          // ignore
-        }
-      ).catch((err) => {
-        console.error("Camera start failed:", err);
-        toast.error("שגיאה בהפעלת המצלמה. ודא שניתנו הרשאות מתאימות.");
-        setIsCameraOpen(false);
-      });
-    } else {
-      if (html5QrCodeRef.current) {
-        html5QrCodeRef.current.stop().then(() => {
-          html5QrCodeRef.current?.clear();
-          html5QrCodeRef.current = null;
-        }).catch(err => console.error("Error stopping camera", err));
-      }
-    }
+  const handleScan = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isProcessingRef.current) return;
     
-    return () => {
-      if (html5QrCodeRef.current) {
-        html5QrCodeRef.current.stop().then(() => {
-          html5QrCodeRef.current?.clear();
-        }).catch(e => console.error(e));
-      }
+    const sku = scanInput.trim();
+    if (sku) {
+      isProcessingRef.current = true;
+      processBarcode(sku);
+      setScanInput("");
+      
+      // Release lock after 300ms
+      setTimeout(() => {
+        isProcessingRef.current = false;
+      }, 300);
     }
-  }, [isCameraOpen]);
-
-
+  };
 
   const markItemAsScanned = (id: number) => {
     const newItems = items.map(item => {
@@ -508,41 +496,22 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       )}
 
       <div className="bg-card p-4 rounded-xl shadow-sm border border-border/50 flex flex-col gap-4">
-        
-        {!isCameraOpen ? (
-          <button
-            onClick={() => {
-              setScanError(null);
-              setIsCameraOpen(true);
+        <form onSubmit={handleScan} className="w-full relative">
+          <input
+            ref={inputRef}
+            type="text"
+            
+            value={scanInput}
+            onChange={(e) => {
+              setScanInput(e.target.value);
+              if (scanError) setScanError(null);
             }}
+            placeholder="סרוק מוצר או הזן ברקוד..."
+            className="w-full px-4 py-3 pl-10 bg-background border border-border rounded-lg text-lg focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50"
             disabled={localOrderStatus !== "processing" || missingMode}
-            className="w-full px-4 py-8 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xl transition-colors disabled:opacity-50 flex flex-col items-center justify-center gap-4 shadow-lg border border-blue-500/50"
-          >
-            <Camera className="w-12 h-12" />
-            <span>פתיחת מצלמה לסריקת מוצר</span>
-          </button>
-        ) : (
-          <div className="w-full flex flex-col items-center gap-4 bg-black/5 p-4 rounded-xl border border-border">
-            <div className="flex justify-between items-center w-full">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <ScanLine className="w-5 h-5" /> מצלמה פעילה
-              </h3>
-              <button 
-                onClick={() => setIsCameraOpen(false)}
-                className="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1 hover:bg-red-200 transition-colors"
-              >
-                <X className="w-4 h-4" /> סגור
-              </button>
-            </div>
-            
-            <div id="reader" className="w-full max-w-sm mx-auto overflow-hidden rounded-lg shadow-inner bg-black min-h-[250px]"></div>
-            
-            <p className="text-sm text-muted-foreground text-center">
-              כוון את המצלמה לברקוד המוצר. הסריקה תתבצע אוטומטית.
-            </p>
-          </div>
-        )}
-
+          />
+          <ScanLine className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        </form>
         {scanError && (
           <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-center font-bold text-lg animate-in fade-in slide-in-from-top-2 border border-red-200 shadow-sm flex items-center justify-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
