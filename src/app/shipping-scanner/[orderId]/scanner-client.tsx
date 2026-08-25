@@ -200,7 +200,8 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: { width: 250, height: 100 }
+          qrbox: { width: 250, height: 100 },
+          aspectRatio: 1.5
         },
         (decodedText) => {
           if (!isProcessingRef.current) {
@@ -579,8 +580,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             </button>
             <div 
               id="reader" 
-              className="w-full mx-auto overflow-hidden rounded-xl shadow-inner bg-black [&>video]:object-cover [&>video]:h-full"
-              style={{ maxHeight: '150px', position: 'relative' }}
+              className="w-full mx-auto overflow-hidden rounded-xl shadow-inner bg-black"
             ></div>
             <p className="text-xs text-muted-foreground text-center">
               סריקה אוטומטית - מקם את הברקוד באמצע
