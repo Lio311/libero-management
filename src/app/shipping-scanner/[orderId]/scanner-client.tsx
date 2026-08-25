@@ -36,6 +36,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [labelCopies, setLabelCopies] = useState(1);
   const [mounted, setMounted] = useState(false);
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop" | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
@@ -359,12 +360,12 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         const printRes = await fetch("/api/remote-print", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-            store: store || "libero", 
-            orderIds: [order.id],
-            jobType: 'shipping-label',
-            metadata: { url: res.labelUrl }
-          })
+            body: JSON.stringify({ 
+              store: store || "libero", 
+              orderIds: [order.id],
+              jobType: 'shipping-label',
+              metadata: { url: res.labelUrl, copies: labelCopies }
+            })
         });
 
         if (printRes.ok) {
@@ -444,38 +445,57 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         </div>
         
         {/* Print Buttons */}
-        <div className="flex items-center gap-2 w-full">
-          {showMiniPerfumeBtn && (
+        <div className="flex flex-col gap-2 w-full">
+          <div className="flex items-center gap-2 w-full">
+            {showMiniPerfumeBtn && (
+              <button 
+                onClick={async () => {
+                  toast.info("שולח בקשה להדפסת בושם...");
+                  try {
+                    const res = await fetch("/api/remote-print", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ store: store || "libero", orderIds: [order.id] })
+                    });
+                    if (res.ok) toast.success("נשלח למדפסת הבושם!");
+                    else toast.error("שגיאה בשליחת פקודת הדפסה");
+                  } catch (e) {
+                    toast.error("שגיאת תקשורת");
+                  }
+                }}
+                className="flex items-center justify-center gap-1.5 px-2 py-3 bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 rounded-xl font-bold transition-colors h-14 border border-purple-200 flex-1 whitespace-nowrap text-xs sm:text-sm"
+              >
+                <Printer className="w-4 h-4 shrink-0" />
+                הדפס מדבקות
+              </button>
+            )}
+
             <button 
-              onClick={async () => {
-                toast.info("שולח בקשה להדפסת בושם...");
-                try {
-                  const res = await fetch("/api/remote-print", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ store: store || "libero", orderIds: [order.id] })
-                  });
-                  if (res.ok) toast.success("נשלח למדפסת הבושם!");
-                  else toast.error("שגיאה בשליחת פקודת הדפסה");
-                } catch (e) {
-                  toast.error("שגיאת תקשורת");
-                }
-              }}
-              className="flex items-center justify-center gap-1.5 px-2 py-3 bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 rounded-xl font-bold transition-colors h-14 border border-purple-200 flex-1 whitespace-nowrap text-xs sm:text-sm"
+              onClick={handleRemotePrintLabel}
+              disabled={isPrinting}
+              className="flex items-center justify-center gap-1.5 px-2 py-3 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-xl font-bold transition-colors disabled:opacity-50 h-14 border border-blue-200 flex-1 whitespace-nowrap text-xs sm:text-sm"
             >
               <Printer className="w-4 h-4 shrink-0" />
-              הדפס מדבקות
+              {isPrinting ? "מפיק..." : `הדפס לייבל${labelCopies > 1 ? ` (×${labelCopies})` : ""}`}
             </button>
-          )}
 
-          <button 
-            onClick={handleRemotePrintLabel}
-            disabled={isPrinting}
-            className="flex items-center justify-center gap-1.5 px-2 py-3 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-xl font-bold transition-colors disabled:opacity-50 h-14 border border-blue-200 flex-1 whitespace-nowrap text-xs sm:text-sm"
-          >
-            <Printer className="w-4 h-4 shrink-0" />
-            {isPrinting ? "מפיק..." : "הדפס לייבל"}
-          </button>
+            {/* Copies selector */}
+            <div className="flex items-center h-14 rounded-xl border border-border bg-card overflow-hidden shrink-0">
+              <button
+                onClick={() => setLabelCopies(Math.max(1, labelCopies - 1))}
+                className="px-3 h-full text-lg font-bold hover:bg-secondary transition-colors text-muted-foreground"
+              >
+                −
+              </button>
+              <span className="px-2 text-base font-bold min-w-[28px] text-center">{labelCopies}</span>
+              <button
+                onClick={() => setLabelCopies(Math.min(10, labelCopies + 1))}
+                className="px-3 h-full text-lg font-bold hover:bg-secondary transition-colors text-muted-foreground"
+              >
+                +
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
