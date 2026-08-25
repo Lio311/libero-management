@@ -144,16 +144,16 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
 
     const normalizedScanned = sku.toLowerCase().replace(/^0+/, '');
     
-    let itemIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && !item.isManual);
+    let itemIndex = items.findIndex(item => String(item.sku).trim().toLowerCase() === sku.toLowerCase() && !item.isManual);
     if (itemIndex === -1) {
       // Fallback: Try matching without leading zeros
-      itemIndex = items.findIndex(item => item.sku.toLowerCase().replace(/^0+/, '') === normalizedScanned && !item.isManual);
+      itemIndex = items.findIndex(item => String(item.sku).trim().toLowerCase().replace(/^0+/, '') === normalizedScanned && !item.isManual);
     }
     
     if (itemIndex === -1) {
-      let manualIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && item.isManual);
+      let manualIndex = items.findIndex(item => String(item.sku).trim().toLowerCase() === sku.toLowerCase() && item.isManual);
       if (manualIndex === -1) {
-        manualIndex = items.findIndex(item => item.sku.toLowerCase().replace(/^0+/, '') === normalizedScanned && item.isManual);
+        manualIndex = items.findIndex(item => String(item.sku).trim().toLowerCase().replace(/^0+/, '') === normalizedScanned && item.isManual);
       }
       if (manualIndex !== -1) {
         toast.info("מוצר ללא ברקוד - יש לאשר ידנית עם כפתור ה-סמן ידנית");
@@ -180,6 +180,11 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
     }
   };
 
+  const processBarcodeRef = useRef(processBarcode);
+  useEffect(() => {
+    processBarcodeRef.current = processBarcode;
+  }, [processBarcode]);
+
   const isProcessingRef = useRef(false);
 
   useEffect(() => {
@@ -195,12 +200,13 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: { width: 250, height: 150 }
+          qrbox: { width: 300, height: 100 },
+          aspectRatio: 2.5
         },
         (decodedText) => {
           if (!isProcessingRef.current) {
              isProcessingRef.current = true;
-             processBarcode(decodedText.trim());
+             processBarcodeRef.current(decodedText.trim());
              
              // Optionally vibrate on successful scan
              if (navigator.vibrate) {
@@ -577,7 +583,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               </button>
             </div>
             
-            <div id="reader" className="w-full max-w-sm mx-auto overflow-hidden rounded-lg shadow-inner bg-black min-h-[150px] [&>video]:object-cover [&>video]:h-[150px]"></div>
+            <div id="reader" className="w-full max-w-sm mx-auto overflow-hidden rounded-lg shadow-inner bg-black"></div>
             
             <p className="text-sm text-muted-foreground text-center">
               כוון את המצלמה לברקוד המוצר. הסריקה תתבצע אוטומטית.
