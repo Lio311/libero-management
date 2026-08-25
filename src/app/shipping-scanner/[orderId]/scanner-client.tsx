@@ -142,10 +142,19 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       return;
     }
 
-    const itemIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && !item.isManual);
+    const normalizedScanned = sku.toLowerCase().replace(/^0+/, '');
+    
+    let itemIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && !item.isManual);
+    if (itemIndex === -1) {
+      // Fallback: Try matching without leading zeros
+      itemIndex = items.findIndex(item => item.sku.toLowerCase().replace(/^0+/, '') === normalizedScanned && !item.isManual);
+    }
     
     if (itemIndex === -1) {
-      const manualIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && item.isManual);
+      let manualIndex = items.findIndex(item => item.sku.toLowerCase() === sku.toLowerCase() && item.isManual);
+      if (manualIndex === -1) {
+        manualIndex = items.findIndex(item => item.sku.toLowerCase().replace(/^0+/, '') === normalizedScanned && item.isManual);
+      }
       if (manualIndex !== -1) {
         toast.info("מוצר ללא ברקוד - יש לאשר ידנית עם כפתור ה-סמן ידנית");
         setScanError("מוצר ללא ברקוד - יש לאשר ידנית");
@@ -530,10 +539,12 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
                   <span className="text-3xl font-black leading-none mb-1">♀</span>
                 </div>
               )}
-              <div className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 shrink-0">
-                <span className="text-4xl font-black">{order.reward.score}</span>
-                <span className="text-xs font-medium opacity-80 uppercase tracking-widest">ציון לקוח</span>
-              </div>
+              {(!store || store === 'libero') && (
+                <div className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 shrink-0">
+                  <span className="text-4xl font-black">{order.reward.score}</span>
+                  <span className="text-xs font-medium opacity-80 uppercase tracking-widest">ציון לקוח</span>
+                </div>
+              )}
             </div>
         </div>
       )}
@@ -566,7 +577,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               </button>
             </div>
             
-            <div id="reader" className="w-full max-w-sm mx-auto overflow-hidden rounded-lg shadow-inner bg-black min-h-[250px]"></div>
+            <div id="reader" className="w-full max-w-sm mx-auto overflow-hidden rounded-lg shadow-inner bg-black min-h-[150px] [&>video]:object-cover [&>video]:h-[150px]"></div>
             
             <p className="text-sm text-muted-foreground text-center">
               כוון את המצלמה לברקוד המוצר. הסריקה תתבצע אוטומטית.
