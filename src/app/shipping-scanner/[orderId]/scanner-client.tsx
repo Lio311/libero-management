@@ -514,7 +514,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         </div>
       </div>
 
-      {order.reward && (
+      {order.reward && (order.reward.gift || !store || store === 'libero') && (
         <div className="p-2 mb-6 flex flex-col sm:flex-row items-center gap-6 justify-between w-full">
             <div className="flex flex-col gap-3 flex-1">
               {order.reward.gift && (
@@ -555,7 +555,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         </div>
       )}
 
-      <div className="bg-card p-4 rounded-xl shadow-sm border border-border/50 flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         
         {!isCameraOpen ? (
           <button
@@ -564,29 +564,23 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               setIsCameraOpen(true);
             }}
             disabled={localOrderStatus !== "processing" || missingMode}
-            className="w-full px-4 py-8 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xl transition-colors disabled:opacity-50 flex flex-col items-center justify-center gap-4 shadow-lg border border-blue-500/50"
+            className="w-full px-4 py-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-3 shadow-md border border-blue-500/50"
           >
-            <Camera className="w-12 h-12" />
-            <span>פתיחת מצלמה לסריקת מוצר</span>
+            <Camera className="w-8 h-8" />
+            <span>פתח מצלמה לסריקה</span>
           </button>
         ) : (
-          <div className="w-full flex flex-col items-center gap-4 bg-black/5 p-4 rounded-xl border border-border">
-            <div className="flex justify-between items-center w-full">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <ScanLine className="w-5 h-5" /> מצלמה פעילה
-              </h3>
-              <button 
-                onClick={() => setIsCameraOpen(false)}
-                className="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-1 hover:bg-red-200 transition-colors"
-              >
-                <X className="w-4 h-4" /> סגור
-              </button>
-            </div>
-            
-            <div id="reader" className="w-full max-w-sm mx-auto overflow-hidden rounded-lg shadow-inner bg-black"></div>
-            
-            <p className="text-sm text-muted-foreground text-center">
-              כוון את המצלמה לברקוד המוצר. הסריקה תתבצע אוטומטית.
+          <div className="w-full flex flex-col gap-2 relative">
+            <button 
+              onClick={() => setIsCameraOpen(false)}
+              className="absolute top-2 left-2 z-10 bg-red-500/80 text-white p-2 rounded-lg backdrop-blur-sm shadow hover:bg-red-600 transition-colors"
+              title="סגור מצלמה"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div id="reader" className="w-full mx-auto overflow-hidden rounded-xl shadow-inner bg-black"></div>
+            <p className="text-xs text-muted-foreground text-center">
+              סריקה אוטומטית - מקם את הברקוד באמצע
             </p>
           </div>
         )}
