@@ -365,10 +365,18 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
     const LIONWHEEL_API_KEY = (process.env.LIONWHEEL_API_KEY || "").replace(/['"]/g, '').trim();
     const LIONWHEEL_ENDPOINT = "https://members.lionwheel.com/api/v1/tasks/create";
 
+    // Map store to Lionwheel company for correct label branding
+    const storeCompanyMap: Record<string, { name: string; external_id: string }> = {
+      libero: { name: "ליברו", external_id: "libero" },
+      velour: { name: "וולור", external_id: "velour" },
+      labura: { name: "לה בורה", external_id: "labura" },
+    };
+
     // Prepare Lionwheel payload
     const payload = {
       pickup_at: formattedDate,
       original_order_id: `${orderId}-${Date.now()}`, // Prevent duplicate order IDs in lionwheel
+      company: storeCompanyMap[store] || storeCompanyMap.libero,
       destination_city: billing.city || "לא ידוע",
       destination_street: billing.address_1 || "לא ידוע",
       destination_number: "0",

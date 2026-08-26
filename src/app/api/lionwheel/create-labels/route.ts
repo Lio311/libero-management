@@ -25,6 +25,7 @@ export async function POST(request: Request) {
       const payload = {
         pickup_at: formattedDate,
         original_order_id: (customer.latestOrderId || `CUST-${customer.id}`) + `-${Date.now()}`,
+        company: { name: "ליברו", external_id: "libero" },
         destination_city: customer.city || "לא ידוע",
         destination_street: customer.address_1 || "לא ידוע",
         destination_number: "0",
