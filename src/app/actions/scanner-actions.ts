@@ -419,3 +419,22 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
     return { success: false, error: error.message };
   }
 }
+
+export async function clearPrintQueueAction() {
+  const { auth } = await import('@clerk/nextjs/server');
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const { printJobs } = await import('@/lib/db/schema');
+  const { eq } = await import('drizzle-orm');
+
+  try {
+    await db.delete(printJobs).where(eq(printJobs.status, 'pending'));
+    return { success: true };
+  } catch (err) {
+    console.error("Failed to clear print queue:", err);
+    return { success: false, error: "Failed to clear print queue" };
+  }
+}

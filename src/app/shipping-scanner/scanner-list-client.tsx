@@ -196,6 +196,34 @@ export default function ScannerListClient({
             </button>
           )}
           
+          {isAdmin && (
+            <button 
+              onClick={async (e) => {
+                const btn = e.currentTarget;
+                const originalText = btn.innerText;
+                btn.innerText = "מנקה...";
+                btn.disabled = true;
+                try {
+                  const { clearPrintQueueAction } = await import('@/app/actions/scanner-actions');
+                  const res = await clearPrintQueueAction();
+                  if (res.success) {
+                    toast.success("תור ההדפסות נוקה בהצלחה");
+                  } else {
+                    toast.error("שגיאה בניקוי התור");
+                  }
+                } catch (err) {
+                  toast.error("שגיאה בניקוי התור");
+                } finally {
+                  btn.innerText = "נקה תור הדפסות";
+                  btn.disabled = false;
+                }
+              }}
+              className="px-4 py-3 sm:py-2.5 bg-red-500/10 text-red-600 hover:bg-red-500/20 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 h-14 sm:h-12 min-w-[140px]"
+            >
+              נקה תור הדפסות
+            </button>
+          )}
+          
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
             <button
               onClick={() => setIsLabelModalOpen(true)}
