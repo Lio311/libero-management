@@ -9,8 +9,14 @@ export async function GET(request: Request) {
     return new NextResponse('Missing parameters', { status: 400 });
   }
 
-  // Get lionwheel API key based on store (assuming libero is the default/only one with Lionwheel)
-  const apiKey = process.env.LIONWHEEL_API_KEY;
+  const defaultKey = (process.env.LIONWHEEL_API_KEY || "").replace(/['"]/g, '').trim();
+  const velourKey = (process.env.LIONWHEEL_API_KEY_velour || "").replace(/['"]/g, '').trim() || defaultKey;
+  const laburaKey = (process.env.LIONWHEEL_API_KEY_labura || "").replace(/['"]/g, '').trim() || defaultKey;
+  
+  let apiKey = defaultKey;
+  if (store === "velour") apiKey = velourKey;
+  if (store === "labura") apiKey = laburaKey;
+
   if (!apiKey) {
     return new NextResponse('Lionwheel API key not configured', { status: 500 });
   }

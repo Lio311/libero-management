@@ -362,7 +362,14 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
     const today = new Date();
     const formattedDate = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
 
-    const LIONWHEEL_API_KEY = (process.env.LIONWHEEL_API_KEY || "").replace(/['"]/g, '').trim();
+    const defaultKey = (process.env.LIONWHEEL_API_KEY || "").replace(/['"]/g, '').trim();
+    const velourKey = (process.env.LIONWHEEL_API_KEY_velour || "").replace(/['"]/g, '').trim() || defaultKey;
+    const laburaKey = (process.env.LIONWHEEL_API_KEY_labura || "").replace(/['"]/g, '').trim() || defaultKey;
+    
+    let LIONWHEEL_API_KEY = defaultKey;
+    if (store === "velour") LIONWHEEL_API_KEY = velourKey;
+    if (store === "labura") LIONWHEEL_API_KEY = laburaKey;
+
     const LIONWHEEL_ENDPOINT = "https://members.lionwheel.com/api/v1/tasks/create";
 
     // Map store to Lionwheel company for correct label branding
