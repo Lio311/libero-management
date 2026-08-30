@@ -592,6 +592,12 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
       'ז': 'z', 'ס': 'x', 'ב': 'c', 'ה': 'v', 'נ': 'b', 'מ': 'n', 'צ': 'm', 'ת': ',', 'ץ': '.', '.': '/'
     };
     const translatedTerm = termClean.split('').map(c => hebToEng[c] || c).join('');
+    const engToHeb: Record<string, string> = {
+      'q': '/', 'w': '\'', 'e': 'ק', 'r': 'ר', 't': 'א', 'y': 'ט', 'u': 'ו', 'i': 'ן', 'o': 'ם', 'p': 'פ',
+      'a': 'ש', 's': 'ד', 'd': 'ג', 'f': 'כ', 'g': 'ע', 'h': 'י', 'j': 'ח', 'k': 'ל', 'l': 'ך', ';': 'ף',
+      'z': 'ז', 'x': 'ס', 'c': 'ב', 'v': 'ה', 'b': 'נ', 'n': 'מ', 'm': 'צ', ',': 'ת', '.': 'ץ', '/': '.'
+    };
+    const translatedToHeb = termClean.split('').map(c => engToHeb[c] || c).join('');
     
     // Extract only digits. If the scanner prepended a letter (e.g. e7441267) or replaced the first digit, 
     // the remaining digits (e.g. 7441267) will still strongly match the DB tracking number.
@@ -655,7 +661,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
          const name = ((bill?.first_name || '') + ' ' + (bill?.last_name || '')).toLowerCase();
          const phone = (bill?.phone || '').toLowerCase();
          const lineItemsStr = JSON.stringify(o.lineItems || {}).toLowerCase();
-         return name.includes(translatedTerm) || phone.includes(translatedTerm) || lineItemsStr.includes(translatedTerm) || name.includes(termClean) || phone.includes(termClean);
+         return name.includes(translatedTerm) || phone.includes(translatedTerm) || lineItemsStr.includes(translatedTerm) || name.includes(termClean) || phone.includes(termClean) || name.includes(translatedToHeb) || lineItemsStr.includes(translatedToHeb);
        });
        
        const existingIds = new Set(dbOrders.map(o => o.id));
@@ -664,12 +670,17 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
        }
     }
 
-    // FALLBACK TO WOOCOMMERCE API IF NOT FOUND (To catch plugin-generated tracking numbers)
-    if (dbOrders.length === 0 && translatedTerm.length > 3) {
+    // FALLBACK TO WOOCOMMERCE API IF NOT FOUND (To catch plugin-generated tracking numbers or missing DB orders)
+    if (dbOrders.length === 0 && termClean.length > 1) {
       const config = BRAND_CONFIG[store];
       if (config && config.ck && config.cs) {
         try {
-          const wcUrl = `${config.baseUrl}/wp-json/wc/v3/orders?search=${encodeURIComponent(translatedTerm)}&consumer_key=${config.ck}&consumer_secret=${config.cs}`;
+          // If the original term has Hebrew letters, we should search WooCommerce with the Hebrew term
+          // because it's likely a name search. If it doesn't, we can use the translatedTerm (for barcodes).
+          const hasHebrew = /[א-ת]/.test(termClean);
+          const wcSearchTerm = termClean;
+          
+          const wcUrl = `${config.baseUrl}/wp-json/wc/v3/orders?search=${encodeURIComponent(wcSearchTerm)}&consumer_key=${config.ck}&consumer_secret=${config.cs}`;
           const res = await fetch(wcUrl);
           if (res.ok) {
              const data = await res.json();
@@ -683,10 +694,12 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
                    lineItems: wcOrder.line_items,
                    shippingLines: wcOrder.shipping_lines,
                    billing: wcOrder.billing,
-                   customerId: wcOrder.customer_id,
+                   customerId: wcOrder.customer_id?.toString(),
                  });
-                 // Add to labels so we display the searched tracking number!
-                 labels.push({ orderId: wcOrder.id.toString(), barcode: translatedTerm } as any);
+                 // we can optionally save the label info if it was a barcode search
+                 if (!hasHebrew && translatedTerm.length > 5) {
+                   labels.push({ orderId: wcOrder.id.toString(), barcode: translatedTerm } as any);
+                 }
                }
              }
           }
