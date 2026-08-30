@@ -548,6 +548,8 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
     // Search generatedShippingLabels first
     const labels = await db.select().from(generatedShippingLabels)
       .where(or(
+        like(generatedShippingLabels.barcode, `%${translatedTerm}%`),
+        like(generatedShippingLabels.orderId, `%${translatedTerm}%`),
         like(generatedShippingLabels.barcode, `%${termClean}%`),
         like(generatedShippingLabels.orderId, `%${termClean}%`)
       ))
@@ -558,8 +560,14 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
       return id ? parseInt(id, 10) : 0;
     }).filter(id => id > 0);
 
-    const isNumeric = /^\d+$/.test(termClean);
-    const searchId = isNumeric ? parseInt(termClean, 10) : 0;
+    const hebToEng: Record<string, string> = {
+      '/': 'q', '\'': 'w', 'ק': 'e', 'ר': 'r', 'א': 't', 'ט': 'y', 'ו': 'u', 'ן': 'i', 'ם': 'o', 'פ': 'p',
+      'ש': 'a', 'ד': 's', 'ג': 'd', 'כ': 'f', 'ע': 'g', 'י': 'h', 'ח': 'j', 'ל': 'k', 'ך': 'l', 'ף': ';',
+      'ז': 'z', 'ס': 'x', 'ב': 'c', 'ה': 'v', 'נ': 'b', 'מ': 'n', 'צ': 'm', 'ת': ',', 'ץ': '.', '.': '/'
+    };
+    const translatedTerm = termClean.split('').map(c => hebToEng[c] || c).join('');
+    const isNumeric = /^\d+$/.test(translatedTerm);
+    const searchId = isNumeric ? parseInt(translatedTerm, 10) : 0;
 
     // We can't search JSON easily in Drizzle without specific dialect, so we fetch recent 2000 and filter in JS if it's not an ID match
     // Or we just fetch if ID matches
@@ -605,7 +613,9 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
          const bill = o.billing as any;
          const name = ((bill?.first_name || '') + ' ' + (bill?.last_name || '')).toLowerCase();
          const phone = (bill?.phone || '').toLowerCase();
-         return name.includes(termClean) || phone.includes(termClean);
+         // Also search line items (products) for SKU/name
+         const lineItemsStr = JSON.stringify(o.lineItems || {}).toLowerCase();
+         return name.includes(translatedTerm) || phone.includes(translatedTerm) || lineItemsStr.includes(translatedTerm) || name.includes(termClean) || phone.includes(termClean);
        });
        
        const existingIds = new Set(dbOrders.map(o => o.id));

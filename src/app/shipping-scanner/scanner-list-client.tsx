@@ -44,7 +44,13 @@ export default function ScannerListClient({
 
   useEffect(() => {
     if (searchTerm.trim().length >= 3) {
-      const term = searchTerm.trim().replace(/[\[\]*]/g, '');
+      const termRaw = searchTerm.trim().replace(/[\[\]*]/g, '');
+      const hebToEng: Record<string, string> = {
+        '/': 'q', '\'': 'w', 'ק': 'e', 'ר': 'r', 'א': 't', 'ט': 'y', 'ו': 'u', 'ן': 'i', 'ם': 'o', 'פ': 'p',
+        'ש': 'a', 'ד': 's', 'ג': 'd', 'כ': 'f', 'ע': 'g', 'י': 'h', 'ח': 'j', 'ל': 'k', 'ך': 'l', 'ף': ';',
+        'ז': 'z', 'ס': 'x', 'ב': 'c', 'ה': 'v', 'נ': 'b', 'מ': 'n', 'צ': 'm', 'ת': ',', 'ץ': '.', '.': '/'
+      };
+      const term = termRaw.split('').map(c => hebToEng[c] || c).join('');
       const timer = setTimeout(() => {
         searchScannerOrders(store as any, term).then(newOrders => {
            if (newOrders.length > 0) {
@@ -159,13 +165,23 @@ export default function ScannerListClient({
 
   const filteredOrders = orders.filter(o => {
     if (!searchTerm.trim()) return true;
-    const term = searchTerm.toLowerCase().replace(/[\[\]*]/g, '');
+    let term = searchTerm.toLowerCase().replace(/[\[\]*]/g, '');
+    const hebToEng: Record<string, string> = {
+      '/': 'q', '\'': 'w', 'ק': 'e', 'ר': 'r', 'א': 't', 'ט': 'y', 'ו': 'u', 'ן': 'i', 'ם': 'o', 'פ': 'p',
+      'ש': 'a', 'ד': 's', 'ג': 'd', 'כ': 'f', 'ע': 'g', 'י': 'h', 'ח': 'j', 'ל': 'k', 'ך': 'l', 'ף': ';',
+      'ז': 'z', 'ס': 'x', 'ב': 'c', 'ה': 'v', 'נ': 'b', 'מ': 'n', 'צ': 'm', 'ת': ',', 'ץ': '.', '.': '/'
+    };
+    const translatedTerm = term.split('').map(c => hebToEng[c] || c).join('');
+    term = translatedTerm; // use translated for matching
+
+    const lineItemsStr = JSON.stringify(o.lineItems || {}).toLowerCase();
     return (
       o.id.toString().includes(term) ||
       (o.customerName || '').toLowerCase().includes(term) ||
       (o.phone || '').includes(term) ||
       (o.shippingNumber || '').toLowerCase().includes(term) ||
-      (o.shippingAddress || '').toLowerCase().includes(term)
+      (o.shippingAddress || '').toLowerCase().includes(term) ||
+      lineItemsStr.includes(term)
     );
   });
 
