@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer, Search, ChevronDown, Loader2 } from "lucide-react";
+import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer, Search, ChevronDown, Loader2, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { useEffect, useState } from "react";
@@ -532,9 +532,21 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
             <Package className="w-5 h-5 text-primary group-hover:text-primary/80" />
             הזמנה #{order.id}
           </h3>
-          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border shrink-0 ${colorClasses[statusColor]}`}>
-            {statusLabel}
-          </span>
+          <div className="flex items-center gap-2">
+            {order.hasMultipleOrdersToday && (
+              <span className="text-red-600 bg-red-100 font-bold px-2 py-0.5 rounded-full text-xs flex items-center gap-1 border border-red-200">
+                ⚠️ פיצול!
+              </span>
+            )}
+            {order.notes && (
+              <span className="text-yellow-600 bg-yellow-100 p-1 rounded-full" title="יש הערת לקוח">
+                <MessageSquare className="w-4 h-4" />
+              </span>
+            )}
+            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border shrink-0 ${colorClasses[statusColor]}`}>
+              {statusLabel}
+            </span>
+          </div>
         </div>
         
         <div className="space-y-2 text-sm text-muted-foreground flex-1">

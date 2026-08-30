@@ -423,7 +423,9 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           <div>
             <h3 className="text-xl font-bold text-red-700">הזמנה מיוחדת - חובה אישור מנהל!</h3>
             <p className="text-red-600/80 font-medium">
-              הזמנה זו דורשת התערבות מנהל (מעל 2,500₪ או שרוב ההזמנה מכילה מותגי בית). נא לא לארוז ללא אישור.
+              {parseFloat(order.total) >= 2500 
+                ? "הזמנה זו דורשת התערבות מנהל (סכום ההזמנה מעל 2,500₪). נא לא לארוז ללא אישור."
+                : "הזמנה זו דורשת התערבות מנהל (רוב ההזמנה מכילה מותגי בית). נא לא לארוז ללא אישור."}
             </p>
           </div>
         </div>
@@ -439,6 +441,25 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             <p className="text-muted-foreground">{order.customerName}</p>
           </div>
         </div>
+
+        {/* Multiple Orders Warning */}
+        {order.hasMultipleOrdersToday && (
+          <div className="bg-red-500/10 border-2 border-red-500 p-4 rounded-xl shadow-md my-2 flex items-start gap-3">
+            <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-xl font-bold text-red-700 mb-1">שימו לב! כפילות הזמנות</h3>
+              <p className="text-red-800 font-medium text-lg">ללקוח זה יש יותר מהזמנה אחת היום! נא לבדוק ולאחד משלוחים אם צריך.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Customer Notes */}
+        {order.notes && (
+          <div className="bg-yellow-500/10 border-2 border-yellow-500 p-4 rounded-xl shadow-md my-2">
+            <h3 className="text-xl font-bold text-yellow-700 mb-1">הערות לקוח:</h3>
+            <p className="text-yellow-800 font-medium text-lg whitespace-pre-wrap">{order.notes}</p>
+          </div>
+        )}
         
         {/* Status */}
         <div className="w-full">
