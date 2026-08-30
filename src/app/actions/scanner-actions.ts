@@ -570,9 +570,6 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
     const isNumeric = /^\d+$/.test(translatedTerm);
     const searchId = isNumeric ? parseInt(translatedTerm, 10) : 0;
 
-    // We can't search JSON easily in Drizzle without specific dialect, so we fetch recent 2000 and filter in JS if it's not an ID match
-    // Or we just fetch if ID matches
-    
     let dbOrders: any[] = [];
     if (searchId > 0 || orderIdsFromLabels.length > 0) {
       const idsToSearch = [];
@@ -592,10 +589,6 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
       .where(inArray(targetOrders.id, idsToSearch));
     }
     
-    // Also we should search by name/phone in the database if possible? 
-    // billing is a JSONB. 
-    // To keep it simple and safe for Drizzle SQLite/PG compatibility, if it's not numeric, we might just return empty for now,
-    // OR we fetch recent 1000 orders and filter in JS.
     if (!isNumeric && termClean.length > 2) {
        const recent = await db.select({
           id: targetOrders.id,
@@ -614,7 +607,6 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
          const bill = o.billing as any;
          const name = ((bill?.first_name || '') + ' ' + (bill?.last_name || '')).toLowerCase();
          const phone = (bill?.phone || '').toLowerCase();
-         // Also search line items (products) for SKU/name
          const lineItemsStr = JSON.stringify(o.lineItems || {}).toLowerCase();
          return name.includes(translatedTerm) || phone.includes(translatedTerm) || lineItemsStr.includes(translatedTerm) || name.includes(termClean) || phone.includes(termClean);
        });
@@ -625,11 +617,52 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
        }
     }
 
+    // FALLBACK TO WOOCOMMERCE API IF NOT FOUND (To catch plugin-generated tracking numbers)
+    if (dbOrders.length === 0 && translatedTerm.length > 3) {
+      const config = BRAND_CONFIG[store];
+      if (config && config.ck && config.cs) {
+        try {
+          const wcUrl = `${config.baseUrl}/wp-json/wc/v3/orders?search=${encodeURIComponent(translatedTerm)}&consumer_key=${config.ck}&consumer_secret=${config.cs}`;
+          const res = await fetch(wcUrl);
+          if (res.ok) {
+             const data = await res.json();
+             if (Array.isArray(data) && data.length > 0) {
+               for (const wcOrder of data) {
+                 dbOrders.push({
+                   id: wcOrder.id,
+                   total: wcOrder.total,
+                   dateCreated: wcOrder.date_created,
+                   status: wcOrder.status,
+                   lineItems: wcOrder.line_items,
+                   shippingLines: wcOrder.shipping_lines,
+                   billing: wcOrder.billing,
+                   customerId: wcOrder.customer_id,
+                 });
+                 // Add to labels so we display the searched tracking number!
+                 labels.push({ orderId: wcOrder.id.toString(), barcode: translatedTerm } as any);
+               }
+             }
+          }
+        } catch (e) {
+          console.error("WooCommerce fallback API search failed:", e);
+        }
+      }
+    }
+
     const finalIdsStr = dbOrders.map(o => o.id.toString());
     const finalLabels = finalIdsStr.length > 0 
       ? await db.select({ orderId: generatedShippingLabels.orderId, barcode: generatedShippingLabels.barcode }).from(generatedShippingLabels).where(inArray(generatedShippingLabels.orderId, finalIdsStr))
       : [];
-    const labelMap = new Map(finalLabels.map(l => [l.orderId, l.barcode]));
+      
+    const labelMap = new Map();
+    // Add the ones found in the fallback search (or initial search)
+    for (const l of labels) {
+      labelMap.set(l.orderId, l.barcode);
+    }
+    // Override with actual DB ones if exist
+    for (const l of finalLabels) {
+      labelMap.set(l.orderId, l.barcode);
+    }
 
     return dbOrders.map(order => {
       const billing = order.billing as any;
