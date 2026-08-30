@@ -56,3 +56,4 @@ mist-monitor/monitor.pid
 
 # clerk configuration (can include secrets)
 /.clerk/
+scratch/
