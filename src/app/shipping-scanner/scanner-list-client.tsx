@@ -172,24 +172,24 @@ export default function ScannerListClient({
             סריקת משלוחים
           </h2>
           <div className="flex bg-secondary/50 p-1.5 rounded-xl w-full sm:w-fit justify-between sm:justify-start border border-border/50 mx-auto sm:mx-0">
-            <button 
-              onClick={() => router.push("?store=libero")}
-              className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
+            <Link 
+              href="?store=libero" prefetch={true} scroll={false}
+              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
             >
               ליברו
-            </button>
-            <button 
-              onClick={() => router.push("?store=velour")}
-              className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
+            </Link>
+            <Link 
+              href="?store=velour" prefetch={true} scroll={false}
+              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
             >
               וולור
-            </button>
-            <button 
-              onClick={() => router.push("?store=labura")}
-              className={`flex-1 sm:flex-none px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
+            </Link>
+            <Link 
+              href="?store=labura" prefetch={true} scroll={false}
+              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
             >
               לה בורה
-            </button>
+            </Link>
           </div>
         </div>
         
