@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ScannerOrder, createOrderLabel, getArchivedCompletedOrders } from "@/app/actions/scanner-actions";
+import { ScannerOrder, createOrderLabel, getArchivedCompletedOrders, fixShippingLabelsDb } from "@/app/actions/scanner-actions";
 
 import { useRouter } from "next/navigation";
 import { CreateLabelModal } from "@/components/modals/create-label-modal";
