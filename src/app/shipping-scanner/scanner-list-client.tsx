@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer } from "lucide-react";
+import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer, Search } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { useEffect, useState } from "react";
@@ -29,6 +29,7 @@ export default function ScannerListClient({
   const [mounted, setMounted] = useState(false);
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop" | null>(null);
   const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     setDeviceType(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "mobile" : "desktop");
@@ -124,8 +125,20 @@ export default function ScannerListClient({
     setMounted(true);
   }, [orders]);
 
-  const processingOrders = orders.filter(o => o.status === 'processing');
-  const completedOrders = orders.filter(o => o.status === 'completed');
+  const filteredOrders = orders.filter(o => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      o.id.toString().includes(term) ||
+      (o.customerName || '').toLowerCase().includes(term) ||
+      (o.phone || '').includes(term) ||
+      (o.shippingNumber || '').toLowerCase().includes(term) ||
+      (o.shippingAddress || '').toLowerCase().includes(term)
+    );
+  });
+
+  const processingOrders = filteredOrders.filter(o => o.status === 'processing');
+  const completedOrders = filteredOrders.filter(o => o.status === 'completed');
   
   const readyOrders = processingOrders.filter(o => readyIds.includes(o.id));
   const partialOrders = processingOrders.filter(o => partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
@@ -268,6 +281,20 @@ export default function ScannerListClient({
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="relative max-w-2xl">
+        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-muted-foreground" />
+        </div>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="חיפוש לפי מספר הזמנה, מספר משלוח, שם, טלפון..."
+          className="block w-full pl-3 pr-10 py-3 md:py-4 border border-border rounded-xl leading-5 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
+          dir="rtl"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4 max-w-2xl">

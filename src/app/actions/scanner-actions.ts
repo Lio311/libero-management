@@ -2,7 +2,7 @@
 import nodemailer from "nodemailer";
 
 import { db } from "@/lib/db";
-import { wcOrders, wcProducts, velourOrders, velourProducts, laburaOrders, laburaProducts, settings, qcProducts } from "@/lib/db/schema";
+import { wcOrders, wcProducts, velourOrders, velourProducts, laburaOrders, laburaProducts, settings, qcProducts, generatedShippingLabels } from "@/lib/db/schema";
 import { eq, desc, inArray, and, gte, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getCustomerHistory } from "@/lib/customer-history";
@@ -25,6 +25,7 @@ export type ScannerOrder = {
   notes?: string;
   reward?: RewardOutput;
   gender?: 'male' | 'female' | 'unknown';
+  shippingNumber?: string;
 };
 
 export async function getScannerSettings(): Promise<string[]> {
@@ -90,6 +91,12 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
 
     const orders = [...processingOrders, ...completedOrders];
 
+    const orderIdsStr = orders.map(o => o.id.toString());
+    const labels = orderIdsStr.length > 0 
+      ? await db.select({ orderId: generatedShippingLabels.orderId, barcode: generatedShippingLabels.barcode }).from(generatedShippingLabels).where(inArray(generatedShippingLabels.orderId, orderIdsStr))
+      : [];
+    const labelMap = new Map(labels.map(l => [l.orderId, l.barcode]));
+
     return orders.map(order => {
       const billing = order.billing as any;
       const customerName = billing ? `${billing.first_name || ''} ${billing.last_name || ''}`.trim() : `לקוח ${order.customerId || 'אורח'}`;
@@ -110,6 +117,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
         phone: (order.billing as any)?.phone || '',
         notes: (order as any).customer_note || '',
         gender: guessGender(billing?.first_name || ''),
+        shippingNumber: labelMap.get(order.id.toString()) || '',
       };
     });
   } catch (error: any) {
