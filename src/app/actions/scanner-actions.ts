@@ -564,7 +564,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
     // We can't search JSON easily in Drizzle without specific dialect, so we fetch recent 2000 and filter in JS if it's not an ID match
     // Or we just fetch if ID matches
     
-    let dbOrders = [];
+    let dbOrders: any[] = [];
     if (searchId > 0 || orderIdsFromLabels.length > 0) {
       const idsToSearch = [];
       if (searchId > 0) idsToSearch.push(searchId);
@@ -625,7 +625,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
       const label = labelMap.get(order.id.toString());
       return {
         ...order,
-        shippingNumber: label ? label.barcode : null,
+        shippingNumber: label ? label : null,
         shippingAddress: billing ? `${billing.city || ''} ${billing.address_1 || ''}`.trim() : null,
         customerName: billing ? `${billing.first_name || ''} ${billing.last_name || ''}`.trim() : null,
         phone: billing ? billing.phone : null,
