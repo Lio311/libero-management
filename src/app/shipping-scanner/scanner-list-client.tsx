@@ -29,6 +29,8 @@ export default function ScannerListClient({
   }, [initialOrders]);
   const [archivedLoaded, setArchivedLoaded] = useState(false);
   const [isLoadingArchived, setIsLoadingArchived] = useState(false);
+
+
   const stats = initialStats;
   const store = initialStore;
   const router = useRouter();
