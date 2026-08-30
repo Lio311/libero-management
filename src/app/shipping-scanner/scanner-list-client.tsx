@@ -45,14 +45,8 @@ export default function ScannerListClient({
   useEffect(() => {
     if (searchTerm.trim().length >= 3) {
       const termRaw = searchTerm.trim().replace(/[\[\]*]/g, '');
-      const hebToEng: Record<string, string> = {
-        '/': 'q', '\'': 'w', 'ק': 'e', 'ר': 'r', 'א': 't', 'ט': 'y', 'ו': 'u', 'ן': 'i', 'ם': 'o', 'פ': 'p',
-        'ש': 'a', 'ד': 's', 'ג': 'd', 'כ': 'f', 'ע': 'g', 'י': 'h', 'ח': 'j', 'ל': 'k', 'ך': 'l', 'ף': ';',
-        'ז': 'z', 'ס': 'x', 'ב': 'c', 'ה': 'v', 'נ': 'b', 'מ': 'n', 'צ': 'm', 'ת': ',', 'ץ': '.', '.': '/'
-      };
-      const term = termRaw.split('').map(c => hebToEng[c] || c).join('');
       const timer = setTimeout(() => {
-        searchScannerOrders(store as any, term).then(newOrders => {
+        searchScannerOrders(store as any, termRaw).then(newOrders => {
            if (newOrders.length > 0) {
              setOrders(prev => {
                const existingIds = new Set(prev.map(o => o.id));
@@ -172,17 +166,27 @@ export default function ScannerListClient({
       'ז': 'z', 'ס': 'x', 'ב': 'c', 'ה': 'v', 'נ': 'b', 'מ': 'n', 'צ': 'm', 'ת': ',', 'ץ': '.', '.': '/'
     };
     const translatedTerm = term.split('').map(c => hebToEng[c] || c).join('');
-    term = translatedTerm; // use translated for matching
+    
+    // Also translate English to Hebrew just in case they typed backwards on English keyboard
+    const engToHeb: Record<string, string> = {
+      'q': '/', 'w': '\'', 'e': 'ק', 'r': 'ר', 't': 'א', 'y': 'ט', 'u': 'ו', 'i': 'ן', 'o': 'ם', 'p': 'פ',
+      'a': 'ש', 's': 'ד', 'd': 'ג', 'f': 'כ', 'g': 'ע', 'h': 'י', 'j': 'ח', 'k': 'ל', 'l': 'ך', ';': 'ף',
+      'z': 'ז', 'x': 'ס', 'c': 'ב', 'v': 'ה', 'b': 'נ', 'n': 'מ', 'm': 'צ', ',': 'ת', '.': 'ץ', '/': '.'
+    };
+    const translatedToHeb = term.split('').map(c => engToHeb[c] || c).join('');
 
     const lineItemsStr = JSON.stringify(o.lineItems || {}).toLowerCase();
-    return (
-      o.id.toString().includes(term) ||
-      (o.customerName || '').toLowerCase().includes(term) ||
-      (o.phone || '').includes(term) ||
-      (o.shippingNumber || '').toLowerCase().includes(term) ||
-      (o.shippingAddress || '').toLowerCase().includes(term) ||
-      lineItemsStr.includes(term)
+    
+    const matches = (t: string) => (
+      o.id.toString().includes(t) ||
+      (o.customerName || '').toLowerCase().includes(t) ||
+      (o.phone || '').includes(t) ||
+      (o.shippingNumber || '').toLowerCase().includes(t) ||
+      (o.shippingAddress || '').toLowerCase().includes(t) ||
+      lineItemsStr.includes(t)
     );
+
+    return matches(term) || matches(translatedTerm) || matches(translatedToHeb);
   });
 
   const processingOrders = filteredOrders.filter(o => o.status === 'processing');
