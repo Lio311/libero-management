@@ -1,5 +1,6 @@
 const { Pool } = require('pg');
-const pool = new Pool({ connectionString: 'postgresql://neondb_owner:npg_1aDl9LIcAfCH@ep-little-dust-a2p1cl0m-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require' });
+require('dotenv').config({ path: '.env' });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 async function main() {
   try {
     await pool.query(`
