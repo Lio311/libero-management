@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer, Search } from "lucide-react";
+import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer, Search, ChevronDown, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ScannerOrder, createOrderLabel } from "@/app/actions/scanner-actions";
+import { ScannerOrder, createOrderLabel, getArchivedCompletedOrders } from "@/app/actions/scanner-actions";
 
 import { useRouter } from "next/navigation";
 import { CreateLabelModal } from "@/components/modals/create-label-modal";
@@ -22,7 +22,13 @@ export default function ScannerListClient({
   initialStore: "libero" | "velour" | "labura";
   isAdmin?: boolean;
 }) {
-  const orders = initialOrders;
+  const [orders, setOrders] = useState<ScannerOrder[]>(initialOrders);
+  useEffect(() => {
+    setOrders(initialOrders);
+    setArchivedLoaded(false);
+  }, [initialOrders]);
+  const [archivedLoaded, setArchivedLoaded] = useState(false);
+  const [isLoadingArchived, setIsLoadingArchived] = useState(false);
   const stats = initialStats;
   const store = initialStore;
   const router = useRouter();
@@ -418,6 +424,40 @@ export default function ScannerListClient({
               <OrderCard store={store} key={order.id} order={order} statusLabel="הושלם" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
             ))}
           </div>
+          
+          {!archivedLoaded ? (
+            <button
+              onClick={async () => {
+                setIsLoadingArchived(true);
+                try {
+                  const archived = await getArchivedCompletedOrders(store as any, 20);
+                  setOrders(prev => [...prev, ...archived]);
+                  setArchivedLoaded(true);
+                } catch(err) {
+                  console.error(err);
+                } finally {
+                  setIsLoadingArchived(false);
+                }
+              }}
+              className="mt-6 w-full py-4 bg-secondary/50 hover:bg-secondary rounded-xl border border-border/50 text-muted-foreground flex items-center justify-center gap-2 transition-all font-medium"
+            >
+              {isLoadingArchived ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  טוען היסטוריית הזמנות...
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-5 h-5" />
+                  הצג את כל היסטוריית ההזמנות
+                </>
+              )}
+            </button>
+          ) : (
+            <div className="mt-6 text-center text-sm text-muted-foreground pb-8">
+              כל היסטוריית ההזמנות נטענה בהצלחה.
+            </div>
+          )}
         </div>
       )}
       <CreateLabelModal isOpen={isLabelModalOpen} onClose={() => setIsLabelModalOpen(false)} />

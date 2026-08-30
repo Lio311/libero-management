@@ -87,7 +87,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
     }).from(targetOrders)
     .where(eq(targetOrders.status, 'completed'))
     .orderBy(desc(targetOrders.updatedAt))
-    .limit(30);
+    .limit(20);
 
     const orders = [...processingOrders, ...completedOrders];
 
@@ -444,5 +444,58 @@ export async function clearPrintQueueAction() {
   } catch (err) {
     console.error("Failed to clear print queue:", err);
     return { success: false, error: "Failed to clear print queue" };
+  }
+}
+
+
+export async function getArchivedCompletedOrders(store: "libero" | "velour" | "labura" = "libero", skip: number = 20): Promise<ScannerOrder[]> {
+  const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
+  try {
+    const completedOrders = await db.select({
+      id: targetOrders.id,
+      total: targetOrders.total,
+      dateCreated: targetOrders.dateCreated,
+      status: targetOrders.status,
+      lineItems: targetOrders.lineItems,
+      shippingLines: targetOrders.shippingLines,
+      billing: targetOrders.billing,
+      customerId: targetOrders.customerId,
+    }).from(targetOrders)
+    .where(eq(targetOrders.status, 'completed'))
+    .orderBy(desc(targetOrders.updatedAt))
+    .offset(skip);
+
+    const orderIdsStr = completedOrders.map(o => o.id.toString());
+    const labels = orderIdsStr.length > 0 
+      ? await db.select({ orderId: generatedShippingLabels.orderId, barcode: generatedShippingLabels.barcode }).from(generatedShippingLabels).where(inArray(generatedShippingLabels.orderId, orderIdsStr))
+      : [];
+    const labelMap = new Map(labels.map(l => [l.orderId, l.barcode]));
+
+    return completedOrders.map(order => {
+      const billing = order.billing as any;
+      const customerName = billing ? `${billing.first_name || ''} ${billing.last_name || ''}`.trim() : `לקוח ${order.customerId || 'אורח'}`;
+      
+      const shippingLines = Array.isArray(order.shippingLines) ? order.shippingLines : [];
+      const isPickup = shippingLines.some((sl: any) => sl.method_id === 'local_pickup' || sl.method_title?.includes('איסוף עצמי'));
+      
+      return {
+        id: order.id,
+        customerName: customerName || `הזמנה #${order.id}`,
+        total: order.total || '0',
+        dateCreated: order.dateCreated ? new Date(order.dateCreated).toISOString() : new Date().toISOString(),
+        status: order.status || 'processing',
+        lineItems: Array.isArray(order.lineItems) ? order.lineItems : [],
+        isPickup,
+        shippingAddress: (order.billing as any)?.address_1 || '',
+        city: (order.billing as any)?.city || '',
+        phone: (order.billing as any)?.phone || '',
+        notes: (order as any).customer_note || '',
+        gender: guessGender(billing?.first_name || ''),
+        shippingNumber: labelMap.get(order.id.toString()) || '',
+      };
+    });
+  } catch (error: any) {
+    console.error('getArchivedCompletedOrders error:', error);
+    throw new Error(`שגיאה בשליפת הזמנות: ${error?.message || 'שגיאה לא ידועה'}`);
   }
 }
