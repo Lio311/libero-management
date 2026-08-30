@@ -54,7 +54,7 @@ export async function POST(request: Request) {
         
         try {
           await db.insert(generatedShippingLabels).values({
-            orderId: payload.original_order_id,
+            orderId: (customer.latestOrderId || customer.id).toString(),
             customerId: customer.id?.toString() || "",
             customerName: customer.fullName || "לא ידוע",
             labelUrl: data.label || data.pdf_link || data.label_url || "",
