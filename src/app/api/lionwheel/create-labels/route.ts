@@ -32,7 +32,7 @@ export async function POST(request: Request) {
         destination_recipient_name: customer.fullName || "לא ידוע",
         destination_phone: customer.phone || "לא ידוע",
         destination_email: customer.email || "",
-        notes: "נוצר אוטומטית ממערכת בקרת לקוחות",
+        notes: customer.notes || "נוצר אוטומטית ממערכת בקרת לקוחות",
       };
 
       const response = await fetch(`${LIONWHEEL_ENDPOINT}?key=${LIONWHEEL_API_KEY}`, {

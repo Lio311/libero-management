@@ -13,14 +13,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, ExternalLink, Download, Trash2, Loader2, Package, Truck, CheckCircle2, Clock } from "lucide-react";
+import { Search, ExternalLink, Download, Trash2, Loader2, Package, Truck, CheckCircle2, Clock, Plus } from "lucide-react";
 import { deleteShippingLabel } from "./actions";
 import { useConfirm } from "@/hooks/useConfirm";
+import { LionwheelManualLabelModal } from "@/components/modals/lionwheel-manual-label-modal";
 
 export default function ShippingLabelsClient({ initialLabels, initialStatuses = {} }: { initialLabels: any[], initialStatuses?: Record<string, string> }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const confirm = useConfirm();
 
   const filteredLabels = initialLabels.filter((label) => 
@@ -81,10 +83,20 @@ export default function ShippingLabelsClient({ initialLabels, initialStatuses = 
 
   return (
     <div className="p-8 w-full max-w-7xl mx-auto">
+      <LionwheelManualLabelModal 
+        isOpen={isManualModalOpen} 
+        onClose={() => setIsManualModalOpen(false)} 
+      />
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">מדבקות למשלוח</h1>
           <p className="text-gray-500 mt-2">צפייה ומעקב אחר המדבקות שהופקו מ-LionWheel</p>
+        </div>
+        <div>
+          <Button onClick={() => setIsManualModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Plus className="w-4 h-4 ml-2" />
+            הפק מדבקה חדשה (ידני)
+          </Button>
         </div>
       </div>
 
