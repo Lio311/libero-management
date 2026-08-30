@@ -35,6 +35,8 @@ const isPublicRoute = createRouteMatcher([
   '/api/remote-print(.*)',
   '/api/daemon-script(.*)',
   '/api/debug-wc',
+  '/api/debug-lw',
+  '/api/debug-lw(.*)',
   '/api/debug-wc(.*)',
   '/shipping-scanner/bulk-mini-perfume(.*)',
   '/marketing/oded(.*)',
