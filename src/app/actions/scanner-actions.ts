@@ -545,6 +545,13 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
     const termClean = term.replace(/[\[\]*]/g, '').trim().toLowerCase();
     if (!termClean) return [];
 
+    const hebToEng: Record<string, string> = {
+      '/': 'q', '\'': 'w', 'ק': 'e', 'ר': 'r', 'א': 't', 'ט': 'y', 'ו': 'u', 'ן': 'i', 'ם': 'o', 'פ': 'p',
+      'ש': 'a', 'ד': 's', 'ג': 'd', 'כ': 'f', 'ע': 'g', 'י': 'h', 'ח': 'j', 'ל': 'k', 'ך': 'l', 'ף': ';',
+      'ז': 'z', 'ס': 'x', 'ב': 'c', 'ה': 'v', 'נ': 'b', 'מ': 'n', 'צ': 'm', 'ת': ',', 'ץ': '.', '.': '/'
+    };
+    const translatedTerm = termClean.split('').map(c => hebToEng[c] || c).join('');
+
     // Search generatedShippingLabels first
     const labels = await db.select().from(generatedShippingLabels)
       .where(or(
@@ -560,12 +567,6 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
       return id ? parseInt(id, 10) : 0;
     }).filter(id => id > 0);
 
-    const hebToEng: Record<string, string> = {
-      '/': 'q', '\'': 'w', 'ק': 'e', 'ר': 'r', 'א': 't', 'ט': 'y', 'ו': 'u', 'ן': 'i', 'ם': 'o', 'פ': 'p',
-      'ש': 'a', 'ד': 's', 'ג': 'd', 'כ': 'f', 'ע': 'g', 'י': 'h', 'ח': 'j', 'ל': 'k', 'ך': 'l', 'ף': ';',
-      'ז': 'z', 'ס': 'x', 'ב': 'c', 'ה': 'v', 'נ': 'b', 'מ': 'n', 'צ': 'm', 'ת': ',', 'ץ': '.', '.': '/'
-    };
-    const translatedTerm = termClean.split('').map(c => hebToEng[c] || c).join('');
     const isNumeric = /^\d+$/.test(translatedTerm);
     const searchId = isNumeric ? parseInt(translatedTerm, 10) : 0;
 
