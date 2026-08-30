@@ -37,7 +37,8 @@ const isPublicRoute = createRouteMatcher([
   '/shipping-scanner/bulk-mini-perfume(.*)',
   '/marketing/oded(.*)',
   '/marketing/influencers(.*)',
-  '/manifest.json'
+  '/manifest.json',
+  '/api/debug-wc(.*)'
 ]);
 
 const isFinanceRoute = createRouteMatcher(['/finance(.*)']);
