@@ -724,7 +724,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
       labelMap.set(l.orderId, l.barcode);
     }
 
-    return dbOrders.map(order => {
+    const mappedOrders = dbOrders.map(order => {
       const billing = order.billing as any;
       const label = labelMap.get(order.id.toString());
       return {
@@ -736,6 +736,8 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
         isPickup: (order.shippingLines as any[])?.some((line: any) => line.method_id === "local_pickup") || false
       };
     });
+    
+    return computeMultipleOrdersToday(mappedOrders);
   } catch(e) {
     console.error("searchScannerOrders error:", e);
     return [];
