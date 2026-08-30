@@ -138,7 +138,7 @@ export default function ScannerListClient({
 
   const filteredOrders = orders.filter(o => {
     if (!searchTerm.trim()) return true;
-    const term = searchTerm.toLowerCase();
+    const term = searchTerm.toLowerCase().replace(/[\[\]*]/g, '');
     return (
       o.id.toString().includes(term) ||
       (o.customerName || '').toLowerCase().includes(term) ||
