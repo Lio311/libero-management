@@ -26,6 +26,9 @@ export default function ScannerListClient({
   useEffect(() => {
     setOrders(initialOrders);
     setArchivedLoaded(false);
+    
+    // Silently fix DB in background
+    fixShippingLabelsDb().catch(console.error);
   }, [initialOrders]);
   const [archivedLoaded, setArchivedLoaded] = useState(false);
   const [isLoadingArchived, setIsLoadingArchived] = useState(false);
