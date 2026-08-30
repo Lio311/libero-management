@@ -34,6 +34,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/influencer-coupon(.*)',
   '/api/remote-print(.*)',
   '/api/daemon-script(.*)',
+  '/api/debug-wc',
   '/api/debug-wc(.*)',
   '/shipping-scanner/bulk-mini-perfume(.*)',
   '/marketing/oded(.*)',
