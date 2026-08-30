@@ -3,7 +3,7 @@ import nodemailer from "nodemailer";
 
 import { db } from "@/lib/db";
 import { wcOrders, wcProducts, velourOrders, velourProducts, laburaOrders, laburaProducts, settings, qcProducts, generatedShippingLabels } from "@/lib/db/schema";
-import { eq, desc, inArray, and, gte, count, or, like } from "drizzle-orm";
+import { eq, desc, inArray, and, gte, count, or, like, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getCustomerHistory } from "@/lib/customer-history";
 import { getOrCalculateOrderReward, RewardOutput } from "@/lib/reward-engine";
@@ -26,6 +26,7 @@ export type ScannerOrder = {
   reward?: RewardOutput;
   gender?: 'male' | 'female' | 'unknown';
   shippingNumber?: string;
+  hasMultipleOrdersToday?: boolean;
 };
 
 export async function getScannerSettings(): Promise<string[]> {
@@ -57,6 +58,31 @@ export async function saveScannerSettings(keywords: string[]) {
     console.error('saveScannerSettings error:', error);
     throw new Error('שגיאה בשמירת הגדרות');
   }
+}
+
+function computeMultipleOrdersToday(orders: any[]): ScannerOrder[] {
+  const counts = new Map<string, number>();
+  for (const order of orders) {
+    const phone = order.phone || (order.billing?.phone);
+    const dateStr = order.dateCreated ? new Date(order.dateCreated).toISOString().split('T')[0] : null;
+    if (phone && dateStr) {
+      const key = `${phone}_${dateStr}`;
+      counts.set(key, (counts.get(key) || 0) + 1);
+    }
+  }
+
+  return orders.map(order => {
+    const phone = order.phone || (order.billing?.phone);
+    const dateStr = order.dateCreated ? new Date(order.dateCreated).toISOString().split('T')[0] : null;
+    let hasMultiple = false;
+    if (phone && dateStr) {
+      const key = `${phone}_${dateStr}`;
+      if ((counts.get(key) || 0) > 1) {
+        hasMultiple = true;
+      }
+    }
+    return { ...order, hasMultipleOrdersToday: hasMultiple };
+  });
 }
 
 export async function getProcessingOrders(store: "libero" | "velour" | "labura" = "libero"): Promise<ScannerOrder[]> {
@@ -97,7 +123,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
       : [];
     const labelMap = new Map(labels.map(l => [l.orderId, l.barcode]));
 
-    return orders.map(order => {
+    const mappedOrders = orders.map(order => {
       const billing = order.billing as any;
       const customerName = billing ? `${billing.first_name || ''} ${billing.last_name || ''}`.trim() : `לקוח ${order.customerId || 'אורח'}`;
       
@@ -120,6 +146,8 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
         shippingNumber: labelMap.get(order.id.toString()) || '',
       };
     });
+    
+    return computeMultipleOrdersToday(mappedOrders);
   } catch (error: any) {
     console.error('getProcessingOrders error:', error);
     throw new Error(`שגיאה בשליפת הזמנות: ${error?.message || 'שגיאה לא ידועה'}`);
@@ -183,6 +211,18 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
     const history = await getCustomerHistory(email, phone, customerId || undefined);
     const reward = await getOrCalculateOrderReward(order, store, history);
     
+    let hasMultipleOrdersToday = false;
+    const dateStr = order.dateCreated ? new Date(order.dateCreated).toISOString().split('T')[0] : null;
+    if (dateStr && history?.pastOrders) {
+      const todayOrders = history.pastOrders.filter(o => {
+        const d = o.dateCreated ? new Date(o.dateCreated).toISOString().split('T')[0] : null;
+        return d === dateStr;
+      });
+      if (todayOrders.length > 1) {
+        hasMultipleOrdersToday = true;
+      }
+    }
+    
     return {
       id: order.id,
       customerName: customerName || `הזמנה #${order.id}`,
@@ -197,6 +237,7 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
       notes: (order as any).customer_note || '',
       reward,
       gender: guessGender(billing?.first_name || ''),
+      hasMultipleOrdersToday,
     };
   } catch (error: any) {
     console.error('getOrderById error:', error);
@@ -551,6 +592,11 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
       'ז': 'z', 'ס': 'x', 'ב': 'c', 'ה': 'v', 'נ': 'b', 'מ': 'n', 'צ': 'm', 'ת': ',', 'ץ': '.', '.': '/'
     };
     const translatedTerm = termClean.split('').map(c => hebToEng[c] || c).join('');
+    
+    // Extract only digits. If the scanner prepended a letter (e.g. e7441267) or replaced the first digit, 
+    // the remaining digits (e.g. 7441267) will still strongly match the DB tracking number.
+    const digitsOnly = translatedTerm.replace(/\D/g, '');
+    const hasEnoughDigits = digitsOnly.length >= 5;
 
     // Search generatedShippingLabels first
     const labels = await db.select().from(generatedShippingLabels)
@@ -558,7 +604,8 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
         like(generatedShippingLabels.barcode, `%${translatedTerm}%`),
         like(generatedShippingLabels.orderId, `%${translatedTerm}%`),
         like(generatedShippingLabels.barcode, `%${termClean}%`),
-        like(generatedShippingLabels.orderId, `%${termClean}%`)
+        like(generatedShippingLabels.orderId, `%${termClean}%`),
+        hasEnoughDigits ? like(generatedShippingLabels.barcode, `%${digitsOnly}%`) : sql`FALSE`
       ))
       .limit(50);
       
