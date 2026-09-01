@@ -66,7 +66,16 @@ const HOT_KEYWORDS = [
   "גוזו",
   "gozo",
   "jeroboam",
-  "ג'רובום"
+  "ג'רובום",
+  // Maison Crivelli - Hibiscus Mahajad
+  "מייסון קריבלי",
+  "maison crivelli",
+  "היביסקוס",
+  "היביסקוס מהג'אד",
+  "hibiscus",
+  "hibiscus mahajád",
+  "hibiscus mahajad",
+  
 ];
 
 const NORMAL_EMAILS = ["lior31197@gmail.com"];
