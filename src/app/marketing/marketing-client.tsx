@@ -388,7 +388,8 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         baseSalary: payment.baseSalary || 0,
         baseLibero: payment.baseLibero || 0,
         baseVelour: payment.baseVelour || 0,
-        baseLabura: payment.baseLabura || 0
+        baseLabura: payment.baseLabura || 0,
+        monthlyBonus: payment.monthlyBonus || 0
       });
       setIsEditing(false);
     }
