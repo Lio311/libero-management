@@ -16,6 +16,8 @@ const HOT_KEYWORDS = [
   "ביי קיליאן",
   "אסנשייל פרפיומס בויס",
   "ספיריט אוף דובאי",
+  "memo cap camarat",
+  "roja",
 ];
 
 const NORMAL_EMAILS = ["lior31197@gmail.com"];
@@ -30,7 +32,7 @@ function isHotProduct(product: any) {
   const brand = (product.brand || "").toLowerCase();
   const name = (product.product_name || "").toLowerCase();
   return HOT_KEYWORDS.some(
-    (kw) => brand.includes(kw) || name.includes(kw)
+    (kw) => brand.includes(kw.toLowerCase()) || name.includes(kw.toLowerCase())
   );
 }
 
