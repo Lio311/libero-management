@@ -294,7 +294,6 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       ];
       const monthParam = payment.paymentMonth;
       if (monthParam && String(monthParam).match(/^\d{4}-\d{2}$/)) {
-        const monthParam = `${year}-${monthIndex.toString().padStart(2, '0')}`;
         setIsLoadingCommission(true);
         const apiUrl = payment.influencerId === 'oded' 
           ? `/api/oded-coupon?month=${monthParam}`
@@ -711,7 +710,7 @@ export default function MarketingClient({
         processedPaymentIds.add(existingPayment.id);
         resultRows.push({
           ...existingPayment,
-          influencerName: existingPayment.influencerName || infInfo.influencerName,
+          influencerName: infInfo.influencerName || existingPayment.influencerName,
           baseSalary: existingPayment.baseSalary || 0,
           hasRealPayment: true
         });

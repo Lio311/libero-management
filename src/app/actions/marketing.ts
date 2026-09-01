@@ -1,4 +1,5 @@
 "use server";
+import { influencersConfig } from '@/config/influencers';
 
 import { db } from "@/lib/db";
 import { influencers, influencerPayments } from "@/lib/db/schema";
@@ -121,7 +122,7 @@ export async function saveInfluencerMonthSettings(influencerId: string, month: s
         paymentMonth: month,
         monthlyBonus: monthlyBonus.toString(),
         couponRates: couponRates,
-        influencerName: influencerId,
+        influencerName: influencersConfig[influencerId]?.name || influencerId,
         amount: "0",
         isDone: "לא",
         baseSalary: "0",
