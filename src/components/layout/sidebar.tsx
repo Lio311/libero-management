@@ -91,20 +91,20 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
         <div className="md:hidden print:hidden flex h-[calc(5rem_+_env(safe-area-inset-top))] pt-[calc(1.5rem_+_env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative z-50 justify-center">
           {isAuthenticated ? (
             <>
-              <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4">
+              <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4 z-10">
                 <Menu className="h-6 w-6" />
               </button>
-              <div className="relative h-20 w-52 mx-auto">
+              <div className="relative h-20 w-52 mx-auto pointer-events-none">
                 <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7]" priority />
               </div>
-              <div className="absolute left-4">{children}</div>
+              <div className="absolute left-4 z-10">{children}</div>
             </>
           ) : (
             <>
-              <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4">
+              <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4 z-10">
                 <Menu className="h-6 w-6" />
               </button>
-              <div className="relative h-20 w-52 mx-auto">
+              <div className="relative h-20 w-52 mx-auto pointer-events-none">
                 <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7]" priority />
               </div>
             </>
@@ -126,7 +126,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
         isOpen ? "translate-x-0" : "translate-x-full"
       )}>
         <div className="flex h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center px-6 border-b border-border/50 relative justify-center">
-          <div className="relative h-20 w-52 mx-auto">
+          <div className="relative h-20 w-52 mx-auto pointer-events-none">
             <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7]" priority />
           </div>
           
