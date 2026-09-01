@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getInfluencerById, Brand, InfluencerCoupon } from '@/config/influencers';
 import { db } from '@/lib/db';
 import { influencers } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
+import { influencerPayments } from '@/lib/db/schema';
 import { BRAND_CONFIG } from '@/lib/wc-config';
 
 
@@ -30,15 +31,35 @@ export async function GET(
     const after = new Date(Date.UTC(year, monthIdx, 1)).toISOString();
     const before = new Date(Date.UTC(year, monthIdx + 1, 0, 23, 59, 59)).toISOString();
 
+    
     let baseSalary = 0;
+    let customCouponRates: Record<string, number> = {};
+    let monthlyBonus = 0;
     try {
         const dbInfluencers = await db.select().from(influencers).where(eq(influencers.influencerId, id));
         if (dbInfluencers.length > 0 && dbInfluencers[0].baseSalary) {
             baseSalary = Number(dbInfluencers[0].baseSalary);
         }
+        
+        const payments = await db.select().from(influencerPayments).where(
+            and(
+                eq(influencerPayments.influencerId, id),
+                eq(influencerPayments.paymentMonth, month)
+            )
+        );
+        
+        if (payments.length > 0) {
+            if (payments[0].couponRates) {
+                customCouponRates = payments[0].couponRates as Record<string, number>;
+            }
+            if (payments[0].monthlyBonus) {
+                monthlyBonus = Number(payments[0].monthlyBonus);
+            }
+        }
     } catch (e) {
-        console.error("Error fetching base salary from db:", e);
+        console.error("Error fetching influencer settings from db:", e);
     }
+
 
     const fetchOrdersForBrand = async (brand: Brand, coupons: string[]) => {
         const config = BRAND_CONFIG[brand];
@@ -248,20 +269,28 @@ export async function GET(
             const brandRevenue = brandOrders.reduce((acc: number, o: any) => acc + o.subtotal, 0);
             
             const brandCommission = brandOrders.reduce((acc: number, o: any) => {
+                
                 let commRate = 0.10;
-                if (id === 'orika') {
-                    commRate = 0;
-                } else if (o.brand === 'labura') {
-                    if (id === 'noa' || id === 'reut') {
-                        commRate = 0.15;
-                    } else {
+                const couponCode = o.coupon_used.toLowerCase();
+                
+                if (customCouponRates && customCouponRates[couponCode] !== undefined) {
+                    commRate = customCouponRates[couponCode] / 100;
+                } else {
+                    if (id === 'orika') {
+                        commRate = 0;
+                    } else if (o.brand === 'labura') {
+                        if (id === 'noa' || id === 'reut') {
+                            commRate = 0.15;
+                        } else {
+                            commRate = 0.10;
+                        }
+                    } else if (id === 'amit' && o.brand === 'velour') {
                         commRate = 0.10;
+                    } else if (couponCode.includes('15') || id === 'reut') {
+                        commRate = 0.15;
                     }
-                } else if (id === 'amit' && o.brand === 'velour') {
-                    commRate = 0.10;
-                } else if (o.coupon_used.toLowerCase().includes('15') || id === 'reut') {
-                    commRate = 0.15;
                 }
+
                 
                 let comm = (o.subtotal / 1.18) * commRate;
                 const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav', 'efrat'];
@@ -283,6 +312,8 @@ export async function GET(
 
         const summary = {
             base_salary: baseSalary,
+            monthly_bonus: monthlyBonus,
+            coupon_rates: customCouponRates,
             total_orders: detailedOrders.length,
             total_revenue: totalRevenue,
             total_discount: detailedOrders.reduce((acc: number, o: any) => acc + o.discount_amount, 0),
@@ -291,20 +322,28 @@ export async function GET(
             commission: Math.round((detailedOrders.reduce((acc: number, o: any) => {
                 if (o.is_duduar_only) return acc; // Handled separately
                 
+                
                 let commRate = 0.10;
-                if (id === 'orika') {
-                    commRate = 0;
-                } else if (o.brand === 'labura') {
-                    if (id === 'noa' || id === 'reut') {
-                        commRate = 0.15;
-                    } else {
+                const couponCode = o.coupon_used.toLowerCase();
+                
+                if (customCouponRates && customCouponRates[couponCode] !== undefined) {
+                    commRate = customCouponRates[couponCode] / 100;
+                } else {
+                    if (id === 'orika') {
+                        commRate = 0;
+                    } else if (o.brand === 'labura') {
+                        if (id === 'noa' || id === 'reut') {
+                            commRate = 0.15;
+                        } else {
+                            commRate = 0.10;
+                        }
+                    } else if (id === 'amit' && o.brand === 'velour') {
                         commRate = 0.10;
+                    } else if (couponCode.includes('15') || id === 'reut') {
+                        commRate = 0.15;
                     }
-                } else if (id === 'amit' && o.brand === 'velour') {
-                    commRate = 0.10;
-                } else if (o.coupon_used.toLowerCase().includes('15') || id === 'reut') {
-                    commRate = 0.15;
                 }
+
                 
                 let comm = (o.subtotal / 1.18) * commRate;
                 const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav', 'efrat'];

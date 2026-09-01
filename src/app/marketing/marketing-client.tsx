@@ -476,7 +476,8 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
   const currentInfluencerId = data.influencerId || payment.influencerId;
   const selectedInfluencer = rawInfluencers?.find((i: any) => i.influencerId === currentInfluencerId);
   const baseSalary = Number(payment.baseSalary || 0);
-  const totalPayment = (commission || 0) + baseSalary;
+  const monthlyBonus = Number(payment.monthlyBonus || 0);
+  const totalPayment = (commission || 0) + baseSalary + monthlyBonus;
 
   return (
     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
@@ -502,6 +503,11 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
         <div className="flex flex-col items-center">
           <span dir="ltr">₪{formatCurrency(baseSalary)}</span>
+          {monthlyBonus > 0 && (
+            <span className="text-[10px] text-pink-500 mt-0.5 whitespace-nowrap">
+              + ₪{formatCurrency(monthlyBonus)} בונוס
+            </span>
+          )}
           {(Number(payment.baseLibero) > 0 || Number(payment.baseVelour) > 0 || Number(payment.baseLabura) > 0) && (
             <div className="text-[10px] text-gray-500 font-normal leading-tight mt-1 flex flex-col gap-0.5">
               {Number(payment.baseLibero) > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(payment.baseLibero)}</div>}

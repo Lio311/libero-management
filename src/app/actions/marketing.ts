@@ -93,3 +93,48 @@ export async function getInfluencerBaseSalary(influencerId: string, month: strin
   }
   return 0;
 }
+
+export async function saveInfluencerMonthSettings(influencerId: string, month: string, monthlyBonus: number, couponRates: Record<string, number>) {
+  try {
+    const { auth } = await import('@clerk/nextjs/server');
+    const { userId } = await auth();
+    if (!userId) {
+      return { success: false, error: 'Unauthorized - admin access required' };
+    }
+
+    const { and } = await import("drizzle-orm");
+    const existing = await db.select().from(influencerPayments).where(
+      and(
+        eq(influencerPayments.influencerId, influencerId),
+        eq(influencerPayments.paymentMonth, month)
+      )
+    );
+
+    if (existing.length > 0) {
+      await db.update(influencerPayments).set({
+        monthlyBonus: monthlyBonus.toString(),
+        couponRates: couponRates
+      }).where(eq(influencerPayments.id, existing[0].id));
+    } else {
+      await db.insert(influencerPayments).values({
+        influencerId,
+        paymentMonth: month,
+        monthlyBonus: monthlyBonus.toString(),
+        couponRates: couponRates,
+        influencerName: influencerId,
+        amount: "0",
+        isDone: "לא",
+        baseSalary: "0",
+        baseLibero: "0",
+        baseVelour: "0",
+        baseLabura: "0"
+      });
+    }
+    revalidatePath('/marketing');
+    revalidatePath(`/marketing/influencers/${influencerId}`);
+    return { success: true };
+  } catch (error: any) {
+    console.error('saveInfluencerMonthSettings error:', error);
+    return { success: false, error: error.message };
+  }
+}

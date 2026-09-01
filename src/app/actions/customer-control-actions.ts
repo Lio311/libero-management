@@ -1,8 +1,9 @@
 'use server'
 
 import { db } from "@/lib/db";
-import { wcOrders, wcProducts } from "@/lib/db/schema";
-import { desc } from "drizzle-orm";
+import { wcOrders, wcProducts, customerFlags, manualCustomers } from "@/lib/db/schema";
+import { desc, eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 const HOME_BRANDS_CATEGORIES = ["מותגי הבית", "פרימיום", "חדירה", "פרימיום זול"];
 
@@ -23,10 +24,13 @@ export type CustomerControlData = {
   city: string;
   address_1: string;
   latestOrderId: string;
+  isVip: boolean;
+  source: "woocommerce" | "manual";
+  notes?: string;
 };
 
 export async function getCustomerControlData(): Promise<CustomerControlData[]> {
-  const [orders, products] = await Promise.all([
+  const [orders, products, vipFlags, manualCusts] = await Promise.all([
     db.select({
       id: wcOrders.id,
       status: wcOrders.status,
@@ -39,8 +43,16 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
     db.select({
       id: wcProducts.id,
       categories: wcProducts.categories,
-    }).from(wcProducts)
+    }).from(wcProducts),
+    db.select().from(customerFlags),
+    db.select().from(manualCustomers),
   ]);
+
+  // Create VIP lookup map
+  const vipMap = new Map<string, boolean>();
+  vipFlags.forEach(f => {
+    vipMap.set(f.customerKey, f.isVip);
+  });
 
   // Create product mapping for quick category lookup
   const productCategoryMap = new Map<number, string[]>();
@@ -95,6 +107,8 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
         city: billing.city || '',
         address_1: billing.address_1 || '',
         latestOrderId: order.id.toString(),
+        isVip: vipMap.get(customerKey) || false,
+        source: "woocommerce",
       });
     }
 
@@ -155,5 +169,96 @@ export async function getCustomerControlData(): Promise<CustomerControlData[]> {
     c.averageCartValue = c.orderCount > 0 ? c.totalAllTime / c.orderCount : 0;
   });
 
+  // Add manual customers
+  manualCusts.forEach(mc => {
+    const manualId = `manual-${mc.id}`;
+    results.push({
+      id: manualId,
+      email: mc.email || '',
+      phone: mc.phone || '',
+      fullName: mc.fullName,
+      totalAllTime: 0,
+      totalLastYear: 0,
+      totalLastMonth: 0,
+      homeBrandsAllTime: 0,
+      homeBrandsLastYear: 0,
+      homeBrandsLastMonth: 0,
+      lastPurchaseDate: null,
+      averageCartValue: 0,
+      orderCount: 0,
+      city: mc.city || '',
+      address_1: mc.address || '',
+      latestOrderId: '',
+      isVip: mc.isVip,
+      source: "manual",
+      notes: mc.notes || undefined,
+    });
+  });
+
   return results;
+}
+
+// Toggle VIP status for a customer
+export async function toggleCustomerVip(customerKey: string, isVip: boolean) {
+  // Check if record exists
+  const existing = await db.select().from(customerFlags).where(eq(customerFlags.customerKey, customerKey));
+  
+  if (existing.length > 0) {
+    await db.update(customerFlags).set({ isVip }).where(eq(customerFlags.customerKey, customerKey));
+  } else {
+    await db.insert(customerFlags).values({ customerKey, isVip });
+  }
+
+  // For manual customers, also update their isVip field directly
+  if (customerKey.startsWith('manual-')) {
+    const manualId = customerKey.replace('manual-', '');
+    await db.update(manualCustomers).set({ isVip }).where(eq(manualCustomers.id, manualId));
+  }
+
+  revalidatePath('/customer-control');
+  return { success: true };
+}
+
+// Add a manual customer (store customer)
+export async function addManualCustomer(data: {
+  fullName: string;
+  email?: string;
+  phone?: string;
+  city?: string;
+  address?: string;
+  notes?: string;
+  isVip?: boolean;
+}) {
+  const result = await db.insert(manualCustomers).values({
+    fullName: data.fullName,
+    email: data.email || null,
+    phone: data.phone || null,
+    city: data.city || null,
+    address: data.address || null,
+    notes: data.notes || null,
+    isVip: data.isVip || false,
+  }).returning();
+
+  // If VIP, also create a customer_flags entry
+  if (data.isVip && result[0]) {
+    const customerKey = `manual-${result[0].id}`;
+    await db.insert(customerFlags).values({ customerKey, isVip: true });
+  }
+
+  revalidatePath('/customer-control');
+  return { success: true, customer: result[0] };
+}
+
+// Delete a manual customer
+export async function deleteManualCustomer(id: string) {
+  const manualId = id.replace('manual-', '');
+  
+  // Delete the customer flag if exists
+  await db.delete(customerFlags).where(eq(customerFlags.customerKey, id));
+  
+  // Delete the manual customer
+  await db.delete(manualCustomers).where(eq(manualCustomers.id, manualId));
+  
+  revalidatePath('/customer-control');
+  return { success: true };
 }

@@ -151,6 +151,8 @@ export const influencerPayments = pgTable("influencer_payments", {
   baseVelour: decimal("base_velour"),
   baseLabura: decimal("base_labura"),
   influencerId: varchar("influencer_id", { length: 255 }),
+  monthlyBonus: decimal("monthly_bonus"),
+  couponRates: jsonb("coupon_rates"),
 });
 
 export const wholesaleCustomers = pgTable("wholesale_customers", {
@@ -442,3 +444,23 @@ export const printJobs = pgTable("print_jobs", {
   metadata: jsonb("metadata"),
 });
 
+// Customer VIP flags - works for both WooCommerce and manual customers
+export const customerFlags = pgTable("customer_flags", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  customerKey: varchar("customer_key", { length: 255 }).unique().notNull(),
+  isVip: boolean("is_vip").default(false).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Manual customers (store / walk-in customers added by managers)
+export const manualCustomers = pgTable("manual_customers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  city: varchar("city", { length: 255 }),
+  address: varchar("address", { length: 500 }),
+  notes: text("notes"),
+  isVip: boolean("is_vip").default(false).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});

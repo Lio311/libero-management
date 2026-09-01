@@ -44,7 +44,7 @@ export default function ScannerListClient({
 
   useEffect(() => {
     if (searchTerm.trim().length >= 3) {
-      const termRaw = searchTerm.trim().replace(/[\[\]*]/g, '');
+      const termRaw = searchTerm.trim().replace(/[\[\]*\u200B-\u200D\uFEFF\u200E\u200F]/g, '').replace(/\s+/g, ' ');
       const timer = setTimeout(() => {
         searchScannerOrders(store as any, termRaw).then(newOrders => {
            if (newOrders.length > 0) {
@@ -159,7 +159,7 @@ export default function ScannerListClient({
 
   const filteredOrders = orders.filter(o => {
     if (!searchTerm.trim()) return true;
-    let term = searchTerm.toLowerCase().replace(/[\[\]*]/g, '');
+    let term = searchTerm.trim().toLowerCase().replace(/[\[\]*\u200B-\u200D\uFEFF\u200E\u200F]/g, '').replace(/\s+/g, ' ');
     const hebToEng: Record<string, string> = {
       '/': 'q', '\'': 'w', 'ק': 'e', 'ר': 'r', 'א': 't', 'ט': 'y', 'ו': 'u', 'ן': 'i', 'ם': 'o', 'פ': 'p',
       'ש': 'a', 'ד': 's', 'ג': 'd', 'כ': 'f', 'ע': 'g', 'י': 'h', 'ח': 'j', 'ל': 'k', 'ך': 'l', 'ף': ';',
@@ -177,12 +177,14 @@ export default function ScannerListClient({
 
     const lineItemsStr = JSON.stringify(o.lineItems || {}).toLowerCase();
     
+    const cleanString = (s: string) => s.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
+
     const matches = (t: string) => (
       o.id.toString().includes(t) ||
-      (o.customerName || '').toLowerCase().includes(t) ||
-      (o.phone || '').includes(t) ||
-      (o.shippingNumber || '').toLowerCase().includes(t) ||
-      (o.shippingAddress || '').toLowerCase().includes(t) ||
+      cleanString((o.customerName || '').toLowerCase()).includes(t) ||
+      cleanString(o.phone || '').includes(t) ||
+      cleanString((o.shippingNumber || '').toLowerCase()).includes(t) ||
+      cleanString((o.shippingAddress || '').toLowerCase()).includes(t) ||
       lineItemsStr.includes(t)
     );
 

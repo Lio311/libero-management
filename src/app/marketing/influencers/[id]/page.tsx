@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef, use } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 import { MonthNavigator } from '@/components/MonthNavigator';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
+import { saveInfluencerMonthSettings } from '@/app/actions/marketing';
 import { Loader2, AlertCircle, RefreshCw, ShoppingBag, Tag, ChevronDown, ChevronUp, Package, Activity, ChevronRight, User } from 'lucide-react';
 import Image from 'next/image';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
@@ -48,6 +50,8 @@ interface Summary {
     duduar_bottles?: number;
     duduar_revenue?: number;
     duduar_commission?: number;
+    monthly_bonus?: number;
+    coupon_rates?: Record<string, number>;
     brand_summaries?: Record<string, {
         total_orders: number;
         total_revenue: number;
@@ -87,6 +91,9 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
         redirect('/marketing/oded');
     }
 
+    const { isSignedIn } = useAuth();
+    const isAdmin = !!isSignedIn;
+
     const influencerConfig = influencersConfig[influencerId];
     const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav', 'efrat'];
     const hasVat = !noVatAddBack.includes(influencerId);
@@ -121,7 +128,10 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
     const [influencerImage, setInfluencerImage] = useState<string | null>(influencerConfig?.image || null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [expandedOrder, setExpandedOrder] = useState<string | null>(null); // changed to string to accommodate brand prefix
+    const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+    const [monthlyBonus, setMonthlyBonus] = useState<number>(0);
+    const [couponRates, setCouponRates] = useState<Record<string, number>>({});
+    const [isSavingSettings, setIsSavingSettings] = useState(false); // changed to string to accommodate brand prefix
 
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [token, setToken] = useState('');
@@ -178,6 +188,20 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
         handleLogin();
     };
 
+    
+    const handleSaveSettings = async () => {
+        setIsSavingSettings(true);
+        try {
+            await saveInfluencerMonthSettings(influencerId, month, monthlyBonus, couponRates);
+            window.location.reload();
+        } catch (e) {
+            console.error(e);
+            alert('שגיאה בשמירת הגדרות');
+        } finally {
+            setIsSavingSettings(false);
+        }
+    };
+
     const disabled = isAuthLoading || token.length < 1;
 
     const handleDragEnd = () => {
@@ -204,6 +228,10 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                     if (result.error) throw new Error(result.error);
                     setOrders(result.data || []);
                     setSummary(result.summary || null);
+                    if (result.summary) {
+                        setMonthlyBonus(result.summary.monthly_bonus || 0);
+                        setCouponRates(result.summary.coupon_rates || {});
+                    }
                     setInfluencerName(result.influencerName || 'משפיענית');
                     setInfluencerImage(result.influencerImage || null);
                 } catch (jsonErr) {
@@ -406,39 +434,35 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                     <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">ממוצע להזמנה (כולל מע"מ)</p>
                                     <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.avg_order_value)}</p>
                                 </div>
-                                {summary.base_salary ? (
-                                    <>
-                                        <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                            <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ עמלה {hasVat ? '(כולל מע"מ)' : ''}</p>
-                                            <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.commission)}</p>
-                                            {commissionRateStr && (
-                                                <p className="text-sm font-medium text-[#6d6d6d] mt-1">לפי {commissionRateStr} מהמכירות</p>
-                                            )}
-                                        </div>
+                                
+                                <>
+                                    <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                        <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ עמלה {hasVat ? '(כולל מע"מ)' : ''}</p>
+                                        <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.commission)}</p>
+                                        {commissionRateStr && (!summary.coupon_rates || Object.keys(summary.coupon_rates).length === 0) && (
+                                            <p className="text-sm font-medium text-[#6d6d6d] mt-1">לפי {commissionRateStr} מהמכירות</p>
+                                        )}
+                                    </div>
+                                    {!!summary.base_salary && (
                                         <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
                                             <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">שכר בסיס</p>
                                             <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.base_salary)}</p>
                                         </div>
-                                        <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-blue-500/20">
-                                            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ לתשלום</p>
-                                            <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission + summary.base_salary)}</p>
-                                            {hasVat && (
-                                                <p className="text-sm font-medium text-white/70 mt-1" dir="ltr">{formatILS((summary.commission + summary.base_salary) / 1.18)} לא כולל מע"מ</p>
-                                            )}
+                                    )}
+                                    {!!summary.monthly_bonus && (
+                                        <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                            <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">תוספת חודשית</p>
+                                            <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.monthly_bonus)}</p>
                                         </div>
-                                    </>
-                                ) : (
+                                    )}
                                     <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-blue-500/20">
-                                        <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ עמלה {hasVat ? '(כולל מע"מ)' : ''}</p>
-                                        <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission)}</p>
+                                        <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ לתשלום</p>
+                                        <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission + (summary.base_salary || 0) + (summary.monthly_bonus || 0))}</p>
                                         {hasVat && (
-                                            <p className="text-sm font-medium text-white/70 mt-1" dir="ltr">{formatILS(summary.commission / 1.18)} לא כולל מע"מ</p>
-                                        )}
-                                        {commissionRateStr && (
-                                            <p className="text-sm font-medium text-white/70 mt-1">לפי {commissionRateStr} מהמכירות</p>
+                                            <p className="text-sm font-medium text-white/70 mt-1" dir="ltr">{formatILS((summary.commission + (summary.base_salary || 0) + (summary.monthly_bonus || 0)) / 1.18)} לא כולל מע"מ</p>
                                         )}
                                     </div>
-                                )}
+                                </>
                                 
                                 {summary.duduar_bottles !== undefined && (
                                     <>
@@ -500,6 +524,46 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                             )}
                         </div>
                     )}
+
+                    
+                            {/* Monthly Settings - Admin Only */}
+                            {isAdmin && (
+                            <div className="bg-white p-6 rounded-3xl border border-black/[0.07] shadow-sm mt-8">
+                                <h3 className="text-xl font-bold text-slate-800 mb-4">הגדרות תשלום לחודש זה</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-2">תוספת חודשית חד פעמית (₪)</label>
+                                        <input type="number" value={monthlyBonus} onChange={e => setMonthlyBonus(Number(e.target.value))} className="w-full border border-slate-200 rounded-xl p-3 bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-slate-700 mb-2">אחוזי עמלה לקופונים (%)</label>
+                                        <div className="space-y-3">
+                                            {influencerConfig?.coupons?.map(coupon => (
+                                                <div key={coupon.code} className="flex items-center gap-3">
+                                                    <span className="w-24 font-medium text-slate-700 text-sm">{coupon.code}</span>
+                                                    <input type="number" 
+                                                        value={couponRates[coupon.code] !== undefined ? couponRates[coupon.code] : ''} 
+                                                        placeholder={commissionRates.length > 0 ? String(commissionRates[0]) : '10'}
+                                                        onChange={e => setCouponRates({...couponRates, [coupon.code]: Number(e.target.value)})} 
+                                                        className="flex-1 border border-slate-200 rounded-xl p-2 bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none transition-all" 
+                                                    />
+                                                </div>
+                                            ))}
+                                            {(!influencerConfig?.coupons || influencerConfig.coupons.length === 0) && (
+                                                <p className="text-sm text-slate-500">לא נמצאו קופונים מוגדרים</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-6 flex justify-end">
+                                    <button disabled={isSavingSettings} onClick={handleSaveSettings} className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg shadow-blue-500/30 transition-all flex items-center gap-2">
+                                        {isSavingSettings ? <Loader2 className="animate-spin" size={18} /> : null}
+                                        שמור הגדרות
+                                    </button>
+                                </div>
+                            </div>
+                            )}
+
 
                     {/* Orders List */}
                     {orders.length === 0 ? (
