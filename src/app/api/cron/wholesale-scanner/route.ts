@@ -10,6 +10,15 @@ export const dynamic = "force-dynamic";
 
 import { isHotProduct } from '@/config/wholesale';
 
+
+const NORMAL_EMAILS = ["lior31197@gmail.com"];
+const HOT_EMAILS = [
+  "lior31197@gmail.com",
+  "suppliers@libero-il.co.il",
+  "daniel@libero-il.co.il",
+  "liberoperfume@gmail.com",
+];
+
 function checkHot(product: any) {
   return isHotProduct(product.brand, product.product_name);
 }
