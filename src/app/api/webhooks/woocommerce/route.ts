@@ -96,6 +96,7 @@ export async function POST(request: Request) {
         lineItems: payload.line_items || [],
         shippingLines: payload.shipping_lines || [],
         billing: payload.billing || null,
+        customerNote: payload.customer_note || null,
         updatedAt: payload.date_modified_gmt
           ? new Date(payload.date_modified_gmt + 'Z')
           : new Date(),
@@ -111,6 +112,7 @@ export async function POST(request: Request) {
           lineItems: sql`EXCLUDED.line_items`,
           shippingLines: sql`EXCLUDED.shipping_lines`,
           billing: sql`EXCLUDED.billing`,
+          customerNote: sql`EXCLUDED.customer_note`,
           updatedAt: sql`EXCLUDED.updated_at`,
         },
       });

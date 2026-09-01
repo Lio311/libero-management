@@ -285,6 +285,7 @@ export const wcOrders = pgTable("wc_orders", {
   lineItems: jsonb("line_items"),
   shippingLines: jsonb("shipping_lines"),
   billing: jsonb("billing"),
+  customerNote: text("customer_note"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -309,6 +310,7 @@ export const velourOrders = pgTable("velour_orders", {
   lineItems: jsonb("line_items"),
   shippingLines: jsonb("shipping_lines"),
   billing: jsonb("billing"),
+  customerNote: text("customer_note"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -334,6 +336,7 @@ export const laburaOrders = pgTable("labura_orders", {
   lineItems: jsonb("line_items"),
   shippingLines: jsonb("shipping_lines"),
   billing: jsonb("billing"),
+  customerNote: text("customer_note"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

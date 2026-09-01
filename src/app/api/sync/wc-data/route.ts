@@ -207,7 +207,7 @@ export async function GET(request: Request) {
     }
 
     // 2. Fetch & Sync Orders
-    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed,cancelled,refunded,failed,trash&_fields=id,total,date_created_gmt,date_modified_gmt,date_completed_gmt,line_items,shipping_lines,customer_id,status,billing', store);
+    const orders = await fetchFromWooCommerce('orders', queryParams + '&status=processing,completed,cancelled,refunded,failed,trash&_fields=id,total,date_created_gmt,date_modified_gmt,date_completed_gmt,line_items,shipping_lines,customer_id,status,billing,customer_note', store);
     
     if (orders.length > 0) {
       const orderValues = orders.map((o: any) => ({
@@ -219,6 +219,7 @@ export async function GET(request: Request) {
         lineItems: o.line_items || [],
         shippingLines: o.shipping_lines || [],
         billing: o.billing || null,
+        customerNote: o.customer_note || null,
         updatedAt: o.date_completed_gmt ? new Date(o.date_completed_gmt + 'Z') : (o.date_modified_gmt ? new Date(o.date_modified_gmt + 'Z') : new Date()),
       }));
 
@@ -235,6 +236,7 @@ export async function GET(request: Request) {
               lineItems: sql`EXCLUDED.line_items`,
               shippingLines: sql`EXCLUDED.shipping_lines`,
               billing: sql`EXCLUDED.billing`,
+              customerNote: sql`EXCLUDED.customer_note`,
               updatedAt: sql`EXCLUDED.updated_at`,
             }
           });

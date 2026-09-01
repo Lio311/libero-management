@@ -96,6 +96,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
       lineItems: targetOrders.lineItems,
       shippingLines: targetOrders.shippingLines,
       billing: targetOrders.billing,
+      customerNote: targetOrders.customerNote,
       customerId: targetOrders.customerId,
     }).from(targetOrders)
     .where(eq(targetOrders.status, 'processing'))
@@ -109,6 +110,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
       lineItems: targetOrders.lineItems,
       shippingLines: targetOrders.shippingLines,
       billing: targetOrders.billing,
+      customerNote: targetOrders.customerNote,
       customerId: targetOrders.customerId,
     }).from(targetOrders)
     .where(eq(targetOrders.status, 'completed'))
@@ -141,7 +143,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
         shippingAddress: (order.billing as any)?.address_1 || '',
         city: (order.billing as any)?.city || '',
         phone: (order.billing as any)?.phone || '',
-        notes: (order as any).customer_note || '',
+        notes: (order.customerNote as string) || (order as any).customer_note || '',
         gender: guessGender(billing?.first_name || ''),
         shippingNumber: labelMap.get(order.id.toString()) || '',
       };
@@ -165,6 +167,7 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
       lineItems: targetOrders.lineItems,
       shippingLines: targetOrders.shippingLines,
       billing: targetOrders.billing,
+      customerNote: targetOrders.customerNote,
       customerId: targetOrders.customerId,
     }).from(targetOrders)
     .where(eq(targetOrders.id, orderId))
@@ -234,7 +237,7 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
       shippingAddress: (order.billing as any)?.address_1 || '',
       city: (order.billing as any)?.city || '',
       phone: (order.billing as any)?.phone || '',
-      notes: (order as any).customer_note || '',
+      notes: (order.customerNote as string) || (order as any).customer_note || '',
       reward,
       gender: guessGender(billing?.first_name || ''),
       hasMultipleOrdersToday,
@@ -515,6 +518,7 @@ export async function getArchivedCompletedOrders(store: "libero" | "velour" | "l
       lineItems: targetOrders.lineItems,
       shippingLines: targetOrders.shippingLines,
       billing: targetOrders.billing,
+      customerNote: targetOrders.customerNote,
       customerId: targetOrders.customerId,
     }).from(targetOrders)
     .where(eq(targetOrders.status, 'completed'))
@@ -545,7 +549,7 @@ export async function getArchivedCompletedOrders(store: "libero" | "velour" | "l
         shippingAddress: (order.billing as any)?.address_1 || '',
         city: (order.billing as any)?.city || '',
         phone: (order.billing as any)?.phone || '',
-        notes: (order as any).customer_note || '',
+        notes: (order.customerNote as string) || (order as any).customer_note || '',
         gender: guessGender(billing?.first_name || ''),
         shippingNumber: labelMap.get(order.id.toString()) || '',
       };
@@ -637,6 +641,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
         lineItems: targetOrders.lineItems,
         shippingLines: targetOrders.shippingLines,
         billing: targetOrders.billing,
+      customerNote: targetOrders.customerNote,
         customerId: targetOrders.customerId,
       }).from(targetOrders)
       .where(inArray(targetOrders.id, idsToSearch));
@@ -651,6 +656,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
           lineItems: targetOrders.lineItems,
           shippingLines: targetOrders.shippingLines,
           billing: targetOrders.billing,
+      customerNote: targetOrders.customerNote,
           customerId: targetOrders.customerId,
         }).from(targetOrders)
         .orderBy(desc(targetOrders.dateCreated))
