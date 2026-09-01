@@ -6,6 +6,8 @@ import { Package, Search } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
+import { isHotProduct } from "@/config/wholesale";
+
 function ClientDate({ date }: { date: Date | string }) {
   const [mounted, setMounted] = useState(false);
   
@@ -98,13 +100,16 @@ export default function LindoClient({ products }: { products: ScannedProduct[] }
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
-                {filteredProducts.map((product) => (
+                {filteredProducts.map((product) => {
+                  const isHot = isHotProduct(product.brand, product.productName);
+                  return (
                   <tr
                     key={product.id}
-                    className="bg-white hover:bg-gray-50/80 border-r-4 border-r-gray-200 transition-colors"
+                    className={`${isHot ? 'bg-red-50 hover:bg-red-100 border-r-red-400' : 'bg-white hover:bg-gray-50/80 border-r-gray-200'} border-r-4 transition-colors`}
                   >
                     <td className="py-3 px-4 text-right">
-                      <span className="text-sm font-medium text-gray-900 block">
+                      <span className={`text-sm font-medium ${isHot ? 'text-red-900' : 'text-gray-900'} block`}>
+                        {isHot && <span className="ml-1">🔥</span>}
                         {product.productName}
                       </span>
                     </td>
@@ -121,7 +126,8 @@ export default function LindoClient({ products }: { products: ScannedProduct[] }
                       <ClientDate date={product.scannedAt} />
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
                 
                 {filteredProducts.length === 0 && (
                   <tr>

@@ -8,90 +8,10 @@ import { put } from "@vercel/blob";
 export const maxDuration = 300; // 5 minutes max duration for cron
 export const dynamic = "force-dynamic";
 
-const HOT_KEYWORDS = [
-  // Blonde Amber
-  "בלונד אמבר",
-  "blonde amber",
-  
-  // Ex Nihilo
-  "אקס נילו",
-  "ex nihilo",
-  
-  // Ormonde Jayne
-  "הורמון גאבה",
-  "אורמונד ג'יין",
-  "ormonde jayne",
-  
-  // Amouage & Outlands
-  "אמואג׳",
-  "amouage",
-  "outlands",
-  
-  // By Kilian
-  "ביי קיליאן",
-  "קיליאן",
-  "by kilian",
-  "kilian",
-  
-  // Essential Parfums (Bois Imperial)
-  "אסנשייל פרפיומס",
-  "אסנשייל פרפיומס בויס",
-  "בויס אימפריאל",
-  "essential parfums",
-  "bois imperial",
-  
-  // Spirit of Dubai
-  "ספיריט אוף דובאי",
-  "spirit of dubai",
-  
-  // Memo Cap Camarat
-  "ממו קאפ קמראט",
-  "memo cap camarat",
-  
-  // Roja
-  "רוז'ה",
-  "רוז׳ה",
-  "roja",
-  
-  // Parfums de Marly - Valaya
-  "פרפום דה מארלי",
-  "פרפיום דה מארלי",
-  "parfums de marly",
-  "valya",
-  "valaya",
-  "ואליה",
-  "וואליה",
-  
-  // Jeroboam - Gozo
-  "גוזו",
-  "gozo",
-  "jeroboam",
-  "ג'רובום",
-  // Maison Crivelli - Hibiscus Mahajad
-  "מייסון קריבלי",
-  "maison crivelli",
-  "היביסקוס",
-  "היביסקוס מהג'אד",
-  "hibiscus",
-  "hibiscus mahajád",
-  "hibiscus mahajad",
-  
-];
+import { isHotProduct } from '@/config/wholesale';
 
-const NORMAL_EMAILS = ["lior31197@gmail.com"];
-const HOT_EMAILS = [
-  "lior31197@gmail.com",
-  "suppliers@libero-il.co.il",
-  "daniel@libero-il.co.il",
-  "liberoperfume@gmail.com",
-];
-
-function isHotProduct(product: any) {
-  const brand = (product.brand || "").toLowerCase();
-  const name = (product.product_name || "").toLowerCase();
-  return HOT_KEYWORDS.some(
-    (kw) => brand.includes(kw.toLowerCase()) || name.includes(kw.toLowerCase())
-  );
+function checkHot(product: any) {
+  return isHotProduct(product.brand, product.product_name);
 }
 
 export async function GET(request: Request) {
@@ -214,11 +134,11 @@ export async function GET(request: Request) {
         auth: { user: gmailAddress, pass: gmailPassword },
       });
 
-      const hotNew = trulyNewProducts.filter(isHotProduct);
-      const hotUpdated = updatedProducts.filter(isHotProduct);
+      const hotNew = trulyNewProducts.filter(checkHot);
+      const hotUpdated = updatedProducts.filter(checkHot);
 
-      const regularNew = trulyNewProducts.filter((p: any) => !isHotProduct(p));
-      const regularUpdated = updatedProducts.filter((p: any) => !isHotProduct(p));
+      const regularNew = trulyNewProducts.filter((p: any) => !checkHot(p));
+      const regularUpdated = updatedProducts.filter((p: any) => !checkHot(p));
 
       const generateHtml = (newItems: any[], updatedItems: any[], title: string) => {
         let html = `<div dir="rtl" style="font-family: Arial, sans-serif;"><h2>${title}</h2>`;
