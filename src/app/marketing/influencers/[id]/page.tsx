@@ -540,7 +540,9 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                         <div className="space-y-3">
                                             {influencerConfig?.coupons?.map(coupon => (
                                                 <div key={coupon.code} className="flex items-center gap-3">
-                                                    <span className="w-24 font-medium text-slate-700 text-sm">{coupon.code}</span>
+                                                    <span className="w-32 font-medium text-slate-700 text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                                                        {coupon.code} ({coupon.brand === 'labura' ? 'לה בורה' : coupon.brand === 'libero' ? 'ליברו' : coupon.brand === 'velour' ? 'וולור' : coupon.brand})
+                                                    </span>
                                                     <input type="number" 
                                                         value={couponRates[coupon.code] !== undefined ? couponRates[coupon.code] : ''} 
                                                         placeholder={commissionRates.length > 0 ? String(commissionRates[0]) : '10'}

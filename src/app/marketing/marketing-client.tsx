@@ -341,7 +341,8 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
     baseSalary: payment.baseSalary || 0,
     baseLibero: payment.baseLibero || 0,
     baseVelour: payment.baseVelour || 0,
-    baseLabura: payment.baseLabura || 0
+    baseLabura: payment.baseLabura || 0,
+    monthlyBonus: payment.monthlyBonus || 0
   });
 
   const handleSave = async () => {
@@ -354,6 +355,7 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         baseLibero: data.baseLibero.toString(),
         baseVelour: data.baseVelour.toString(),
         baseLabura: data.baseLabura.toString(),
+        monthlyBonus: data.monthlyBonus.toString(),
         paymentMonth: payment.paymentMonth || data.paymentMonth
       });
       if (payment.onCancelNew) payment.onCancelNew();
@@ -365,7 +367,8 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         baseSalary: totalBase.toString(),
         baseLibero: data.baseLibero.toString(),
         baseVelour: data.baseVelour.toString(),
-        baseLabura: data.baseLabura.toString()
+        baseLabura: data.baseLabura.toString(),
+        monthlyBonus: data.monthlyBonus.toString()
       });
       setIsEditing(false);
     }
@@ -427,6 +430,10 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
             <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">וולור:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseVelour} onChange={e => setData({...data, baseVelour: e.target.value})} /></div>
             <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">לה בורה:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLabura} onChange={e => setData({...data, baseLabura: e.target.value})} /></div>
           </div>
+        </td>
+        <td className="p-2 flex flex-col md:table-cell gap-1">
+          <span className="md:hidden font-medium text-sm text-gray-500">תוספת חודשית</span>
+          <input type="number" className="w-full p-1 border rounded text-sm text-center" value={data.monthlyBonus || ''} onChange={e => setData({...data, monthlyBonus: e.target.value})} />
         </td>
         <td className="p-2 flex flex-col md:table-cell gap-1 text-center text-muted-foreground"><span className="md:hidden font-medium text-sm text-gray-500">סה"כ לתשלום</span>-</td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
@@ -503,11 +510,6 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
         <div className="flex flex-col items-center">
           <span dir="ltr">₪{formatCurrency(baseSalary)}</span>
-          {monthlyBonus > 0 && (
-            <span className="text-[10px] text-pink-500 mt-0.5 whitespace-nowrap">
-              + ₪{formatCurrency(monthlyBonus)} בונוס
-            </span>
-          )}
           {(Number(payment.baseLibero) > 0 || Number(payment.baseVelour) > 0 || Number(payment.baseLabura) > 0) && (
             <div className="text-[10px] text-gray-500 font-normal leading-tight mt-1 flex flex-col gap-0.5">
               {Number(payment.baseLibero) > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(payment.baseLibero)}</div>}
@@ -516,6 +518,10 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
             </div>
           )}
         </div>
+      </td>
+      <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-pink-600">
+        <span className="md:hidden text-gray-500 text-sm">תוספת חודשית</span>
+        <span dir="ltr">₪{formatCurrency(monthlyBonus)}</span>
       </td>
       <td className="py-1 md:py-3 px-2 font-bold flex justify-between items-center md:table-cell text-center text-emerald-600">
         <span className="md:hidden text-gray-500 text-sm">סה"כ לתשלום</span>
@@ -715,6 +721,7 @@ export default function MarketingClient({
         processedPaymentIds.add(existingPayment.id);
         resultRows.push({
           ...existingPayment,
+          influencerName: existingPayment.influencerName || infInfo.influencerName,
           baseSalary: existingPayment.baseSalary || 0,
           hasRealPayment: true
         });
@@ -887,6 +894,7 @@ export default function MarketingClient({
                   <th className="py-3 px-2 font-medium rounded-tr-md rounded-br-md text-right">שם משפיענ/ית</th>
                   <th className="py-3 px-2 font-medium text-center">עמלת קופונים</th>
                   <th className="py-3 px-2 font-medium text-center">שכר בסיס</th>
+                  <th className="py-3 px-2 font-medium text-center">תוספת חודשית</th>
                   <th className="py-3 px-2 font-medium text-center">סה"כ לתשלום</th>
                   <th className="py-3 px-2 font-medium text-center">בוצע?</th>
                   <th className="py-3 px-2 font-medium text-right">הערות</th>
