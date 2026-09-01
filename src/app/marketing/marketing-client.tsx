@@ -292,17 +292,8 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
         'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 
         'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
       ];
-      const match = String(payment.paymentMonth).match(/\d{4}/);
-      const year = match ? match[0] : new Date().getFullYear().toString();
-      let monthIndex = -1;
-      for (let i = 0; i < hebrewMonthsList.length; i++) {
-        if (String(payment.paymentMonth).includes(hebrewMonthsList[i])) {
-          monthIndex = i + 1;
-          break;
-        }
-      }
-      
-      if (monthIndex > 0) {
+      const monthParam = payment.paymentMonth;
+      if (monthParam && String(monthParam).match(/^\d{4}-\d{2}$/)) {
         const monthParam = `${year}-${monthIndex.toString().padStart(2, '0')}`;
         setIsLoadingCommission(true);
         const apiUrl = payment.influencerId === 'oded' 
@@ -583,28 +574,26 @@ export default function MarketingClient({
     'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 
     'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
   ];
+  const formatMonthName = (monthStr: string) => {
+    if(!monthStr) return '';
+    const match = String(monthStr).match(/^(\d{4})-(\d{2})$/);
+    if (match) {
+      return `${hebrewMonths[parseInt(match[2], 10) - 1]} ${match[1]}`;
+    }
+    return monthStr;
+  };
 
   const getMonthWeight = (monthStr: string) => {
     if (!monthStr) return -1;
-    for (let i = 0; i < hebrewMonths.length; i++) {
-      if (monthStr.includes(hebrewMonths[i])) {
-        const match = monthStr.match(/\d{4}/);
-        const year = match ? parseInt(match[0], 10) : 0;
-        return year * 100 + i;
-      }
+    const match = String(monthStr).match(/^(\d{4})-(\d{2})$/);
+    if (match) {
+      return parseInt(match[1], 10) * 100 + parseInt(match[2], 10);
     }
-    const dateMatch = monthStr.match(/(\d{1,2})[./-](\d{2,4})/);
-    if (dateMatch) {
-      const m = parseInt(dateMatch[1], 10);
-      let y = parseInt(dateMatch[2], 10);
-      if (y < 100) y += 2000;
-      return y * 100 + m;
-    }
-    return 0; // fallback
+    return 0;
   };
 
   const now = new Date();
-  const currentMonthStr = `${hebrewMonths[now.getMonth()]} ${now.getFullYear()}`;
+  const currentMonthStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
 
   const allMonths = Array.from(new Set([
     ...rawPayments.map(p => p.paymentMonth).filter(Boolean),
