@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 
 const HOT_KEYWORDS = [
   "בלונד אמבר",
+  "blonde amber",
   "אקס נילו",
   "הורמון גאבה",
   "אמואג׳",
