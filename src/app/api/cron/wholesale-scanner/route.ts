@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { scannedWholesaleProducts } from "@/lib/db/schema";
+import { scannedWholesaleProducts, pendingRegularEmails } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import nodemailer from "nodemailer";
 import { put } from "@vercel/blob";
@@ -230,19 +230,35 @@ export async function GET(request: Request) {
         }
       }
 
-      // Send Regular Products Email
+      // Save Regular Products for daily digest at 20:00
       if (regularNew.length > 0 || regularUpdated.length > 0) {
         try {
-          const totalRegular = regularNew.length + regularUpdated.length;
-          await transporter.sendMail({
-            from: gmailAddress,
-            to: NORMAL_EMAILS.join(", "),
-            subject: `📦 עדכון מוצרים רגילים מהאתר הסיטונאי (${totalRegular})`,
-            html: generateHtml(regularNew, regularUpdated, `עדכון לגבי ${totalRegular} מוצרים`),
-          });
-          emailsSent++;
+          const pendingRows = [
+            ...regularNew.map((p: any) => ({
+              productId: p.id,
+              productName: p.product_name || "Unknown",
+              brand: p.brand || "",
+              price: p.price ? String(p.price) : null,
+              oldPrice: null,
+              stock: p.stock ? String(p.stock) : null,
+              dtCreated: p.dt_created || null,
+              type: "new" as const,
+            })),
+            ...regularUpdated.map((p: any) => ({
+              productId: p.id,
+              productName: p.product_name || "Unknown",
+              brand: p.brand || "",
+              price: p.price ? String(p.price) : null,
+              oldPrice: p.oldPrice ? String(p.oldPrice) : null,
+              stock: p.stock ? String(p.stock) : null,
+              dtCreated: p.dt_created || null,
+              type: "updated" as const,
+            })),
+          ];
+          await db.insert(pendingRegularEmails).values(pendingRows);
+          console.log(`[wholesale-scanner] Queued ${pendingRows.length} regular products for daily digest`);
         } catch (err) {
-          console.error("Failed to send regular products email:", err);
+          console.error("Failed to queue regular products for digest:", err);
         }
       }
     } // close the else block for email configuration check

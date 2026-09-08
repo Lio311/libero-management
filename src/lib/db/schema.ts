@@ -361,6 +361,19 @@ export const scannedWholesaleProducts = pgTable("scanned_wholesale_products", {
   scannedAt: timestamp("scanned_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const pendingRegularEmails = pgTable("pending_regular_emails", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  productId: integer("product_id").notNull(),
+  productName: text("product_name").notNull(),
+  brand: text("brand"),
+  price: text("price"),
+  oldPrice: text("old_price"),
+  stock: text("stock"),
+  dtCreated: text("dt_created"),
+  type: text("type").notNull(), // "new" or "updated"
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export const qcReports = pgTable("qc_reports", {
   id: uuid("id").defaultRandom().primaryKey(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
