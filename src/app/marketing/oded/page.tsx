@@ -48,9 +48,11 @@ interface Summary {
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
     'completed': { label: 'הושלמה', className: 'bg-emerald-100 text-emerald-700' },
     'processing': { label: 'בטיפול', className: 'bg-blue-100 text-blue-700' },
+    'pending': { label: 'ממתין', className: 'bg-yellow-100 text-yellow-700' },
     'on-hold': { label: 'בהמתנה', className: 'bg-amber-100 text-amber-700' },
     'cancelled': { label: 'בוטלה', className: 'bg-red-100 text-red-700' },
     'refunded': { label: 'הוחזרה', className: 'bg-gray-100 text-gray-700' },
+    'failed': { label: 'נכשלה', className: 'bg-red-100 text-red-700' },
 };
 
 // Helper: format currency with ₪ sign properly in LTR context

@@ -105,7 +105,7 @@ export async function GET(request: Request) {
             return {
                 order_id: order.id,
                 order_number: order.number,
-                date: order.date_created,
+                date: order.date_created_gmt ? order.date_created_gmt + 'Z' : order.date_created,
                 status: order.status,
                 used_coupon: couponLine ? couponLine.code : '',
                 customer_name: `${order.billing?.first_name || ''} ${order.billing?.last_name ? order.billing.last_name.charAt(0) + '.' : ''}`.trim(),
