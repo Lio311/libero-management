@@ -24,6 +24,7 @@ interface OdedOrder {
     customer_name: string;
     customer_email: string;
     customer_phone: string;
+    used_coupon?: string;
     items: OrderItem[];
     items_count: number;
     subtotal: number;
@@ -391,6 +392,11 @@ export default function OdedCouponPage() {
                                                             <span className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold ${statusInfo.className}`}>
                                                                 {statusInfo.label}
                                                             </span>
+                                                            {order.used_coupon && (
+                                                                <span className="px-2 py-0.5 rounded border border-purple-200 bg-purple-50 text-purple-700 text-[10px] md:text-xs font-bold uppercase tracking-wider">
+                                                                    {order.used_coupon}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] md:text-sm text-slate-500 mt-1">
                                                             <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">{order.customer_name || 'אורח'}</span>

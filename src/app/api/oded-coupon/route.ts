@@ -104,6 +104,7 @@ export async function GET(request: Request) {
                 order_number: order.number,
                 date: order.date_created,
                 status: order.status,
+                used_coupon: couponLine ? couponLine.code : '',
                 customer_name: `${order.billing?.first_name || ''} ${order.billing?.last_name ? order.billing.last_name.charAt(0) + '.' : ''}`.trim(),
                 items: (order.line_items || []).map((li: any) => ({
                     name: li.name,
