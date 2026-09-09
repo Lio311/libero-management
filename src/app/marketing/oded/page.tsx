@@ -265,7 +265,7 @@ export default function OdedCouponPage() {
                             <Image src="/oded.png" alt="עודד" width={56} height={56} className="w-full h-full object-cover" />
                         </div>
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">עודד — קופון OSVR10</h1>
+                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">עודד — קופון OSVR / OSVR10</h1>
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                                 <p className="text-sm font-medium text-[#6d6d6d]">פירוט רכישות מלא מ-WooCommerce</p>
@@ -307,7 +307,7 @@ export default function OdedCouponPage() {
                         <div className="absolute inset-0 blur-xl opacity-20 bg-purple-500 animate-pulse" />
                     </div>
                     <p className="text-[#1d1d1f] font-bold mt-8 text-lg text-center">מושך נתונים...</p>
-                    <p className="text-[#6d6d6d] text-sm mt-1 text-center">מחפש הזמנות עם קופון OSVR10</p>
+                    <p className="text-[#6d6d6d] text-sm mt-1 text-center">מחפש הזמנות עם קופון OSVR / OSVR10</p>
                 </div>
             ) : (
                 <>
@@ -357,7 +357,7 @@ export default function OdedCouponPage() {
                                 <Tag className="text-slate-300" size={36} />
                             </div>
                             <h3 className="text-xl font-bold text-slate-800">לא נמצאו הזמנות</h3>
-                            <p className="text-slate-500 max-w-xs mt-2 font-medium">לא נמצאו הזמנות עם קופון OSVR10 בחודש הנבחר.</p>
+                            <p className="text-slate-500 max-w-xs mt-2 font-medium">לא נמצאו הזמנות עם קופון OSVR / OSVR10 בחודש הנבחר.</p>
                         </div>
                     ) : (
                         <div className="bg-white rounded-3xl border border-black/[0.07] shadow-sm overflow-hidden">
@@ -365,7 +365,7 @@ export default function OdedCouponPage() {
                                 <h2 className="text-lg font-bold text-slate-900">
                                     פירוט הזמנות — {format(currentDate, 'MMMM yyyy', { locale: he })}
                                 </h2>
-                                <p className="text-sm text-slate-500 mt-0.5">{orders.length} הזמנות עם קופון OSVR10</p>
+                                <p className="text-sm text-slate-500 mt-0.5">{orders.length} הזמנות עם קופון OSVR / OSVR10</p>
                             </div>
 
                             <div className="divide-y divide-slate-100">
