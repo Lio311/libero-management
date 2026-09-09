@@ -126,22 +126,26 @@ export async function GET(request: Request) {
             };
         });
 
-        // Summary statistics
-        const totalRevenue = detailedOrders.reduce((acc: number, o: any) => acc + o.subtotal, 0);
-        const houseBrandRevenue = detailedOrders.reduce((acc: number, o: any) => acc + o.house_brand_subtotal, 0);
-        const otherBrandRevenue = detailedOrders.reduce((acc: number, o: any) => acc + o.other_brand_subtotal, 0);
+        // Summary statistics - exclude cancelled, refunded, failed, trash
+        const validOrdersForSummary = detailedOrders.filter((o: any) => 
+            !['cancelled', 'refunded', 'failed', 'trash'].includes(o.status)
+        );
+
+        const totalRevenue = validOrdersForSummary.reduce((acc: number, o: any) => acc + o.subtotal, 0);
+        const houseBrandRevenue = validOrdersForSummary.reduce((acc: number, o: any) => acc + o.house_brand_subtotal, 0);
+        const otherBrandRevenue = validOrdersForSummary.reduce((acc: number, o: any) => acc + o.other_brand_subtotal, 0);
         
         const summary = {
-            total_orders: detailedOrders.length,
+            total_orders: validOrdersForSummary.length,
             total_revenue: totalRevenue,
             house_brand_revenue: houseBrandRevenue,
             other_brand_revenue: otherBrandRevenue,
-            total_discount: detailedOrders.reduce((acc: number, o: any) => acc + o.discount_amount, 0),
-            total_items: detailedOrders.reduce((acc: number, o: any) => acc + o.items_count, 0),
-            avg_order_value: detailedOrders.length > 0
-                ? totalRevenue / detailedOrders.length
+            total_discount: validOrdersForSummary.reduce((acc: number, o: any) => acc + o.discount_amount, 0),
+            total_items: validOrdersForSummary.reduce((acc: number, o: any) => acc + o.items_count, 0),
+            avg_order_value: validOrdersForSummary.length > 0
+                ? totalRevenue / validOrdersForSummary.length
                 : 0,
-            commission: detailedOrders.reduce((acc: number, o: any) => acc + (o.house_brand_subtotal / 1.18 * 0.1) * 1.18, 0),
+            commission: validOrdersForSummary.reduce((acc: number, o: any) => acc + (o.house_brand_subtotal / 1.18 * 0.1) * 1.18, 0),
         };
 
         return NextResponse.json({ data: detailedOrders, summary, error: null }, { status: 200 });
