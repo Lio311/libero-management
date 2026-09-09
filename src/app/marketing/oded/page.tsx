@@ -136,36 +136,48 @@ export default function OdedCouponPage() {
         }
     };
 
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const fetchData = async (isBackground = false) => {
+        if (!isBackground) setLoading(true);
+        else setIsRefreshing(true);
+        
+        setError(null);
+        try {
+            const response = await fetch(`/api/oded-coupon?month=${month}`);
+            const text = await response.text();
+
+            try {
+                const result = JSON.parse(text);
+                if (result.error) throw new Error(result.error);
+                setOrders(result.data || []);
+                setSummary(result.summary || null);
+            } catch (jsonErr) {
+                if (text.includes('<!DOCTYPE html>') || text.includes('<html>')) {
+                    throw new Error('שגיאת שרת: התקבלה תשובת HTML במקום JSON.');
+                }
+                throw new Error(`שגיאת פענוח: ${text.substring(0, 50)}...`);
+            }
+        } catch (err: any) {
+            console.error('Fetch error:', err);
+            if (!isBackground) setError(err.message);
+        } finally {
+            if (!isBackground) setLoading(false);
+            else setIsRefreshing(false);
+        }
+    };
+
     useEffect(() => {
         if (!isOdedAuthenticated) return;
 
-        const fetchData = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await fetch(`/api/oded-coupon?month=${month}`);
-                const text = await response.text();
-
-                try {
-                    const result = JSON.parse(text);
-                    if (result.error) throw new Error(result.error);
-                    setOrders(result.data || []);
-                    setSummary(result.summary || null);
-                } catch (jsonErr) {
-                    if (text.includes('<!DOCTYPE html>') || text.includes('<html>')) {
-                        throw new Error('שגיאת שרת: התקבלה תשובת HTML במקום JSON.');
-                    }
-                    throw new Error(`שגיאת פענוח: ${text.substring(0, 50)}...`);
-                }
-            } catch (err: any) {
-                console.error('Fetch error:', err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchData();
+
+        // Auto-refresh every 5 minutes
+        const interval = setInterval(() => {
+            fetchData(true);
+        }, 300000);
+
+        return () => clearInterval(interval);
     }, [month, isOdedAuthenticated]);
 
     const toggleOrder = (orderId: number) => {
@@ -276,12 +288,12 @@ export default function OdedCouponPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <button
-                        onClick={() => window.location.reload()}
-                        disabled={loading}
+                        onClick={() => fetchData(true)}
+                        disabled={loading || isRefreshing}
                         className="p-2.5 text-[#6d6d6d] hover:bg-black/[0.04] active:bg-black/[0.08] rounded-xl transition-all border border-black/[0.06] bg-white shadow-sm disabled:opacity-50"
                         title="רענן נתונים"
                     >
-                        <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+                        <RefreshCw size={18} className={loading || isRefreshing ? 'animate-spin' : ''} />
                     </button>
                     <MonthNavigator currentDate={currentDate} onDateChange={setCurrentDate} />
                 </div>
@@ -295,7 +307,7 @@ export default function OdedCouponPage() {
                     <h3 className="text-xl font-bold text-red-900">אופס! משהו השתבש</h3>
                     <p className="text-red-600/70 max-w-md mt-2 font-medium">{error}</p>
                     <button
-                        onClick={() => window.location.reload()}
+                        onClick={() => fetchData()}
                         className="mt-8 px-6 py-2.5 bg-red-500 text-white rounded-xl text-sm font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95"
                     >
                         נסה שוב
