@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     const after = new Date(Date.UTC(year, monthIdx, 1)).toISOString();
     const before = new Date(Date.UTC(year, monthIdx + 1, 0, 23, 59, 59)).toISOString();
 
-    const COUPON_CODE = 'osvr10';
+    const COUPON_CODES = ['osvr10', 'osvr'];
     const HOUSE_BRAND_CATEGORY_ID = 268;
 
     const fetchHouseBrandIds = async () => {
@@ -89,14 +89,14 @@ export async function GET(request: Request) {
             }
         }
 
-        // Filter only orders that used the osvr10 coupon
+        // Filter only orders that used the osvr or osvr10 coupon
         const filteredOrders = allOrders.filter(order =>
-            order.coupon_lines?.some((cl: any) => cl.code.toLowerCase() === COUPON_CODE)
+            order.coupon_lines?.some((cl: any) => COUPON_CODES.includes(cl.code.toLowerCase()))
         );
 
         // Build detailed order data
         const detailedOrders = filteredOrders.map((order: any) => {
-            const couponLine = order.coupon_lines.find((cl: any) => cl.code.toLowerCase() === COUPON_CODE);
+            const couponLine = order.coupon_lines.find((cl: any) => COUPON_CODES.includes(cl.code.toLowerCase()));
             const itemsTotal = (order.line_items || []).reduce((acc: number, li: any) => acc + parseFloat(li.total || 0), 0);
 
             return {

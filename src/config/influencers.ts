@@ -163,7 +163,8 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     image: "/oded.png",
     baseSalary: 11000,
     coupons: [
-      { brand: 'libero', code: 'osvr10' }
+      { brand: 'libero', code: 'osvr10' },
+      { brand: 'libero', code: 'osvr' }
     ]
   },
   orika: {
