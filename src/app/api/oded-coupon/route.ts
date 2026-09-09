@@ -58,7 +58,7 @@ export async function GET(request: Request) {
     };
 
     const fetchOrdersPage = async (page = 1) => {
-        const query = `after=${after}&before=${before}&per_page=100&page=${page}&status=processing,completed`;
+        const query = `after=${after}&before=${before}&per_page=100&page=${page}`;
         const url = `${baseUrl}/wp-json/wc/v3/orders?${query}`;
 
         const response = await fetch(url, {
