@@ -39,6 +39,13 @@ interface MarketingClientProps {
 function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBrands?: string[] }) {
   const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(false);
+  
+  const config = inf.influencerId ? influencersConfig[inf.influencerId] : null;
+  const actualBaseSalary = Number(inf.baseSalary) || (config?.baseSalary || 0);
+  const actualBaseLibero = Number(inf.baseLibero) || (config?.baseLibero || 0);
+  const actualBaseVelour = Number(inf.baseVelour) || (config?.baseVelour || 0);
+  const actualBaseLabura = Number(inf.baseLabura) || (config?.baseLabura || 0);
+
   const [data, setData] = useState({
     influencerName: inf.influencerName || '',
     brand: inf.brand || '',
@@ -50,10 +57,10 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
     activities: inf.activities || '',
     notes: inf.notes || '',
     influencerId: inf.influencerId || '',
-    baseSalary: inf.baseSalary || 0,
-    baseLibero: inf.baseLibero || 0,
-    baseVelour: inf.baseVelour || 0,
-    baseLabura: inf.baseLabura || 0
+    baseSalary: actualBaseSalary,
+    baseLibero: actualBaseLibero,
+    baseVelour: actualBaseVelour,
+    baseLabura: actualBaseLabura
   });
 
   const handleSave = async () => {
@@ -209,12 +216,12 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
         <div className="flex flex-col items-center">
-          <span>{inf.baseSalary ? `₪${formatCurrency(inf.baseSalary)}` : '-'}</span>
-          {(Number(inf.baseLibero) > 0 || Number(inf.baseVelour) > 0 || Number(inf.baseLabura) > 0) && (
+          <span>{actualBaseSalary ? `₪${formatCurrency(actualBaseSalary)}` : '-'}</span>
+          {(actualBaseLibero > 0 || actualBaseVelour > 0 || actualBaseLabura > 0) && (
             <div className="text-[10px] text-gray-500 font-normal leading-tight mt-1 flex flex-col gap-0.5">
-              {Number(inf.baseLibero) > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(inf.baseLibero)}</div>}
-              {Number(inf.baseVelour) > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(inf.baseVelour)}</div>}
-              {Number(inf.baseLabura) > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(inf.baseLabura)}</div>}
+              {actualBaseLibero > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(actualBaseLibero)}</div>}
+              {actualBaseVelour > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(actualBaseVelour)}</div>}
+              {actualBaseLabura > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(actualBaseLabura)}</div>}
             </div>
           )}
         </div>
@@ -321,6 +328,12 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
     }
   }, [payment.influencerId, payment.paymentMonth]);
 
+  const config = payment.influencerId ? influencersConfig[payment.influencerId] : null;
+  const actualBaseSalary = Number(payment.baseSalary) || (config?.baseSalary || 0);
+  const actualBaseLibero = Number(payment.baseLibero) || (config?.baseLibero || 0);
+  const actualBaseVelour = Number(payment.baseVelour) || (config?.baseVelour || 0);
+  const actualBaseLabura = Number(payment.baseLabura) || (config?.baseLabura || 0);
+
   const [data, setData] = useState({
     influencerName: payment.influencerName || '',
     amount: payment.amount || 0,
@@ -328,10 +341,10 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
     paymentMonth: payment.paymentMonth || '',
     notes: payment.notes || '',
     influencerId: payment.influencerId || '',
-    baseSalary: payment.baseSalary || 0,
-    baseLibero: payment.baseLibero || 0,
-    baseVelour: payment.baseVelour || 0,
-    baseLabura: payment.baseLabura || 0,
+    baseSalary: actualBaseSalary,
+    baseLibero: actualBaseLibero,
+    baseVelour: actualBaseVelour,
+    baseLabura: actualBaseLabura,
     monthlyBonus: payment.monthlyBonus || 0
   });
 
@@ -473,9 +486,8 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
   
   const currentInfluencerId = data.influencerId || payment.influencerId;
   const selectedInfluencer = rawInfluencers?.find((i: any) => i.influencerId === currentInfluencerId);
-  const baseSalary = Number(payment.baseSalary || 0);
   const monthlyBonus = Number(payment.monthlyBonus || 0);
-  const totalPayment = (commission || 0) + baseSalary + monthlyBonus;
+  const totalPayment = (commission || 0) + actualBaseSalary + monthlyBonus;
 
   return (
     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
@@ -500,12 +512,12 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-purple-600">
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
         <div className="flex flex-col items-center">
-          <span dir="ltr">₪{formatCurrency(baseSalary)}</span>
-          {(Number(payment.baseLibero) > 0 || Number(payment.baseVelour) > 0 || Number(payment.baseLabura) > 0) && (
+          <span dir="ltr">₪{formatCurrency(actualBaseSalary)}</span>
+          {(actualBaseLibero > 0 || actualBaseVelour > 0 || actualBaseLabura > 0) && (
             <div className="text-[10px] text-gray-500 font-normal leading-tight mt-1 flex flex-col gap-0.5">
-              {Number(payment.baseLibero) > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(payment.baseLibero)}</div>}
-              {Number(payment.baseVelour) > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(payment.baseVelour)}</div>}
-              {Number(payment.baseLabura) > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(payment.baseLabura)}</div>}
+              {actualBaseLibero > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(actualBaseLibero)}</div>}
+              {actualBaseVelour > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(actualBaseVelour)}</div>}
+              {actualBaseLabura > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(actualBaseLabura)}</div>}
             </div>
           )}
         </div>
