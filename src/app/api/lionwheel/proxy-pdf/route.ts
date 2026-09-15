@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
       
       // Also shift it slightly more to the right if the left barcode is still an issue
       // We'll add an extra 25 points to the right
-      page.translateContent(25, 0);
+      page.translateContent(10, 0);
 
       // CRITICAL FIX: PDFtoPrinter.exe auto-crops empty space! 
       // To prevent it from cropping the new margins we just created, 
