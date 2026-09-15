@@ -17,12 +17,12 @@ export async function POST(request: Request) {
     for (const page of pages) {
       const { width, height } = page.getSize();
       
-      const scale = 0.82;
+      const scale = 0.92;
       const scaledWidth = width * scale;
       const scaledHeight = height * scale;
       
-      // Shift right by 40 points to prevent left cutoff
-      const x = ((width - scaledWidth) / 2) + 40;
+      // Shift right slightly (10 points) instead of 40, because we are scaling down less
+      const x = ((width - scaledWidth) / 2) + 10;
       const y = (height - scaledHeight) / 2;
       
       // Directly apply transformation to the existing page
