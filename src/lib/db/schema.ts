@@ -241,6 +241,8 @@ export const qcProducts = pgTable("qc_products", {
   priceStatusDate: timestamp("price_status_date", { withTimezone: true }),
   dateAddedToSite: timestamp("date_added_to_site", { withTimezone: true }),
   lastRestockDate: timestamp("last_restock_date", { withTimezone: true }),
+  currentPrice: decimal("current_price"),
+  lastPriceChangeDate: timestamp("last_price_change_date", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

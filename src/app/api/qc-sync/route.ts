@@ -12,7 +12,7 @@ async function fetchAllProducts() {
   const auth = Buffer.from(`${LIBERO_CONFIG.ck}:${LIBERO_CONFIG.cs}`).toString('base64');
   let allProducts: any[] = [];
 
-  const firstPageUrl = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/products?per_page=100&page=1&status=publish&_fields=id,name,sku,images`;
+  const firstPageUrl = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/products?per_page=100&page=1&status=publish&_fields=id,name,sku,images,price`;
   const response = await fetch(firstPageUrl, {
     method: 'GET',
     headers: {
@@ -33,7 +33,7 @@ async function fetchAllProducts() {
   const totalPages = totalPagesStr ? parseInt(totalPagesStr, 10) : 1;
 
   const fetchPage = async (p: number) => {
-    const url = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/products?per_page=100&page=${p}&status=publish&_fields=id,name,sku,images`;
+    const url = `${LIBERO_CONFIG.baseUrl}/wp-json/wc/v3/products?per_page=100&page=${p}&status=publish&_fields=id,name,sku,images,price`;
     try {
       const res = await fetch(url, {
         method: 'GET',
@@ -100,6 +100,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, added: 0, updated: 0, total: 0, message: "No products fetched" });
     }
 
+    // Fetch existing products to compare prices
+    const existingProducts = await db.select().from(qcProducts);
+    const existingProductsMap = new Map(existingProducts.map(p => [p.wooProductId, p]));
+
     // Chunk into batches of 500 for DB insert
     const chunkSize = 500;
     for (let i = 0; i < wooProducts.length; i += chunkSize) {
@@ -107,11 +111,25 @@ export async function GET(request: Request) {
       
       const valuesToInsert = batch.map((product: any) => {
         const imageUrl = product.images && product.images.length > 0 ? product.images[0].src : null;
+        const currentWooPrice = product.price ? parseFloat(product.price) : null;
+        
+        const existing = existingProductsMap.get(product.id);
+        const oldPrice = existing?.currentPrice ? parseFloat(existing.currentPrice) : null;
+        
+        let lastPriceChangeDate = existing?.lastPriceChangeDate || null;
+        
+        // If price changed or this is a new product with a price, update lastPriceChangeDate
+        if (currentWooPrice !== null && oldPrice !== currentWooPrice) {
+          lastPriceChangeDate = new Date();
+        }
+
         return {
           wooProductId: product.id,
           productName: product.name,
           productSku: product.sku || null,
           productImage: imageUrl,
+          currentPrice: currentWooPrice ? currentWooPrice.toString() : null,
+          lastPriceChangeDate: lastPriceChangeDate,
           updatedAt: new Date(),
         };
       });
@@ -125,9 +143,34 @@ export async function GET(request: Request) {
               productName: sql`EXCLUDED.product_name`,
               productSku: sql`EXCLUDED.product_sku`,
               productImage: sql`EXCLUDED.product_image`,
+              currentPrice: sql`EXCLUDED.current_price`,
+              lastPriceChangeDate: sql`EXCLUDED.last_price_change_date`,
               updatedAt: sql`EXCLUDED.updated_at`,
             }
           });
+          
+        // Log price history
+        const { priceHistory } = await import('@/lib/db/schema');
+        const historyRecords = [];
+        for (const product of batch) {
+          const currentWooPrice = product.price ? parseFloat(product.price) : null;
+          const existing = existingProductsMap.get(product.id);
+          const oldPrice = existing?.currentPrice ? parseFloat(existing.currentPrice) : null;
+          
+          if (currentWooPrice !== null && oldPrice !== currentWooPrice && oldPrice !== null) {
+            historyRecords.push({
+              wooProductId: product.id,
+              productName: product.name,
+              oldPrice: oldPrice.toString(),
+              newPrice: currentWooPrice.toString(),
+              changedAt: new Date(),
+            });
+          }
+        }
+        
+        if (historyRecords.length > 0) {
+          await db.insert(priceHistory).values(historyRecords);
+        }
       }
     }
 

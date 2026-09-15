@@ -145,7 +145,6 @@ export async function getQcProducts() {
         inspections,
         lastInspection: inspections.length > 0 ? inspections[0].inspectedAt : null,
         currentStock: stockMap.get(product.wooProductId) || 0,
-        currentPrice: priceMap.get(product.wooProductId) || null,
         ageDays,
         totalSales: metrics.totalSales,
         lastSaleDate: metrics.lastSaleDate,

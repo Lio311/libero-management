@@ -36,6 +36,8 @@ interface QcProduct {
   notes: string | null;
   priceStatus: string | null;
   priceStatusDate: Date | null;
+  currentPrice?: string | null;
+  lastPriceChangeDate?: Date | null;
   createdAt: Date;
   updatedAt: Date;
   inspections: { id: string; inspectedAt: Date; inspectedBy: string | null }[];
@@ -252,6 +254,20 @@ function ProductRow({ product }: { product: QcProduct }) {
           </div>
         </td>
 
+        {/* Website Pricing */}
+        <td className="py-3 px-4 text-center whitespace-nowrap">
+          <div className="flex flex-col items-center gap-1">
+            <span className="font-medium text-gray-900">
+              {product.currentPrice ? `₪${product.currentPrice}` : "—"}
+            </span>
+            {product.lastPriceChangeDate && (
+              <span className="text-[10px] text-gray-400">
+                עודכן: {format(new Date(product.lastPriceChangeDate), "dd/MM/yy", { locale: he })}
+              </span>
+            )}
+          </div>
+        </td>
+
         {/* Price Status */}
         <td className="py-3 px-4 text-center whitespace-nowrap">
           <div className="flex flex-col items-center gap-1">
@@ -392,7 +408,12 @@ function ProductRow({ product }: { product: QcProduct }) {
             {/* Mobile Price Status */}
             <div className="px-3 pb-2 pt-2 border-t border-gray-100/50 flex flex-col gap-1.5">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[11px] text-gray-500 font-medium">תמחור:</span>
+                <div className="flex flex-col">
+                  <span className="text-[11px] text-gray-500 font-medium">תמחור מהאתר: <span className="text-gray-900 font-bold">{product.currentPrice ? `₪${product.currentPrice}` : "—"}</span></span>
+                  {product.lastPriceChangeDate && (
+                    <span className="text-[10px] text-gray-400">עודכן: {format(new Date(product.lastPriceChangeDate), "dd/MM/yy", { locale: he })}</span>
+                  )}
+                </div>
                 <Select
                   value={product.priceStatus || "טרם נבדק"}
                   onValueChange={(val) => {
@@ -990,7 +1011,8 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   <th className="py-3 px-4 font-medium text-center whitespace-nowrap">סטטוס</th>
                   <th className="py-3 px-4 font-medium text-center whitespace-nowrap">בקרה</th>
                   <th className="py-3 px-4 font-medium text-center whitespace-nowrap">תאריך בקרה אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">תמחור</th>
+                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">תמחור מהאתר</th>
+                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">סטטוס תמחור</th>
                   <th className="py-3 px-4 font-medium text-right rounded-tl-md min-w-[200px] w-1/4">הערות</th>
                 </tr>
               </thead>
