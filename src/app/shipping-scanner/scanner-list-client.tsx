@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer, Search, ChevronDown, Loader2, MessageSquare } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { ScannerOrder, createOrderLabel, getArchivedCompletedOrders, fixShippingLabelsDb, searchScannerOrders } from "@/app/actions/scanner-actions";
 
@@ -41,6 +41,21 @@ export default function ScannerListClient({
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop" | null>(null);
   const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mounted && scrollContainerRef.current) {
+      const savedScroll = sessionStorage.getItem(`scannerListScrollPos_${store}`);
+      if (savedScroll) {
+        scrollContainerRef.current.scrollTop = parseInt(savedScroll, 10);
+      }
+    }
+  }, [mounted, orders.length, store]); // Restore when mounted and when orders change/load
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    sessionStorage.setItem(`scannerListScrollPos_${store}`, e.currentTarget.scrollTop.toString());
+  };
+
 
   useEffect(() => {
     if (searchTerm.trim().length >= 3) {
@@ -189,7 +204,7 @@ export default function ScannerListClient({
     );
 
     return matches(term) || matches(translatedTerm) || matches(translatedToHeb);
-  });
+  }).sort((a, b) => new Date(a.dateCreated).getTime() - new Date(b.dateCreated).getTime());
 
   const processingOrders = filteredOrders.filter(o => o.status === 'processing');
   const completedOrders = filteredOrders.filter(o => o.status === 'completed');
@@ -208,7 +223,11 @@ export default function ScannerListClient({
   const shippingOrders = isLibero ? allShippingOrders.filter(o => !hasMiniPerfumes(o) || o.lineItems.length === 0) : allShippingOrders;
 
   return (
-    <div className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
+    <div 
+      ref={scrollContainerRef}
+      onScroll={handleScroll}
+      className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full"
+    >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
@@ -521,6 +540,17 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
     purple: "bg-purple-500/10 text-purple-500 border-purple-500/20",
     green: "bg-green-500/10 text-green-500 border-green-500/20"
   };
+  const diffTime = Date.now() - new Date(order.dateCreated).getTime();
+  const daysOld = diffTime / (1000 * 60 * 60 * 24);
+  
+  let ageBgClass = "";
+  if (order.status !== 'completed') {
+    if (daysOld >= 5) {
+      ageBgClass = "!bg-red-500/20 hover:!bg-red-500/30 !border-red-500/40";
+    } else if (daysOld >= 3) {
+      ageBgClass = "!bg-orange-500/20 hover:!bg-orange-500/30 !border-orange-500/40";
+    }
+  }
 
   return (
     <div className="relative h-full">
@@ -532,7 +562,7 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
         </div>
       )}
       <Link href={`/shipping-scanner/${order.id}?store=${store}`} className="block h-full">
-        <div className={`glass-panel p-6 rounded-xl hover-scale cursor-pointer group transition-colors h-full flex flex-col relative ${isSelected ? 'border-purple-500 border-2' : 'hover:border-primary/50'}`}>
+        <div className={`glass-panel p-6 rounded-xl hover-scale cursor-pointer group transition-colors h-full flex flex-col relative ${isSelected ? 'border-purple-500 border-2' : 'hover:border-primary/50'} ${ageBgClass}`}>
           <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <Package className="w-5 h-5 text-primary group-hover:text-primary/80" />
