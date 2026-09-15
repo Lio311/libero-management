@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const isManual = url.searchParams.get('manual') === 'true';
 
-  if (cronSecret && !isManual && authHeader !== `Bearer ${cronSecret}`) {
+  if (!isManual && authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

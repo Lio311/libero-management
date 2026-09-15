@@ -133,7 +133,7 @@ export async function getBonusEmployees() {
                 await db.insert(bonusEmployees).values({
                     username: name.toLowerCase().replace(/\s+/g, '_'),
                     fullName: name,
-                    password: '123'
+                    password: process.env.DEFAULT_BONUS_PASSWORD || Math.random().toString(36).substring(2, 10)
                 }).onConflictDoNothing();
             }
             data = await db.query.bonusEmployees.findMany({
@@ -158,7 +158,7 @@ export async function getBonusEmployees() {
 export async function addBonusEmployee(employee: any) {
     try {
         const username = employee.username || employee.full_name?.trim().toLowerCase().replace(/\s+/g, '_') || `emp_${Date.now()}`;
-        const password = employee.password || '123';
+        const password = employee.password || process.env.DEFAULT_BONUS_PASSWORD || Math.random().toString(36).substring(2, 10);
 
         const result = await db.insert(bonusEmployees).values({
             username,

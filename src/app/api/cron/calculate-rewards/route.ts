@@ -44,6 +44,11 @@ async function processOrdersForStore(storeName: "libero" | "velour" | "labura", 
 }
 
 export async function GET(request: Request) {
+  const authHeader = request.headers.get('authorization');
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const countLibero = await processOrdersForStore("libero", wcOrders);
     const countVelour = await processOrdersForStore("velour", velourOrders);
