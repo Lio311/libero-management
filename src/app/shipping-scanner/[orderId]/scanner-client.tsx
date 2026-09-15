@@ -127,7 +127,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
     loadInitialState();
   }, [order, manualKeywords]);
 
-  const initFromOrder = () => {
+  function initFromOrder() {
     const initialItems = order.lineItems.map((item: any) => {
       const name = item.name || "";
       const isManual = manualKeywords.some(kw => name.includes(kw));
@@ -341,7 +341,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
     checkCompletion(newItems);
   };
 
-  const checkCompletion = (currentItems: ItemStatus[]) => {
+  function checkCompletion(currentItems: ItemStatus[]) {
     const allDone = currentItems.every(item => item.scanned >= item.expected || item.isMissing);
     const hasMissing = currentItems.some(item => item.isMissing);
     
