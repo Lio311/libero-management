@@ -110,24 +110,76 @@ async function startDaemon() {
             
             if (labelUrl) {
               try {
-                console.log('    Rendering shipping label locally via Puppeteer...');
+                console.log('    Extracting pure PDF from Lionwheel...');
                 const labelPage = await browser.newPage();
-                await labelPage.setViewport({ width: 378, height: 567, deviceScaleFactor: 2 });
-                await labelPage.goto(labelUrl, { waitUntil: 'networkidle2', timeout: 30000 }).catch(e => console.log('    [Label Goto]', e.message));
-                await new Promise(r => setTimeout(r, 2000));
                 
-                await labelPage.addStyleTag({ content: 'body { padding-left: 30px !important; } html, body { overflow: hidden !important; } @page { margin: 0 !important; }' });
-                await labelPage.pdf({
-                  path: tempPdfPath,
-                  width: '100mm',
-                  height: '150mm',
-                  margin: { top: '2mm', right: '0mm', bottom: '0mm', left: '25mm' },
-                  printBackground: true,
-                  preferCSSPageSize: false,
-                  pageRanges: '1',
-                  scale: 0.88
+                // Inject interceptor before navigation
+                await labelPage.evaluateOnNewDocument(() => {
+                  window.__pdfReady = false;
+                  window.__pdfBase64 = null;
+                  window.print = function () {};
+                  const origCreateObjectURL = URL.createObjectURL.bind(URL);
+                  URL.createObjectURL = function (obj) {
+                    const blobUrl = origCreateObjectURL(obj);
+                    if (obj instanceof Blob && obj.type === 'application/pdf') {
+                      const reader = new FileReader();
+                      reader.onload = function () {
+                        if (typeof reader.result === 'string') {
+                           window.__pdfBase64 = reader.result.split(',')[1];
+                           window.__pdfReady = true;
+                        }
+                      };
+                      reader.readAsDataURL(obj);
+                    }
+                    return blobUrl;
+                  };
                 });
+                
+                await labelPage.goto(labelUrl, { waitUntil: 'networkidle2', timeout: 30000 }).catch(e => console.log('    [Label Goto]', e.message));
+                
+                // Wait for blob
+                await labelPage.waitForFunction(() => window.__pdfReady === true, { timeout: 15000 }).catch(() => console.log('    [Wait] PDF blob wait timeout'));
+                
+                const rawBase64 = await labelPage.evaluate(() => window.__pdfBase64);
                 await labelPage.close();
+                
+                if (rawBase64) {
+                  console.log('    Sending raw PDF to server for cropping...');
+                  
+                  // POST to crop API
+                  const cropUrl = \`\${SITE_URL}/api/lionwheel/crop-pdf\`;
+                  const cropRes = await new Promise((resolve, reject) => {
+                    const lib = cropUrl.startsWith('https') ? https : http;
+                    const options = {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' }
+                    };
+                    const req = lib.request(cropUrl, options, (res) => {
+                      let data = '';
+                      res.on('data', chunk => data += chunk);
+                      res.on('end', () => {
+                        if (res.statusCode >= 200 && res.statusCode < 300) {
+                          try { resolve(JSON.parse(data)); } catch(e) { reject(e); }
+                        } else {
+                          reject(new Error(\`HTTP \${res.statusCode}: \${data}\`));
+                        }
+                      });
+                    });
+                    req.on('error', reject);
+                    req.write(JSON.stringify({ base64: rawBase64 }));
+                    req.end();
+                  });
+                  
+                  if (cropRes && cropRes.success && cropRes.base64) {
+                    fs.writeFileSync(tempPdfPath, cropRes.base64, 'base64');
+                  } else {
+                    console.log('    Crop failed, falling back to raw PDF', cropRes.error);
+                    fs.writeFileSync(tempPdfPath, rawBase64, 'base64');
+                  }
+                } else {
+                  console.log('    Failed to extract PDF blob from Lionwheel!');
+                  throw new Error('Could not intercept PDF blob');
+                }
                 
                 console.log(\`    Sending to delivery printer \${PRINTER_DELIVERY}...\`);
                 const cmd = \`"\${PDF_TO_PRINTER_EXE}" "\${tempPdfPath}" "\${PRINTER_DELIVERY}"\`;
