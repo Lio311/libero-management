@@ -637,9 +637,9 @@ export default function MarketingClient({
         influencerId: key,
         influencerName: config.name,
         baseSalary: config.baseSalary || 0,
-        baseLibero: 0,
-        baseVelour: 0,
-        baseLabura: 0
+        baseLibero: config.baseLibero || 0,
+        baseVelour: config.baseVelour || 0,
+        baseLabura: config.baseLabura || 0
       });
     });
 

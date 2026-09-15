@@ -11,6 +11,9 @@ export interface InfluencerConfig {
   image?: string;
   hasVat?: boolean;
   baseSalary?: number;
+  baseLibero?: number;
+  baseVelour?: number;
+  baseLabura?: number;
   coupons: InfluencerCoupon[];
 }
 
@@ -86,6 +89,8 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     name: "נועה בן דוד",
     image: "/influencers/noa.jpg",
     baseSalary: 3000,
+    baseLabura: 1000,
+    baseLibero: 2000,
     coupons: [
       { brand: 'velour', code: 'noa10' },
       { brand: 'labura', code: 'noa15' },
