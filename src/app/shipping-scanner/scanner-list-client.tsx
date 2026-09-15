@@ -170,7 +170,14 @@ export default function ScannerListClient({
     setPartiallyScannedIds(partials);
     setReadyIds(readys);
     setMounted(true);
-  }, [orders]);
+
+    // Auto-refresh the list every 30 seconds to catch changes from webhooks or other packers
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [orders, router, store]);
 
   const filteredOrders = orders.filter(o => {
     if (!searchTerm.trim()) return true;

@@ -30,7 +30,9 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const [isCameraOpen, setIsCameraOpen] = useState(true);
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const [items, setItems] = useState<ItemStatus[]>([]);
-    const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed">("processing");
+    const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed">(
+      (order.status as "processing" | "ready" | "on_hold" | "completed") || "processing"
+    );
   const [missingMode, setMissingMode] = useState(false);
   const [selectedForMissing, setSelectedForMissing] = useState<number[]>([]);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
@@ -94,7 +96,13 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       try {
         const parsed = JSON.parse(saved);
         setItems(parsed.items);
-        if (parsed.status) setLocalOrderStatus(parsed.status);
+        
+        // If the server says it's completed or on hold, respect the server over local storage
+        if (order.status === 'completed' || order.status === 'on_hold') {
+          setLocalOrderStatus(order.status);
+        } else if (parsed.status) {
+          setLocalOrderStatus(parsed.status);
+        }
       } catch (e) {
         initFromOrder();
       }

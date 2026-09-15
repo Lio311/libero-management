@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { wcOrders, velourOrders, laburaOrders } from '@/lib/db/schema';
 import { BRAND_CONFIG, type Brand } from '@/lib/wc-config';
 import { eq, sql } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,6 +76,11 @@ export async function POST(request: Request) {
       if (payload.id) {
         await db.delete(ordersTable).where(eq(ordersTable.id, payload.id));
         console.log(`[WC Webhook] Deleted order ${payload.id} from ${store}`);
+        try {
+          revalidatePath('/shipping-scanner');
+        } catch (e) {
+          console.error('Failed to revalidate path:', e);
+        }
       }
       return NextResponse.json({ success: true, action: 'deleted' });
     }
@@ -102,6 +108,13 @@ export async function POST(request: Request) {
           : new Date(),
       };
 
+      // Check previous status from DB to detect status change
+      let previousStatus = 'processing';
+      const existingOrder = await db.select({ status: ordersTable.status }).from(ordersTable).where(eq(ordersTable.id, payload.id)).limit(1);
+      if (existingOrder.length > 0) {
+        previousStatus = existingOrder[0].status || 'processing';
+      }
+
       await db.insert(ordersTable).values(orderData).onConflictDoUpdate({
         target: ordersTable.id,
         set: {
@@ -118,6 +131,41 @@ export async function POST(request: Request) {
       });
 
       console.log(`[WC Webhook] Upserted order ${payload.id} (${payload.status}) for ${store}`);
+      
+      // Auto-generate Lionwheel label if order changed to completed
+      if (payload.status === 'completed' && previousStatus !== 'completed') {
+        const shippingLines = payload.shipping_lines || [];
+        const isPickup = shippingLines.some((sl: any) => sl.method_id === 'local_pickup' || sl.method_title?.includes('איסוף עצמי'));
+        
+        if (!isPickup) {
+          // Import dynamic module to avoid circular dependency in webhook Edge environment if any
+          const { createOrderLabel } = await import('@/app/actions/scanner-actions');
+          const { generatedShippingLabels } = await import('@/lib/db/schema');
+          
+          // Check if label already exists
+          const existingLabels = await db.select().from(generatedShippingLabels).where(eq(generatedShippingLabels.orderId, payload.id.toString())).limit(1);
+          if (existingLabels.length === 0) {
+            console.log(`[WC Webhook] Auto-generating Lionwheel label for completed order ${payload.id}`);
+            try {
+              const res = await createOrderLabel(payload.id, store);
+              if (!res.success) {
+                console.error(`[WC Webhook] Failed to auto-generate label: ${res.error}`);
+              }
+            } catch (labelError) {
+              console.error(`[WC Webhook] Error during label generation:`, labelError);
+            }
+          }
+        }
+      }
+      
+      // Clear Next.js cache so the scanner UI updates correctly
+      try {
+        revalidatePath('/shipping-scanner');
+        revalidatePath(`/shipping-scanner/${payload.id}`);
+      } catch (e) {
+        console.error('Failed to revalidate path:', e);
+      }
+
       return NextResponse.json({ success: true, action: topic, orderId: payload.id });
     }
 
