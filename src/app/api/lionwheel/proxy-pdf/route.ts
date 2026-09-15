@@ -68,12 +68,12 @@ export async function GET(request: Request) {
       const newPage = newDoc.addPage([width, height]);
       const embeddedPage = embeddedPages[i];
       
-      const scale = 0.90;
+      const scale = 0.82;
       const scaledWidth = width * scale;
       const scaledHeight = height * scale;
       
       // Shift more to the right: 20 points
-      const x = ((width - scaledWidth) / 2) + 20;
+      const x = ((width - scaledWidth) / 2) + 40;
       const y = (height - scaledHeight) / 2;
       
       newPage.drawPage(embeddedPage, {
