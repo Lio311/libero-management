@@ -54,8 +54,6 @@ export async function GET(request: Request) {
 
     const pdfBuffer = Buffer.from(base64 as string, 'base64');
     
-    // We will embed the original PDF into a new PDF of the same size,
-    // but scale the content down and shift it right to fix the printer cutoff.
     const origDoc = await PDFDocument.load(pdfBuffer);
     const newDoc = await PDFDocument.create();
     
@@ -68,14 +66,12 @@ export async function GET(request: Request) {
       const newPage = newDoc.addPage([width, height]);
       const embeddedPage = embeddedPages[i];
       
-      // Scale down by 8% to fit within printer physical margins
-      const scale = 0.92;
+      const scale = 0.90;
       const scaledWidth = width * scale;
       const scaledHeight = height * scale;
       
-      // Shift right to compensate for the specific left cutoff issue
-      // We center it vertically, but for horizontal, we add an extra +15 points to the right.
-      const x = ((width - scaledWidth) / 2) + 15;
+      // Shift more to the right: 20 points
+      const x = ((width - scaledWidth) / 2) + 20;
       const y = (height - scaledHeight) / 2;
       
       newPage.drawPage(embeddedPage, {
@@ -98,7 +94,8 @@ export async function GET(request: Request) {
     });
   } catch (error: any) {
     console.error('Error proxying PDF:', error);
-    return NextResponse.redirect(targetUrl);
+    // DO NOT REDIRECT! Return a 500 error so the daemon crashes and we know there's an error!
+    return new NextResponse('Internal Error Proxying PDF: ' + error.message, { status: 500 });
   } finally {
     if (browser) await browser.close();
   }
