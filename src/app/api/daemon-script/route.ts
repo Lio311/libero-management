@@ -116,12 +116,12 @@ async function startDaemon() {
                 await labelPage.goto(labelUrl, { waitUntil: 'networkidle2', timeout: 30000 }).catch(e => console.log('    [Label Goto]', e.message));
                 await new Promise(r => setTimeout(r, 2000));
                 
-                await labelPage.addStyleTag({ content: 'body, html { margin: 0 !important; padding: 0 !important; overflow: hidden !important; } @page { margin: 0 !important; }' });
+                await labelPage.addStyleTag({ content: 'body { padding-left: 30px !important; } html, body { overflow: hidden !important; } @page { margin: 0 !important; }' });
                 await labelPage.pdf({
                   path: tempPdfPath,
                   width: '100mm',
                   height: '150mm',
-                  margin: { top: '2mm', right: '0mm', bottom: '0mm', left: '8mm' },
+                  margin: { top: '2mm', right: '0mm', bottom: '0mm', left: '25mm' },
                   printBackground: true,
                   preferCSSPageSize: false,
                   pageRanges: '1',
