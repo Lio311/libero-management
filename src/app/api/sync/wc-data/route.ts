@@ -23,11 +23,13 @@ async function fetchFromWooCommerce(endpoint: string, queryParams: string = '', 
       'Authorization': `Basic ${auth}`,
       'Content-Type': 'application/json',
     },
+    signal: AbortSignal.timeout(15000)
   });
 
   if (!firstRes.ok) {
-    console.error(`WooCommerce API error: ${firstRes.status}`);
-    return [];
+    const errText = await firstRes.text();
+    console.error(`WooCommerce API error on first page: ${firstRes.status} - ${errText}`);
+    throw new Error(`WooCommerce API error: ${firstRes.status}`);
   }
 
   const totalPages = parseInt(firstRes.headers.get('x-wp-totalpages') || '1', 10);
@@ -41,8 +43,12 @@ async function fetchFromWooCommerce(endpoint: string, queryParams: string = '', 
     const res = await fetch(url, {
       method: 'GET',
       headers: { 'Authorization': `Basic ${auth}`, 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(15000)
     });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error(`WooCommerce API error on page ${p}: ${res.status}`);
+      throw new Error(`WooCommerce API error on page ${p}`);
+    }
     return res.json();
   };
 
@@ -264,3 +270,4 @@ export async function GET(request: Request) {
     );
   }
 }
+export const maxDuration = 300;
