@@ -12,6 +12,7 @@ interface ScannerClientProps {
   order: ScannerOrder;
   manualKeywords: string[];
   store?: string;
+  isAdmin?: boolean;
 }
 
 type ItemStatus = {
@@ -25,7 +26,7 @@ type ItemStatus = {
   imageUrl?: string;
 };
 
-export default function ScannerClient({ order, manualKeywords, store = "libero" }: ScannerClientProps) {
+export default function ScannerClient({ order, manualKeywords, store = "libero", isAdmin = false }: ScannerClientProps) {
   const router = useRouter();
   const [isCameraOpen, setIsCameraOpen] = useState(true);
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
@@ -580,21 +581,23 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             </button>
 
             {/* Copies selector */}
-            <div className="flex items-center h-14 rounded-xl border border-border bg-card overflow-hidden shrink-0">
-              <button
-                onClick={() => setLabelCopies(Math.max(1, labelCopies - 1))}
-                className="px-3 h-full text-lg font-bold hover:bg-secondary transition-colors text-muted-foreground"
-              >
-                −
-              </button>
-              <span className="px-2 text-base font-bold min-w-[28px] text-center">{labelCopies}</span>
-              <button
-                onClick={() => setLabelCopies(Math.min(10, labelCopies + 1))}
-                className="px-3 h-full text-lg font-bold hover:bg-secondary transition-colors text-muted-foreground"
-              >
-                +
-              </button>
-            </div>
+            {isAdmin && (
+              <div className="flex items-center h-14 rounded-xl border border-border bg-card overflow-hidden shrink-0">
+                <button
+                  onClick={() => setLabelCopies(Math.max(1, labelCopies - 1))}
+                  className="px-3 h-full text-lg font-bold hover:bg-secondary transition-colors text-muted-foreground"
+                >
+                  −
+                </button>
+                <span className="px-2 text-base font-bold min-w-[28px] text-center">{labelCopies}</span>
+                <button
+                  onClick={() => setLabelCopies(Math.min(10, labelCopies + 1))}
+                  className="px-3 h-full text-lg font-bold hover:bg-secondary transition-colors text-muted-foreground"
+                >
+                  +
+                </button>
+              </div>
+            )}
           </div>
           
           <button 
