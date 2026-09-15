@@ -78,8 +78,17 @@ export async function GET(req: NextRequest) {
     console.log('[proxy-pdf] PDF captured successfully, size:', base64.length, 'chars');
 
     const pdfBuffer = Buffer.from(base64, 'base64');
+    
+    // Shift the page content right by 15 points to avoid left cutoff
+    const { PDFDocument } = await import('pdf-lib');
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
+    const pages = pdfDoc.getPages();
+    for (const page of pages) {
+      page.translateContent(15, 0);
+    }
+    const modifiedPdfBytes = await pdfDoc.save();
 
-    return new NextResponse(pdfBuffer, {
+    return new NextResponse(Buffer.from(modifiedPdfBytes), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
