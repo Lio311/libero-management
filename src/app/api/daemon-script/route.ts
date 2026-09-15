@@ -121,11 +121,11 @@ async function startDaemon() {
                   path: tempPdfPath,
                   width: '100mm',
                   height: '150mm',
-                  margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
+                  margin: { top: '2mm', right: '0mm', bottom: '0mm', left: '8mm' },
                   printBackground: true,
                   preferCSSPageSize: false,
                   pageRanges: '1',
-                  scale: 0.90
+                  scale: 0.88
                 });
                 await labelPage.close();
                 
