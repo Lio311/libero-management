@@ -79,12 +79,27 @@ export async function GET(req: NextRequest) {
 
     const pdfBuffer = Buffer.from(base64, 'base64');
     
-    // Shift the page content right by 15 points to avoid left cutoff
+    // Scale the PDF down slightly and center it to avoid any printer cutoff
     const { PDFDocument } = await import('pdf-lib');
     const pdfDoc = await PDFDocument.load(pdfBuffer);
     const pages = pdfDoc.getPages();
+    
     for (const page of pages) {
-      page.translateContent(15, 0);
+      const { width, height } = page.getSize();
+      
+      // Scale down by 8% (0.92) to give it a safe margin all around
+      const scale = 0.92;
+      
+      // Calculate how much to shift to keep it centered
+      const xOffset = (width * (1 - scale)) / 2;
+      const yOffset = (height * (1 - scale)) / 2;
+      
+      page.scaleContent(scale, scale);
+      page.translateContent(xOffset, yOffset);
+      
+      // Also shift it slightly more to the right if the left barcode is still an issue
+      // We'll add an extra 15 points to the right
+      page.translateContent(20, 0);
     }
     const modifiedPdfBytes = await pdfDoc.save();
 
