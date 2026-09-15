@@ -110,25 +110,24 @@ async function startDaemon() {
             
             if (labelUrl) {
               try {
-                console.log(\`    Fetching pure PDF from server for shipping label...\`);
-                const proxyUrl = \`\${SITE_URL}/api/lionwheel/proxy-pdf?url=\${encodeURIComponent(labelUrl)}\`;
+                console.log(`    Rendering shipping label locally via Puppeteer...`);
+                const labelPage = await browser.newPage();
+                await labelPage.setViewport({ width: 378, height: 567, deviceScaleFactor: 2 });
+                await labelPage.goto(labelUrl, { waitUntil: 'networkidle2', timeout: 30000 }).catch(e => console.log('    [Label Goto]', e.message));
+                await new Promise(r => setTimeout(r, 2000));
                 
-                await new Promise((resolve, reject) => {
-                  const lib = proxyUrl.startsWith('https') ? https : http;
-                  lib.get(proxyUrl, (res) => {
-                    if (res.statusCode !== 200) {
-                      reject(new Error(\`Failed to download PDF. Status code: \${res.statusCode}\`));
-                      return;
-                    }
-                    const fileStream = fs.createWriteStream(tempPdfPath);
-                    res.pipe(fileStream);
-                    fileStream.on('finish', () => {
-                      fileStream.close();
-                      resolve();
-                    });
-                    fileStream.on('error', reject);
-                  }).on('error', reject);
+                await labelPage.addStyleTag({ content: 'body, html { margin: 0 !important; padding: 0 !important; overflow: hidden !important; } @page { margin: 0 !important; }' });
+                await labelPage.pdf({
+                  path: tempPdfPath,
+                  width: '100mm',
+                  height: '150mm',
+                  margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
+                  printBackground: true,
+                  preferCSSPageSize: false,
+                  pageRanges: '1',
+                  scale: 0.90
                 });
+                await labelPage.close();
                 
                 console.log(\`    Sending to delivery printer \${PRINTER_DELIVERY}...\`);
                 const cmd = \`"\${PDF_TO_PRINTER_EXE}" "\${tempPdfPath}" "\${PRINTER_DELIVERY}"\`;
