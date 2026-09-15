@@ -30,7 +30,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const [isCameraOpen, setIsCameraOpen] = useState(true);
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const [items, setItems] = useState<ItemStatus[]>([]);
-    const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed">(
+    const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed" | "waiting_for_label">(
       (order.status as "processing" | "ready" | "on_hold" | "completed") || "processing"
     );
   const [missingMode, setMissingMode] = useState(false);
@@ -42,6 +42,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const [mounted, setMounted] = useState(false);
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop" | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [shippingBarcode, setShippingBarcode] = useState<string | null>(order.shippingNumber || null);
 
   useEffect(() => {
     setDeviceType(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "mobile" : "desktop");
@@ -143,15 +144,43 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
 
   const processBarcode = (sku: string) => {
     if (!sku) return;
+    
+    // Normalize sku for comparison (remove leading zeros)
+    const normalizedScanned = sku.toLowerCase().replace(/^0+/, '');
 
-    if (localOrderStatus !== "processing") {
-      toast.error(`ההזמנה בסטטוס ${localOrderStatus === 'on_hold' ? 'מושהה' : 'הושלם'} ואינה ניתנת לסריקה`);
-      setScanError(`ההזמנה ${localOrderStatus === 'on_hold' ? 'מושהית' : 'הושלמה'}`);
+    if (localOrderStatus === "waiting_for_label") {
+      if (!shippingBarcode) {
+        toast.error("עדיין לא הופקה מדבקת משלוח. אנא הדפס מדבקה תחילה.");
+        setScanError("חסר ברקוד משלוח במערכת");
+        return;
+      }
+      
+      const normalizedShipping = shippingBarcode.toLowerCase().replace(/^0+/, '');
+      
+      if (sku.toLowerCase() === shippingBarcode.toLowerCase() || normalizedScanned === normalizedShipping) {
+        toast.success("ברקוד משלוח אומת בהצלחה!");
+        setLocalOrderStatus("ready");
+        setIsCameraOpen(false);
+        setShowCompletionModal(true);
+      } else {
+        toast.error(`ברקוד משלוח שגוי. אנא סרוק את המדבקה של הזמנה זו.`);
+        setScanError("ברקוד משלוח שגוי");
+      }
       return;
     }
 
-    const normalizedScanned = sku.toLowerCase().replace(/^0+/, '');
-    
+    if (localOrderStatus !== "processing") {
+      toast.error(`ההזמנה בסטטוס ${localOrderStatus === 'on_hold' ? 'מושהה' : localOrderStatus === 'ready' ? 'מוכן' : 'הושלם'} ואינה ניתנת לסריקה`);
+      setScanError(`ההזמנה ${localOrderStatus === 'on_hold' ? 'מושהית' : localOrderStatus === 'ready' ? 'מוכנה' : 'הושלמה'}`);
+      return;
+    }
+
+    if (shippingBarcode && (sku.toLowerCase() === shippingBarcode.toLowerCase() || normalizedScanned === shippingBarcode.toLowerCase().replace(/^0+/, ''))) {
+      toast.error("יש לסיים לסרוק את כל המוצרים לפני סריקת מדבקת המשלוח.");
+      setScanError("נא לסיים לסרוק את המוצרים קודם");
+      return;
+    }
+
     let itemIndex = items.findIndex(item => String(item.sku).trim().toLowerCase() === sku.toLowerCase() && !item.isManual);
     if (itemIndex === -1) {
       // Fallback: Try matching without leading zeros
@@ -289,8 +318,9 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         setLocalOrderStatus("on_hold");
         toast.warning("סריקה הסתיימה, אך יש פריטים חסרים. הסטטוס שונה למושהה.", { id: "all_done_missing" });
       } else {
-        setLocalOrderStatus("ready");
-        setShowCompletionModal(true);
+        setLocalOrderStatus("waiting_for_label");
+        toast.info("כל הפריטים נסרקו! נא לסרוק את מדבקת המשלוח לסיום.");
+        // We do not show completion modal yet, user needs to scan the shipping barcode
       }
     }
   };
@@ -352,6 +382,9 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       toast.info("מייצר מדבקת משלוח...");
       const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
       if (res.success && res.labelUrl) {
+        if (res.barcode) {
+          setShippingBarcode(res.barcode);
+        }
         toast.success("מדבקה נוצרה בהצלחה! פותח להדפסה...");
         
         // On mobile, use server-side proxy that extracts the real PDF
@@ -379,6 +412,9 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       toast.info("מייצר מדבקת משלוח...");
       const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
       if (res.success && res.labelUrl) {
+        if (res.barcode) {
+          setShippingBarcode(res.barcode);
+        }
         
         const printRes = await fetch("/api/remote-print", {
           method: "POST",
@@ -474,6 +510,11 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
           {localOrderStatus === "processing" && (
             <span className="w-full justify-center px-4 py-3 rounded-xl font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center gap-2">
               <ScanLine className="w-5 h-5" /> בתהליך סריקה
+            </span>
+          )}
+          {localOrderStatus === "waiting_for_label" && (
+            <span className="w-full justify-center px-4 py-3 rounded-xl font-bold bg-purple-500/10 text-purple-500 border border-purple-500/20 flex items-center gap-2">
+              <ScanLine className="w-5 h-5 animate-pulse" /> ממתין לסריקת מדבקת משלוח
             </span>
           )}
           {localOrderStatus === "on_hold" && (
@@ -592,7 +633,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               setScanError(null);
               setIsCameraOpen(true);
             }}
-            disabled={localOrderStatus !== "processing" || missingMode}
+            disabled={(localOrderStatus !== "processing" && localOrderStatus !== "waiting_for_label") || missingMode}
             className="w-full px-4 py-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-3 shadow-md border border-blue-500/50"
           >
             <Camera className="w-8 h-8" />
