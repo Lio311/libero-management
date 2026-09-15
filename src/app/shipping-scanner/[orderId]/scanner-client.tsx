@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ScannerOrder, markOrderCompleted, reportMissingItemsAction, createOrderLabel } from "@/app/actions/scanner-actions";
+import { ScannerOrder, markOrderCompleted, unmarkOrderCompleted, reportMissingItemsAction, createOrderLabel } from "@/app/actions/scanner-actions";
 import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2, Package, Printer, Camera } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import Link from "next/link";
@@ -142,6 +142,21 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
 
 
 
+  const handleAutoCompletion = async () => {
+    setIsCameraOpen(false);
+    toast.info("מעדכן סטטוס סיום...");
+    const success = await markOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
+    if (success) {
+      setLocalOrderStatus("completed");
+      toast.success("ברקוד משלוח אומת, וההזמנה נסגרה בהצלחה ובאתר!");
+      setShowCompletionModal(true);
+    } else {
+      toast.error("שגיאה בסגירת ההזמנה באתר, נסה שוב");
+      setLocalOrderStatus("ready");
+      setShowCompletionModal(true);
+    }
+  };
+
   const processBarcode = (sku: string) => {
     if (!sku) return;
     
@@ -158,10 +173,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       const normalizedShipping = shippingBarcode.toLowerCase().replace(/^0+/, '');
       
       if (sku.toLowerCase() === shippingBarcode.toLowerCase() || normalizedScanned === normalizedShipping) {
-        toast.success("ברקוד משלוח אומת בהצלחה!");
-        setLocalOrderStatus("ready");
-        setIsCameraOpen(false);
-        setShowCompletionModal(true);
+        handleAutoCompletion();
       } else {
         toast.error(`ברקוד משלוח שגוי. אנא סרוק את המדבקה של הזמנה זו.`);
         setScanError("ברקוד משלוח שגוי");
@@ -872,42 +884,82 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-10 h-10" />
             </div>
-            <h2 className="text-3xl font-bold text-foreground">כל הפריטים נסרקו!</h2>
-            <p className="text-muted-foreground text-lg">מה תרצה לעשות כעת?</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-              <button
-                onClick={async (e) => {
-                  const btn = e.currentTarget;
-                  btn.disabled = true;
-                  btn.innerHTML = "סוגר הזמנה...";
-                  const success = await markOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
-                  if (success) {
-                    setLocalOrderStatus("completed");
-                    setShowCompletionModal(false);
-                    toast.success("ההזמנה נסגרה בהצלחה ובאתר!");
-                    router.push(`/shipping-scanner?store=${store}`);
-                  } else {
-                    toast.error("שגיאה בסגירת ההזמנה באתר, נסה שוב");
-                    btn.disabled = false;
-                    btn.innerHTML = "<svg class='w-5 h-5 mr-2 inline' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg> סגירת הזמנה";
-                  }
-                }}
-                className="px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <CheckCircle2 className="w-5 h-5" />
-                סגירת הזמנה
-              </button>
-              <button
-                onClick={() => {
-                  setShowCompletionModal(false);
-                  router.push(`/shipping-scanner?store=${store}`);
-                }}
-                className="px-6 py-4 bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <ArrowRight className="w-5 h-5" />
-                חזרה להזמנות
-              </button>
-            </div>
+            {localOrderStatus === "completed" ? (
+              <>
+                <h2 className="text-3xl font-bold text-foreground">ההזמנה סומנה כהושלמה!</h2>
+                <p className="text-muted-foreground text-lg">כל המוצרים נסרקו ומדבקת המשלוח אומתה. ההזמנה עודכנה בהצלחה.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                  <button
+                    onClick={() => {
+                      setShowCompletionModal(false);
+                      router.push(`/shipping-scanner?store=${store}`);
+                    }}
+                    className="px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    <ArrowRight className="w-5 h-5" />
+                    חזרה לכל ההזמנות
+                  </button>
+                  <button
+                    onClick={async (e) => {
+                      const btn = e.currentTarget;
+                      btn.disabled = true;
+                      btn.innerHTML = "מבטל...";
+                      const success = await unmarkOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
+                      if (success) {
+                        setLocalOrderStatus("waiting_for_label");
+                        setShowCompletionModal(false);
+                        toast.success("סימון הסיום בוטל. ההזמנה חזרה למצב טיפול.");
+                      } else {
+                        toast.error("שגיאה בביטול הסיום באתר");
+                        btn.disabled = false;
+                        btn.innerHTML = "ביטול סימון סיום";
+                      }
+                    }}
+                    className="px-6 py-4 bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    <X className="w-5 h-5" />
+                    ביטול סימון סיום
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-3xl font-bold text-foreground">כל הפריטים נסרקו!</h2>
+                <p className="text-muted-foreground text-lg">מה תרצה לעשות כעת?</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                  <button
+                    onClick={async (e) => {
+                      const btn = e.currentTarget;
+                      btn.disabled = true;
+                      btn.innerHTML = "סוגר הזמנה...";
+                      const success = await markOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
+                      if (success) {
+                        setLocalOrderStatus("completed");
+                        toast.success("ההזמנה נסגרה בהצלחה ובאתר!");
+                      } else {
+                        toast.error("שגיאה בסגירת ההזמנה באתר, נסה שוב");
+                        btn.disabled = false;
+                        btn.innerHTML = "<svg class='w-5 h-5 mr-2 inline' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg> סגירת הזמנה";
+                      }
+                    }}
+                    className="px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle2 className="w-5 h-5" />
+                    סגירת הזמנה
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowCompletionModal(false);
+                      router.push(`/shipping-scanner?store=${store}`);
+                    }}
+                    className="px-6 py-4 bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    <ArrowRight className="w-5 h-5" />
+                    חזרה להזמנות
+                  </button>
+                </div>
+              </>
+            )}
             <button 
               onClick={() => setShowCompletionModal(false)}
               className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"

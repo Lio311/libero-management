@@ -326,6 +326,42 @@ export async function markOrderCompleted(orderId: number, store: "libero" | "vel
   }
 }
 
+export async function unmarkOrderCompleted(orderId: number, store: "libero" | "velour" | "labura" = "libero"): Promise<boolean> {
+  const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
+  const config = BRAND_CONFIG[store];
+  const auth = Buffer.from(`${config.ck}:${config.cs}`).toString('base64');
+  
+  try {
+    // 1. Update WooCommerce
+    const res = await fetch(`${config.baseUrl}/wp-json/wc/v3/orders/${orderId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Basic ${auth}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: 'processing' }),
+    });
+
+    if (!res.ok) {
+      console.error(`Failed to revert WC order ${orderId}`, await res.text());
+      return false;
+    }
+
+    // 2. Update local DB
+    await db.update(targetOrders)
+      .set({ status: 'processing', updatedAt: new Date() })
+      .where(eq(targetOrders.id, orderId));
+
+    revalidatePath('/shipping-scanner');
+    revalidatePath(`/shipping-scanner/${orderId}`);
+    
+    return true;
+  } catch (error) {
+    console.error('unmarkOrderCompleted error:', error);
+    return false;
+  }
+}
+
 
 export async function reportMissingItemsAction(data: {
   orderId: number;
