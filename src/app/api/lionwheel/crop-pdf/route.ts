@@ -12,16 +12,10 @@ export async function POST(request: Request) {
 
     const pdfBuffer = Buffer.from(base64, 'base64');
     const origDoc = await PDFDocument.load(pdfBuffer);
-    const newDoc = await PDFDocument.create();
+    const pages = origDoc.getPages();
     
-    const embeddedPages = await newDoc.embedPdf(pdfBuffer);
-    
-    for (let i = 0; i < embeddedPages.length; i++) {
-      const origPage = origDoc.getPages()[i];
-      const { width, height } = origPage.getSize();
-      
-      const newPage = newDoc.addPage([width, height]);
-      const embeddedPage = embeddedPages[i];
+    for (const page of pages) {
+      const { width, height } = page.getSize();
       
       const scale = 0.82;
       const scaledWidth = width * scale;
@@ -31,15 +25,13 @@ export async function POST(request: Request) {
       const x = ((width - scaledWidth) / 2) + 40;
       const y = (height - scaledHeight) / 2;
       
-      newPage.drawPage(embeddedPage, {
-        x,
-        y,
-        xScale: scale,
-        yScale: scale,
-      });
+      // Directly apply transformation to the existing page
+      // This avoids the "Can't embed page with missing Contents" error
+      page.scaleContent(scale, scale);
+      page.translateContent(x, y);
     }
     
-    const fixedPdfBase64 = await newDoc.saveAsBase64();
+    const fixedPdfBase64 = await origDoc.saveAsBase64();
 
     return NextResponse.json({ success: true, base64: fixedPdfBase64 });
   } catch (error: any) {
