@@ -57,10 +57,10 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
     activities: inf.activities || '',
     notes: inf.notes || '',
     influencerId: inf.influencerId || '',
-    baseSalary: actualBaseSalary,
-    baseLibero: actualBaseLibero,
-    baseVelour: actualBaseVelour,
-    baseLabura: actualBaseLabura
+    baseSalary: actualBaseSalary as any,
+    baseLibero: actualBaseLibero as any,
+    baseVelour: actualBaseVelour as any,
+    baseLabura: actualBaseLabura as any
   });
 
   const handleSave = async () => {
@@ -341,10 +341,10 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
     paymentMonth: payment.paymentMonth || '',
     notes: payment.notes || '',
     influencerId: payment.influencerId || '',
-    baseSalary: actualBaseSalary,
-    baseLibero: actualBaseLibero,
-    baseVelour: actualBaseVelour,
-    baseLabura: actualBaseLabura,
+    baseSalary: actualBaseSalary as any,
+    baseLibero: actualBaseLibero as any,
+    baseVelour: actualBaseVelour as any,
+    baseLabura: actualBaseLabura as any,
     monthlyBonus: payment.monthlyBonus || 0
   });
 
