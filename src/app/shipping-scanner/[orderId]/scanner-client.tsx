@@ -406,6 +406,29 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   };
 
   
+  
+  const handleTestRender = async () => {
+    setIsPrinting(true);
+    try {
+      toast.info("מרנדר מדבקת משלוח לבדיקה...");
+      const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
+      if (res.success && res.labelUrl) {
+        if (res.barcode) {
+          setShippingBarcode(res.barcode);
+        }
+        toast.success("מדבקה מוכנה! פותח כעת...");
+        const proxyUrl = "/api/lionwheel/proxy-pdf?url=" + encodeURIComponent(res.labelUrl);
+        window.open(proxyUrl, "_blank");
+      } else {
+        toast.error("שגיאה ביצירת המדבקה: " + (res.error || "לא ידוע"));
+      }
+    } catch (e) {
+      toast.error("שגיאה בתקשורת עם השרת");
+    } finally {
+      setIsPrinting(false);
+    }
+  };
+
   const handleRemotePrintLabel = async () => {
     setIsPrinting(true);
     try {
@@ -554,6 +577,16 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
                 הדפס מדבקות
               </button>
             )}
+
+            
+            <button 
+              onClick={handleTestRender}
+              disabled={isPrinting}
+              className="flex items-center justify-center gap-1.5 px-2 py-3 bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 rounded-xl font-bold transition-colors disabled:opacity-50 h-14 border border-amber-200 flex-1 whitespace-nowrap text-xs sm:text-sm"
+            >
+              <Camera className="w-4 h-4 shrink-0" />
+              בדיקה
+            </button>
 
             <button 
               onClick={handleRemotePrintLabel}
