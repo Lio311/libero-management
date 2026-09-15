@@ -118,9 +118,15 @@ export async function GET(request: Request) {
         
         let lastPriceChangeDate = existing?.lastPriceChangeDate || null;
         
-        // If price changed or this is a new product with a price, update lastPriceChangeDate
-        if (currentWooPrice !== null && oldPrice !== currentWooPrice) {
-          lastPriceChangeDate = new Date();
+        // If price changed (and there was an old price) or this is a completely new product (no existing record)
+        if (currentWooPrice !== null) {
+          if (!existing) {
+            // New product added
+            lastPriceChangeDate = new Date();
+          } else if (oldPrice !== null && oldPrice !== currentWooPrice) {
+            // Existing product whose price changed
+            lastPriceChangeDate = new Date();
+          }
         }
 
         return {
