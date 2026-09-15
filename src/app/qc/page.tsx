@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { getQcProducts, getQcStats } from "@/app/actions/qc-actions";
 import QcClient from "./qc-client";
 
