@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, integer, timestamp, date, decimal, serial, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, boolean, integer, timestamp, date, decimal, serial, jsonb, uniqueIndex } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const categories = pgTable("categories", {
@@ -482,3 +482,14 @@ export const manualCustomers = pgTable("manual_customers", {
   isVip: boolean("is_vip").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const orderScanProgress = pgTable("order_scan_progress", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  store: varchar("store", { length: 50 }).notNull(),
+  orderId: integer("order_id").notNull(),
+  items: jsonb("items").default('[]').notNull(),
+  status: varchar("status", { length: 50 }).default('processing').notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  storeOrderIdIdx: uniqueIndex("store_order_id_idx").on(table.store, table.orderId)
+}));

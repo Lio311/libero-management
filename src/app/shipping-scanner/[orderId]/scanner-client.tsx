@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ScannerOrder, markOrderCompleted, unmarkOrderCompleted, reportMissingItemsAction, createOrderLabel } from "@/app/actions/scanner-actions";
+import { ScannerOrder, markOrderCompleted, unmarkOrderCompleted, reportMissingItemsAction, createOrderLabel, getScanProgress, saveScanProgress } from "@/app/actions/scanner-actions";
 import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2, Package, Printer, Camera } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import Link from "next/link";
@@ -89,29 +89,42 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
     };
   }, [router]);
 
-  // Initialize state from local storage or order
+  // Initialize state from db, local storage or order
   useEffect(() => {
-    const storageKey = `scanner_order_${store}_${order.id}`;
-    let saved = localStorage.getItem(storageKey);
-    if (!saved && store === "libero") saved = localStorage.getItem(`scanner_order_${order.id}`);
-    
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
+    async function loadInitialState() {
+      // Try to load from server DB first
+      const dbProgress = await getScanProgress(store, order.id);
+      let parsed = null;
+      
+      if (dbProgress && dbProgress.items) {
+        parsed = { items: dbProgress.items, status: dbProgress.status };
+      } else {
+        // Fallback to local storage
+        const storageKey = `scanner_order_${store}_${order.id}`;
+        let saved = localStorage.getItem(storageKey);
+        if (!saved && store === "libero") saved = localStorage.getItem(`scanner_order_${order.id}`);
+        
+        if (saved) {
+          try {
+            parsed = JSON.parse(saved);
+          } catch (e) {}
+        }
+      }
+      
+      if (parsed && Array.isArray(parsed.items) && parsed.items.length > 0) {
         setItems(parsed.items);
         
-        // If the server says it's completed or on hold, respect the server over local storage
+        // If the server says it's completed or on hold, respect the server over local storage/db
         if (order.status === 'completed' || order.status === 'on_hold') {
           setLocalOrderStatus(order.status);
         } else if (parsed.status) {
           setLocalOrderStatus(parsed.status);
         }
-      } catch (e) {
+      } else {
         initFromOrder();
       }
-    } else {
-      initFromOrder();
     }
+    loadInitialState();
   }, [order, manualKeywords]);
 
   const initFromOrder = () => {
@@ -134,13 +147,18 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
     setItems(initialItems);
   };
 
-  // Save to local storage on change
+  // Save to local storage and DB on change
   useEffect(() => {
     if (items.length > 0) {
       const storageKey = `scanner_order_${store}_${order.id}`;
       localStorage.setItem(storageKey, JSON.stringify({ items, status: localOrderStatus }));
+      
+      // Fire and forget server save
+      saveScanProgress(store, order.id, items, localOrderStatus).catch(e => {
+        console.error("Failed to sync scan progress to DB", e);
+      });
     }
-  }, [items, localOrderStatus, order.id]);
+  }, [items, localOrderStatus, order.id, store]);
 
 
 

@@ -2,7 +2,7 @@
 import nodemailer from "nodemailer";
 
 import { db } from "@/lib/db";
-import { wcOrders, wcProducts, velourOrders, velourProducts, laburaOrders, laburaProducts, settings, qcProducts, generatedShippingLabels } from "@/lib/db/schema";
+import { wcOrders, wcProducts, velourOrders, velourProducts, laburaOrders, laburaProducts, settings, qcProducts, generatedShippingLabels, orderScanProgress } from "@/lib/db/schema";
 import { eq, desc, inArray, and, gte, count, or, like, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getCustomerHistory } from "@/lib/customer-history";
@@ -327,6 +327,10 @@ export async function markOrderCompleted(orderId: number, store: "libero" | "vel
       .set({ status: 'completed', updatedAt: new Date() })
       .where(eq(targetOrders.id, orderId));
 
+    // 3. Clean up scan progress from DB
+    await db.delete(orderScanProgress)
+      .where(and(eq(orderScanProgress.store, store), eq(orderScanProgress.orderId, orderId)));
+
     revalidatePath('/shipping-scanner');
     revalidatePath(`/shipping-scanner/${orderId}`);
     
@@ -501,7 +505,8 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
       company: storeCompanyMap[store] || storeCompanyMap.libero,
       destination_city: billing.city || "לא ידוע",
       destination_street: billing.address_1 || "לא ידוע",
-      destination_number: "0",
+      destination_number: "",
+      destination_apartment: billing.address_2 || "",
       destination_recipient_name: customerName,
       destination_phone: billing.phone || "לא ידוע",
       destination_email: billing.email || "",
@@ -810,5 +815,42 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
   } catch(e) {
     console.error("searchScannerOrders error:", e);
     return [];
+  }
+}
+
+export async function getScanProgress(store: string, orderId: number) {
+  try {
+    const records = await db.select().from(orderScanProgress).where(and(eq(orderScanProgress.store, store), eq(orderScanProgress.orderId, orderId)));
+    if (records.length > 0) {
+      return records[0];
+    }
+    return null;
+  } catch(e) {
+    console.error("getScanProgress error:", e);
+    return null;
+  }
+}
+
+export async function saveScanProgress(store: string, orderId: number, items: any[], status: string) {
+  try {
+    const existing = await db.select().from(orderScanProgress).where(and(eq(orderScanProgress.store, store), eq(orderScanProgress.orderId, orderId)));
+    
+    if (existing.length > 0) {
+      await db.update(orderScanProgress)
+        .set({ items, status, updatedAt: new Date() })
+        .where(eq(orderScanProgress.id, existing[0].id));
+    } else {
+      await db.insert(orderScanProgress).values({
+        store,
+        orderId,
+        items,
+        status,
+        updatedAt: new Date()
+      });
+    }
+    return true;
+  } catch(e) {
+    console.error("saveScanProgress error:", e);
+    return false;
   }
 }
