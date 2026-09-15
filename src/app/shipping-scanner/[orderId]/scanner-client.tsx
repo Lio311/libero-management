@@ -37,6 +37,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
   const [selectedForMissing, setSelectedForMissing] = useState<number[]>([]);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [showManualCloseModal, setShowManualCloseModal] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [labelCopies, setLabelCopies] = useState(1);
   const [mounted, setMounted] = useState(false);
@@ -595,6 +596,14 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
               </button>
             </div>
           </div>
+          
+          <button 
+            onClick={() => setShowManualCloseModal(true)}
+            className="flex items-center justify-center gap-1.5 px-4 py-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl font-bold transition-colors w-full h-14 border border-red-200"
+          >
+            <AlertTriangle className="w-5 h-5 shrink-0" />
+            סגירת הזמנה ידנית (פיצול הזמנות)
+          </button>
         </div>
       </div>
 
@@ -874,6 +883,54 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
             alt="Zoomed product" 
             className="max-w-full max-h-[90vh] object-contain rounded-lg"
           />
+        </div>
+      )}
+
+      {/* Manual Close Modal */}
+      {showManualCloseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
+          <div className="bg-card border-2 border-red-500 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6 animate-in zoom-in-95">
+            <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-10 h-10" />
+            </div>
+            <h2 className="text-3xl font-bold text-red-600">סגירת הזמנה ידנית</h2>
+            <p className="text-muted-foreground text-lg">
+              פעולה זו מיועדת למצבים של פיצול הזמנות (איחוד חבילות). ההזמנה תסומן כהושלמה במערכת ללא צורך בסריקת כל המוצרים. 
+              <br/><br/>
+              <strong>האם אתה בטוח שברצונך לסגור הזמנה זו ידנית?</strong>
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+              <button
+                onClick={async (e) => {
+                  const btn = e.currentTarget;
+                  btn.disabled = true;
+                  btn.innerHTML = "סוגר הזמנה...";
+                  const success = await markOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
+                  if (success) {
+                    setLocalOrderStatus("completed");
+                    setShowManualCloseModal(false);
+                    toast.success("ההזמנה נסגרה ידנית בהצלחה ובאתר!");
+                    router.push(`/shipping-scanner?store=${store}`);
+                  } else {
+                    toast.error("שגיאה בסגירת ההזמנה באתר, נסה שוב");
+                    btn.disabled = false;
+                    btn.innerHTML = "אישור וסגירה";
+                  }
+                }}
+                className="px-6 py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 className="w-5 h-5" />
+                אישור וסגירה
+              </button>
+              <button
+                onClick={() => setShowManualCloseModal(false)}
+                className="px-6 py-4 bg-secondary hover:bg-secondary/80 text-secondary-foreground border border-border rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <X className="w-5 h-5" />
+                ביטול
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

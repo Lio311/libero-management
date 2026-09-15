@@ -226,6 +226,16 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
       }
     }
     
+    // Fetch shipping label barcode if it exists
+    let shippingNumber = '';
+    const labelRows = await db.select({ barcode: generatedShippingLabels.barcode })
+      .from(generatedShippingLabels)
+      .where(eq(generatedShippingLabels.orderId, order.id.toString()))
+      .limit(1);
+    if (labelRows.length > 0 && labelRows[0].barcode) {
+      shippingNumber = labelRows[0].barcode;
+    }
+    
     return {
       id: order.id,
       customerName: customerName || `הזמנה #${order.id}`,
@@ -241,6 +251,7 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
       reward,
       gender: guessGender(billing?.first_name || ''),
       hasMultipleOrdersToday,
+      shippingNumber,
     };
   } catch (error: any) {
     console.error('getOrderById error:', error);
@@ -439,6 +450,22 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
   const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
   
   try {
+    // Check if label already exists
+    const existingLabels = await db.select()
+      .from(generatedShippingLabels)
+      .where(eq(generatedShippingLabels.orderId, orderId.toString()))
+      .orderBy(desc(generatedShippingLabels.id))
+      .limit(1);
+      
+    if (existingLabels.length > 0 && existingLabels[0].labelUrl) {
+      return { 
+        success: true, 
+        labelUrl: existingLabels[0].labelUrl || undefined, 
+        barcode: existingLabels[0].barcode || undefined,
+        region: '' 
+      };
+    }
+
     const orders = await db.select().from(targetOrders).where(eq(targetOrders.id, orderId)).limit(1);
     if (orders.length === 0) return { success: false, error: 'Order not found' };
 
