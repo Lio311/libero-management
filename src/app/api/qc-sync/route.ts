@@ -5,6 +5,7 @@ import { jwtVerify } from 'jose';
 import { db } from '@/lib/db';
 import { qcProducts } from '@/lib/db/schema';
 import { sql } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
 
 const LIBERO_CONFIG = BRAND_CONFIG.libero;
 
@@ -180,6 +181,7 @@ export async function GET(request: Request) {
       }
     }
 
+    revalidatePath('/qc');
     return NextResponse.json({
       success: true,
       added: wooProducts.length, // Not accurate if we update, but returning total fetched for info
