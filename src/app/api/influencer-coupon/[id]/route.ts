@@ -293,7 +293,7 @@ export async function GET(
 
                 
                 let comm = (o.subtotal / 1.18) * commRate;
-                const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav', 'efrat'];
+                const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav', 'efrat', 'moran'];
                 if (!noVatAddBack.includes(id)) {
                     comm = comm * 1.18;
                 }
@@ -346,7 +346,7 @@ export async function GET(
 
                 
                 let comm = (o.subtotal / 1.18) * commRate;
-                const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav', 'efrat'];
+                const noVatAddBack = ['maayan', 'tal', 'ayala', 'gold', 'noga', 'liya', 'shaked', 'hf', 'lian', 'reut', 'liz', 'yahav', 'efrat', 'moran'];
                 if (!noVatAddBack.includes(id)) {
                     comm = comm * 1.18;
                 }

@@ -176,6 +176,16 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
       { brand: 'libero', code: 'orika' }
     ]
   },
+  moran: {
+    id: 'moran',
+    name: "מורן לוי",
+    image: "/influencers/moran.jpg",
+    hasVat: false,
+    coupons: [
+      { brand: 'velour', code: 'מורן10' },
+      { brand: 'libero', code: 'מורן10' }
+    ]
+  },
   efrat: {
     id: 'efrat',
     name: "אפרת סביר",
