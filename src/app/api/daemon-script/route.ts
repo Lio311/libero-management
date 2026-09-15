@@ -110,7 +110,7 @@ async function startDaemon() {
             
             if (labelUrl) {
               try {
-                console.log(`    Rendering shipping label locally via Puppeteer...`);
+                console.log('    Rendering shipping label locally via Puppeteer...');
                 const labelPage = await browser.newPage();
                 await labelPage.setViewport({ width: 378, height: 567, deviceScaleFactor: 2 });
                 await labelPage.goto(labelUrl, { waitUntil: 'networkidle2', timeout: 30000 }).catch(e => console.log('    [Label Goto]', e.message));
