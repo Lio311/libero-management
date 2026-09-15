@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
-import { PDFDocument, degrees } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -53,14 +53,40 @@ export async function GET(request: Request) {
     }
 
     const pdfBuffer = Buffer.from(base64 as string, 'base64');
-    const pdfDoc = await PDFDocument.load(pdfBuffer);
     
-    for (const p of pdfDoc.getPages()) {
-      const currentRotation = p.getRotation().angle;
-      p.setRotation(degrees(currentRotation + 90));
+    // We will embed the original PDF into a new PDF of the same size,
+    // but scale the content down and shift it right to fix the printer cutoff.
+    const origDoc = await PDFDocument.load(pdfBuffer);
+    const newDoc = await PDFDocument.create();
+    
+    const embeddedPages = await newDoc.embedPdf(pdfBuffer);
+    
+    for (let i = 0; i < embeddedPages.length; i++) {
+      const origPage = origDoc.getPages()[i];
+      const { width, height } = origPage.getSize();
+      
+      const newPage = newDoc.addPage([width, height]);
+      const embeddedPage = embeddedPages[i];
+      
+      // Scale down by 8% to fit within printer physical margins
+      const scale = 0.92;
+      const scaledWidth = width * scale;
+      const scaledHeight = height * scale;
+      
+      // Shift right to compensate for the specific left cutoff issue
+      // We center it vertically, but for horizontal, we add an extra +15 points to the right.
+      const x = ((width - scaledWidth) / 2) + 15;
+      const y = (height - scaledHeight) / 2;
+      
+      newPage.drawPage(embeddedPage, {
+        x,
+        y,
+        xScale: scale,
+        yScale: scale,
+      });
     }
     
-    const fixedPdfBytes = await pdfDoc.save();
+    const fixedPdfBytes = await newDoc.save();
 
     return new NextResponse(Buffer.from(fixedPdfBytes), {
       status: 200,
