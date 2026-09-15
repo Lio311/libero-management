@@ -75,7 +75,7 @@ interface QcStats {
 
 type FilterMode = "all" | "not_inspected" | "inspected" | "needs_reinspection";
 type StockFilterMode = "in_stock" | "out_of_stock" | "all";
-type SortMode = "default" | "last_inspection_asc" | "last_inspection_desc" | "name_asc" | "name_desc";
+type SortMode = "default" | "last_inspection_asc" | "last_inspection_desc" | "name_asc" | "name_desc" | "last_price_change_asc" | "last_price_change_desc";
 
 function getProductStatus(product: QcProduct): "never" | "ok" | "warning" {
   if (!product.lastInspection) return "never";
@@ -632,6 +632,22 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
       case "name_desc":
         result.sort((a, b) => b.productName.localeCompare(a.productName, "he"));
         break;
+      case "last_price_change_asc":
+        result.sort((a, b) => {
+          if (!a.lastPriceChangeDate && !b.lastPriceChangeDate) return 0;
+          if (!a.lastPriceChangeDate) return -1;
+          if (!b.lastPriceChangeDate) return 1;
+          return new Date(a.lastPriceChangeDate).getTime() - new Date(b.lastPriceChangeDate).getTime();
+        });
+        break;
+      case "last_price_change_desc":
+        result.sort((a, b) => {
+          if (!a.lastPriceChangeDate && !b.lastPriceChangeDate) return 0;
+          if (!a.lastPriceChangeDate) return 1;
+          if (!b.lastPriceChangeDate) return -1;
+          return new Date(b.lastPriceChangeDate).getTime() - new Date(a.lastPriceChangeDate).getTime();
+        });
+        break;
       default:
         // Default: never inspected first, then needs reinspection (oldest first), then recently inspected
         result.sort((a, b) => {
@@ -715,6 +731,8 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
     last_inspection_desc: "תאריך בקרה: חדש ← ישן",
     name_asc: "שם: א ← ת",
     name_desc: "שם: ת ← א",
+    last_price_change_desc: "תאריך תמחור: חדש ← ישן",
+    last_price_change_asc: "תאריך תמחור: ישן ← חדש",
   };
 
   const stockFilterLabels: Record<StockFilterMode, string> = {
@@ -926,6 +944,8 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   <SelectItem value="last_inspection_desc">תאריך בקרה: חדש ← ישן</SelectItem>
                   <SelectItem value="name_asc">שם: א ← ת</SelectItem>
                   <SelectItem value="name_desc">שם: ת ← א</SelectItem>
+                  <SelectItem value="last_price_change_desc">תאריך תמחור: חדש ← ישן</SelectItem>
+                  <SelectItem value="last_price_change_asc">תאריך תמחור: ישן ← חדש</SelectItem>
                 </SelectContent>
               </Select>
               
@@ -981,6 +1001,8 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   <SelectItem value="last_inspection_desc">תאריך בקרה: חדש ← ישן</SelectItem>
                   <SelectItem value="name_asc">שם: א ← ת</SelectItem>
                   <SelectItem value="name_desc">שם: ת ← א</SelectItem>
+                  <SelectItem value="last_price_change_desc">תאריך תמחור: חדש ← ישן</SelectItem>
+                  <SelectItem value="last_price_change_asc">תאריך תמחור: ישן ← חדש</SelectItem>
                 </SelectContent>
               </Select>
               <div className="mt-2" />
