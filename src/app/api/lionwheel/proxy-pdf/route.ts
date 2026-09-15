@@ -87,26 +87,48 @@ export async function GET(req: NextRequest) {
     for (const page of pages) {
       const { width, height } = page.getSize();
       
-      // Scale down by 10% (0.90) to give it a safe margin all around
-      const scale = 0.90;
-      
-      // Calculate how much to shift to keep it centered
-      const xOffset = (width * (1 - scale)) / 2;
-      const yOffset = (height * (1 - scale)) / 2;
-      
-      page.scaleContent(scale, scale);
-      page.translateContent(xOffset, yOffset);
-      
-      // Also shift it slightly more to the right if the left barcode is still an issue
-      // We'll add an extra 25 points to the right
-      page.translateContent(10, 0);
-
-      // CRITICAL FIX: PDFtoPrinter.exe auto-crops empty space! 
-      // To prevent it from cropping the new margins we just created, 
-      // we draw tiny nearly invisible dots at the extreme corners of the page.
-      // This forces the bounding box of the content to be the full page size.
-      page.drawCircle({ x: 1, y: 1, size: 0.1, color: rgb(0,0,0) });
-      page.drawCircle({ x: width - 1, y: height - 1, size: 0.1, color: rgb(0,0,0) });
+      if (width > height) {
+        console.log('[proxy-pdf] Fixing landscape label to print horizontally on portrait paper');
+        // The original PDF is Landscape (e.g. 150 wide, 100 high).
+        // The printer uses 10x15 Portrait paper. If we leave it as Landscape, PDFtoPrinter will automatically rotate it 90 degrees,
+        // causing it to print sideways and get cut off.
+        // We must embed this Landscape content into a Portrait page (e.g. 100 wide, 150 high)
+        // so it prints horizontally across the top of the paper, exactly like the store labels do.
+        
+        const targetWidth = height; // e.g. 100
+        const targetHeight = width; // e.g. 150
+        
+        // Scale the content so its original width (150) fits into the new width (100) with a tiny 4% safety margin
+        const scale = (targetWidth * 0.96) / width; 
+        
+        // Change the actual PDF page dimensions to Portrait
+        page.setSize(targetWidth, targetHeight);
+        
+        // Scale the drawn content down
+        page.scaleContent(scale, scale);
+        
+        // Center it horizontally
+        const xOffset = (targetWidth - (width * scale)) / 2;
+        
+        // PDF coordinates start at (0,0) in the bottom-left. 
+        // We want the content at the TOP of the new 150-tall page, with a tiny top margin
+        const contentHeight = height * scale;
+        const topMargin = targetHeight * 0.02; // 2% top margin
+        const yOffset = targetHeight - contentHeight - topMargin;
+        
+        // Apply translation
+        page.translateContent(xOffset, yOffset);
+        
+        // Draw tiny dots at the absolute corners so PDFtoPrinter doesn't auto-crop the blank space at the bottom!
+        page.drawCircle({ x: 1, y: 1, size: 0.1, color: rgb(0,0,0) });
+        page.drawCircle({ x: targetWidth - 1, y: targetHeight - 1, size: 0.1, color: rgb(0,0,0) });
+        
+      } else {
+        // If it's ALREADY a portrait label (e.g., from the store system), we might not need to do anything!
+        // But just in case PDFtoPrinter auto-crops it, let's add the dots.
+        page.drawCircle({ x: 1, y: 1, size: 0.1, color: rgb(0,0,0) });
+        page.drawCircle({ x: width - 1, y: height - 1, size: 0.1, color: rgb(0,0,0) });
+      }
     }
     const modifiedPdfBytes = await pdfDoc.save();
 
