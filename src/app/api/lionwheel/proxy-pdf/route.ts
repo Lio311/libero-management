@@ -13,12 +13,12 @@ export async function GET(request: Request) {
 
   let browser;
   try {
-    const headlessMode = chromium.headless as any;
+    const headlessMode = (chromium as any).headless;
     browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: { width: 1200, height: 800 },
       executablePath: await chromium.executablePath(),
-      headless: headlessMode,
+      headless: headlessMode === false ? false : 'new',
     });
     
     const page = await browser.newPage();
