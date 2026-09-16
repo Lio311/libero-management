@@ -153,17 +153,24 @@ export default function ScannerListClient({
     const readys: number[] = [];
     orders.forEach(o => {
       if (o.status === 'processing') {
-        let saved = localStorage.getItem(`scanner_order_${store}_${o.id}`);
-        if (!saved && store === "libero") saved = localStorage.getItem(`scanner_order_${o.id}`);
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            if (parsed.status === 'ready') {
-              readys.push(o.id);
-            } else if (parsed.status !== 'completed' && parsed.items?.some((i: any) => i.scanned > 0 || i.isMissing)) {
-              partials.push(o.id);
-            }
-          } catch (e) {}
+        let parsed = o.scanProgress;
+        
+        if (!parsed) {
+          let saved = localStorage.getItem(`scanner_order_${store}_${o.id}`);
+          if (!saved && store === "libero") saved = localStorage.getItem(`scanner_order_${o.id}`);
+          if (saved) {
+            try {
+              parsed = JSON.parse(saved);
+            } catch (e) {}
+          }
+        }
+        
+        if (parsed) {
+          if (parsed.status === 'ready') {
+            readys.push(o.id);
+          } else if (parsed.status !== 'completed' && parsed.items?.some((i: any) => i.scanned > 0 || i.isMissing)) {
+            partials.push(o.id);
+          }
         }
       }
     });

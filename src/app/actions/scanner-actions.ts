@@ -27,6 +27,7 @@ export type ScannerOrder = {
   gender?: 'male' | 'female' | 'unknown';
   shippingNumber?: string;
   hasMultipleOrdersToday?: boolean;
+  scanProgress?: { items: any[], status: string } | null;
 };
 
 export async function getScannerSettings(): Promise<string[]> {
@@ -120,10 +121,16 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
     const orders = [...processingOrders, ...completedOrders];
 
     const orderIdsStr = orders.map(o => o.id.toString());
+    const orderIdsNum = orders.map(o => o.id);
     const labels = orderIdsStr.length > 0 
       ? await db.select({ orderId: generatedShippingLabels.orderId, barcode: generatedShippingLabels.barcode }).from(generatedShippingLabels).where(inArray(generatedShippingLabels.orderId, orderIdsStr))
       : [];
     const labelMap = new Map(labels.map(l => [l.orderId, l.barcode]));
+
+    const progressRecords = orderIdsNum.length > 0
+      ? await db.select({ orderId: orderScanProgress.orderId, items: orderScanProgress.items, status: orderScanProgress.status }).from(orderScanProgress).where(and(eq(orderScanProgress.store, store), inArray(orderScanProgress.orderId, orderIdsNum)))
+      : [];
+    const progressMap = new Map(progressRecords.map(p => [p.orderId, { items: p.items, status: p.status }]));
 
     const mappedOrders = orders.map(order => {
       const billing = order.billing as any;
@@ -146,6 +153,8 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
         notes: (order.customerNote as string) || (order as any).customer_note || '',
         gender: guessGender(billing?.first_name || ''),
         shippingNumber: labelMap.get(order.id.toString()) || '',
+        hasMultipleOrdersToday: false,
+        scanProgress: progressMap.get(order.id) || null,
       };
     });
     
@@ -620,6 +629,8 @@ export async function getArchivedCompletedOrders(store: "libero" | "velour" | "l
         notes: (order.customerNote as string) || (order as any).customer_note || '',
         gender: guessGender(billing?.first_name || ''),
         shippingNumber: labelMap.get(order.id.toString()) || '',
+        hasMultipleOrdersToday: false,
+        scanProgress: null,
       };
     });
   } catch (error: any) {
@@ -784,10 +795,16 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
     }
 
     const finalIdsStr = dbOrders.map(o => o.id.toString());
+    const finalIdsNum = dbOrders.map(o => o.id);
     const finalLabels = finalIdsStr.length > 0 
       ? await db.select({ orderId: generatedShippingLabels.orderId, barcode: generatedShippingLabels.barcode }).from(generatedShippingLabels).where(inArray(generatedShippingLabels.orderId, finalIdsStr))
       : [];
       
+    const progressRecords = finalIdsNum.length > 0
+      ? await db.select({ orderId: orderScanProgress.orderId, items: orderScanProgress.items, status: orderScanProgress.status }).from(orderScanProgress).where(and(eq(orderScanProgress.store, store), inArray(orderScanProgress.orderId, finalIdsNum)))
+      : [];
+    const progressMap = new Map(progressRecords.map(p => [p.orderId, { items: p.items, status: p.status }]));
+
     const labelMap = new Map();
     // Add the ones found in the fallback search (or initial search)
     for (const l of labels) {
@@ -807,7 +824,9 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
         shippingAddress: billing ? `${billing.city || ''} ${billing.address_1 || ''}`.trim() : null,
         customerName: billing ? `${billing.first_name || ''} ${billing.last_name || ''}`.trim() : null,
         phone: billing ? billing.phone : null,
-        isPickup: (order.shippingLines as any[])?.some((line: any) => line.method_id === "local_pickup") || false
+        isPickup: (order.shippingLines as any[])?.some((line: any) => line.method_id === "local_pickup") || false,
+        hasMultipleOrdersToday: false,
+        scanProgress: progressMap.get(order.id) || null,
       };
     });
     
