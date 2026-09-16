@@ -28,6 +28,7 @@ const isPublicRoute = createRouteMatcher([
   '/api/lionwheel/auto-print(.*)',
   '/api/cron/wholesale-scanner(.*)',
   '/api/cron/generate-qc-report(.*)',
+  '/api/cron/wholesale-digest(.*)',
   '/api/lindo-image(.*)',
   '/api/test-catalog(.*)',
   '/api/test-image(.*)',
