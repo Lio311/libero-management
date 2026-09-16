@@ -188,7 +188,9 @@ export const influencersConfig: Record<string, InfluencerConfig> = {
     hasVat: false,
     coupons: [
       { brand: 'velour', code: 'מורן15' },
-      { brand: 'libero', code: 'מורן15' }
+      { brand: 'velour', code: 'מורן10' },
+      { brand: 'libero', code: 'מורן15' },
+      { brand: 'libero', code: 'מורן10' }
     ]
   },
   efrat: {
