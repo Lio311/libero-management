@@ -435,34 +435,36 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                     <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.avg_order_value)}</p>
                                 </div>
                                 
-                                <>
-                                    <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                        <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ עמלה {hasVat ? '(כולל מע"מ)' : ''}</p>
-                                        <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.commission)}</p>
-                                        {commissionRateStr && (!summary.coupon_rates || Object.keys(summary.coupon_rates).length === 0) && (
-                                            <p className="text-sm font-medium text-[#6d6d6d] mt-1">לפי {commissionRateStr} מהמכירות</p>
-                                        )}
-                                    </div>
-                                    {!!summary.base_salary && (
+                                {influencerId !== 'moran' && (
+                                    <>
                                         <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                            <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">שכר בסיס</p>
-                                            <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.base_salary)}</p>
+                                            <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ עמלה {hasVat ? '(כולל מע"מ)' : ''}</p>
+                                            <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.commission)}</p>
+                                            {commissionRateStr && (!summary.coupon_rates || Object.keys(summary.coupon_rates).length === 0) && (
+                                                <p className="text-sm font-medium text-[#6d6d6d] mt-1">לפי {commissionRateStr} מהמכירות</p>
+                                            )}
                                         </div>
-                                    )}
-                                    {!!summary.monthly_bonus && (
-                                        <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                            <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">תוספת חודשית</p>
-                                            <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.monthly_bonus)}</p>
-                                        </div>
-                                    )}
-                                    <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-blue-500/20">
-                                        <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ לתשלום</p>
-                                        <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission + (summary.base_salary || 0) + (summary.monthly_bonus || 0))}</p>
-                                        {hasVat && (
-                                            <p className="text-sm font-medium text-white/70 mt-1" dir="ltr">{formatILS((summary.commission + (summary.base_salary || 0) + (summary.monthly_bonus || 0)) / 1.18)} לא כולל מע"מ</p>
+                                        {!!summary.base_salary && (
+                                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">שכר בסיס</p>
+                                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.base_salary)}</p>
+                                            </div>
                                         )}
-                                    </div>
-                                </>
+                                        {!!summary.monthly_bonus && (
+                                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
+                                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">תוספת חודשית</p>
+                                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.monthly_bonus)}</p>
+                                            </div>
+                                        )}
+                                        <div className="bg-gradient-to-br from-blue-500 to-indigo-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-blue-500/20">
+                                            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">סה"כ לתשלום</p>
+                                            <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.commission + (summary.base_salary || 0) + (summary.monthly_bonus || 0))}</p>
+                                            {hasVat && (
+                                                <p className="text-sm font-medium text-white/70 mt-1" dir="ltr">{formatILS((summary.commission + (summary.base_salary || 0) + (summary.monthly_bonus || 0)) / 1.18)} לא כולל מע"מ</p>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
                                 
                                 {summary.duduar_bottles !== undefined && (
                                     <>
@@ -474,10 +476,12 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                             <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות דודואר (כולל מע"מ)</p>
                                             <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.duduar_revenue || 0)}</p>
                                         </div>
-                                        <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-purple-500/20">
-                                            <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלת דודואר</p>
-                                            <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.duduar_commission || 0)}</p>
-                                        </div>
+                                        {influencerId !== 'moran' && (
+                                            <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-purple-500/20">
+                                                <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלת דודואר</p>
+                                                <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.duduar_commission || 0)}</p>
+                                            </div>
+                                        )}
                                     </>
                                 )}
                             </div>
@@ -507,16 +511,18 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">מכירות (כולל מע"מ)</p>
                                                     <p className="text-lg font-black text-slate-800" dir="ltr">{formatILS(bs.total_revenue)}</p>
                                                 </div>
-                                                <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100/50 shadow-sm flex flex-col justify-center">
-                                                    <p className="text-[10px] font-bold text-blue-500/80 uppercase tracking-wider mb-0.5">עמלה {hasVat ? '(כולל מע"מ)' : ''}</p>
-                                                    <p className="text-lg font-black text-blue-600 leading-tight" dir="ltr">{formatILS(bs.commission)}</p>
-                                                    {hasVat && (
-                                                        <p className="text-[9px] font-medium text-blue-500/70 mt-0.5 leading-tight" dir="ltr">{formatILS(bs.commission / 1.18)} לא כולל מע"מ</p>
-                                                    )}
-                                                    {getBrandCommissionRateStr(brand) && (
-                                                        <p className="text-[9px] font-medium text-blue-500/70 mt-0.5 leading-tight">לפי {getBrandCommissionRateStr(brand)} מהמכירות</p>
-                                                    )}
-                                                </div>
+                                                {influencerId !== 'moran' && (
+                                                    <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100/50 shadow-sm flex flex-col justify-center">
+                                                        <p className="text-[10px] font-bold text-blue-500/80 uppercase tracking-wider mb-0.5">עמלה {hasVat ? '(כולל מע"מ)' : ''}</p>
+                                                        <p className="text-lg font-black text-blue-600 leading-tight" dir="ltr">{formatILS(bs.commission)}</p>
+                                                        {hasVat && (
+                                                            <p className="text-[9px] font-medium text-blue-500/70 mt-0.5 leading-tight" dir="ltr">{formatILS(bs.commission / 1.18)} לא כולל מע"מ</p>
+                                                        )}
+                                                        {getBrandCommissionRateStr(brand) && (
+                                                            <p className="text-[9px] font-medium text-blue-500/70 mt-0.5 leading-tight">לפי {getBrandCommissionRateStr(brand)} מהמכירות</p>
+                                                        )}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -527,7 +533,7 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
 
                     
                             {/* Monthly Settings - Admin Only */}
-                            {isAdmin && (
+                            {isAdmin && influencerId !== 'moran' && (
                             <div className="bg-white p-6 rounded-3xl border border-black/[0.07] shadow-sm mt-8">
                                 <h3 className="text-xl font-bold text-slate-800 mb-4">הגדרות תשלום לחודש זה</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

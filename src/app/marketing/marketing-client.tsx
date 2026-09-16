@@ -215,16 +215,20 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
-        <div className="flex flex-col items-center">
-          <span>{actualBaseSalary ? `₪${formatCurrency(actualBaseSalary)}` : '-'}</span>
-          {(actualBaseLibero > 0 || actualBaseVelour > 0 || actualBaseLabura > 0) && (
-            <div className="text-[10px] text-gray-500 font-normal leading-tight mt-1 flex flex-col gap-0.5">
-              {actualBaseLibero > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(actualBaseLibero)}</div>}
-              {actualBaseVelour > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(actualBaseVelour)}</div>}
-              {actualBaseLabura > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(actualBaseLabura)}</div>}
-            </div>
-          )}
-        </div>
+        {inf.influencerId === 'moran' ? (
+          <span className="text-gray-400">-</span>
+        ) : (
+          <div className="flex flex-col items-center">
+            <span>{actualBaseSalary ? `₪${formatCurrency(actualBaseSalary)}` : '-'}</span>
+            {(actualBaseLibero > 0 || actualBaseVelour > 0 || actualBaseLabura > 0) && (
+              <div className="text-[10px] text-gray-500 font-normal leading-tight mt-1 flex flex-col gap-0.5">
+                {actualBaseLibero > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(actualBaseLibero)}</div>}
+                {actualBaseVelour > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(actualBaseVelour)}</div>}
+                {actualBaseLabura > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(actualBaseLabura)}</div>}
+              </div>
+            )}
+          </div>
+        )}
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">סרטונים</span>
@@ -488,6 +492,7 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
   const selectedInfluencer = rawInfluencers?.find((i: any) => i.influencerId === currentInfluencerId);
   const monthlyBonus = Number(payment.monthlyBonus || 0);
   const totalPayment = (commission || 0) + actualBaseSalary + monthlyBonus;
+  const isMoran = currentInfluencerId === 'moran';
 
   return (
     <tr className="hover:bg-gray-50/50 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
@@ -503,7 +508,9 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       </td>
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-blue-600">
         <span className="md:hidden text-gray-500 text-sm">עמלת קופונים</span>
-        {isLoadingCommission ? (
+        {isMoran ? (
+           <span className="text-gray-400">-</span>
+        ) : isLoadingCommission ? (
            <Loader2 className="animate-spin inline-block w-4 h-4 text-blue-400" />
         ) : (
            <span dir="ltr">₪{commission ? formatCurrency(commission) : '0'}</span>
@@ -511,24 +518,28 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
       </td>
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-purple-600">
         <span className="md:hidden text-gray-500 text-sm">שכר בסיס</span>
-        <div className="flex flex-col items-center">
-          <span dir="ltr">₪{formatCurrency(actualBaseSalary)}</span>
-          {(actualBaseLibero > 0 || actualBaseVelour > 0 || actualBaseLabura > 0) && (
-            <div className="text-[10px] text-gray-500 font-normal leading-tight mt-1 flex flex-col gap-0.5">
-              {actualBaseLibero > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(actualBaseLibero)}</div>}
-              {actualBaseVelour > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(actualBaseVelour)}</div>}
-              {actualBaseLabura > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(actualBaseLabura)}</div>}
-            </div>
-          )}
-        </div>
+        {isMoran ? (
+          <span className="text-gray-400">-</span>
+        ) : (
+          <div className="flex flex-col items-center">
+            <span dir="ltr">₪{formatCurrency(actualBaseSalary)}</span>
+            {(actualBaseLibero > 0 || actualBaseVelour > 0 || actualBaseLabura > 0) && (
+              <div className="text-[10px] text-gray-500 font-normal leading-tight mt-1 flex flex-col gap-0.5">
+                {actualBaseLibero > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(actualBaseLibero)}</div>}
+                {actualBaseVelour > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(actualBaseVelour)}</div>}
+                {actualBaseLabura > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(actualBaseLabura)}</div>}
+              </div>
+            )}
+          </div>
+        )}
       </td>
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-center text-pink-600">
         <span className="md:hidden text-gray-500 text-sm">תוספת חודשית</span>
-        <span dir="ltr">₪{formatCurrency(monthlyBonus)}</span>
+        {isMoran ? <span className="text-gray-400">-</span> : <span dir="ltr">₪{formatCurrency(monthlyBonus)}</span>}
       </td>
       <td className="py-1 md:py-3 px-2 font-bold flex justify-between items-center md:table-cell text-center text-emerald-600">
         <span className="md:hidden text-gray-500 text-sm">סה"כ לתשלום</span>
-        <span dir="ltr">₪{formatCurrency(totalPayment)}</span>
+        {isMoran ? <span className="text-gray-400">-</span> : <span dir="ltr">₪{formatCurrency(totalPayment)}</span>}
       </td>
       <td className="py-1 md:py-3 px-2 flex justify-between items-center md:table-cell text-center">
         <span className="md:hidden text-gray-500 text-sm">בוצע?</span>
