@@ -79,9 +79,9 @@ type SortMode = "default" | "last_inspection_asc" | "last_inspection_desc" | "na
 
 function getProductStatus(product: QcProduct): "never" | "ok" | "warning" {
   if (!product.lastInspection) return "never";
-  const threeMonthsAgo = new Date();
-  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-  return new Date(product.lastInspection) < threeMonthsAgo ? "warning" : "ok";
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  return new Date(product.lastInspection) < oneWeekAgo ? "warning" : "ok";
 }
 
 function getRowClassName(status: "never" | "ok" | "warning") {
@@ -205,21 +205,21 @@ function ProductRow({ product }: { product: QcProduct }) {
         <td className="py-2 px-2 text-center whitespace-nowrap">
           <button
             onClick={handleInspect}
-            disabled={isPending || justInspected || status === "ok"}
+            disabled={isPending || justInspected}
             className={`inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all duration-300 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
               isPending
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : justInspected || status === "ok"
+                : justInspected
                 ? "bg-green-100 text-green-700 cursor-default shadow-inner"
                 : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 shadow-sm hover:shadow active:scale-95"
             }`}
           >
             {isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
-            ) : justInspected || status === "ok" ? (
+            ) : justInspected ? (
               <>
-                <CheckCircle2 className={`w-4 h-4 ${justInspected ? "animate-in zoom-in spin-in-180" : ""}`} />
-                <span className={justInspected ? "animate-in fade-in slide-in-from-right-2" : ""}>בוצע</span>
+                <CheckCircle2 className="w-4 h-4 animate-in zoom-in spin-in-180" />
+                <span className="animate-in fade-in slide-in-from-right-2">בוצע</span>
               </>
             ) : (
               <>
@@ -328,17 +328,39 @@ function ProductRow({ product }: { product: QcProduct }) {
 
       {/* Desktop History Row */}
       {showHistory && (
-        <tr className="hidden md:table-row">
-          <td colSpan={8} className="px-4 py-2 bg-gray-50/50">
-            <div className="flex flex-wrap gap-2 pr-14">
-              {product.inspections.map((insp) => (
-                <span
-                  key={insp.id}
-                  className="inline-flex items-center px-2 py-0.5 text-[11px] bg-blue-50 text-blue-600 rounded-full"
-                >
-                  {format(new Date(insp.inspectedAt), "dd/MM/yyyy HH:mm", { locale: he })}
-                </span>
-              ))}
+        <tr className="hidden md:table-row bg-slate-50/80 shadow-inner">
+          <td colSpan={9} className="px-6 py-4 border-b border-gray-100">
+            <div className="flex flex-col gap-3">
+              <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <ClipboardCheck className="w-4 h-4 text-blue-500" />
+                יומן בקרות 
+              </h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {product.inspections.map((insp, index) => (
+                  <div
+                    key={insp.id}
+                    className="flex flex-col p-2.5 bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md hover:border-blue-100 transition-all"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
+                        בקרה {product.inspections.length - index}
+                      </span>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-900">
+                      {format(new Date(insp.inspectedAt), "dd/MM/yyyy", { locale: he })}
+                    </span>
+                    <span className="text-xs text-gray-500 mt-0.5">
+                      {format(new Date(insp.inspectedAt), "HH:mm", { locale: he })}
+                    </span>
+                    {insp.inspectedBy && (
+                      <span className="text-[10px] text-gray-400 mt-1 truncate" title={insp.inspectedBy}>
+                        ע"י {insp.inspectedBy}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </td>
         </tr>
@@ -461,16 +483,29 @@ function ProductRow({ product }: { product: QcProduct }) {
             {/* Mobile History */}
             {product.inspections.length > 0 && (
               <div className="px-3 pb-3">
-                <button onClick={() => setShowHistory(!showHistory)} className="text-[11px] text-blue-500 flex items-center gap-0.5">
+                <button onClick={() => setShowHistory(!showHistory)} className="text-[11px] text-blue-500 flex items-center gap-0.5 font-medium">
                   היסטוריית {product.inspections.length} בקרות
                   {showHistory ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 </button>
                 {showHistory && (
-                  <div className="mt-1.5 flex flex-wrap gap-1">
-                    {product.inspections.map((insp) => (
-                      <span key={insp.id} className="px-2 py-0.5 text-[10px] bg-blue-50 text-blue-600 rounded-full">
-                        {format(new Date(insp.inspectedAt), "dd/MM/yy HH:mm", { locale: he })}
-                      </span>
+                  <div className="mt-2 flex flex-col gap-2 bg-slate-50 p-2 rounded-lg border border-gray-100">
+                    {product.inspections.map((insp, index) => (
+                      <div key={insp.id} className="flex items-center justify-between bg-white p-2 rounded border border-gray-50 shadow-sm">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-gray-400">בקרה {product.inspections.length - index}</span>
+                          <span className="text-[11px] font-medium text-gray-800">
+                            {format(new Date(insp.inspectedAt), "dd/MM/yy HH:mm", { locale: he })}
+                          </span>
+                        </div>
+                        {insp.inspectedBy && (
+                          <span className="text-[10px] text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">
+                            {insp.inspectedBy}
+                          </span>
+                        )}
+                        {!insp.inspectedBy && (
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
@@ -572,8 +607,8 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
     }
 
     // Filter
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     switch (filterMode) {
       case "not_inspected":
@@ -585,13 +620,13 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
       case "inspected":
         result = result.filter((p) => {
           const last = initialInspectionRef.current.has(p.id) ? initialInspectionRef.current.get(p.id) : p.lastInspection;
-          return last && new Date(last) >= threeMonthsAgo;
+          return last && new Date(last) >= oneWeekAgo;
         });
         break;
       case "needs_reinspection":
         result = result.filter((p) => {
           const last = initialInspectionRef.current.has(p.id) ? initialInspectionRef.current.get(p.id) : p.lastInspection;
-          return last && new Date(last) < threeMonthsAgo;
+          return last && new Date(last) < oneWeekAgo;
         });
         break;
     }
@@ -656,9 +691,9 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
           
           const getStatus = (last: Date | null | undefined) => {
             if (!last) return "never";
-            const threeMonthsAgoDate = new Date();
-            threeMonthsAgoDate.setMonth(threeMonthsAgoDate.getMonth() - 3);
-            return new Date(last) < threeMonthsAgoDate ? "warning" : "ok";
+            const oneWeekAgoDate = new Date();
+            oneWeekAgoDate.setDate(oneWeekAgoDate.getDate() - 7);
+            return new Date(last) < oneWeekAgoDate ? "warning" : "ok";
           };
 
           const statusA = getStatus(aLast);
@@ -692,8 +727,8 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
       });
     }
 
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     let inspected = 0;
     let needsReinspection = 0;
@@ -702,7 +737,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
     for (const p of baseProducts) {
       if (!p.lastInspection) {
         neverInspected++;
-      } else if (new Date(p.lastInspection) < threeMonthsAgo) {
+      } else if (new Date(p.lastInspection) < oneWeekAgo) {
         needsReinspection++;
       } else {
         inspected++;
