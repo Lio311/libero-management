@@ -260,41 +260,25 @@ function ProductRow({ product }: { product: QcProduct }) {
             <span className="font-medium text-gray-900 text-[13px]">
               {product.currentPrice ? `₪${product.currentPrice}` : "—"}
             </span>
-            {product.lastPriceChangeDate && (
-              <span className="text-[10px] text-gray-400">
-                עודכן: {format(new Date(product.lastPriceChangeDate), "dd/MM/yy", { locale: he })}
-              </span>
-            )}
-          </div>
-        </td>
-
-        {/* Price Status */}
-        <td className="py-2 px-2 text-center whitespace-nowrap">
-          <div className="flex flex-col items-center gap-1">
-            <Select
-              value={product.priceStatus || "טרם נבדק"}
-              onValueChange={(val) => {
-                const newStatus = val === "טרם נבדק" ? null : val;
-                startTransition(async () => {
-                  await updateProductPriceStatus(product.id, newStatus);
-                });
-              }}
-              disabled={isPending}
-            >
-              <SelectTrigger className="w-[110px] mx-auto h-7 text-[11px] bg-white border-gray-200 focus:ring-0 focus:ring-offset-0 px-2">
-                <SelectValue placeholder="בחר סטטוס" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="טרם נבדק">טרם נבדק</SelectItem>
-                <SelectItem value="בוצע שינוי תמחור">בוצע שינוי תמחור</SelectItem>
-                <SelectItem value="לא בוצע שינוי תמחור">לא בוצע שינוי תמחור</SelectItem>
-                <SelectItem value="המחיר הושאר זהה">המחיר הושאר זהה</SelectItem>
-              </SelectContent>
-            </Select>
-            {product.priceStatusDate && (
-              <span className="text-[10px] text-gray-400">
-                {format(new Date(product.priceStatusDate), "dd/MM/yy HH:mm", { locale: he })}
-              </span>
+            {product.lastPriceChangeDate ? (
+              (() => {
+                const diffTime = Math.abs(new Date().getTime() - new Date(product.lastPriceChangeDate).getTime());
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays > 90) {
+                  return (
+                    <span className="text-[10px] text-red-600 font-medium bg-red-50 px-1.5 py-0.5 rounded">
+                      לא עודכן {diffDays} ימים!
+                    </span>
+                  );
+                }
+                return (
+                  <span className="text-[10px] text-gray-400">
+                    עודכן: {format(new Date(product.lastPriceChangeDate), "dd/MM/yy", { locale: he })}
+                  </span>
+                );
+              })()
+            ) : (
+               <span className="text-[10px] text-gray-400">—</span>
             )}
           </div>
         </td>
@@ -432,36 +416,26 @@ function ProductRow({ product }: { product: QcProduct }) {
               <div className="flex items-center justify-between gap-2">
                 <div className="flex flex-col">
                   <span className="text-[11px] text-gray-500 font-medium">תמחור מהאתר: <span className="text-gray-900 font-bold">{product.currentPrice ? `₪${product.currentPrice}` : "—"}</span></span>
-                  {product.lastPriceChangeDate && (
-                    <span className="text-[10px] text-gray-400">עודכן: {format(new Date(product.lastPriceChangeDate), "dd/MM/yy", { locale: he })}</span>
+                  {product.lastPriceChangeDate ? (
+                    (() => {
+                      const diffTime = Math.abs(new Date().getTime() - new Date(product.lastPriceChangeDate).getTime());
+                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                      if (diffDays > 90) {
+                        return (
+                          <span className="text-[10px] text-red-600 font-medium bg-red-50 px-1.5 py-0.5 rounded w-fit mt-0.5">
+                            לא עודכן {diffDays} ימים!
+                          </span>
+                        );
+                      }
+                      return (
+                        <span className="text-[10px] text-gray-400">עודכן: {format(new Date(product.lastPriceChangeDate), "dd/MM/yy", { locale: he })}</span>
+                      );
+                    })()
+                  ) : (
+                    <span className="text-[10px] text-gray-400">—</span>
                   )}
                 </div>
-                <Select
-                  value={product.priceStatus || "טרם נבדק"}
-                  onValueChange={(val) => {
-                    const newStatus = val === "טרם נבדק" ? null : val;
-                    startTransition(async () => {
-                      await updateProductPriceStatus(product.id, newStatus);
-                    });
-                  }}
-                  disabled={isPending}
-                >
-                  <SelectTrigger className="w-[140px] h-7 text-[11px] bg-white border-gray-200 focus:ring-0 focus:ring-offset-0">
-                    <SelectValue placeholder="בחר סטטוס" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="טרם נבדק">טרם נבדק</SelectItem>
-                    <SelectItem value="בוצע שינוי תמחור">בוצע שינוי תמחור</SelectItem>
-                    <SelectItem value="לא בוצע שינוי תמחור">לא בוצע שינוי תמחור</SelectItem>
-                    <SelectItem value="המחיר הושאר זהה">המחיר הושאר זהה</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
-              {product.priceStatusDate && (
-                <div className="text-[10px] text-gray-400 text-left">
-                  עודכן: {format(new Date(product.priceStatusDate), "dd/MM/yy HH:mm", { locale: he })}
-                </div>
-              )}
             </div>
 
             {/* Mobile Notes */}
@@ -1069,7 +1043,6 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                   <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[10%]">בקרה</th>
                   <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[10%]">בקרה אחרונה</th>
                   <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[10%]">תמחור</th>
-                  <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[12%]">סטטוס תמחור</th>
                   <th className="py-3 px-2 font-medium text-right rounded-tl-md w-[20%]">הערות</th>
                 </tr>
               </thead>

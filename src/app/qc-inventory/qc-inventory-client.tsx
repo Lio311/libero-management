@@ -533,7 +533,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                     <th className={`${thClasses} text-center w-[7%]`} style={thStyle}>כמות במלאי</th>
                     <th className={`${thClasses} text-center w-[7%]`} style={thStyle}>התקדמות</th>
                     <th className={`${thClasses} text-center w-[8%] leading-tight`} style={thStyle}>תאריך בקרת מוצר אחרון</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>תאריך תמחור אחרון</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>תאריך שינוי מחיר</th>
                     <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>תאריך מכירה אחרון</th>
                     <th className={`${thClasses} text-center w-[8%] leading-tight`} style={thStyle}>זמן חיי מדף</th>
                   </tr>

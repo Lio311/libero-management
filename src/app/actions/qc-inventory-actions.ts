@@ -132,7 +132,7 @@ export async function getQcInventoryProducts() {
         categories: categories,
         commerceGroup: commerceGroup,
         lastInspectionDate: latestInspections.get(product.id) || null,
-        lastPriceStatusDate: product.priceStatusDate || null,
+        lastPriceStatusDate: product.lastPriceChangeDate || null,
         dateAddedToSite: dateCreated,
         ageDays: ageDays,
         currentStock: currentStock,
