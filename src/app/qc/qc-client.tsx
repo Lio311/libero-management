@@ -1023,8 +1023,8 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
         </CardHeader>
 
         <CardContent className="p-0 md:px-6 md:pb-6">
-          <div className="w-full">
-            <table className="w-full text-sm">
+          <div className="w-full overflow-x-auto pb-4">
+            <table className="w-full text-sm min-w-[1200px]">
               <thead className="bg-gray-50/90 text-muted-foreground hidden md:table-header-group sticky top-0 z-20 backdrop-blur-sm shadow-sm">
                 <tr>
                   <th className="py-3 px-4 font-medium text-right rounded-tr-md min-w-[150px] w-1/4">שם המוצר</th>
