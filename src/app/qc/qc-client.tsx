@@ -43,6 +43,7 @@ interface QcProduct {
   inspections: { id: string; inspectedAt: Date; inspectedBy: string | null }[];
   lastInspection: Date | null;
   currentStock: number;
+  status: string;
   categories?: string;
   commerceGroup?: string;
   dateAddedToSite?: Date | null;
@@ -172,12 +173,15 @@ function ProductRow({ product }: { product: QcProduct }) {
             )}
             <div className="min-w-0 flex-1">
               <a 
-                href={`https://libero-il.co.il/?p=${product.wooProductId}`}
+                href={product.status === 'publish' ? `https://libero-il.co.il/?p=${product.wooProductId}` : `https://libero-il.co.il/wp-admin/post.php?post=${product.wooProductId}&action=edit`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[13px] font-medium text-blue-600 hover:text-blue-800 hover:underline line-clamp-2 block"
               >
                 {product.productName}
+                {product.status !== 'publish' && (
+                  <span className="inline-block mr-2 px-1.5 py-0.5 bg-yellow-100 text-yellow-800 text-[10px] rounded">טיוטה</span>
+                )}
               </a>
               {product.productSku && (
                 <p className="text-[10px] text-gray-400">מק״ט: {product.productSku}</p>
@@ -368,12 +372,15 @@ function ProductRow({ product }: { product: QcProduct }) {
               )}
               <div className="flex-1 min-w-0">
                 <a 
-                  href={`https://libero-il.co.il/?p=${product.wooProductId}`}
+                  href={product.status === 'publish' ? `https://libero-il.co.il/?p=${product.wooProductId}` : `https://libero-il.co.il/wp-admin/post.php?post=${product.wooProductId}&action=edit`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline truncate block"
                 >
                   {product.productName}
+                  {product.status !== 'publish' && (
+                    <span className="inline-block mr-2 px-1.5 py-0.5 bg-yellow-100 text-yellow-800 text-[10px] rounded">טיוטה</span>
+                  )}
                 </a>
                 {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
                 <div className="mt-1.5 flex flex-wrap gap-2 items-center">
@@ -802,7 +809,7 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
                       <tbody>
                         ${todayProducts.map((p, idx) => `
                           <tr style="background-color: ${idx % 2 === 0 ? '#fff' : '#f9fafb'}">
-                            <td><strong><a href="https://libero-il.co.il/?p=${p.wooProductId}" target="_blank">${p.productName}</a></strong></td>
+                            <td><strong><a href="${p.status === 'publish' ? `https://libero-il.co.il/?p=${p.wooProductId}` : `https://libero-il.co.il/wp-admin/post.php?post=${p.wooProductId}&action=edit`}" target="_blank">${p.productName} ${p.status !== 'publish' ? '(טיוטה)' : ''}</a></strong></td>
                             <td>${p.notes}</td>
                           </tr>
                         `).join('')}
@@ -1100,12 +1107,12 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
               </td>
               <td className="py-3 px-4 border-b border-gray-200">
                 <a 
-                  href={`https://libero-il.co.il/?p=${p.wooProductId}`}
+                  href={p.status === 'publish' ? `https://libero-il.co.il/?p=${p.wooProductId}` : `https://libero-il.co.il/wp-admin/post.php?post=${p.wooProductId}&action=edit`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 underline"
                 >
-                  קישור למוצר
+                  קישור למוצר {p.status !== 'publish' && '(טיוטה)'}
                 </a>
               </td>
               <td className="py-3 px-4 border-b border-gray-200 text-gray-700 whitespace-pre-wrap">
