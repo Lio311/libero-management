@@ -556,11 +556,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                                 </div>
                               )}
                               <div className="min-w-0">
-                                <a href={product.status === 'publish' ? `https://libero-il.co.il/?p=${product.wooProductId}` : `https://libero-il.co.il/wp-admin/post.php?post=${product.wooProductId}&action=edit`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[200px] block">
+                                <a href={`https://libero-il.co.il/?p=${product.wooProductId}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[200px] block">
                                   {product.productName}
-                                  {product.status !== 'publish' && (
-                                    <span className="inline-block mr-2 px-1.5 py-0.5 bg-yellow-100 text-yellow-800 text-[10px] rounded">טיוטה</span>
-                                  )}
                                 </a>
                                 {product.productSku && <p className="text-[11px] text-gray-400">מק״ט: {product.productSku}</p>}
                               </div>
@@ -656,11 +653,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <a href={product.status === 'publish' ? `https://libero-il.co.il/?p=${product.wooProductId}` : `https://libero-il.co.il/wp-admin/post.php?post=${product.wooProductId}&action=edit`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline truncate block">
+                        <a href={`https://libero-il.co.il/?p=${product.wooProductId}`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline truncate block">
                           {product.productName}
-                          {product.status !== 'publish' && (
-                            <span className="inline-block mr-2 px-1.5 py-0.5 bg-yellow-100 text-yellow-800 text-[10px] rounded">טיוטה</span>
-                          )}
                         </a>
                         {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
                         {product.categories && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.categories}</p>}

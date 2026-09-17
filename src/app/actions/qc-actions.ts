@@ -157,7 +157,7 @@ export async function getQcProducts() {
       };
     });
     
-    return productsWithInspections;
+    return productsWithInspections.filter(p => p.status === 'publish');
   } catch (error: any) {
     console.error('getQcProducts error:', error);
     throw new Error(`שגיאה בטעינת מוצרים: ${error?.message || 'שגיאה לא ידועה'}`);

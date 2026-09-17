@@ -149,7 +149,7 @@ export async function getQcInventoryProducts() {
       };
     });
     
-    return inventoryProducts;
+    return inventoryProducts.filter(p => p.status === 'publish');
   } catch (error: any) {
     console.error('getQcInventoryProducts error:', error);
     throw new Error(`שגיאה בטעינת מוצרי בקרת מלאי: ${error?.message || 'שגיאה לא ידועה'}`);
