@@ -157,17 +157,17 @@ function ProductRow({ product }: { product: QcProduct }) {
         className={`transition-all duration-300 ${getRowClassName(status)} hidden md:table-row`}
       >
         {/* Product Name */}
-        <td className="py-3 px-4 text-right">
-          <div className="flex items-center gap-3">
+        <td className="py-2 px-2 text-right">
+          <div className="flex items-center gap-2">
             {product.productImage ? (
               <img
                 src={product.productImage}
                 alt={product.productName}
-                className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0"
+                className="w-8 h-8 rounded-lg object-cover border border-gray-200 flex-shrink-0"
               />
             ) : (
-              <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                <Package className="w-5 h-5 text-gray-400" />
+              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                <Package className="w-4 h-4 text-gray-400" />
               </div>
             )}
             <div className="min-w-0 flex-1">
@@ -175,38 +175,38 @@ function ProductRow({ product }: { product: QcProduct }) {
                 href={`https://libero-il.co.il/?p=${product.wooProductId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline line-clamp-2 block"
+                className="text-[13px] font-medium text-blue-600 hover:text-blue-800 hover:underline line-clamp-2 block"
               >
                 {product.productName}
               </a>
               {product.productSku && (
-                <p className="text-[11px] text-gray-400">מק״ט: {product.productSku}</p>
+                <p className="text-[10px] text-gray-400">מק״ט: {product.productSku}</p>
               )}
             </div>
           </div>
         </td>
 
         {/* Rating */}
-        <td className="py-3 px-4 text-center whitespace-nowrap">
+        <td className="py-2 px-2 text-center whitespace-nowrap">
           <span className={ratingStyle.text}>{product.rating?.toFixed(1) || "-"}</span>
         </td>
 
         {/* Stock */}
-        <td className="py-3 px-4 text-center font-medium text-gray-900 whitespace-nowrap">
+        <td className="py-2 px-2 text-center font-medium text-gray-900 whitespace-nowrap">
           {product.currentStock || 0}
         </td>
 
         {/* Status */}
-        <td className="py-3 px-4 text-center whitespace-nowrap">
+        <td className="py-2 px-2 text-center whitespace-nowrap">
           {getStatusBadge(status)}
         </td>
 
         {/* Inspect Button */}
-        <td className="py-3 px-4 text-center whitespace-nowrap">
+        <td className="py-2 px-2 text-center whitespace-nowrap">
           <button
             onClick={handleInspect}
             disabled={isPending || justInspected || status === "ok"}
-            className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
+            className={`inline-flex items-center justify-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all duration-300 whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
               isPending
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                 : justInspected || status === "ok"
@@ -231,21 +231,21 @@ function ProductRow({ product }: { product: QcProduct }) {
         </td>
 
         {/* Last Inspection */}
-        <td className="py-3 px-4 text-center whitespace-nowrap">
+        <td className="py-2 px-2 text-center whitespace-nowrap">
           <div className="flex flex-col items-center gap-1">
             {justInspected ? (
-              <span className="text-sm text-emerald-600 font-medium">עכשיו</span>
+              <span className="text-[13px] text-emerald-600 font-medium">עכשיו</span>
             ) : product.lastInspection ? (
-              <span className="text-sm text-gray-700">
+              <span className="text-[13px] text-gray-700">
                 {format(new Date(product.lastInspection), "dd/MM/yyyy", { locale: he })}
               </span>
             ) : (
-              <span className="text-sm text-gray-400">—</span>
+              <span className="text-[13px] text-gray-400">—</span>
             )}
             {product.inspections.length > 0 && (
               <button
                 onClick={() => setShowHistory(!showHistory)}
-                className="inline-flex items-center gap-0.5 text-[11px] text-blue-500 hover:text-blue-700 transition-colors"
+                className="inline-flex items-center gap-0.5 text-[10px] text-blue-500 hover:text-blue-700 transition-colors"
               >
                 {product.inspections.length} בקרות
                 {showHistory ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -255,9 +255,9 @@ function ProductRow({ product }: { product: QcProduct }) {
         </td>
 
         {/* Website Pricing */}
-        <td className="py-3 px-4 text-center whitespace-nowrap">
+        <td className="py-2 px-2 text-center whitespace-nowrap">
           <div className="flex flex-col items-center gap-1">
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-gray-900 text-[13px]">
               {product.currentPrice ? `₪${product.currentPrice}` : "—"}
             </span>
             {product.lastPriceChangeDate && (
@@ -269,7 +269,7 @@ function ProductRow({ product }: { product: QcProduct }) {
         </td>
 
         {/* Price Status */}
-        <td className="py-3 px-4 text-center whitespace-nowrap">
+        <td className="py-2 px-2 text-center whitespace-nowrap">
           <div className="flex flex-col items-center gap-1">
             <Select
               value={product.priceStatus || "טרם נבדק"}
@@ -281,7 +281,7 @@ function ProductRow({ product }: { product: QcProduct }) {
               }}
               disabled={isPending}
             >
-              <SelectTrigger className="w-[130px] mx-auto h-8 text-xs bg-white border-gray-200 focus:ring-0 focus:ring-offset-0">
+              <SelectTrigger className="w-[110px] mx-auto h-7 text-[11px] bg-white border-gray-200 focus:ring-0 focus:ring-offset-0 px-2">
                 <SelectValue placeholder="בחר סטטוס" />
               </SelectTrigger>
               <SelectContent>
@@ -300,13 +300,13 @@ function ProductRow({ product }: { product: QcProduct }) {
         </td>
 
         {/* Notes */}
-        <td className="py-3 px-4 text-right min-w-[200px]">
+        <td className="py-2 px-2 text-right">
           {isEditingNotes ? (
             <div className="flex items-center gap-1">
               <input
                 value={notesValue}
                 onChange={(e) => setNotesValue(e.target.value)}
-                className="flex-1 text-sm border rounded-md px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 text-[13px] border rounded-md px-2 py-1 text-right focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                 autoFocus
                 dir="rtl"
               />
@@ -319,7 +319,7 @@ function ProductRow({ product }: { product: QcProduct }) {
             </div>
           ) : (
             <div className="flex items-start gap-1 group cursor-pointer" onClick={() => setIsEditingNotes(true)}>
-              <span className="flex-1 min-w-0 text-sm text-gray-600 whitespace-normal break-words leading-tight">{product.notes || "—"}</span>
+              <span className="flex-1 min-w-0 text-[13px] text-gray-600 whitespace-normal break-words leading-tight">{product.notes || "—"}</span>
               <Edit2 className="w-3.5 h-3.5 text-gray-300 group-hover:text-blue-500 transition-colors flex-shrink-0 mt-0.5" />
             </div>
           )}
@@ -1022,20 +1022,20 @@ export default function QcClient({ products, stats }: { products: QcProduct[]; s
           </div>
         </CardHeader>
 
-        <CardContent className="p-0 md:px-6 md:pb-6">
-          <div className="w-full overflow-x-auto pb-4">
-            <table className="w-full text-sm min-w-[1200px]">
+        <CardContent className="p-0 md:px-2 md:pb-6">
+          <div className="w-full">
+            <table className="w-full text-sm">
               <thead className="bg-gray-50/90 text-muted-foreground hidden md:table-header-group sticky top-0 z-20 backdrop-blur-sm shadow-sm">
                 <tr>
-                  <th className="py-3 px-4 font-medium text-right rounded-tr-md min-w-[150px] w-1/4">שם המוצר</th>
-                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">דירוג</th>
-                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">כמות במלאי</th>
-                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">סטטוס</th>
-                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">בקרה</th>
-                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">תאריך בקרה אחרון</th>
-                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">תמחור מהאתר</th>
-                  <th className="py-3 px-4 font-medium text-center whitespace-nowrap">סטטוס תמחור</th>
-                  <th className="py-3 px-4 font-medium text-right rounded-tl-md min-w-[200px] w-1/4">הערות</th>
+                  <th className="py-3 px-2 font-medium text-right rounded-tr-md w-[18%]">שם המוצר</th>
+                  <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[5%]">דירוג</th>
+                  <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[7%]">מלאי</th>
+                  <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[8%]">סטטוס</th>
+                  <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[10%]">בקרה</th>
+                  <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[10%]">בקרה אחרונה</th>
+                  <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[10%]">תמחור</th>
+                  <th className="py-3 px-2 font-medium text-center whitespace-nowrap w-[12%]">סטטוס תמחור</th>
+                  <th className="py-3 px-2 font-medium text-right rounded-tl-md w-[20%]">הערות</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
