@@ -33,7 +33,7 @@ export default async function OrderScannerPage({
   const isAdmin = user?.emailAddresses[0]?.emailAddress === adminEmail;
 
   return (
-    <div className="flex-1 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full">
+    <div className="flex-1 p-4 md:p-8 pt-6 h-[100dvh] overflow-y-auto w-full pb-32">
       <ScannerClient order={order} manualKeywords={manualKeywords} store={store} isAdmin={isAdmin} />
     </div>
   );

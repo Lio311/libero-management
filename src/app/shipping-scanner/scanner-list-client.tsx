@@ -240,7 +240,7 @@ export default function ScannerListClient({
     <div 
       ref={scrollContainerRef}
       onScroll={handleScroll}
-      className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-screen overflow-y-auto w-full"
+      className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-[100dvh] overflow-y-auto w-full pb-32"
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
@@ -576,8 +576,8 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
         </div>
       )}
       <Link href={`/shipping-scanner/${order.id}?store=${store}`} className="block h-full">
-        <div className={`glass-panel p-6 rounded-xl hover-scale cursor-pointer group transition-colors h-full flex flex-col relative ${isSelected ? 'border-purple-500 border-2' : 'hover:border-primary/50'} ${ageBgClass}`}>
-          <div className="flex items-center justify-between mb-4">
+        <div className={`glass-panel p-4 rounded-xl hover-scale cursor-pointer group transition-colors h-full flex flex-col relative ${isSelected ? 'border-purple-500 border-2' : 'hover:border-primary/50'} ${ageBgClass}`}>
+          <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <Package className="w-5 h-5 text-primary group-hover:text-primary/80" />
             הזמנה #{order.id}
@@ -599,7 +599,7 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
           </div>
         </div>
         
-        <div className="space-y-2 text-sm text-muted-foreground flex-1">
+        <div className="space-y-1.5 text-sm text-muted-foreground flex-1">
           <div className="flex items-center gap-2">
             <User className="w-4 h-4 shrink-0" />
             <span className="truncate">{order.customerName}</span>
@@ -610,7 +610,7 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
           </div>
         </div>
         
-        <div className="mt-4 pt-4 border-t border-border/50 text-foreground font-medium flex justify-between items-center">
+        <div className="mt-2 pt-2 border-t border-border/50 text-foreground font-medium flex justify-between items-center">
           <span>סה"כ לתשלום:</span>
           <span>₪{parseFloat(order.total).toFixed(2)}</span>
         </div>
