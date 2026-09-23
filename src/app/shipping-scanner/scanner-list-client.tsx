@@ -599,12 +599,12 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
           </div>
         </div>
         
-        <div className="space-y-1.5 text-sm text-muted-foreground flex-1">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between text-sm text-muted-foreground flex-1 mb-1">
+          <div className="flex items-center gap-1.5 truncate mr-2">
             <User className="w-4 h-4 shrink-0" />
             <span className="truncate">{order.customerName}</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 shrink-0">
             <CalendarIcon className="w-4 h-4 shrink-0" />
             <span>{mounted ? format(new Date(order.dateCreated), 'dd/MM/yyyy HH:mm', { locale: he }) : ''}</span>
           </div>

@@ -28,7 +28,7 @@ type ItemStatus = {
 
 export default function ScannerClient({ order, manualKeywords, store = "libero", isAdmin = false }: ScannerClientProps) {
   const router = useRouter();
-  const [isCameraOpen, setIsCameraOpen] = useState(true);
+  const [isCameraOpen, setIsCameraOpen] = useState(store !== "labura");
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const [items, setItems] = useState<ItemStatus[]>([]);
     const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed" | "waiting_for_label">(
