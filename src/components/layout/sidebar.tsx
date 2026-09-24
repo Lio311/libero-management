@@ -88,7 +88,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
     <>
       {/* Mobile Header */}
       {!isWarehouse && (
-        <div className="md:hidden print:hidden flex h-[calc(5rem_+_env(safe-area-inset-top))] pt-[calc(1.5rem_+_env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/50 glass-panel shrink-0 relative z-50 justify-center">
+        <div className="md:hidden print:hidden flex h-[calc(5rem_+_env(safe-area-inset-top))] pt-[calc(1.5rem_+_env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/20 glass-panel text-white shrink-0 relative z-50 justify-center">
           {isAuthenticated ? (
             <>
               <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4 z-10">
@@ -122,8 +122,8 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
 
       {/* Sidebar Content */}
       <div className={cn(
-        "fixed inset-y-0 right-0 z-50 flex h-full w-64 flex-col glass-panel text-card-foreground shadow-sm transition-transform duration-300 md:relative md:translate-x-0 print:hidden",
-        isOpen ? "translate-x-0" : "translate-x-full"
+        "fixed inset-y-4 right-4 z-50 flex h-[calc(100vh-2rem)] w-64 flex-col rounded-3xl glass-panel text-white shadow-xl transition-transform duration-300 md:relative md:translate-x-0 print:hidden",
+        isOpen ? "translate-x-0" : "translate-x-[calc(100%+1rem)]"
       )}>
         <div className="flex h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center px-6 border-b border-border/50 relative justify-center">
           <div className="relative h-20 w-52 mx-auto pointer-events-none">
