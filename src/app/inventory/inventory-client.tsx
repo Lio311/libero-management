@@ -29,21 +29,21 @@ const getInventoryStatusColor = (status: string | null) => {
   if (status === 'יש מלאי') return 'bg-emerald-100 text-emerald-800';
   if (status === 'מלאי חלקי') return 'bg-amber-100 text-amber-800';
   if (status === 'אין מלאי') return 'bg-red-100 text-red-800';
-  return 'bg-gray-100 text-gray-800';
+  return 'bg-black/40/10 text-white';
 };
 
 const getAccountStatusColor = (status: string | null) => {
   if (status === 'שולם') return 'bg-emerald-100 text-emerald-800';
   if (status === 'ממתין לחשבונית') return 'bg-amber-100 text-amber-800';
   if (status === 'טרם שולם') return 'bg-red-100 text-red-800';
-  return 'bg-gray-100 text-gray-800';
+  return 'bg-black/40/10 text-white';
 };
 
 const getContactStatusColor = (status: string | null) => {
   if (status === 'נשלחה הודעה') return 'bg-emerald-100 text-emerald-800';
   if (status === 'לא נשלחה הודעה') return 'bg-red-100 text-red-800';
   if (status === 'נשלחה הודעה שנייה') return 'bg-blue-100 text-blue-800';
-  return 'bg-gray-100 text-gray-800';
+  return 'bg-black/40/10 text-white';
 };
 
 function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, uniqueBrands?: string[] }) {
@@ -90,9 +90,9 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
         {/* Mobile View */}
         <tr className="md:hidden">
           <td className="p-0">
-            <div className="bg-white rounded-lg shadow-sm border p-4 mb-4 space-y-3">
+            <div className="glass-panel rounded-lg shadow-sm border border-white/10 p-4 mb-4 space-y-3">
               <div className="space-y-1">
-                <span className="text-sm font-medium text-gray-500">מותג</span>
+                <span className="text-sm font-medium text-white/70">מותג</span>
                 <Select
                   value={data.brandName}
                   onValueChange={(value) => setData({ ...data, brandName: value })}
@@ -109,7 +109,7 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
                 </Select>
               </div>
               <div className="space-y-1">
-                <span className="text-sm font-medium text-gray-500">סטטוס מלאי</span>
+                <span className="text-sm font-medium text-white/70">סטטוס מלאי</span>
                 <Select
                   value={data.inventoryStatus}
                   onValueChange={(value) => setData({ ...data, inventoryStatus: value })}
@@ -126,7 +126,7 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
                 </Select>
               </div>
               <div className="space-y-1">
-                <span className="text-sm font-medium text-gray-500">סטטוס חשבון</span>
+                <span className="text-sm font-medium text-white/70">סטטוס חשבון</span>
                 <Select
                   value={data.planningStatus}
                   onValueChange={(value) => setData({ ...data, planningStatus: value })}
@@ -143,7 +143,7 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
                 </Select>
               </div>
               <div className="space-y-1">
-                <span className="text-sm font-medium text-gray-500">סטטוס קשר</span>
+                <span className="text-sm font-medium text-white/70">סטטוס קשר</span>
                 <input
                   list="contact-status-options"
                   className="w-full text-right p-2 border rounded-md"
@@ -154,18 +154,18 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
                 />
               </div>
               <div className="space-y-1">
-                <span className="text-sm font-medium text-gray-500">הערות</span>
+                <span className="text-sm font-medium text-white/70">הערות</span>
                 <input
                   className="w-full text-right p-2 border rounded-md"
                   value={data.notes}
                   onChange={(e) => setData({ ...data, notes: e.target.value })}
                 />
               </div>
-              <div className="flex gap-2 justify-end pt-2 border-t mt-2">
-                <button onClick={handleSave} disabled={isPending} className="p-2 text-green-600 hover:bg-green-50 rounded-md bg-green-50 transition-colors">
+              <div className="flex gap-2 justify-end pt-2 border-t border-white/10 mt-2">
+                <button onClick={handleSave} disabled={isPending} className="p-2 text-green-400 hover:bg-green-50 rounded-md bg-green-50 transition-colors">
                   <Check className="h-5 w-5" />
                 </button>
-                <button onClick={handleCancel} disabled={isPending} className="p-2 text-red-600 hover:bg-red-50 rounded-md bg-red-50 transition-colors">
+                <button onClick={handleCancel} disabled={isPending} className="p-2 text-red-400 hover:bg-red-50 rounded-md bg-red-50 transition-colors">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -174,7 +174,7 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
         </tr>
 
         {/* Desktop View */}
-        <tr className="hidden md:table-row hover:bg-gray-50/50 transition-colors">
+        <tr className="hidden md:table-row hover:bg-black/40/5 transition-colors">
           <td className="py-2 px-4">
             <Select
               value={data.brandName}
@@ -243,10 +243,10 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
           </td>
           <td className="py-2 px-4 text-left">
             <div className="flex justify-end gap-2">
-              <button onClick={handleSave} disabled={isPending} className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors">
+              <button onClick={handleSave} disabled={isPending} className="p-1 text-green-400 hover:bg-green-50 rounded transition-colors">
                 <Check className="w-4 h-4" />
               </button>
-              <button onClick={handleCancel} disabled={isPending} className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors">
+              <button onClick={handleCancel} disabled={isPending} className="p-1 text-red-400 hover:bg-red-50 rounded transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -261,17 +261,17 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
       {/* Mobile View */}
       <tr className="md:hidden">
         <td colSpan={6} className="p-0">
-          <div className="bg-white rounded-lg shadow-sm border p-4 mb-4 space-y-3">
+          <div className="glass-panel rounded-lg shadow-sm border border-white/10 p-4 mb-4 space-y-3">
             <div className="flex justify-between items-start">
               <div>
-                <div className="text-sm text-gray-500">מותג</div>
+                <div className="text-sm text-white/70">מותג</div>
                 <div className="font-medium text-base">{supplier.brandName || '-'}</div>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => setIsEditing(true)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md bg-blue-50 transition-colors" title="ערוך">
+                <button onClick={() => setIsEditing(true)} className="p-2 text-blue-400 hover:bg-blue-50 rounded-md bg-blue-50 transition-colors" title="ערוך">
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={handleDelete} disabled={isPending} className="p-2 text-red-600 hover:bg-red-50 rounded-md bg-red-50 transition-colors" title="מחק">
+                <button onClick={handleDelete} disabled={isPending} className="p-2 text-red-400 hover:bg-red-50 rounded-md bg-red-50 transition-colors" title="מחק">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -279,13 +279,13 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
             
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <div className="text-sm text-gray-500 mb-1">סטטוס מלאי</div>
+                <div className="text-sm text-white/70 mb-1">סטטוס מלאי</div>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getInventoryStatusColor(supplier.inventoryStatus)}`}>
                   {supplier.inventoryStatus || '-'}
                 </span>
               </div>
               <div>
-                <div className="text-sm text-gray-500 mb-1">סטטוס חשבון</div>
+                <div className="text-sm text-white/70 mb-1">סטטוס חשבון</div>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getAccountStatusColor(supplier.planningStatus)}`}>
                   {supplier.planningStatus || '-'}
                 </span>
@@ -294,13 +294,13 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <div className="text-sm text-gray-500 mb-1">סטטוס קשר</div>
+                <div className="text-sm text-white/70 mb-1">סטטוס קשר</div>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getContactStatusColor(supplier.contactStatus)}`}>
                   {supplier.contactStatus || '-'}
                 </span>
               </div>
               <div>
-                <div className="text-sm text-gray-500">הערות</div>
+                <div className="text-sm text-white/70">הערות</div>
                 <div className="text-sm mt-1">{supplier.notes || '-'}</div>
               </div>
             </div>
@@ -309,7 +309,7 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
       </tr>
 
       {/* Desktop View */}
-      <tr className="hidden md:table-row hover:bg-gray-50/50 transition-colors group border-b">
+      <tr className="hidden md:table-row hover:bg-black/40/5 transition-colors group border-b border-white/10">
         <td className="py-3 px-4 font-medium whitespace-nowrap">
           {supplier.brandName || '-'}
         </td>
@@ -328,14 +328,14 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
             {supplier.contactStatus || '-'}
           </span>
         </td>
-        <td className="py-3 px-4 text-muted-foreground">
+        <td className="py-3 px-4 text-white/70">
           {supplier.notes || '-'}
         </td>
         <td className="py-3 px-4 text-left whitespace-nowrap transition-opacity">
           <div className="flex items-center justify-end gap-2">
             <button
               onClick={() => setIsEditing(true)}
-              className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+              className="p-1.5 text-blue-400 hover:bg-blue-50 rounded-md transition-colors"
               title="ערוך ספק"
             >
               <Edit2 className="w-4 h-4" />
@@ -343,7 +343,7 @@ function EditableSupplierRow({ supplier, uniqueBrands = [] }: { supplier: any, u
             <button
               onClick={handleDelete}
               disabled={isPending}
-              className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+              className="p-1.5 text-red-400 hover:bg-red-50 rounded-md transition-colors"
               title="מחק ספק"
             >
               <Trash2 className="w-4 h-4" />
@@ -469,66 +469,71 @@ export default function InventoryClient({
 
 
   return (
-    <div className="p-8 space-y-8 bg-gray-50/50 min-h-screen" dir="rtl">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900">הזמנות וספקים</h2>
-        <p className="text-muted-foreground mt-2 mb-3">בריאות המלאי, פריטים חסרים והזמנות רכש.</p>
-        <div className="flex flex-wrap gap-2 text-xs">
-          <span className="font-medium px-2 py-1">מקרא רמת מלאי:</span>
-          <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">ירוק: מעל 70%</span>
-          <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">צהוב: 20% - 70%</span>
-          <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full">אדום: מתחת ל-20%</span>
+    <div className="p-4 md:p-8 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-screen text-white" dir="rtl">
+      {/* Title & Quick Stats Bento Card */}
+      <div className="lg:col-span-12 glass-panel p-6 rounded-xl flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight text-white">הזמנות וספקים</h2>
+            <p className="text-white/80 mt-1">בריאות המלאי, פריטים חסרים והזמנות רכש.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className="font-medium px-2 py-1 text-white">מקרא רמת מלאי:</span>
+            <span className="px-2 py-1 bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 rounded-full">ירוק: מעל 70%</span>
+            <span className="px-2 py-1 bg-yellow-500/20 text-yellow-200 border border-yellow-500/30 rounded-full">צהוב: 20% - 70%</span>
+            <span className="px-2 py-1 bg-red-500/20 text-red-200 border border-red-500/30 rounded-full">אדום: מתחת ל-20%</span>
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-black/40/5 border border-white/10 shadow-sm hover:bg-black/40/10 transition-colors text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">ערך מלאי נוכחי</CardTitle>
             <Archive className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₪{totalInventoryValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-            <p className="text-xs text-muted-foreground">מוערך לפי מחיר עלות</p>
+            <p className="text-xs text-white/70">מוערך לפי מחיר עלות</p>
           </CardContent>
         </Card>
-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+        <Card className="bg-black/40/5 border border-white/10 shadow-sm hover:bg-black/40/10 transition-colors text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">פריטים בסיכון (מלאי נמוך)</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-500" />
+            <AlertTriangle className="h-4 w-4 text-red-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{itemsAtRisk}</div>
-            <p className="text-xs text-muted-foreground">מתחת ל-20% מיעד המלאי</p>
+            <div className="text-2xl font-bold text-red-400">{itemsAtRisk}</div>
+            <p className="text-xs text-white/70">מתחת ל-20% מיעד המלאי</p>
           </CardContent>
         </Card>
-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+        <Card className="bg-black/40/5 border border-white/10 shadow-sm hover:bg-black/40/10 transition-colors text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">פריטים בדרך / הוזמנו</CardTitle>
             <Truck className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{goodsOnTheWay}</div>
-            <p className="text-xs text-muted-foreground">יחידות בסטטוס הזמנה</p>
+            <p className="text-xs text-white/70">יחידות בסטטוס הזמנה</p>
           </CardContent>
         </Card>
-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
+        <Card className="bg-black/40/5 border border-white/10 shadow-sm hover:bg-black/40/10 transition-colors text-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">מק&quot;טים פעילים</CardTitle>
             <PackageSearch className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{activeSkus}</div>
-            <p className="text-xs text-muted-foreground">מנוהלים במערכת</p>
+            <p className="text-xs text-white/70">מנוהלים במערכת</p>
           </CardContent>
         </Card>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 bg-white border-none shadow-sm">
+      <div className="lg:col-span-12 grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4 glass-panel border-none shadow-sm text-white">
           <CardHeader>
-            <CardTitle>בריאות מלאי לפי מותג</CardTitle>
-            <CardDescription>מלאי קיים לעומת יעד (Target Stock Level)</CardDescription>
+            <CardTitle className="text-white">בריאות מלאי לפי מותג</CardTitle>
+            <CardDescription className="text-white/70">מלאי קיים לעומת יעד (Target Stock Level)</CardDescription>
           </CardHeader>
           <CardContent className="pl-2 h-[350px]">
             <div dir="ltr" className="h-full w-full">
@@ -549,17 +554,17 @@ export default function InventoryClient({
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 bg-white border-none shadow-sm">
+        <Card className="col-span-3 glass-panel border-none shadow-sm text-white">
           <CardHeader>
-            <CardTitle className="text-red-600 flex items-center">
+            <CardTitle className="text-red-400 flex items-center">
               <AlertTriangle className="w-5 h-5 ml-2" />
               התראות חוסר מלאי
             </CardTitle>
-            <CardDescription>פריטים שדורשים הזמנה מיידית (טופ 5)</CardDescription>
+            <CardDescription className="text-white/70">פריטים שדורשים הזמנה מיידית (טופ 5)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {lowStockItems.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center">אין חוסרים קריטיים במלאי</p>
+              <p className="text-sm text-white/70 text-center">אין חוסרים קריטיים במלאי</p>
             ) : (
               lowStockItems.map((item, i) => {
                 const target = item.target || 1;
@@ -567,8 +572,8 @@ export default function InventoryClient({
                 return (
                   <div key={i} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{item.name} <span className="text-xs text-muted-foreground">({item.brand})</span></span>
-                      <span className="font-bold text-red-600">{item.current} / {item.target}</span>
+                      <span className="font-medium">{item.name} <span className="text-xs text-white/70">({item.brand})</span></span>
+                      <span className="font-bold text-red-400">{item.current} / {item.target}</span>
                     </div>
                     <Progress value={percentage} className="h-2" />
                   </div>
@@ -580,15 +585,15 @@ export default function InventoryClient({
       </div>
 
 
-      {/* Inventory Table */}
-      <Card className="bg-white border-none shadow-sm">
-        <CardHeader>
+      {/* Inventory Filters Bento */}
+      <Card className="lg:col-span-12 glass-panel border-none shadow-sm text-white">
+        <CardContent className="pt-6">
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <div>
-                  <CardTitle>טבלת מלאי לפי מותגים</CardTitle>
-                  <CardDescription>בחירת מותג תציג את כל הדגמים הרלוונטיים</CardDescription>
+                  <CardTitle className="text-white">טבלת מלאי לפי מותגים</CardTitle>
+                  <CardDescription className="text-white/70">בחירת מותג תציג את כל הדגמים הרלוונטיים</CardDescription>
                 </div>
                 <button
                   onClick={() => handleOpenModal('add')}
@@ -600,13 +605,13 @@ export default function InventoryClient({
               </div>
               
               <div className="relative w-full sm:w-auto sm:flex-1 sm:max-w-[400px]">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/70" />
                 <input
                   type="text"
                   placeholder="חיפוש דגם..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-3 pr-9 py-2 border rounded-md text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="pl-3 pr-9 py-2 bg-black/20 border border-white/10 rounded-md text-sm w-full focus:outline-none focus:ring-2 focus:ring-primary/50 text-white placeholder:text-white/50"
                 />
               </div>
             </div>
@@ -617,7 +622,7 @@ export default function InventoryClient({
                 className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                   selectedBrand === "all" 
                     ? "bg-primary text-primary-foreground shadow-sm" 
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    : "bg-black/40/10 text-white/80 hover:bg-white/20"
                 }`}
               >
                 כל המותגים
@@ -629,7 +634,7 @@ export default function InventoryClient({
                   className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                     selectedBrand === b
                       ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      : "bg-black/40/10 text-white/80 hover:bg-white/20"
                   }`}
                 >
                   {b as string}
@@ -637,11 +642,15 @@ export default function InventoryClient({
               ))}
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
+        </CardContent>
+      </Card>
+
+      {/* Inventory Table Bento */}
+      <Card className="lg:col-span-12 glass-panel border-none shadow-sm text-white">
+        <CardContent className="pt-6">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-center">
-              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
+              <thead className="bg-black/40/5 text-white/70 hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">מזהה (Index)</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">שם הדגם</th>
@@ -654,41 +663,41 @@ export default function InventoryClient({
                   <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-center">פעולות</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-white/10">
                 {currentItems.map((item) => (
                   <React.Fragment key={item.id}>
                     {/* Mobile View */}
                     <tr className="md:hidden">
                       <td colSpan={9} className="p-0">
-                        <div className="bg-white rounded-lg shadow-sm border p-4 mb-4 space-y-3">
+                        <div className="glass-panel rounded-lg shadow-sm border border-white/10 p-4 mb-4 space-y-3">
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="font-bold text-lg">{item.modelName}</div>
-                              <div className="text-sm text-gray-500 mt-1">מזהה: {item.itemIndex || '-'} | מותג: <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 ml-1">{item.brand}</span></div>
+                              <div className="text-sm text-white/70 mt-1">מזהה: {item.itemIndex || '-'} | מותג: <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-black/40/10 text-white ml-1">{item.brand}</span></div>
                             </div>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleOpenModal('edit', item)}
-                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-md bg-blue-50 transition-colors"
+                                className="p-2 text-blue-400 hover:bg-blue-50 rounded-md bg-blue-50 transition-colors"
                               >
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button
                                 onClick={() => handleDelete(item.id)}
-                                className="p-2 text-red-600 hover:bg-red-50 rounded-md bg-red-50 transition-colors"
+                                className="p-2 text-red-400 hover:bg-red-50 rounded-md bg-red-50 transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </div>
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-3 pt-2 border-t">
+                          <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
                             <div>
-                              <div className="text-sm text-gray-500">מלאי נוכחי</div>
+                              <div className="text-sm text-white/70">מלאי נוכחי</div>
                               <div className="font-semibold text-lg">{item.currentStock || '0'}</div>
                             </div>
                             <div>
-                              <div className="text-sm text-gray-500">רמת מלאי (%)</div>
+                              <div className="text-sm text-white/70">רמת מלאי (%)</div>
                               <div>
                                 {item.targetStockLevel ? (
                                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium ${
@@ -704,15 +713,15 @@ export default function InventoryClient({
                               </div>
                             </div>
                             <div>
-                              <div className="text-sm text-gray-500">הוזמנו</div>
+                              <div className="text-sm text-white/70">הוזמנו</div>
                               <div>{item.orderedQuantity || '0'}</div>
                             </div>
                             <div>
-                              <div className="text-sm text-gray-500">הזמנה קודמת</div>
+                              <div className="text-sm text-white/70">הזמנה קודמת</div>
                               <div>{item.lastOrderQuantity || '0'}</div>
                             </div>
                             <div>
-                              <div className="text-sm text-gray-500">מחיר עלות</div>
+                              <div className="text-sm text-white/70">מחיר עלות</div>
                               <div className="font-medium">{getCurrencySymbol(item.brand)}{item.costPrice || '0'}</div>
                             </div>
                           </div>
@@ -721,28 +730,28 @@ export default function InventoryClient({
                     </tr>
 
                     {/* Desktop View */}
-                    <tr className="hidden md:table-row hover:bg-gray-50/50 transition-colors border-b">
-                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                    <tr className="hidden md:table-row hover:bg-black/40/5 transition-colors border-b border-white/10">
+                      <td className="py-3 px-4 text-white/70 whitespace-nowrap">
                         {item.itemIndex || '-'}
                       </td>
                       <td className="py-3 px-4 font-medium whitespace-nowrap">
                         {item.modelName}
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-black/40/10 text-white">
                           {item.brand}
                         </span>
                       </td>
                       <td className="py-3 px-4 font-semibold whitespace-nowrap">
                         {item.currentStock || '0'}
                       </td>
-                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                      <td className="py-3 px-4 text-white/70 whitespace-nowrap">
                         {item.orderedQuantity || '0'}
                       </td>
-                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                      <td className="py-3 px-4 text-white/70 whitespace-nowrap">
                         {item.lastOrderQuantity || '0'}
                       </td>
-                      <td className="py-3 px-4 text-muted-foreground whitespace-nowrap">
+                      <td className="py-3 px-4 text-white/70 whitespace-nowrap">
                         {item.targetStockLevel ? (
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             Number(item.targetStockLevel) < 0.20 
@@ -762,14 +771,14 @@ export default function InventoryClient({
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleOpenModal('edit', item)}
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                            className="p-1.5 text-blue-400 hover:bg-blue-50 rounded-md transition-colors"
                             title="ערוך"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(item.id)}
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                            className="p-1.5 text-red-400 hover:bg-red-50 rounded-md transition-colors"
                             title="מחק"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -781,7 +790,7 @@ export default function InventoryClient({
                 ))}
                 {filteredItems.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={7} className="py-8 text-center text-white/70">
                       לא נמצאו פריטים.
                     </td>
                   </tr>
@@ -789,15 +798,15 @@ export default function InventoryClient({
               </tbody>
             </table>
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t">
-                <div className="text-sm text-muted-foreground">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-white/10">
+                <div className="text-sm text-white/70">
                   מציג {(currentPage - 1) * itemsPerPage + 1} עד {Math.min(currentPage * itemsPerPage, filteredItems.length)} מתוך {filteredItems.length} תוצאות
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-black/40/5 transition-colors"
                   >
                     הקודם
                   </button>
@@ -818,7 +827,7 @@ export default function InventoryClient({
                         className={`w-8 h-8 flex items-center justify-center rounded-md text-sm transition-colors ${
                           currentPage === page
                             ? 'bg-primary text-primary-foreground'
-                            : 'hover:bg-gray-50 border'
+                            : 'hover:bg-black/40/5 border'
                         }`}
                       >
                         {page}
@@ -828,7 +837,7 @@ export default function InventoryClient({
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                    className="px-3 py-1 border rounded-md text-sm disabled:opacity-50 hover:bg-black/40/5 transition-colors"
                   >
                     הבא
                   </button>
@@ -840,15 +849,15 @@ export default function InventoryClient({
       </Card>
 
       {/* Suppliers Table */}
-      <Card className="bg-white border-none shadow-sm mt-8">
+      <Card className="lg:col-span-12 glass-panel border-none shadow-sm mt-0 text-white">
         <CardHeader>
-          <CardTitle>טבלת ספקים</CardTitle>
-          <CardDescription>רשימת הספקים והסטטוס שלהם</CardDescription>
+          <CardTitle className="text-white">טבלת ספקים</CardTitle>
+          <CardDescription className="text-white/70">רשימת הספקים והסטטוס שלהם</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-center">
-              <thead className="bg-gray-50/80 text-muted-foreground hidden md:table-header-group">
+              <thead className="bg-black/40/5 text-white/70 hidden md:table-header-group">
                 <tr>
                   <th className="py-3 px-4 font-medium rounded-tr-md rounded-br-md whitespace-nowrap">מותג</th>
                   <th className="py-3 px-4 font-medium whitespace-nowrap">סטטוס מלאי</th>
@@ -858,14 +867,14 @@ export default function InventoryClient({
                   <th className="py-3 px-4 font-medium rounded-tl-md rounded-bl-md whitespace-nowrap text-center">פעולות</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-white/10">
                 {suppliers && suppliers.length > 0 ? (
                   suppliers.map((supplier) => (
                     <EditableSupplierRow key={supplier.id} supplier={supplier} uniqueBrands={uniqueBrands as string[]} />
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                    <td colSpan={5} className="py-8 text-center text-white/70">
                       לא נמצאו ספקים.
                     </td>
                   </tr>
@@ -891,16 +900,16 @@ export default function InventoryClient({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-xl shadow-xl z-50 overflow-hidden"
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-black/40 rounded-xl shadow-xl z-50 overflow-hidden"
               dir="rtl"
             >
-              <div className="flex items-center justify-between p-6 border-b">
+              <div className="flex items-center justify-between p-6 border-b border-white/10">
                 <h3 className="text-lg font-bold">
                   {modalMode === 'add' ? 'הוספת פריט למלאי' : 'עריכת פריט'}
                 </h3>
                 <button
                   onClick={handleCloseModal}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                  className="p-2 text-gray-400 hover:text-white/80 hover:bg-black/40/10 rounded-full transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -926,7 +935,7 @@ export default function InventoryClient({
                         value={formData.brand}
                         onValueChange={value => setFormData({...formData, brand: value || ''})}
                       >
-                        <SelectTrigger dir="rtl" className="w-full px-3 py-2 border rounded-md bg-white">
+                        <SelectTrigger dir="rtl" className="w-full px-3 py-2 border rounded-md bg-black/40">
                           <SelectValue placeholder="בחר מותג" />
                         </SelectTrigger>
                         <SelectContent alignItemWithTrigger={false} align="end">
@@ -998,7 +1007,7 @@ export default function InventoryClient({
                     <button
                       type="button"
                       onClick={handleCloseModal}
-                      className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                      className="px-4 py-2 text-sm font-medium text-white bg-black/40/10 hover:bg-white/20 rounded-md transition-colors"
                     >
                       ביטול
                     </button>
