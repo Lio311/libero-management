@@ -155,9 +155,9 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
               if (activeSubMenu) {
                 return (
                   <>
-                    <div className="col-span-full border-b border-border/50 pb-2 mb-1 flex items-center justify-center relative group/navitem">
-                      <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 hidden md:group-hover/navitem:flex z-[60] pointer-events-none items-center">
-                        <div className="bg-slate-800/95 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap border border-white/10">
+                    <div className="col-span-full border-b border-border/50 pb-2 mb-1 flex items-center justify-center relative group/navitem hover:z-50">
+                      <div className="absolute right-full top-1/2 -translate-y-1/2 mr-1.5 hidden md:group-hover/navitem:flex z-[100] pointer-events-none items-center">
+                        <div className="bg-slate-800/95 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-md shadow-xl whitespace-nowrap border border-white/10">
                           חזור לתפריט הראשי
                         </div>
                       </div>
@@ -201,9 +201,9 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                 const isActive = item.href ? pathname === item.href : item.subItems?.some(sub => pathname === sub.href);
 
                 return (
-                  <div key={item.name} className="relative group/navitem flex justify-center w-full">
-                    <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 hidden md:group-hover/navitem:flex z-[60] pointer-events-none items-center">
-                      <div className="bg-slate-800/95 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap border border-white/10">
+                  <div key={item.name} className="relative group/navitem flex justify-center w-full hover:z-50">
+                    <div className="absolute right-full top-1/2 -translate-y-1/2 mr-1.5 hidden md:group-hover/navitem:flex z-[100] pointer-events-none items-center">
+                      <div className="bg-slate-800/95 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-md shadow-xl whitespace-nowrap border border-white/10">
                         {item.name}
                       </div>
                     </div>
