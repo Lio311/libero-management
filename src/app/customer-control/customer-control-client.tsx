@@ -105,19 +105,19 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   };
 
   const getRowColorClass = (date: Date | null) => {
-    if (!date) return "hover:bg-slate-50/80 transition-colors group text-xs";
+    if (!date) return "hover:bg-white/10 transition-colors group text-xs text-white";
     const now = new Date();
     const diffTime = now.getTime() - date.getTime();
     const diffMonths = diffTime / (1000 * 60 * 60 * 24 * 30.44);
     
     if (diffMonths >= 9) {
-      return "bg-red-100/60 hover:bg-red-100 transition-colors group text-xs";
+      return "bg-red-500/20 hover:bg-red-500/30 transition-colors group text-xs text-white";
     } else if (diffMonths >= 6) {
-      return "bg-orange-100/60 hover:bg-orange-100 transition-colors group text-xs";
+      return "bg-orange-500/20 hover:bg-orange-500/30 transition-colors group text-xs text-white";
     } else if (diffMonths >= 3) {
-      return "bg-yellow-100/60 hover:bg-yellow-100 transition-colors group text-xs";
+      return "bg-yellow-500/20 hover:bg-yellow-500/30 transition-colors group text-xs text-white";
     }
-    return "bg-green-100/60 hover:bg-green-100 transition-colors group text-xs";
+    return "bg-green-500/20 hover:bg-green-500/30 transition-colors group text-xs text-white";
   };
 
   const handleSort = (key: SortKey) => {
@@ -321,10 +321,10 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   const vipCount = dataWithVip.filter(c => c.isVip).length;
 
   const SortHeader = ({ label, sortKey: key, className }: { label: string, sortKey: SortKey, className?: string }) => (
-    <TableHead className={`text-center px-0.5 cursor-pointer hover:bg-slate-100/50 transition-colors ${className || ''}`} onClick={() => handleSort(key)}>
+    <TableHead className={`text-center px-0.5 cursor-pointer hover:bg-white/10 transition-colors ${className || ''}`} onClick={() => handleSort(key)}>
       <div className="flex flex-col items-center justify-center gap-0.5 text-[11px]">
-        <span className={sortKey === key ? "font-bold text-indigo-700 leading-tight" : "leading-tight"}>{label}</span>
-        <ArrowUpDown className={`h-2.5 w-2.5 ${sortKey === key ? "text-indigo-600" : "text-slate-400"}`} />
+        <span className={sortKey === key ? "font-bold text-white leading-tight" : "text-slate-300 leading-tight"}>{label}</span>
+        <ArrowUpDown className={`h-2.5 w-2.5 ${sortKey === key ? "text-white" : "text-slate-400"}`} />
       </div>
     </TableHead>
   );
@@ -338,73 +338,63 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <>
+      <div className="lg:col-span-12 glass-panel rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 md:hidden">מאגר לקוחות</h2>
-          <div className="flex flex-wrap gap-2 text-xs mt-3">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white md:hidden">מאגר לקוחות</h2>
+          <div className="flex flex-wrap gap-2 text-xs mt-3 text-slate-200">
             <span className="font-medium px-2 py-1">מקרא זמן מאז רכישה אחרונה:</span>
-            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">ירוק: עד 3 חודשים</span>
-            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">צהוב: 3-6 חודשים</span>
-            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">כתום: 6-9 חודשים</span>
-            <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full">אדום: מעל 9 חודשים</span>
-            <span className="px-2 py-1 bg-amber-50 text-amber-600 rounded-full border border-amber-200">⭐ = לקוח VIP</span>
+            <span className="px-2 py-1 bg-green-500/20 text-green-200 rounded-full">ירוק: עד 3 חודשים</span>
+            <span className="px-2 py-1 bg-yellow-500/20 text-yellow-200 rounded-full">צהוב: 3-6 חודשים</span>
+            <span className="px-2 py-1 bg-orange-500/20 text-orange-200 rounded-full">כתום: 6-9 חודשים</span>
+            <span className="px-2 py-1 bg-red-500/20 text-red-200 rounded-full">אדום: מעל 9 חודשים</span>
+            <span className="px-2 py-1 bg-amber-500/20 text-amber-200 rounded-full border border-amber-500/30">⭐ = לקוח VIP</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-sm">
-          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-            <div className="p-2 bg-indigo-100 text-indigo-600 rounded-full">
-              <Users className="w-5 h-5" />
-            </div>
-            <p className="text-xs text-slate-500 font-medium">סה״כ לקוחות רשומים</p>
-            <h3 className="text-xl md:text-2xl font-bold text-slate-800">{totalCustomers}</h3>
-          </CardContent>
-        </Card>
-        <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-sm">
-          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-            <div className="p-2 bg-green-100 text-green-600 rounded-full">
-              <UserCheck className="w-5 h-5" />
-            </div>
-            <p className="text-xs text-slate-500 font-medium">לקוחות פעילים (עד 3 חודשים)</p>
-            <h3 className="text-xl md:text-2xl font-bold text-slate-800">{activeCustomers}</h3>
-          </CardContent>
-        </Card>
-        <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-sm">
-          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-            <div className="p-2 bg-violet-100 text-violet-600 rounded-full">
-              <ShoppingCart className="w-5 h-5" />
-            </div>
-            <p className="text-xs text-slate-500 font-medium">ממוצע שווי סל כללי</p>
-            <h3 className="text-xl md:text-2xl font-bold text-slate-800">{formatCurrency(avgCartValueTotal)}</h3>
-          </CardContent>
-        </Card>
-        <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-sm">
-          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-full">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-            <p className="text-xs text-slate-500 font-medium">הכנסות בחודש האחרון</p>
-            <h3 className="text-xl md:text-2xl font-bold text-slate-800">{formatCurrency(totalLastMonthRevenue)}</h3>
-          </CardContent>
-        </Card>
-        <Card className="bg-amber-50/80 backdrop-blur-xl border-amber-200/60 shadow-sm">
-          <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-            <div className="p-2 bg-amber-100 text-amber-600 rounded-full">
-              <Star className="w-5 h-5 fill-amber-400" />
-            </div>
-            <p className="text-xs text-amber-700 font-medium">לקוחות VIP</p>
-            <h3 className="text-xl md:text-2xl font-bold text-amber-800">{vipCount}</h3>
-          </CardContent>
-        </Card>
+      <div className="lg:col-span-12 glass-panel rounded-3xl p-6 grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="flex flex-col justify-center items-center text-center space-y-2">
+          <div className="p-2 bg-indigo-500/20 text-indigo-300 rounded-full">
+            <Users className="w-5 h-5" />
+          </div>
+          <p className="text-xs text-slate-200 font-medium">סה״כ לקוחות רשומים</p>
+          <h3 className="text-xl md:text-2xl font-bold text-white">{totalCustomers}</h3>
+        </div>
+        <div className="flex flex-col justify-center items-center text-center space-y-2">
+          <div className="p-2 bg-green-500/20 text-green-300 rounded-full">
+            <UserCheck className="w-5 h-5" />
+          </div>
+          <p className="text-xs text-slate-200 font-medium">לקוחות פעילים (עד 3 חודשים)</p>
+          <h3 className="text-xl md:text-2xl font-bold text-white">{activeCustomers}</h3>
+        </div>
+        <div className="flex flex-col justify-center items-center text-center space-y-2">
+          <div className="p-2 bg-violet-500/20 text-violet-300 rounded-full">
+            <ShoppingCart className="w-5 h-5" />
+          </div>
+          <p className="text-xs text-slate-200 font-medium">ממוצע שווי סל כללי</p>
+          <h3 className="text-xl md:text-2xl font-bold text-white">{formatCurrency(avgCartValueTotal)}</h3>
+        </div>
+        <div className="flex flex-col justify-center items-center text-center space-y-2">
+          <div className="p-2 bg-emerald-500/20 text-emerald-300 rounded-full">
+            <TrendingUp className="w-5 h-5" />
+          </div>
+          <p className="text-xs text-slate-200 font-medium">הכנסות בחודש האחרון</p>
+          <h3 className="text-xl md:text-2xl font-bold text-white">{formatCurrency(totalLastMonthRevenue)}</h3>
+        </div>
+        <div className="flex flex-col justify-center items-center text-center space-y-2">
+          <div className="p-2 bg-amber-500/20 text-amber-300 rounded-full">
+            <Star className="w-5 h-5 fill-amber-400" />
+          </div>
+          <p className="text-xs text-amber-300 font-medium">לקוחות VIP</p>
+          <h3 className="text-xl md:text-2xl font-bold text-white">{vipCount}</h3>
+        </div>
       </div>
 
-      <Card className="w-full bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-xl overflow-hidden">
-        <CardHeader className="bg-slate-50/50 border-b border-slate-100 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center p-6">
+      <div className="lg:col-span-12 glass-panel rounded-3xl p-6 overflow-hidden flex flex-col gap-4">
+        <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
         <div>
-          <p className="text-sm text-slate-500 mt-1">סה״כ: {filteredAndSorted.length} לקוחות</p>
+          <p className="text-sm text-slate-200 mt-1">סה״כ: {filteredAndSorted.length} לקוחות</p>
         </div>
         
         <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto items-center">
@@ -589,16 +579,16 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
             />
           </div>
         </div>
-      </CardHeader>
+      </div>
       
-      <CardContent className="p-0 overflow-x-auto">
+      <div className="p-0 overflow-x-auto w-full">
         <Table>
-          <TableHeader className="bg-slate-50/80 sticky top-0 z-10 border-b border-slate-200 shadow-sm">
+          <TableHeader className="bg-white/10 sticky top-0 z-10 border-b border-white/20 shadow-sm backdrop-blur-md">
             <TableRow className="hover:bg-transparent">
               <TableHead className="w-[40px] text-center px-1">
                 <input 
                   type="checkbox" 
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer align-middle" 
+                  className="rounded border-slate-400 text-indigo-400 focus:ring-indigo-400 w-4 h-4 cursor-pointer align-middle bg-transparent" 
                   checked={isAllVisibleSelected}
                   ref={input => {
                     if (input) input.indeterminate = isSomeVisibleSelected;
@@ -610,8 +600,8 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
                 <Star className="w-3.5 h-3.5 mx-auto text-amber-400 fill-amber-400" />
               </TableHead>
               <SortHeader label="שם מלא" sortKey="fullName" className="w-[70px]" />
-              <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">אימייל</TableHead>
-              <TableHead className="text-center font-semibold text-slate-700 px-0.5 text-[11px] align-middle">טלפון</TableHead>
+              <TableHead className="text-center font-semibold text-slate-200 px-0.5 text-[11px] align-middle">אימייל</TableHead>
+              <TableHead className="text-center font-semibold text-slate-200 px-0.5 text-[11px] align-middle">טלפון</TableHead>
               <SortHeader label="רכישה אחרונה" sortKey="lastPurchaseDate" />
               <SortHeader label="ערך סל ממוצע" sortKey="averageCartValue" />
               <SortHeader label="כמות הזמנות" sortKey="orderCount" />
@@ -660,29 +650,29 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
                       )}
                     </button>
                   </TableCell>
-                  <TableCell className="px-0.5 text-center font-medium text-slate-800 text-[11px] max-w-[70px] truncate" title={customer.fullName}>
+                  <TableCell className="px-0.5 text-center font-medium text-white text-[11px] max-w-[70px] truncate" title={customer.fullName}>
                     <div className="flex items-center justify-center gap-1">
                       {customer.source === "manual" && (
                         <span title="לקוח חנות">
-                          <Store className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                          <Store className="w-3 h-3 text-emerald-300 flex-shrink-0" />
                         </span>
                       )}
                       <span>{customer.fullName}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="px-0.5 text-center text-slate-600 text-[10px] truncate max-w-[80px]" title={customer.email}>{customer.email}</TableCell>
-                  <TableCell className="px-0.5 text-center text-slate-600 text-[11px] truncate max-w-[80px]" dir="ltr" title={customer.phone}>{customer.phone}</TableCell>
-                  <TableCell className="px-0.5 text-center text-slate-500 whitespace-nowrap text-[11px]">
-                    {customer.source === "manual" ? <span className="text-emerald-600 text-[10px]">לקוח חנות</span> : formatDate(customer.lastPurchaseDate)}
+                  <TableCell className="px-0.5 text-center text-slate-200 text-[10px] truncate max-w-[80px]" title={customer.email}>{customer.email}</TableCell>
+                  <TableCell className="px-0.5 text-center text-slate-200 text-[11px] truncate max-w-[80px]" dir="ltr" title={customer.phone}>{customer.phone}</TableCell>
+                  <TableCell className="px-0.5 text-center text-slate-300 whitespace-nowrap text-[11px]">
+                    {customer.source === "manual" ? <span className="text-emerald-300 text-[10px]">לקוח חנות</span> : formatDate(customer.lastPurchaseDate)}
                   </TableCell>
-                  <TableCell className="px-0.5 text-center font-semibold text-violet-600 whitespace-nowrap text-[11px]">{formatCurrency(customer.averageCartValue)}</TableCell>
-                  <TableCell className="px-0.5 text-center font-semibold text-slate-700 whitespace-nowrap text-[11px]">{customer.orderCount}</TableCell>
-                  <TableCell className="px-0.5 text-center font-semibold text-emerald-600 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastMonth)}</TableCell>
-                  <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastYear)}</TableCell>
-                  <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsAllTime)}</TableCell>
-                  <TableCell className="px-0.5 text-center font-semibold text-indigo-600 whitespace-nowrap text-[11px]">{formatCurrency(customer.totalLastMonth)}</TableCell>
-                  <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.totalLastYear)}</TableCell>
-                  <TableCell className="px-0.5 text-center text-slate-700 whitespace-nowrap text-[11px]">{formatCurrency(customer.totalAllTime)}</TableCell>
+                  <TableCell className="px-0.5 text-center font-semibold text-violet-300 whitespace-nowrap text-[11px]">{formatCurrency(customer.averageCartValue)}</TableCell>
+                  <TableCell className="px-0.5 text-center font-semibold text-slate-200 whitespace-nowrap text-[11px]">{customer.orderCount}</TableCell>
+                  <TableCell className="px-0.5 text-center font-semibold text-emerald-300 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastMonth)}</TableCell>
+                  <TableCell className="px-0.5 text-center text-slate-200 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsLastYear)}</TableCell>
+                  <TableCell className="px-0.5 text-center text-slate-200 whitespace-nowrap text-[11px]">{formatCurrency(customer.homeBrandsAllTime)}</TableCell>
+                  <TableCell className="px-0.5 text-center font-semibold text-indigo-300 whitespace-nowrap text-[11px]">{formatCurrency(customer.totalLastMonth)}</TableCell>
+                  <TableCell className="px-0.5 text-center text-slate-200 whitespace-nowrap text-[11px]">{formatCurrency(customer.totalLastYear)}</TableCell>
+                  <TableCell className="px-0.5 text-center text-slate-200 whitespace-nowrap text-[11px]">{formatCurrency(customer.totalAllTime)}</TableCell>
                   <TableCell className="px-0.5 text-center w-[36px]">
                     {customer.source === "manual" && (
                       <button
@@ -699,8 +689,8 @@ export default function CustomerControlClient({ initialData }: { initialData: Cu
             )}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+      </div>
     </div>
+    </>
   );
 }

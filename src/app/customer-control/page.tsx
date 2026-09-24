@@ -13,8 +13,10 @@ export default async function CustomerControlPage() {
   const data = await getCustomerControlData();
 
   return (
-    <div className="container mx-auto px-4 md:px-8 py-8 rtl">
-      <h1 className="text-3xl font-bold text-center mb-8">בקרת לקוחות</h1>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 md:p-8 rtl">
+      <div className="lg:col-span-12 glass-panel rounded-3xl p-6">
+        <h1 className="text-3xl font-bold text-center text-white">בקרת לקוחות</h1>
+      </div>
       <CustomerControlClient initialData={data} />
     </div>
   );
