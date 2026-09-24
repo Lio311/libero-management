@@ -125,7 +125,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
 
       {/* Sidebar Content */}
       <div className={cn(
-        "fixed inset-y-4 right-4 z-50 flex h-[calc(100vh-2rem)] flex-col rounded-3xl glass-panel text-white shadow-xl transition-all duration-300 print:hidden overflow-hidden group/sidebar",
+        "fixed inset-y-4 right-4 z-50 flex h-[calc(100vh-2rem)] flex-col rounded-xl glass-panel text-white shadow-xl transition-all duration-300 print:hidden overflow-hidden group/sidebar",
         isOpen ? "translate-x-0 w-64" : "translate-x-[calc(100%+1rem)] md:translate-x-0 w-64 md:w-[72px] md:hover:w-64"
         
       )}>
