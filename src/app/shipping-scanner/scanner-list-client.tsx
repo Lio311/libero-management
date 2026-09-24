@@ -285,22 +285,22 @@ export default function ScannerListClient({
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
             סריקת משלוחים
           </h2>
-          <div className="flex bg-secondary/50 p-1.5 rounded-xl w-full sm:w-fit justify-between sm:justify-start border border-border/50 mx-auto sm:mx-0">
+          <div className="flex bg-white/10 p-1.5 rounded-xl w-full sm:w-fit justify-between sm:justify-start border border-white/10 mx-auto sm:mx-0">
             <Link 
               href="?store=libero" prefetch={true} scroll={false}
-              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-white"}`}
+              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
             >
               ליברו
             </Link>
             <Link 
               href="?store=velour" prefetch={true} scroll={false}
-              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-white"}`}
+              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
             >
               וולור
             </Link>
             <Link 
               href="?store=labura" prefetch={true} scroll={false}
-              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-white"}`}
+              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
             >
               לה בורה
             </Link>
@@ -377,8 +377,8 @@ export default function ScannerListClient({
                   onClick={handleRemotePrint}
                   className={`flex-1 sm:flex-none px-2 sm:px-4 py-3 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 sm:min-w-[140px] sm:h-12 h-14 whitespace-nowrap text-xs sm:text-sm ${
                     selectedOrderIds.length > 0 
-                      ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
-                      : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                      ? "bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 border border-purple-500/30" 
+                      : "bg-white/10 text-white/70 cursor-not-allowed opacity-50"
                   }`}
                   title="הדפס מדבקות מיני בושם"
                 >
@@ -393,8 +393,8 @@ export default function ScannerListClient({
                 onClick={handleRemotePrintShipping}
                 className={`flex-1 sm:flex-none px-2 sm:px-4 py-3 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 sm:min-w-[140px] sm:h-12 h-14 whitespace-nowrap text-xs sm:text-sm ${
                   selectedOrderIds.length > 0 
-                    ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
-                    : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                    ? "bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 border border-blue-500/30" 
+                    : "bg-white/10 text-white/70 cursor-not-allowed opacity-50"
                 }`}
                 title="הדפס לייבל משלוח"
               >
@@ -412,14 +412,14 @@ export default function ScannerListClient({
         <h3 className="text-lg font-medium text-white mb-2">חיפוש הזמנות</h3>
         <div className="relative w-full">
         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-muted-foreground" />
+          <Search className="h-5 w-5 text-white/70" />
         </div>
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="חיפוש לפי מספר הזמנה, מספר משלוח, שם, טלפון..."
-          className="block w-full pl-3 pr-10 py-3 md:py-4 border border-border rounded-xl leading-5 bg-white/5 text-white placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
+          className="block w-full pl-3 pr-10 py-3 md:py-4 border border-white/20 rounded-xl leading-5 bg-white/5 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
           dir="rtl"
         />
       </div>
@@ -427,7 +427,7 @@ export default function ScannerListClient({
 <div className="col-span-1 lg:col-span-6 glass-panel rounded-3xl p-6">
         <div className="grid grid-cols-2 gap-4 h-full">
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col justify-center shadow-sm">
-          <div className="flex items-center gap-2 text-muted-foreground mb-2">
+          <div className="flex items-center gap-2 text-white/70 mb-2">
             <CheckCircle2 className="w-5 h-5 text-green-500" />
             <span className="font-medium text-sm">הושלמו היום</span>
           </div>
@@ -435,7 +435,7 @@ export default function ScannerListClient({
         </div>
         
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col justify-center shadow-sm">
-          <div className="flex items-center gap-2 text-muted-foreground mb-2">
+          <div className="flex items-center gap-2 text-white/70 mb-2">
             <ListTodo className="w-5 h-5 text-orange-500" />
             <span className="font-medium text-sm">נשארו לביצוע</span>
           </div>
@@ -445,7 +445,7 @@ export default function ScannerListClient({
       </div>
 <div className="col-span-1 lg:col-span-12">
       {processingOrders.length === 0 ? (
-        <div className="text-center py-10 text-muted-foreground bg-white/5 rounded-xl border border-border">
+        <div className="text-center py-10 text-white/70 bg-white/5 rounded-xl border border-white/20">
           אין הזמנות פתוחות להכנה
         </div>
       ) : (
@@ -569,7 +569,7 @@ export default function ScannerListClient({
       )}
 
       {completedOrders.length > 0 && (
-        <div className="space-y-4 pt-8 border-t border-border">
+        <div className="space-y-4 pt-8 border-t border-white/20">
           <h3 className="text-xl font-semibold flex items-center gap-2 text-green-500">
             <Package className="w-6 h-6" />
             הזמנות שהושלמו לאחרונה ({completedOrders.length})
@@ -594,7 +594,7 @@ export default function ScannerListClient({
                   setIsLoadingArchived(false);
                 }
               }}
-              className="mt-6 w-full py-4 bg-secondary/50 hover:bg-secondary rounded-xl border border-border/50 text-muted-foreground flex items-center justify-center gap-2 transition-all font-medium"
+              className="mt-6 w-full py-4 bg-white/10 hover:bg-white/10 rounded-xl border border-white/10 text-white/70 flex items-center justify-center gap-2 transition-all font-medium"
             >
               {isLoadingArchived ? (
                 <>
@@ -609,7 +609,7 @@ export default function ScannerListClient({
               )}
             </button>
           ) : (
-            <div className="mt-6 text-center text-sm text-muted-foreground pb-8">
+            <div className="mt-6 text-center text-sm text-white/70 pb-8">
               כל היסטוריית ההזמנות נטענה בהצלחה.
             </div>
           )}
@@ -645,7 +645,7 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
     <div className="relative h-full">
       {showCheckbox && (
         <div className="absolute -right-3 -top-3 z-20 cursor-pointer" onClick={onToggle}>
-          <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors shadow-sm ${isSelected ? 'bg-purple-500 border-purple-500 text-white' : 'border-muted-foreground/30 hover:border-purple-500/50 bg-white/5'}`}>
+          <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors shadow-sm ${isSelected ? 'bg-purple-500 border-purple-500 text-white' : 'border-white/30 hover:border-purple-500/50 bg-white/5'}`}>
             {isSelected && <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
           </div>
         </div>
@@ -676,7 +676,7 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
           </div>
         )}
 
-        <div className="flex items-center justify-between text-sm text-muted-foreground flex-1 mb-1">
+        <div className="flex items-center justify-between text-sm text-white/70 flex-1 mb-1">
           <div className="flex items-center gap-1.5 truncate mr-2">
             <User className="w-4 h-4 shrink-0" />
             <span className="truncate">{order.customerName}</span>
@@ -687,7 +687,7 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
           </div>
         </div>
         
-        <div className="mt-2 pt-2 border-t border-border/50 text-white font-medium flex justify-between items-center">
+        <div className="mt-2 pt-2 border-t border-white/10 text-white font-medium flex justify-between items-center">
           <span>סה"כ לתשלום:</span>
           <span>₪{parseFloat(order.total).toFixed(2)}</span>
         </div>

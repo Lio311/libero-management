@@ -1,0 +1,12 @@
+--- src/app/globals.css
++++ src/app/globals.css
+@@ -107,6 +107,11 @@
+   .glass-panel .text-foreground {
+     color: #ffffff !important;
+   }
++  
++  .glass-panel ::placeholder,
++  .glass-panel input::placeholder {
++    color: rgba(255, 255, 255, 0.6) !important;
++  }
+ }

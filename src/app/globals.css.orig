@@ -216,11 +216,6 @@
   .glass-panel .text-foreground {
     color: #ffffff !important;
   }
-  
-  .glass-panel ::placeholder,
-  .glass-panel input::placeholder {
-    color: rgba(255, 255, 255, 0.6) !important;
-  }
 }
 
 @layer base {
