@@ -132,7 +132,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
           </button>
         </div>
         <div className={cn(
-          "flex-1 overflow-y-auto overflow-x-hidden scrollbar-none",
+          "flex-1 overflow-visible",
           !isAuthenticated && "blur-sm pointer-events-none select-none opacity-50"
         )}>
           <div className={cn(
