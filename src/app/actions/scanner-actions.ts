@@ -61,50 +61,33 @@ export async function saveScannerSettings(keywords: string[]) {
   }
 }
 
-async function computeMultipleOrdersToday(orders: ScannerOrder[], store: "libero" | "velour" | "labura" = "libero"): Promise<ScannerOrder[]> {
-  if (orders.length === 0) return orders;
+async function computeMultipleOrdersToday(orders: ScannerOrder[], store: "libero" | "velour" | "labura") {
   const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
   
-  const minDateStr = orders.reduce((min, o) => {
-    if (!o.dateCreated) return min;
-    const d = o.dateCreated.split('T')[0];
-    return !min || d < min ? d : min;
-  }, "" as string);
-  
-  if (!minDateStr) return orders;
-
-  const minDate = new Date(minDateStr);
-  minDate.setHours(0, 0, 0, 0);
-
-  const recentOrders = await db.select({
-    dateCreated: targetOrders.dateCreated,
+  const activeOrders = await db.select({
     phone: sql<string>`billing->>'phone'`
   }).from(targetOrders).where(
-    and(
-      gte(targetOrders.dateCreated, minDate),
-      inArray(targetOrders.status, ['completed', 'processing', 'shipped'])
-    )
+    eq(targetOrders.status, 'processing')
   );
 
-  const counts = new Map<string, number>();
-  for (const row of recentOrders) {
-    // Normalizing phone to match better if needed, but basic key is fine
+  const phoneCounts = new Map<string, number>();
+  for (const row of activeOrders) {
     const p = row.phone;
-    const dStr = row.dateCreated ? new Date(row.dateCreated).toISOString().split('T')[0] : null;
-    if (p && dStr) {
-      const key = `${p}_${dStr}`;
-      counts.set(key, (counts.get(key) || 0) + 1);
+    if (p) {
+      const key = p.replace(/\D/g, '');
+      phoneCounts.set(key, (phoneCounts.get(key) || 0) + 1);
     }
   }
 
   return orders.map(order => {
-    const phone = order.phone;
-    const dateStr = order.dateCreated ? order.dateCreated.split('T')[0] : null;
     let hasMultiple = false;
-    if (phone && dateStr) {
-      const key = `${phone}_${dateStr}`;
-      if ((counts.get(key) || 0) > 1) {
-        hasMultiple = true;
+    if (order.status === 'processing') {
+      const p = order.phone;
+      if (p) {
+        const key = p.replace(/\D/g, '');
+        if ((phoneCounts.get(key) || 0) > 1) {
+          hasMultiple = true;
+        }
       }
     }
     return { ...order, hasMultipleOrdersToday: hasMultiple };

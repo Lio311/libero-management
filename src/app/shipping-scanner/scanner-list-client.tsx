@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer, Search, ChevronDown, Loader2, MessageSquare, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { ScannerOrder, createOrderLabel, getArchivedCompletedOrders, fixShippingLabelsDb, searchScannerOrders } from "@/app/actions/scanner-actions";
 
@@ -227,11 +227,44 @@ export default function ScannerListClient({
 
   const processingOrders = filteredOrders.filter(o => o.status === 'processing');
   const completedOrders = filteredOrders.filter(o => o.status === 'completed');
+
+  // Logic for duplicates category
+  const phoneCounts = new Map<string, number>();
+  processingOrders.forEach(o => {
+    const phone = o.phone;
+    if (phone) {
+      const key = phone.replace(/\D/g, '');
+      phoneCounts.set(key, (phoneCounts.get(key) || 0) + 1);
+    }
+  });
+
+  const duplicatePhones = new Set(
+    Array.from(phoneCounts.entries()).filter(([phone, count]) => count > 1).map(([phone]) => phone)
+  );
+
+  const duplicateOrdersRaw = processingOrders.filter(o => {
+    const p = o.phone;
+    return p && duplicatePhones.has(p.replace(/\D/g, ''));
+  });
   
-  const readyOrders = processingOrders.filter(o => readyIds.includes(o.id));
-  const partialOrders = processingOrders.filter(o => partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
-  const pickupOrders = processingOrders.filter(o => o.isPickup && !partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
-  const allShippingOrders = processingOrders.filter(o => !o.isPickup && !partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
+  const duplicateOrders = duplicateOrdersRaw.sort((a, b) => {
+    const phoneA = (a.phone || '').replace(/\D/g, '');
+    const phoneB = (b.phone || '').replace(/\D/g, '');
+    if (phoneA === phoneB) {
+      return new Date(a.dateCreated).getTime() - new Date(b.dateCreated).getTime();
+    }
+    return phoneA.localeCompare(phoneB);
+  });
+
+  const normalProcessingOrders = processingOrders.filter(o => {
+    const p = o.phone;
+    return !(p && duplicatePhones.has(p.replace(/\D/g, '')));
+  });
+
+  const readyOrders = normalProcessingOrders.filter(o => readyIds.includes(o.id));
+  const partialOrders = normalProcessingOrders.filter(o => partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
+  const pickupOrders = normalProcessingOrders.filter(o => o.isPickup && !partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
+  const allShippingOrders = normalProcessingOrders.filter(o => !o.isPickup && !partiallyScannedIds.includes(o.id) && !readyIds.includes(o.id));
 
   const isLibero = store === 'libero';
   const hasMiniPerfumes = (order: any) => order.lineItems.some((i: any) => (i.name || "").includes("מיני בושם"));
@@ -437,6 +470,38 @@ export default function ScannerListClient({
                 {partialOrders.map(order => (
                   <OrderCard store={store} key={order.id} order={order} statusLabel="בתהליך סריקה" statusColor="purple" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
+              </div>
+            </div>
+          )}
+
+          {mounted && duplicateOrders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-red-500">
+                <AlertTriangle className="w-6 h-6" />
+                הזמנות כפולות ({duplicateOrders.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {duplicateOrders.map((order, i) => {
+                  const prevOrder = duplicateOrders[i-1];
+                  const pPhone = prevOrder?.phone?.replace(/\D/g, '');
+                  const cPhone = order.phone?.replace(/\D/g, '');
+                  const isNewGroup = i === 0 || pPhone !== cPhone;
+                  
+                  return (
+                    <React.Fragment key={order.id}>
+                      {isNewGroup && i > 0 && <div className="col-span-full h-2"></div>}
+                      <OrderCard 
+                        store={store} 
+                        order={order} 
+                        statusLabel={readyIds.includes(order.id) ? "ממתין לסגירה" : partiallyScannedIds.includes(order.id) ? "בתהליך סריקה" : "בטיפול"} 
+                        statusColor={readyIds.includes(order.id) ? "green" : partiallyScannedIds.includes(order.id) ? "purple" : "blue"} 
+                        isSelected={selectedOrderIds.includes(order.id)} 
+                        onToggle={(e) => toggleSelection(e, order.id)} 
+                        showCheckbox={true} 
+                      />
+                    </React.Fragment>
+                  );
+                })}
               </div>
             </div>
           )}
