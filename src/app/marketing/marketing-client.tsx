@@ -631,6 +631,33 @@ export default function MarketingClient({
 
   const [isAddingInfluencer, setIsAddingInfluencer] = useState(false);
   const [isAddingPayment, setIsAddingPayment] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportExcel = async () => {
+    if (!currentMonth) {
+      toast.error("אנא בחר חודש לייצוא");
+      return;
+    }
+    setIsExporting(true);
+    try {
+      const res = await fetch(`/api/marketing/export-salaries?month=${currentMonth}`);
+      if (!res.ok) throw new Error("Failed to export");
+      
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `salaries-${currentMonth}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      toast.error("אירעה שגיאה בהורדת הקובץ");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -786,6 +813,15 @@ export default function MarketingClient({
 
   return (
     <div className="min-h-screen p-4 md:p-8" dir="rtl">
+      {isExporting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#1a1f2e] border border-white/10 p-8 rounded-2xl flex flex-col items-center gap-4 shadow-2xl">
+            <Loader2 className="w-12 h-12 text-green-500 animate-spin" />
+            <h3 className="text-xl font-medium text-white">מכין את קובץ האקסל...</h3>
+            <p className="text-slate-400 text-sm">זה עשוי לקחת מספר שניות, אנא המתן.</p>
+          </div>
+        </div>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
       <div className="lg:col-span-12 glass-panel rounded-3xl p-6">
         <h2 className="text-3xl font-bold tracking-tight text-white">שיווק ומשפיענים</h2>
@@ -869,13 +905,8 @@ export default function MarketingClient({
             <p className="text-sm text-slate-200">פירוט התשלומים למשפיענים כפי שהוזנו במערכת</p>
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={() => {
-              if (currentMonth) {
-                window.location.href = `/api/marketing/export-salaries?month=${currentMonth}`;
-              } else {
-                toast.error("אנא בחר חודש לייצוא");
-              }
-            }} className="flex items-center gap-1 text-sm bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700">
+            <button onClick={handleExportExcel} disabled={isExporting} className="flex items-center gap-1 text-sm bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 disabled:opacity-50">
+              {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               הורד אקסל
             </button>
             <button onClick={() => setIsAddingPayment(true)} className="flex items-center gap-1 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90">
