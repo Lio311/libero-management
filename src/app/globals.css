@@ -131,7 +131,7 @@
 
 @layer utilities {
   .glass-panel {
-    background-color: rgba(0, 0, 0, 0.45);
+    background-color: rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(12px) saturate(150%);
     -webkit-backdrop-filter: blur(12px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -247,7 +247,7 @@
 /* ===== LIGHT GLASS MODE ===== */
 
 body.light-glass .glass-panel {
-  background-color: rgba(255, 255, 255, 0.65) !important;
+  background-color: rgba(255, 255, 255, 0.3) !important;
   border: 1px solid rgba(0, 0, 0, 0.08) !important;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06) !important;
   color: #1a1a1a !important;
@@ -329,9 +329,4 @@ body.light-glass .glass-panel .text-emerald-400 { color: #059669 !important; }
 body.light-glass .glass-panel .text-rose-400 { color: #e11d48 !important; }
 
 /* 7. Background image blend mode */
-body.light-glass {
-  background-blend-mode: normal !important;
-}
-body.light-glass .bg-blend-lighten {
-  background-blend-mode: normal !important;
-}
+/* Removed so the global background remains light as in dark glass mode */
