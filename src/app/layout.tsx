@@ -52,7 +52,7 @@ export default async function RootLayout({
       <html lang="he" dir="rtl">
         <body 
           className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row bg-cover bg-center bg-no-repeat bg-fixed`}
-          style={{ backgroundImage: "url('/beach-bg.png')" }}
+          style={{ backgroundImage: "url('/bg-abstract.png')" }}
         >
           <ConfirmProvider>
             <WakeLock />
