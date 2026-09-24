@@ -174,14 +174,14 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                       "w-full group flex justify-between items-center px-3 py-1 text-sm font-medium rounded-lg hover-scale",
                       isActive
                         ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
+                        : "text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground"
                     )}
                   >
                     <div className="flex items-center">
                       <item.icon
                         className={cn(
                           "ml-3 flex-shrink-0 h-5 w-5 transition-colors",
-                          isActive ? "text-primary" : "text-muted-foreground group-hover:text-secondary-foreground"
+                          isActive ? "text-primary" : "text-slate-200 group-hover:text-secondary-foreground"
                         )}
                         aria-hidden="true"
                       />
@@ -201,13 +201,13 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                       "group flex items-center px-3 py-1 text-sm font-medium rounded-lg hover-scale",
                       isActive
                         ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
+                        : "text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground"
                     )}
                   >
                     <item.icon
                       className={cn(
                         "ml-3 flex-shrink-0 h-5 w-5 transition-colors",
-                        isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-secondary-foreground"
+                        isActive ? "text-primary-foreground" : "text-slate-200 group-hover:text-secondary-foreground"
                       )}
                       aria-hidden="true"
                     />
@@ -228,7 +228,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                             "group flex items-center pr-9 pl-3 py-0.5 text-sm font-medium rounded-lg hover-scale",
                             isSubActive
                               ? "bg-primary text-primary-foreground shadow-sm"
-                              : "text-muted-foreground hover:bg-secondary/80 hover:text-secondary-foreground"
+                              : "text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground"
                           )}
                         >
                           <span className="truncate">{subItem.name}</span>
@@ -245,7 +245,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
           "p-4 border-t border-border/50",
           !isAuthenticated && "blur-sm opacity-50"
         )}>
-          <div className="flex items-center px-3 py-2 text-xs text-muted-foreground">
+          <div className="flex items-center px-3 py-2 text-xs text-slate-200">
             <span>ניהול עסקי - B2B/B2C</span>
           </div>
         </div>
