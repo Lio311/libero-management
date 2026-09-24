@@ -635,10 +635,12 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
   let ageBgClass = "";
   if (order.status !== 'completed') {
     if (daysOld >= 5) {
-      ageBgClass = "!bg-red-500 hover:!bg-red-600 !border-red-600";
+      ageBgClass = "!bg-red-400 hover:!bg-red-500 !border-red-500";
     } else if (daysOld >= 3) {
-      ageBgClass = "!bg-orange-500 hover:!bg-orange-600 !border-orange-600";
+      ageBgClass = "!bg-orange-400 hover:!bg-orange-500 !border-orange-500";
     }
+  } else {
+    ageBgClass = "!bg-emerald-500 hover:!bg-emerald-600 !border-emerald-500";
   }
 
   return (
