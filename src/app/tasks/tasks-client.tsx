@@ -94,24 +94,24 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
   const getStatusIcon = (status: string | null) => {
     switch (status) {
       case "בוצע":
-        return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+        return <CheckCircle2 className="h-4 w-4 text-emerald-400" />;
       case "בתהליך":
-        return <Clock className="h-4 w-4 text-amber-500" />;
+        return <Clock className="h-4 w-4 text-amber-400" />;
       case "לא התחיל":
       default:
-        return <Circle className="h-4 w-4 text-slate-400" />;
+        return <Circle className="h-4 w-4 text-slate-300" />;
     }
   };
 
   const getStatusBadge = (status: string | null) => {
     switch (status) {
       case "בוצע":
-        return "bg-emerald-500/10 text-emerald-600 border-emerald-200";
+        return "bg-emerald-500/20 text-emerald-300 border-emerald-400/50";
       case "בתהליך":
-        return "bg-amber-500/10 text-amber-600 border-amber-200";
+        return "bg-amber-500/20 text-amber-300 border-amber-400/50";
       case "לא התחיל":
       default:
-        return "bg-slate-100 text-slate-600 border-slate-200";
+        return "bg-white/10 text-slate-200 border-white/20";
     }
   };
 
@@ -223,205 +223,204 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
   const doneTasks = filteredTasks.filter(t => t.status === 'בוצע');
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center glass-panel p-4 rounded-2xl shadow-sm">
+    <div className="contents">
+      <div className="col-span-1 lg:col-span-12 glass-panel rounded-3xl p-6 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
             placeholder="חיפוש משימות או אחראים..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/40 transition-all"
             dir="rtl"
           />
         </div>
         
         <div className="flex gap-4 items-center">
-          <div className="flex bg-muted/50 rounded-lg p-1" dir="ltr">
+          <div className="flex bg-black/20 rounded-xl p-1 border border-white/10" dir="ltr">
             <button
               onClick={() => setViewMode('kanban')}
-              className={`p-1.5 rounded-md flex items-center transition-colors ${viewMode === 'kanban' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`p-1.5 rounded-lg flex items-center transition-colors ${viewMode === 'kanban' ? 'bg-white/20 shadow-sm text-white' : 'text-slate-400 hover:text-white'}`}
               title="תצוגת לוח"
             >
               <LayoutGrid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded-md flex items-center transition-colors ${viewMode === 'table' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`p-1.5 rounded-lg flex items-center transition-colors ${viewMode === 'table' ? 'bg-white/20 shadow-sm text-white' : 'text-slate-400 hover:text-white'}`}
               title="תצוגת גיליון (אקסל)"
             >
               <LayoutList className="w-4 h-4" />
             </button>
           </div>
-          <button onClick={handleAddNew} className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors hover-scale">
+          <button onClick={handleAddNew} className="flex items-center gap-2 bg-white/20 hover:bg-white/30 border border-white/20 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors hover-scale">
             <Plus className="h-4 w-4" />
             משימה חדשה
           </button>
         </div>
       </div>
 
-      <div className="glass-panel rounded-2xl shadow-sm overflow-hidden">
-        {viewMode === 'kanban' ? (
-          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[400px]">
-            {/* To Do Column */}
-            <div 
-              className="bg-slate-50/50 p-4 rounded-xl flex flex-col gap-3 flex-1 min-h-[300px]"
-              onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              onDrop={(e) => handleDrop(e, "לא התחיל")}
-            >
-              <div className="font-semibold text-sm flex items-center justify-between text-slate-600 mb-2">
-                לא התחיל <Badge variant="secondary" className="bg-slate-200/50 text-slate-700">{todoTasks.length}</Badge>
-              </div>
-              {todoTasks.map(task => (
-                <div 
-                  key={task.id} 
-                  draggable
-                  onDragStart={(e) => { e.dataTransfer.setData('text/plain', task.id); e.dataTransfer.setData('taskId', task.id); }}
-                  className={`${isOverdue(task.dueDate) ? 'bg-red-50/50 border-red-200 text-red-900' : 'bg-background border-border/50 text-foreground'} p-4 rounded-xl shadow-sm border border-border/50 text-sm hover:border-primary/50 cursor-pointer transition-all hover:shadow-md group`}
-                >
-                  <div className="font-medium mb-1 text-foreground leading-snug">{task.taskName}</div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mt-4">
-                    <div className="flex items-center gap-2">
-                      {task.assignee && task.assignee !== 'Unassigned' ? (
-                        <>
-                          <div className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold">
-                            {task.assignee.charAt(0)}
-                          </div>
-                          <span>{task.assignee}</span>
-                        </>
-                      ) : (
-                        <span className="italic">לא הוקצה</span>
-                      )}
-                    </div>
-                    {task.dueDate && <span className="opacity-70">{task.dueDate}</span>}
-                  </div>
-                  <div className="mt-3 flex justify-end transition-opacity gap-1">
-                    <button onClick={(e) => { e.stopPropagation(); handleMarkAsDone(task.id, task); }} title="סמן כבוצע" className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); startEditing(task); setViewMode('table'); }} title="ערוך" className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded">
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(task.id); }} title="מחק" className="p-1 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+      {viewMode === 'kanban' ? (
+        <>
+          {/* To Do Column */}
+          <div 
+            className="col-span-1 lg:col-span-4 glass-panel rounded-3xl p-6 flex flex-col gap-3 min-h-[400px]"
+            onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDrop={(e) => handleDrop(e, "לא התחיל")}
+          >
+            <div className="font-semibold text-lg flex items-center justify-between text-white mb-4">
+              לא התחיל <Badge variant="secondary" className="bg-white/20 text-white border-none">{todoTasks.length}</Badge>
             </div>
-
-            {/* In Progress Column */}
-            <div 
-              className="bg-amber-50/30 p-4 rounded-xl flex flex-col gap-3 flex-1 min-h-[300px]"
-              onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              onDrop={(e) => handleDrop(e, "בתהליך")}
-            >
-              <div className="font-semibold text-sm flex items-center justify-between text-amber-600 mb-2">
-                בתהליך <Badge variant="secondary" className="bg-amber-100/50 text-amber-700">{inProgressTasks.length}</Badge>
-              </div>
-              {inProgressTasks.map(task => (
-                <div 
-                  key={task.id} 
-                  draggable
-                  onDragStart={(e) => { e.dataTransfer.setData('text/plain', task.id); e.dataTransfer.setData('taskId', task.id); }}
-                  className={`${isOverdue(task.dueDate) ? 'bg-red-50/50 border-red-200 text-red-900' : 'bg-background border-amber-100 text-foreground'} p-4 rounded-xl shadow-sm border border-amber-100 text-sm hover:border-amber-300 cursor-pointer transition-all hover:shadow-md group`}
-                >
-                  <div className="font-medium mb-1 text-foreground leading-snug">{task.taskName}</div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mt-4">
-                    <div className="flex items-center gap-2">
-                      {task.assignee && task.assignee !== 'Unassigned' ? (
-                        <>
-                          <div className="h-5 w-5 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center text-[10px] font-bold">
-                            {task.assignee.charAt(0)}
-                          </div>
-                          <span>{task.assignee}</span>
-                        </>
-                      ) : (
-                        <span className="italic">לא הוקצה</span>
-                      )}
-                    </div>
-                    {task.dueDate && <span className="opacity-70">{task.dueDate}</span>}
+            {todoTasks.map(task => (
+              <div 
+                key={task.id} 
+                draggable
+                onDragStart={(e) => { e.dataTransfer.setData('text/plain', task.id); e.dataTransfer.setData('taskId', task.id); }}
+                className={`${isOverdue(task.dueDate) ? 'bg-red-500/20 border-red-400 text-red-100' : 'bg-white/10 border-white/20 text-white'} p-4 rounded-xl shadow-sm border text-sm hover:border-white/40 cursor-pointer transition-all hover:shadow-md group`}
+              >
+                <div className="font-medium mb-1 text-white leading-snug">{task.taskName}</div>
+                <div className="flex items-center justify-between text-xs text-slate-300 mt-4">
+                  <div className="flex items-center gap-2">
+                    {task.assignee && task.assignee !== 'Unassigned' ? (
+                      <>
+                        <div className="h-5 w-5 rounded-full bg-white/20 text-white flex items-center justify-center text-[10px] font-bold">
+                          {task.assignee.charAt(0)}
+                        </div>
+                        <span>{task.assignee}</span>
+                      </>
+                    ) : (
+                      <span className="italic">לא הוקצה</span>
+                    )}
                   </div>
-                  <div className="mt-3 flex justify-end transition-opacity gap-1">
-                    <button onClick={(e) => { e.stopPropagation(); handleMarkAsDone(task.id, task); }} title="סמן כבוצע" className="p-1 text-emerald-600 hover:bg-emerald-50 rounded">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); startEditing(task); setViewMode('table'); }} title="ערוך" className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded">
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(task.id); }} title="מחק" className="p-1 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                  {task.dueDate && <span className="opacity-70">{task.dueDate}</span>}
                 </div>
-              ))}
-            </div>
-
-            {/* Done Column */}
-            <div 
-              className="bg-emerald-50/30 p-4 rounded-xl flex flex-col gap-3 flex-1 min-h-[300px]"
-              onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
-              onDrop={(e) => handleDrop(e, "בוצע")}
-            >
-              <div className="font-semibold text-sm flex items-center justify-between text-emerald-600 mb-2">
-                בוצע <Badge variant="secondary" className="bg-emerald-100/50 text-emerald-700">{doneTasks.length}</Badge>
-              </div>
-              {doneTasks.map(task => (
-                <div 
-                  key={task.id} 
-                  draggable
-                  onDragStart={(e) => { e.dataTransfer.setData('text/plain', task.id); e.dataTransfer.setData('taskId', task.id); }}
-                  className="bg-background p-4 rounded-xl shadow-sm border border-emerald-100 text-sm hover:border-emerald-300 cursor-pointer transition-all hover:shadow-md group opacity-80 hover:opacity-100"
-                >
-                  <div className="font-medium mb-1 text-muted-foreground line-through leading-snug">{task.taskName}</div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mt-4">
-                    <div className="flex items-center gap-2">
-                      {task.assignee && task.assignee !== 'Unassigned' ? (
-                        <>
-                          <div className="h-5 w-5 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-[10px] font-bold">
-                            {task.assignee.charAt(0)}
-                          </div>
-                          <span>{task.assignee}</span>
-                        </>
-                      ) : (
-                        <span className="italic">לא הוקצה</span>
-                      )}
-                    </div>
-                    {task.dueDate && <span className="opacity-70">{task.dueDate}</span>}
-                  </div>
-                  <div className="mt-3 flex justify-end transition-opacity gap-1">
-                    <button onClick={(e) => { e.stopPropagation(); startEditing(task); setViewMode('table'); }} title="ערוך" className="p-1 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded">
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(task.id); }} title="מחק" className="p-1 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
+                <div className="mt-3 flex justify-end transition-opacity gap-1">
+                  <button onClick={(e) => { e.stopPropagation(); handleMarkAsDone(task.id, task); }} title="סמן כבוצע" className="p-1 text-emerald-400 hover:bg-white/10 rounded">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); startEditing(task); setViewMode('table'); }} title="ערוך" className="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded">
+                    <Edit2 className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); handleDelete(task.id); }} title="מחק" className="p-1 text-slate-400 hover:text-rose-400 hover:bg-white/10 rounded">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
+
+          {/* In Progress Column */}
+          <div 
+            className="col-span-1 lg:col-span-4 glass-panel rounded-3xl p-6 flex flex-col gap-3 min-h-[400px]"
+            onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDrop={(e) => handleDrop(e, "בתהליך")}
+          >
+            <div className="font-semibold text-lg flex items-center justify-between text-amber-400 mb-4">
+              בתהליך <Badge variant="secondary" className="bg-amber-500/20 text-amber-200 border-none">{inProgressTasks.length}</Badge>
+            </div>
+            {inProgressTasks.map(task => (
+              <div 
+                key={task.id} 
+                draggable
+                onDragStart={(e) => { e.dataTransfer.setData('text/plain', task.id); e.dataTransfer.setData('taskId', task.id); }}
+                className={`${isOverdue(task.dueDate) ? 'bg-red-500/20 border-red-400 text-red-100' : 'bg-white/10 border-amber-400/30 text-white'} p-4 rounded-xl shadow-sm border text-sm hover:border-amber-400/50 cursor-pointer transition-all hover:shadow-md group`}
+              >
+                <div className="font-medium mb-1 text-white leading-snug">{task.taskName}</div>
+                <div className="flex items-center justify-between text-xs text-slate-300 mt-4">
+                  <div className="flex items-center gap-2">
+                    {task.assignee && task.assignee !== 'Unassigned' ? (
+                      <>
+                        <div className="h-5 w-5 rounded-full bg-amber-500/20 text-amber-200 flex items-center justify-center text-[10px] font-bold">
+                          {task.assignee.charAt(0)}
+                        </div>
+                        <span>{task.assignee}</span>
+                      </>
+                    ) : (
+                      <span className="italic">לא הוקצה</span>
+                    )}
+                  </div>
+                  {task.dueDate && <span className="opacity-70">{task.dueDate}</span>}
+                </div>
+                <div className="mt-3 flex justify-end transition-opacity gap-1">
+                  <button onClick={(e) => { e.stopPropagation(); handleMarkAsDone(task.id, task); }} title="סמן כבוצע" className="p-1 text-emerald-400 hover:bg-white/10 rounded">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); startEditing(task); setViewMode('table'); }} title="ערוך" className="p-1 text-slate-400 hover:text-white hover:bg-white/10 rounded">
+                    <Edit2 className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); handleDelete(task.id); }} title="מחק" className="p-1 text-slate-400 hover:text-rose-400 hover:bg-white/10 rounded">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Done Column */}
+          <div 
+            className="col-span-1 lg:col-span-4 glass-panel rounded-3xl p-6 flex flex-col gap-3 min-h-[400px]"
+            onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+            onDrop={(e) => handleDrop(e, "בוצע")}
+          >
+            <div className="font-semibold text-lg flex items-center justify-between text-emerald-400 mb-4">
+              בוצע <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-200 border-none">{doneTasks.length}</Badge>
+            </div>
+            {doneTasks.map(task => (
+              <div 
+                key={task.id} 
+                draggable
+                onDragStart={(e) => { e.dataTransfer.setData('text/plain', task.id); e.dataTransfer.setData('taskId', task.id); }}
+                className="bg-black/20 p-4 rounded-xl shadow-sm border border-emerald-500/20 text-sm hover:border-emerald-500/40 cursor-pointer transition-all hover:shadow-md group opacity-80 hover:opacity-100"
+              >
+                <div className="font-medium mb-1 text-slate-400 line-through leading-snug">{task.taskName}</div>
+                <div className="flex items-center justify-between text-xs text-slate-500 mt-4">
+                  <div className="flex items-center gap-2">
+                    {task.assignee && task.assignee !== 'Unassigned' ? (
+                      <>
+                        <div className="h-5 w-5 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-[10px] font-bold">
+                          {task.assignee.charAt(0)}
+                        </div>
+                        <span>{task.assignee}</span>
+                      </>
+                    ) : (
+                      <span className="italic">לא הוקצה</span>
+                    )}
+                  </div>
+                  {task.dueDate && <span className="opacity-70">{task.dueDate}</span>}
+                </div>
+                <div className="mt-3 flex justify-end transition-opacity gap-1">
+                  <button onClick={(e) => { e.stopPropagation(); startEditing(task); setViewMode('table'); }} title="ערוך" className="p-1 text-slate-500 hover:text-white hover:bg-white/10 rounded">
+                    <Edit2 className="h-3.5 w-3.5" />
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); handleDelete(task.id); }} title="מחק" className="p-1 text-slate-500 hover:text-rose-400 hover:bg-white/10 rounded">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
         ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-center" dir="rtl">
+        <div className="col-span-1 lg:col-span-12 glass-panel rounded-3xl p-6 overflow-x-auto">
+          <table className="w-full text-center text-white" dir="rtl">
             <thead className="hidden md:table-header-group">
-              <tr className="border-b border-border bg-muted/50">
-                <th className="px-6 py-4 text-sm font-medium text-muted-foreground w-16">#</th>
-                <th className="px-6 py-4 text-sm font-medium text-muted-foreground">משימה</th>
-                <th className="px-6 py-4 text-sm font-medium text-muted-foreground w-48">אחראי</th>
-                <th className="px-6 py-4 text-sm font-medium text-muted-foreground w-40">סטטוס ביצוע</th>
-                <th className="px-6 py-4 text-sm font-medium text-muted-foreground w-40">תאריך</th>
-                <th className="px-6 py-4 text-sm font-medium text-muted-foreground w-24">פעולות</th>
+              <tr className="border-b border-white/20 bg-white/5">
+                <th className="px-6 py-4 text-sm font-medium text-slate-300 w-16">#</th>
+                <th className="px-6 py-4 text-sm font-medium text-slate-300">משימה</th>
+                <th className="px-6 py-4 text-sm font-medium text-slate-300 w-48">אחראי</th>
+                <th className="px-6 py-4 text-sm font-medium text-slate-300 w-40">סטטוס ביצוע</th>
+                <th className="px-6 py-4 text-sm font-medium text-slate-300 w-40">תאריך</th>
+                <th className="px-6 py-4 text-sm font-medium text-slate-300 w-24">פעולות</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-white/10">
               {filteredTasks.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
                     לא נמצאו משימות.
                   </td>
                 </tr>
@@ -430,59 +429,59 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                   const isEditing = editingId === task.id;
                   
                   return (
-                    <tr key={task.id} className={`hover:bg-muted/30 transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0 ${task.status !== 'בוצע' && isOverdue(task.dueDate) ? 'bg-red-50/30' : ''}`}>
-                      <td className="px-2 py-1 md:px-6 md:py-4 text-sm text-muted-foreground flex justify-between items-center md:table-cell">
-                        <span className="md:hidden font-medium text-gray-500 text-sm">#</span>
+                    <tr key={task.id} className={`hover:bg-white/5 transition-colors group flex flex-col md:table-row border-b border-white/10 md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0 ${task.status !== 'בוצע' && isOverdue(task.dueDate) ? 'bg-red-500/10' : ''}`}>
+                      <td className="px-2 py-1 md:px-6 md:py-4 text-sm text-slate-300 flex justify-between items-center md:table-cell">
+                        <span className="md:hidden font-medium text-slate-400 text-sm">#</span>
                         {task.itemIndex || idx + 1}
                       </td>
                       <td className="px-2 py-1 md:px-6 md:py-4 flex justify-between items-center md:table-cell">
-                        <span className="md:hidden font-medium text-sm text-gray-500">משימה</span>
+                        <span className="md:hidden font-medium text-sm text-slate-400">משימה</span>
                         {isEditing ? (
                           <input 
                             type="text"
                             value={editForm.taskName || ""}
                             onChange={(e) => handleEditChange("taskName", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-center"
+                            className="w-full p-2 border border-white/20 rounded-md text-sm bg-black/20 text-white text-center focus:outline-none focus:border-white/40"
                           />
                         ) : (
-                          <span className="font-medium text-foreground">{task.taskName}</span>
+                          <span className="font-medium text-white">{task.taskName}</span>
                         )}
                       </td>
                       <td className="px-2 py-1 md:px-6 md:py-4 flex justify-between items-center md:table-cell">
-                        <span className="md:hidden font-medium text-sm text-gray-500">אחראי</span>
+                        <span className="md:hidden font-medium text-sm text-slate-400">אחראי</span>
                         {isEditing ? (
                           <input 
                             type="text"
                             value={editForm.assignee || ""}
                             onChange={(e) => handleEditChange("assignee", e.target.value)}
-                            className="w-full p-2 border border-border rounded-md text-sm bg-background text-center"
+                            className="w-full p-2 border border-white/20 rounded-md text-sm bg-black/20 text-white text-center focus:outline-none focus:border-white/40"
                           />
                         ) : (
                           <div className="flex items-center gap-2">
                             {task.assignee && task.assignee !== 'Unassigned' ? (
                               <>
-                                <div className="h-6 w-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                                <div className="h-6 w-6 rounded-full bg-white/20 text-white flex items-center justify-center text-xs font-bold">
                                   {task.assignee.charAt(0)}
                                 </div>
-                                <span className="text-sm text-muted-foreground">{task.assignee}</span>
+                                <span className="text-sm text-slate-300">{task.assignee}</span>
                               </>
                             ) : (
-                              <span className="text-sm text-muted-foreground italic">לא הוקצה</span>
+                              <span className="text-sm text-slate-400 italic">לא הוקצה</span>
                             )}
                           </div>
                         )}
                       </td>
                       <td className="px-2 py-1 md:px-6 md:py-4 flex justify-between items-center md:table-cell">
-                        <span className="md:hidden font-medium text-sm text-gray-500">סטטוס ביצוע</span>
+                        <span className="md:hidden font-medium text-sm text-slate-400">סטטוס ביצוע</span>
                         {isEditing ? (
                           <Select 
                             value={editForm.status || "לא התחיל"}
                             onValueChange={(value) => handleEditChange("status", value)}
                           >
-                            <SelectTrigger className="w-full p-2 border border-border rounded-md text-sm bg-background text-center">
+                            <SelectTrigger className="w-full p-2 border border-white/20 rounded-md text-sm bg-black/20 text-white text-center focus:outline-none focus:border-white/40">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent align="center">
+                            <SelectContent align="center" className="bg-slate-900 border-white/20 text-white">
                               <SelectItem value="בוצע">בוצע</SelectItem>
                               <SelectItem value="בתהליך">בתהליך</SelectItem>
                               <SelectItem value="לא התחיל">לא התחיל</SelectItem>
@@ -496,19 +495,19 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                         )}
                       </td>
                       <td className="px-2 py-1 md:px-6 md:py-4 flex justify-between items-center md:table-cell">
-                        <span className="md:hidden font-medium text-sm text-gray-500">תאריך</span>
+                        <span className="md:hidden font-medium text-sm text-slate-400">תאריך</span>
                         {isEditing ? (
                           <Popover>
                             <PopoverTrigger
                               className={cn(
-                                "w-full flex justify-between items-center p-2 border border-border rounded-md text-sm bg-background text-right",
-                                !editForm.dueDate && "text-muted-foreground"
+                                "w-full flex justify-between items-center p-2 border border-white/20 rounded-md text-sm bg-black/20 text-right focus:outline-none focus:border-white/40",
+                                !editForm.dueDate && "text-slate-400"
                               )}
                             >
                               {editForm.dueDate ? editForm.dueDate : <span>בחר תאריך</span>}
                               <CalendarIcon className="h-4 w-4 mr-2 opacity-50" />
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start" dir="rtl">
+                            <PopoverContent className="w-auto p-0 bg-slate-900 border-white/20 text-white" align="start" dir="rtl">
                               <Calendar
                                 mode="single"
                                 selected={
@@ -524,35 +523,36 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
                                   handleEditChange("dueDate", date ? format(date, "dd.MM.yyyy") : null);
                                 }}
                                 locale={he}
+                                className="bg-slate-900 text-white"
                               />
                             </PopoverContent>
                           </Popover>
                         ) : (
-                          <span className="text-sm text-muted-foreground">{task.dueDate || "-"}</span>
+                          <span className="text-sm text-slate-300">{task.dueDate || "-"}</span>
                         )}
                       </td>
-                      <td className="px-2 py-2 mt-2 md:mt-0 md:px-6 md:py-4 flex justify-center items-center md:table-cell border-t md:border-none">
+                      <td className="px-2 py-2 mt-2 md:mt-0 md:px-6 md:py-4 flex justify-center items-center md:table-cell border-t border-white/10 md:border-none">
                         <div className="flex items-center justify-center gap-2 transition-opacity">
                           {isEditing ? (
                             <>
-                              <button onClick={saveEditing} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-md hover-scale">
+                              <button onClick={saveEditing} className="p-1.5 text-emerald-400 hover:bg-white/10 rounded-md hover-scale">
                                 <Check className="h-4 w-4" />
                               </button>
-                              <button onClick={cancelEditing} className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-md hover-scale">
+                              <button onClick={cancelEditing} className="p-1.5 text-rose-400 hover:bg-white/10 rounded-md hover-scale">
                                 <X className="h-4 w-4" />
                               </button>
                             </>
                           ) : (
                             <>
                               {task.status !== "בוצע" && (
-                                <button onClick={() => handleMarkAsDone(task.id, task)} title="סמן כבוצע" className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md hover-scale bg-emerald-50 md:bg-transparent">
+                                <button onClick={() => handleMarkAsDone(task.id, task)} title="סמן כבוצע" className="p-1.5 text-emerald-400 hover:text-emerald-300 hover:bg-white/10 rounded-md hover-scale bg-white/5 md:bg-transparent">
                                   <CheckCircle2 className="h-4 w-4" />
                                 </button>
                               )}
-                              <button onClick={() => startEditing(task)} title="ערוך" className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md hover-scale bg-gray-100 md:bg-transparent">
+                              <button onClick={() => startEditing(task)} title="ערוך" className="p-1.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-md hover-scale bg-white/5 md:bg-transparent">
                                 <Edit2 className="h-4 w-4" />
                               </button>
-                              <button onClick={() => handleDelete(task.id)} title="מחק" className="p-1.5 text-muted-foreground hover:text-rose-600 hover:bg-rose-50 rounded-md hover-scale bg-rose-50 md:bg-transparent">
+                              <button onClick={() => handleDelete(task.id)} title="מחק" className="p-1.5 text-slate-300 hover:text-rose-400 hover:bg-white/10 rounded-md hover-scale bg-white/5 md:bg-transparent">
                                 <Trash2 className="h-4 w-4" />
                               </button>
                             </>
@@ -565,9 +565,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
               )}
             </tbody>
           </table>
-        </div>
         )}
-      </div>
     </div>
   );
 }
