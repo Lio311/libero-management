@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { toggleGlassThemeAction } from "@/app/actions/settings";
 
 type BrightnessMode = "dark" | "light";
 
@@ -12,40 +13,44 @@ type BrightnessContextType = {
 
 const BrightnessContext = createContext<BrightnessContextType | undefined>(undefined);
 
-const STORAGE_KEY = "libero-glass-brightness";
+export function BrightnessProvider({ 
+  children, 
+  isAdmin,
+  initialTheme
+}: { 
+  children: ReactNode; 
+  isAdmin: boolean;
+  initialTheme: BrightnessMode;
+}) {
+  const [mode, setMode] = useState<BrightnessMode>(initialTheme);
 
-export function BrightnessProvider({ children, isAdmin }: { children: ReactNode; isAdmin: boolean }) {
-  const [mode, setMode] = useState<BrightnessMode>("dark");
-
-  // קריאה מ-localStorage בטעינה ראשונה
+  // סנכרון למקרה שההגדרה התעדכנה בשרת ונדחפה ללקוח
   useEffect(() => {
-    if (!isAdmin) return;
-    const stored = localStorage.getItem(STORAGE_KEY) as BrightnessMode | null;
-    if (stored === "light" || stored === "dark") {
-      setMode(stored);
-    }
-  }, [isAdmin]);
+    setMode(initialTheme);
+  }, [initialTheme]);
 
-  // סנכרון class על body
+  // סנכרון ה-class על ה-body עכשיו פועל לכל המשתמשים
   useEffect(() => {
-    if (!isAdmin) {
-      document.body.classList.remove("light-glass");
-      return;
-    }
     if (mode === "light") {
       document.body.classList.add("light-glass");
     } else {
       document.body.classList.remove("light-glass");
     }
-  }, [mode, isAdmin]);
+  }, [mode]);
 
-  const toggle = useCallback(() => {
-    setMode((prev) => {
-      const next = prev === "dark" ? "light" : "dark";
-      localStorage.setItem(STORAGE_KEY, next);
-      return next;
-    });
-  }, []);
+  const toggle = useCallback(async () => {
+    if (!isAdmin) return;
+    
+    const next = mode === "dark" ? "light" : "dark";
+    setMode(next); // Optimistic UI update
+    
+    try {
+      await toggleGlassThemeAction(next);
+    } catch (e) {
+      console.error("Failed to save theme to DB", e);
+      setMode(mode); // Rollback on error
+    }
+  }, [mode, isAdmin]);
 
   return (
     <BrightnessContext.Provider value={{ mode, toggle, isLight: mode === "light" }}>

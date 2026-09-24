@@ -33,6 +33,9 @@ import { Toaster } from 'sonner';
 import { ConfirmProvider } from '@/hooks/useConfirm';
 import { PwaRegistration } from '@/components/PwaRegistration';
 import { BrightnessProvider } from "@/context/brightness-context";
+import { db } from '@/lib/db';
+import { settings } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 export default async function RootLayout({
   children,
@@ -48,6 +51,16 @@ export default async function RootLayout({
   const isAdmin = user?.emailAddresses[0]?.emailAddress === adminEmail;
   const isWarehouse = user?.publicMetadata?.role === 'warehouse';
 
+  let initialGlassTheme: "light" | "dark" = "dark";
+  try {
+    const themeSetting = await db.select().from(settings).where(eq(settings.key, 'glass_theme')).limit(1);
+    if (themeSetting.length > 0 && themeSetting[0].value === 'light') {
+      initialGlassTheme = 'light';
+    }
+  } catch (e) {
+    console.error("Error fetching glass theme from DB", e);
+  }
+
   return (
     <ClerkProvider localization={heIL}>
       <html lang="he" dir="rtl">
@@ -55,7 +68,7 @@ export default async function RootLayout({
           className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row bg-cover bg-center bg-no-repeat bg-fixed bg-white/70 bg-blend-lighten`}
           style={{ backgroundImage: "url('/photo-1572635148687-307f8ca9b737.avif')" }}
         >
-          <BrightnessProvider isAdmin={isAdmin}>
+          <BrightnessProvider isAdmin={isAdmin} initialTheme={initialGlassTheme}>
             <ConfirmProvider>
               <WakeLock />
               <PwaRegistration />
