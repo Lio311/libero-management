@@ -112,14 +112,14 @@ export default function ClientPrinter({ labels, orderId }: { labels: LabelData[]
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8 font-sans" dir="rtl">
-      <div className="max-w-xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-        <div className="bg-black p-6 text-white text-center">
+    <div className="min-h-[100dvh] flex items-center justify-center p-8 font-sans" dir="rtl">
+      <div className="max-w-xl mx-auto w-full glass-panel rounded-3xl p-6 shadow-xl flex flex-col gap-6">
+        <div className="text-white text-center">
           <h1 className="text-2xl font-bold">הדפסת מדבקות מיני בושם</h1>
           <p className="opacity-80 mt-1">הזמנה #{orderId} • {labels.length} מדבקות</p>
         </div>
         
-        <div className="p-8 space-y-6">
+        <div className="space-y-6">
           <button
             onClick={generatePDF}
             disabled={isGenerating}

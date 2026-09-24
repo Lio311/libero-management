@@ -495,7 +495,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
         </div>
       )}
 
-      <div className="bg-card p-4 rounded-xl shadow-sm border border-border/50 flex flex-col gap-4">
+      <div className=" p-4 rounded-xl shadow-sm border border-border/50 flex flex-col gap-4">
         <form onSubmit={handleScan} className="w-full relative">
           <input
             ref={inputRef}
@@ -607,7 +607,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
                     ? 'bg-red-500/5 border-red-500/20 opacity-75' 
                     : isMissingSelected
                       ? 'bg-orange-500/10 border-orange-500/30'
-                      : 'bg-card border-border/50'
+                      : ' border-border/50'
               }`}
               onClick={() => {
                 if (missingMode && !isDone && !item.isMissing) {
@@ -619,7 +619,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
                 {/* Checkbox for Missing Mode */}
                 {missingMode && !isDone && !item.isMissing && (
                   <div className="absolute -right-2 -top-2">
-                    <div className={`w-6 h-6 rounded-full border shadow-sm flex items-center justify-center shrink-0 ${isMissingSelected ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-input'}`}>
+                    <div className={`w-6 h-6 rounded-full border shadow-sm flex items-center justify-center shrink-0 ${isMissingSelected ? 'bg-orange-500 border-orange-500 text-white' : ' border-input'}`}>
                       {isMissingSelected && <Check className="w-4 h-4" />}
                     </div>
                   </div>
@@ -721,7 +721,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero" 
       {/* Completion Modal */}
       {showCompletionModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
-          <div className="bg-card border border-border p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6">
+          <div className=" border border-border p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6">
             <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-10 h-10" />
             </div>

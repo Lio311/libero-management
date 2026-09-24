@@ -1,8 +1,27 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ScannerOrder, markOrderCompleted, unmarkOrderCompleted, reportMissingItemsAction, createOrderLabel, getScanProgress, saveScanProgress } from "@/app/actions/scanner-actions";
-import { ArrowRight, Check, X, AlertTriangle, ScanLine, Pause, CheckCircle2, Package, Printer, Camera } from "lucide-react";
+import {
+  ScannerOrder,
+  markOrderCompleted,
+  unmarkOrderCompleted,
+  reportMissingItemsAction,
+  createOrderLabel,
+  getScanProgress,
+  saveScanProgress,
+} from "@/app/actions/scanner-actions";
+import {
+  ArrowRight,
+  Check,
+  X,
+  AlertTriangle,
+  ScanLine,
+  Pause,
+  CheckCircle2,
+  Package,
+  Printer,
+  Camera,
+} from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -26,14 +45,22 @@ type ItemStatus = {
   imageUrl?: string;
 };
 
-export default function ScannerClient({ order, manualKeywords, store = "libero", isAdmin = false }: ScannerClientProps) {
+export default function ScannerClient({
+  order,
+  manualKeywords,
+  store = "libero",
+  isAdmin = false,
+}: ScannerClientProps) {
   const router = useRouter();
   const [isCameraOpen, setIsCameraOpen] = useState(store !== "labura");
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
   const [items, setItems] = useState<ItemStatus[]>([]);
-    const [localOrderStatus, setLocalOrderStatus] = useState<"processing" | "ready" | "on_hold" | "completed" | "waiting_for_label">(
-      (order.status as "processing" | "ready" | "on_hold" | "completed") || "processing"
-    );
+  const [localOrderStatus, setLocalOrderStatus] = useState<
+    "processing" | "ready" | "on_hold" | "completed" | "waiting_for_label"
+  >(
+    (order.status as "processing" | "ready" | "on_hold" | "completed") ||
+      "processing",
+  );
   const [missingMode, setMissingMode] = useState(false);
   const [selectedForMissing, setSelectedForMissing] = useState<number[]>([]);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
@@ -42,19 +69,27 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
   const [isPrinting, setIsPrinting] = useState(false);
   const [labelCopies, setLabelCopies] = useState(1);
   const [mounted, setMounted] = useState(false);
-  const [deviceType, setDeviceType] = useState<"mobile" | "desktop" | null>(null);
+  const [deviceType, setDeviceType] = useState<"mobile" | "desktop" | null>(
+    null,
+  );
   const [scanError, setScanError] = useState<string | null>(null);
-  const [shippingBarcode, setShippingBarcode] = useState<string | null>(order.shippingNumber || null);
+  const [shippingBarcode, setShippingBarcode] = useState<string | null>(
+    order.shippingNumber || null,
+  );
 
   useEffect(() => {
-    setDeviceType(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? "mobile" : "desktop");
+    setDeviceType(
+      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+        ? "mobile"
+        : "desktop",
+    );
     setMounted(true);
   }, []);
 
-
-  const hasMiniPerfumes = order.lineItems?.some(item => (item.name || "").includes("מיני בושם"));
+  const hasMiniPerfumes = order.lineItems?.some((item) =>
+    (item.name || "").includes("מיני בושם"),
+  );
   const showMiniPerfumeBtn = store === "libero" && hasMiniPerfumes;
-
 
   // Swipe to go back gesture (pulling from right edge)
   useEffect(() => {
@@ -74,14 +109,17 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
       const deltaY = touchEndY - touchStartY;
 
       // Start near right edge (> innerWidth - 50px) and swipe left (deltaX < -70px)
-      if (touchStartX > window.innerWidth - 50 && deltaX < -70 && Math.abs(deltaY) < 50) {
+      if (
+        touchStartX > window.innerWidth - 50 &&
+        deltaX < -70 &&
+        Math.abs(deltaY) < 50
+      ) {
         router.push(`/shipping-scanner?store=${store}`);
       }
     };
 
     window.addEventListener("touchstart", handleTouchStart);
     window.addEventListener("touchend", handleTouchEnd);
-
 
     return () => {
       window.removeEventListener("touchstart", handleTouchStart);
@@ -95,27 +133,28 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
       // Try to load from server DB first
       const dbProgress = await getScanProgress(store, order.id);
       let parsed = null;
-      
+
       if (dbProgress && dbProgress.items) {
         parsed = { items: dbProgress.items, status: dbProgress.status };
       } else {
         // Fallback to local storage
         const storageKey = `scanner_order_${store}_${order.id}`;
         let saved = localStorage.getItem(storageKey);
-        if (!saved && store === "libero") saved = localStorage.getItem(`scanner_order_${order.id}`);
-        
+        if (!saved && store === "libero")
+          saved = localStorage.getItem(`scanner_order_${order.id}`);
+
         if (saved) {
           try {
             parsed = JSON.parse(saved);
           } catch (e) {}
         }
       }
-      
+
       if (parsed && Array.isArray(parsed.items) && parsed.items.length > 0) {
         setItems(parsed.items);
-        
+
         // If the server says it's completed or on hold, respect the server over local storage/db
-        if (order.status === 'completed' || order.status === 'on_hold') {
+        if (order.status === "completed" || order.status === "on_hold") {
           setLocalOrderStatus(order.status);
         } else if (parsed.status) {
           setLocalOrderStatus(parsed.status);
@@ -130,9 +169,12 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
   function initFromOrder() {
     const initialItems = order.lineItems.map((item: any) => {
       const name = item.name || "";
-      const isManual = manualKeywords.some(kw => name.includes(kw));
+      const isManual = manualKeywords.some((kw) => name.includes(kw));
       // Extract image URL from WooCommerce item format if available
-      const imageUrl = item.image?.src || (item.meta_data?.find((m: any) => m.key === '_image_url')?.value) || undefined;
+      const imageUrl =
+        item.image?.src ||
+        item.meta_data?.find((m: any) => m.key === "_image_url")?.value ||
+        undefined;
       return {
         id: item.id,
         sku: item.sku || "",
@@ -145,27 +187,31 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
       };
     });
     setItems(initialItems);
-  };
+  }
 
   // Save to local storage and DB on change
   useEffect(() => {
     if (items.length > 0) {
       const storageKey = `scanner_order_${store}_${order.id}`;
-      localStorage.setItem(storageKey, JSON.stringify({ items, status: localOrderStatus }));
-      
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({ items, status: localOrderStatus }),
+      );
+
       // Fire and forget server save
-      saveScanProgress(store, order.id, items, localOrderStatus).catch(e => {
+      saveScanProgress(store, order.id, items, localOrderStatus).catch((e) => {
         console.error("Failed to sync scan progress to DB", e);
       });
     }
   }, [items, localOrderStatus, order.id, store]);
 
-
-
   const handleAutoCompletion = async () => {
     setIsCameraOpen(false);
     toast.info("מעדכן סטטוס סיום...");
-    const success = await markOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
+    const success = await markOrderCompleted(
+      order.id,
+      (store || "libero") as "libero" | "velour" | "labura",
+    );
     if (success) {
       setLocalOrderStatus("completed");
       toast.success("ברקוד משלוח אומת, וההזמנה נסגרה בהצלחה ובאתר!");
@@ -179,9 +225,9 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
 
   const processBarcode = (sku: string) => {
     if (!sku) return;
-    
+
     // Normalize sku for comparison (remove leading zeros)
-    const normalizedScanned = sku.toLowerCase().replace(/^0+/, '');
+    const normalizedScanned = sku.toLowerCase().replace(/^0+/, "");
 
     if (localOrderStatus === "waiting_for_label") {
       if (!shippingBarcode) {
@@ -189,10 +235,15 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
         setScanError("חסר ברקוד משלוח במערכת");
         return;
       }
-      
-      const normalizedShipping = shippingBarcode.toLowerCase().replace(/^0+/, '');
-      
-      if (sku.toLowerCase() === shippingBarcode.toLowerCase() || normalizedScanned === normalizedShipping) {
+
+      const normalizedShipping = shippingBarcode
+        .toLowerCase()
+        .replace(/^0+/, "");
+
+      if (
+        sku.toLowerCase() === shippingBarcode.toLowerCase() ||
+        normalizedScanned === normalizedShipping
+      ) {
         handleAutoCompletion();
       } else {
         toast.error(`ברקוד משלוח שגוי. אנא סרוק את המדבקה של הזמנה זו.`);
@@ -202,27 +253,51 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
     }
 
     if (localOrderStatus !== "processing") {
-      toast.error(`ההזמנה בסטטוס ${localOrderStatus === 'on_hold' ? 'מושהה' : localOrderStatus === 'ready' ? 'מוכן' : 'הושלם'} ואינה ניתנת לסריקה`);
-      setScanError(`ההזמנה ${localOrderStatus === 'on_hold' ? 'מושהית' : localOrderStatus === 'ready' ? 'מוכנה' : 'הושלמה'}`);
+      toast.error(
+        `ההזמנה בסטטוס ${localOrderStatus === "on_hold" ? "מושהה" : localOrderStatus === "ready" ? "מוכן" : "הושלם"} ואינה ניתנת לסריקה`,
+      );
+      setScanError(
+        `ההזמנה ${localOrderStatus === "on_hold" ? "מושהית" : localOrderStatus === "ready" ? "מוכנה" : "הושלמה"}`,
+      );
       return;
     }
 
-    if (shippingBarcode && (sku.toLowerCase() === shippingBarcode.toLowerCase() || normalizedScanned === shippingBarcode.toLowerCase().replace(/^0+/, ''))) {
+    if (
+      shippingBarcode &&
+      (sku.toLowerCase() === shippingBarcode.toLowerCase() ||
+        normalizedScanned === shippingBarcode.toLowerCase().replace(/^0+/, ""))
+    ) {
       toast.error("יש לסיים לסרוק את כל המוצרים לפני סריקת מדבקת המשלוח.");
       setScanError("נא לסיים לסרוק את המוצרים קודם");
       return;
     }
 
-    let itemIndex = items.findIndex(item => String(item.sku).trim().toLowerCase() === sku.toLowerCase() && !item.isManual);
+    let itemIndex = items.findIndex(
+      (item) =>
+        String(item.sku).trim().toLowerCase() === sku.toLowerCase() &&
+        !item.isManual,
+    );
     if (itemIndex === -1) {
       // Fallback: Try matching without leading zeros
-      itemIndex = items.findIndex(item => String(item.sku).trim().toLowerCase().replace(/^0+/, '') === normalizedScanned && !item.isManual);
+      itemIndex = items.findIndex(
+        (item) =>
+          String(item.sku).trim().toLowerCase().replace(/^0+/, "") ===
+            normalizedScanned && !item.isManual,
+      );
     }
-    
+
     if (itemIndex === -1) {
-      let manualIndex = items.findIndex(item => String(item.sku).trim().toLowerCase() === sku.toLowerCase() && item.isManual);
+      let manualIndex = items.findIndex(
+        (item) =>
+          String(item.sku).trim().toLowerCase() === sku.toLowerCase() &&
+          item.isManual,
+      );
       if (manualIndex === -1) {
-        manualIndex = items.findIndex(item => String(item.sku).trim().toLowerCase().replace(/^0+/, '') === normalizedScanned && item.isManual);
+        manualIndex = items.findIndex(
+          (item) =>
+            String(item.sku).trim().toLowerCase().replace(/^0+/, "") ===
+              normalizedScanned && item.isManual,
+        );
       }
       if (manualIndex !== -1) {
         toast.info("מוצר ללא ברקוד - יש לאשר ידנית עם כפתור ה-סמן ידנית");
@@ -240,9 +315,13 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
         const newItems = [...items];
         newItems[itemIndex].scanned += 1;
         setItems(newItems);
-        const isAllDone = newItems.every(i => i.scanned >= i.expected || i.isMissing);
+        const isAllDone = newItems.every(
+          (i) => i.scanned >= i.expected || i.isMissing,
+        );
         if (!isAllDone) {
-          toast.success(`נסרק בהצלחה: ${item.name}`, { id: `scan_${item.id}_${newItems[itemIndex].scanned}` });
+          toast.success(`נסרק בהצלחה: ${item.name}`, {
+            id: `scan_${item.id}_${newItems[itemIndex].scanned}`,
+          });
         }
         checkCompletion(newItems);
       }
@@ -264,77 +343,89 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
 
       const html5QrCode = new Html5Qrcode("reader");
       html5QrCodeRef.current = html5QrCode;
-      
-      html5QrCode.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 75 },
-          aspectRatio: 1.0
-        },
-        (decodedText) => {
-          if (!isProcessingRef.current) {
-             isProcessingRef.current = true;
-             processBarcodeRef.current(decodedText.trim());
-             
-             // Optionally vibrate on successful scan
-             if (navigator.vibrate) {
-                navigator.vibrate(100);
-             }
 
-             setTimeout(() => {
+      html5QrCode
+        .start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 75 },
+            aspectRatio: 1.0,
+          },
+          (decodedText) => {
+            if (!isProcessingRef.current) {
+              isProcessingRef.current = true;
+              processBarcodeRef.current(decodedText.trim());
+
+              // Optionally vibrate on successful scan
+              if (navigator.vibrate) {
+                navigator.vibrate(100);
+              }
+
+              setTimeout(() => {
                 isProcessingRef.current = false;
-             }, 1200);
-          }
-        },
-        (errorMessage) => {
-          // ignore
-        }
-      ).catch((err) => {
-        console.error("Camera start failed:", err);
-        toast.error("שגיאה בהפעלת המצלמה. ודא שניתנו הרשאות מתאימות.");
-        setIsCameraOpen(false);
-      });
+              }, 1200);
+            }
+          },
+          (errorMessage) => {
+            // ignore
+          },
+        )
+        .catch((err) => {
+          console.error("Camera start failed:", err);
+          toast.error("שגיאה בהפעלת המצלמה. ודא שניתנו הרשאות מתאימות.");
+          setIsCameraOpen(false);
+        });
     } else {
       if (html5QrCodeRef.current) {
         try {
-          html5QrCodeRef.current.stop().then(() => {
-            html5QrCodeRef.current?.clear();
-            html5QrCodeRef.current = null;
-          }).catch(err => console.error("Error stopping camera async", err));
+          html5QrCodeRef.current
+            .stop()
+            .then(() => {
+              html5QrCodeRef.current?.clear();
+              html5QrCodeRef.current = null;
+            })
+            .catch((err) => console.error("Error stopping camera async", err));
         } catch (err) {
           console.error("Error stopping camera sync", err);
-          try { html5QrCodeRef.current?.clear(); } catch(e) {}
+          try {
+            html5QrCodeRef.current?.clear();
+          } catch (e) {}
           html5QrCodeRef.current = null;
         }
       }
     }
-    
+
     return () => {
       if (html5QrCodeRef.current) {
         try {
-          html5QrCodeRef.current.stop().then(() => {
-            html5QrCodeRef.current?.clear();
-          }).catch(e => console.error("Async stop error unmount", e));
+          html5QrCodeRef.current
+            .stop()
+            .then(() => {
+              html5QrCodeRef.current?.clear();
+            })
+            .catch((e) => console.error("Async stop error unmount", e));
         } catch (e) {
           console.error("Sync stop error unmount", e);
-          try { html5QrCodeRef.current?.clear(); } catch(e2) {}
+          try {
+            html5QrCodeRef.current?.clear();
+          } catch (e2) {}
         }
       }
-    }
+    };
   }, [isCameraOpen]);
 
-
-
   const markItemAsScanned = (id: number) => {
-    const newItems = items.map(item => {
+    const newItems = items.map((item) => {
       if (item.id === id) {
         return { ...item, scanned: Math.min(item.expected, item.scanned + 1) };
       }
       return item;
     });
     setItems(newItems);
-    const isAllDone = newItems.every(i => i.scanned >= i.expected || i.isMissing);
+    const isAllDone = newItems.every(
+      (i) => i.scanned >= i.expected || i.isMissing,
+    );
     if (!isAllDone) {
       toast.success("מוצר סומן בהצלחה", { id: `manual_scan_${id}` });
     }
@@ -342,24 +433,29 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
   };
 
   function checkCompletion(currentItems: ItemStatus[]) {
-    const allDone = currentItems.every(item => item.scanned >= item.expected || item.isMissing);
-    const hasMissing = currentItems.some(item => item.isMissing);
-    
+    const allDone = currentItems.every(
+      (item) => item.scanned >= item.expected || item.isMissing,
+    );
+    const hasMissing = currentItems.some((item) => item.isMissing);
+
     if (allDone) {
       if (hasMissing) {
         setLocalOrderStatus("on_hold");
-        toast.warning("סריקה הסתיימה, אך יש פריטים חסרים. הסטטוס שונה למושהה.", { id: "all_done_missing" });
+        toast.warning(
+          "סריקה הסתיימה, אך יש פריטים חסרים. הסטטוס שונה למושהה.",
+          { id: "all_done_missing" },
+        );
       } else {
         setLocalOrderStatus("waiting_for_label");
         toast.info("כל הפריטים נסרקו! נא לסרוק את מדבקת המשלוח לסיום.");
         // We do not show completion modal yet, user needs to scan the shipping barcode
       }
     }
-  };
+  }
 
   const toggleMissingSelection = (id: number) => {
     if (selectedForMissing.includes(id)) {
-      setSelectedForMissing(selectedForMissing.filter(i => i !== id));
+      setSelectedForMissing(selectedForMissing.filter((i) => i !== id));
     } else {
       setSelectedForMissing([...selectedForMissing, id]);
     }
@@ -371,9 +467,11 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
       return;
     }
 
-    const newlyMissingItems = items.filter(item => selectedForMissing.includes(item.id));
+    const newlyMissingItems = items.filter((item) =>
+      selectedForMissing.includes(item.id),
+    );
 
-    const newItems = items.map(item => {
+    const newItems = items.map((item) => {
       if (selectedForMissing.includes(item.id)) {
         return { ...item, isMissing: true };
       }
@@ -383,7 +481,7 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
     setItems(newItems);
     setSelectedForMissing([]);
     setMissingMode(false);
-    
+
     // Changing order status to on_hold due to missing items
     setLocalOrderStatus("on_hold");
     toast.warning("פריטים סומנו כחסרים. ההזמנה הועברה לסטטוס מושהה.");
@@ -394,12 +492,12 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
         orderId: order.id,
         store: store || "libero",
         customerName: order.customerName,
-        missingItems: newlyMissingItems.map(item => ({
+        missingItems: newlyMissingItems.map((item) => ({
           sku: item.sku,
           name: item.name,
           expected: item.expected,
-          scanned: item.scanned
-        }))
+          scanned: item.scanned,
+        })),
       });
       toast.success("נשלח דיווח אוטומטי למנהל המערכת על החוסרים");
     } catch (e) {
@@ -407,25 +505,30 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
     }
   };
 
-  
   const handlePrintLabel = async () => {
     setIsPrinting(true);
     try {
       toast.info("מייצר מדבקת משלוח...");
-      const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
+      const res = await createOrderLabel(
+        order.id,
+        (store || "libero") as "libero" | "velour" | "labura",
+      );
       if (res.success && res.labelUrl) {
         if (res.barcode) {
           setShippingBarcode(res.barcode);
         }
         toast.success("מדבקה נוצרה בהצלחה! פותח להדפסה...");
-        
+
         // On mobile, use server-side proxy that extracts the real PDF
         // so Android shows it inline with a print button instead of a download screen
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         if (isMobile) {
-          window.open(`/api/lionwheel/proxy-pdf?url=${encodeURIComponent(res.labelUrl)}`, '_blank');
+          window.open(
+            `/api/lionwheel/proxy-pdf?url=${encodeURIComponent(res.labelUrl)}`,
+            "_blank",
+          );
         } else {
-          window.open(res.labelUrl, '_blank');
+          window.open(res.labelUrl, "_blank");
         }
       } else {
         toast.error("שגיאה ביצירת המדבקה: " + (res.error || "לא ידוע"));
@@ -437,27 +540,28 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
     }
   };
 
-  
-  
   const handleRemotePrintLabel = async () => {
     setIsPrinting(true);
     try {
       toast.info("מייצר מדבקת משלוח...");
-      const res = await createOrderLabel(order.id, (store || "libero") as "libero" | "velour" | "labura");
+      const res = await createOrderLabel(
+        order.id,
+        (store || "libero") as "libero" | "velour" | "labura",
+      );
       if (res.success && res.labelUrl) {
         if (res.barcode) {
           setShippingBarcode(res.barcode);
         }
-        
+
         const printRes = await fetch("/api/remote-print", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-              store: store || "libero", 
-              orderIds: [order.id],
-              jobType: 'shipping-label',
-              metadata: { url: res.labelUrl, copies: labelCopies }
-            })
+          body: JSON.stringify({
+            store: store || "libero",
+            orderIds: [order.id],
+            jobType: "shipping-label",
+            metadata: { url: res.labelUrl, copies: labelCopies },
+          }),
         });
 
         if (printRes.ok) {
@@ -483,38 +587,45 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
           initFromOrder();
           setLocalOrderStatus("processing");
           toast.info("ההזמנה אופסה");
-        }
+        },
       },
       cancel: {
         label: "ביטול",
-        onClick: () => {}
-      }
+        onClick: () => {},
+      },
     });
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-6xl mx-auto">
       {order.reward?.requiresManagerReview && (
         <div className="bg-red-500/10 border-2 border-red-500 p-4 rounded-xl flex items-center gap-4 animate-pulse shadow-lg">
           <AlertTriangle className="w-10 h-10 text-red-600" />
           <div>
-            <h3 className="text-xl font-bold text-red-700">הזמנה מיוחדת - חובה אישור מנהל!</h3>
+            <h3 className="text-xl font-bold text-red-700">
+              הזמנה מיוחדת - חובה אישור מנהל!
+            </h3>
             <p className="text-red-600/80 font-medium">
-              {parseFloat(order.total) >= 2500 
+              {parseFloat(order.total) >= 2500
                 ? "הזמנה זו דורשת התערבות מנהל (סכום ההזמנה מעל 2,500₪). נא לא לארוז ללא אישור."
                 : "הזמנה זו דורשת התערבות מנהל (רוב ההזמנה מכילה מותגי בית). נא לא לארוז ללא אישור."}
             </p>
           </div>
         </div>
       )}
-      <div className="flex flex-col mb-8 gap-4">
+      <div className="col-span-1 lg:col-span-5 glass-panel rounded-3xl p-6 flex flex-col gap-4">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Link href={`/shipping-scanner?store=${store}`} className="p-2 hover:bg-secondary rounded-full transition-colors shrink-0">
+          <Link
+            href={`/shipping-scanner?store=${store}`}
+            className="p-2 hover:bg-secondary rounded-full transition-colors shrink-0"
+          >
             <ArrowRight className="w-6 h-6" />
           </Link>
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">הזמנה #{order.id}</h2>
+            <h2 className="text-3xl font-bold tracking-tight">
+              הזמנה #{order.id}
+            </h2>
             <p className="text-muted-foreground">{order.customerName}</p>
           </div>
         </div>
@@ -524,8 +635,13 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
           <div className="bg-red-500/10 border-2 border-red-500 p-4 rounded-xl shadow-md my-2 flex items-start gap-3">
             <AlertTriangle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
             <div>
-              <h3 className="text-xl font-bold text-red-700 mb-1">שימו לב! כפילות הזמנות</h3>
-              <p className="text-red-800 font-medium text-lg">ללקוח זה יש יותר מהזמנה אחת היום! נא לבדוק ולאחד משלוחים אם צריך.</p>
+              <h3 className="text-xl font-bold text-red-700 mb-1">
+                שימו לב! כפילות הזמנות
+              </h3>
+              <p className="text-red-800 font-medium text-lg">
+                ללקוח זה יש יותר מהזמנה אחת היום! נא לבדוק ולאחד משלוחים אם
+                צריך.
+              </p>
             </div>
           </div>
         )}
@@ -533,11 +649,15 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
         {/* Customer Notes */}
         {order.notes && (
           <div className="bg-yellow-500/10 border-2 border-yellow-500 p-4 rounded-xl shadow-md my-2">
-            <h3 className="text-xl font-bold text-yellow-700 mb-1">הערות לקוח:</h3>
-            <p className="text-yellow-800 font-medium text-lg whitespace-pre-wrap">{order.notes}</p>
+            <h3 className="text-xl font-bold text-yellow-700 mb-1">
+              הערות לקוח:
+            </h3>
+            <p className="text-yellow-800 font-medium text-lg whitespace-pre-wrap">
+              {order.notes}
+            </p>
           </div>
         )}
-        
+
         {/* Status */}
         <div className="w-full">
           {localOrderStatus === "processing" && (
@@ -547,7 +667,8 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
           )}
           {localOrderStatus === "waiting_for_label" && (
             <span className="w-full justify-center px-4 py-3 rounded-xl font-bold bg-purple-500/10 text-purple-500 border border-purple-500/20 flex items-center gap-2">
-              <ScanLine className="w-5 h-5 animate-pulse" /> ממתין לסריקת מדבקת משלוח
+              <ScanLine className="w-5 h-5 animate-pulse" /> ממתין לסריקת מדבקת
+              משלוח
             </span>
           )}
           {localOrderStatus === "on_hold" && (
@@ -561,19 +682,22 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
             </span>
           )}
         </div>
-        
+
         {/* Print Buttons */}
         <div className="flex flex-col gap-2 w-full">
           <div className="flex items-center gap-2 w-full">
             {showMiniPerfumeBtn && (
-              <button 
+              <button
                 onClick={async () => {
                   toast.info("שולח בקשה להדפסת בושם...");
                   try {
                     const res = await fetch("/api/remote-print", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ store: store || "libero", orderIds: [order.id] })
+                      body: JSON.stringify({
+                        store: store || "libero",
+                        orderIds: [order.id],
+                      }),
                     });
                     if (res.ok) toast.success("נשלח למדפסת הבושם!");
                     else toast.error("שגיאה בשליחת פקודת הדפסה");
@@ -588,26 +712,31 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
               </button>
             )}
 
-
-            <button 
+            <button
               onClick={handleRemotePrintLabel}
               disabled={isPrinting}
               className="flex items-center justify-center gap-1.5 px-2 py-3 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-xl font-bold transition-colors disabled:opacity-50 h-14 border border-blue-200 flex-1 whitespace-nowrap text-xs sm:text-sm"
             >
               <Printer className="w-4 h-4 shrink-0" />
-              {isPrinting ? "מפיק..." : `הדפס לייבל${labelCopies > 1 ? ` (×${labelCopies})` : ""}`}
+              {isPrinting
+                ? "מפיק..."
+                : labelCopies > 1
+                  ? `הדפס לייבל (×${labelCopies})`
+                  : "הדפס לייבל"}
             </button>
 
             {/* Copies selector */}
             {isAdmin && (
-              <div className="flex items-center h-14 rounded-xl border border-border bg-card overflow-hidden shrink-0">
+              <div className="flex items-center h-14 rounded-xl border border-border bg-white/5 overflow-hidden shrink-0">
                 <button
                   onClick={() => setLabelCopies(Math.max(1, labelCopies - 1))}
                   className="px-3 h-full text-lg font-bold hover:bg-secondary transition-colors text-muted-foreground"
                 >
                   −
                 </button>
-                <span className="px-2 text-base font-bold min-w-[28px] text-center">{labelCopies}</span>
+                <span className="px-2 text-base font-bold min-w-[28px] text-center">
+                  {labelCopies}
+                </span>
                 <button
                   onClick={() => setLabelCopies(Math.min(10, labelCopies + 1))}
                   className="px-3 h-full text-lg font-bold hover:bg-secondary transition-colors text-muted-foreground"
@@ -617,8 +746,8 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
               </div>
             )}
           </div>
-          
-          <button 
+
+          <button
             onClick={() => setShowManualCloseModal(true)}
             className="flex items-center justify-center gap-1.5 px-4 py-3 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl font-bold transition-colors w-full h-14 border border-red-200"
           >
@@ -628,269 +757,329 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
         </div>
       </div>
 
-      {order.reward && (order.reward.gift || !store || store === 'libero') && (
-        <div className="p-2 mb-6 flex flex-col sm:flex-row items-center gap-6 justify-between w-full">
-            <div className="flex flex-col gap-3 flex-1">
-              {order.reward.gift && (
-                <>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-2xl font-bold text-foreground">
-                      הוראות למחסן
-                    </h3>
-                  </div>
-                  <div className="flex flex-wrap sm:flex-row gap-3 sm:gap-6">
-                    <div className="flex items-center gap-2 bg-pink-500/10 px-3 py-1.5 rounded-lg border border-pink-500/20">
-                      <span className="text-xl">🎁</span>
-                      <span className="font-bold text-pink-700">מתנה: {order.reward.gift}</span>
+      <div className="col-span-1 lg:col-span-7 glass-panel rounded-3xl p-6 flex flex-col gap-4">
+        {order.reward &&
+          (order.reward.gift || !store || store === "libero") && (
+            <div className="p-2 mb-6 flex flex-col sm:flex-row items-center gap-6 justify-between w-full">
+              <div className="flex flex-col gap-3 flex-1">
+                {order.reward.gift && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-2xl font-bold text-white">
+                        הוראות למחסן
+                      </h3>
                     </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center gap-4 shrink-0">
-              {order.gender === 'male' && (
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 shadow-sm" title="גבר">
-                  <span className="text-3xl font-black leading-none mb-1">♂</span>
-                </div>
-              )}
-              {order.gender === 'female' && (
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-pink-500/10 text-pink-500 border border-pink-500/20 shadow-sm" title="אישה">
-                  <span className="text-3xl font-black leading-none mb-1">♀</span>
-                </div>
-              )}
-              {(!store || store === 'libero') && (
-                <div className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 shrink-0">
-                  <span className="text-4xl font-black">{order.reward.score}</span>
-                  <span className="text-xs font-medium opacity-80 uppercase tracking-widest">ציון לקוח</span>
-                </div>
-              )}
-            </div>
-        </div>
-      )}
-
-      <div className="flex flex-col gap-3">
-        
-        {!isCameraOpen ? (
-          <button
-            onClick={() => {
-              setScanError(null);
-              setIsCameraOpen(true);
-            }}
-            disabled={(localOrderStatus !== "processing" && localOrderStatus !== "waiting_for_label") || missingMode}
-            className="w-full px-4 py-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-3 shadow-md border border-blue-500/50"
-          >
-            <Camera className="w-8 h-8" />
-            <span>פתח מצלמה לסריקה</span>
-          </button>
-        ) : (
-          <div className="w-full flex flex-col gap-2 relative">
-            <button 
-              onClick={() => setIsCameraOpen(false)}
-              className="absolute top-2 left-2 z-10 bg-red-500/80 text-white p-2 rounded-lg backdrop-blur-sm shadow hover:bg-red-600 transition-colors"
-              title="סגור מצלמה"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <div className="w-full h-[150px] mx-auto overflow-hidden rounded-xl shadow-inner bg-black flex items-center justify-center">
-              <div id="reader" className="w-full shrink-0"></div>
-            </div>
-            <p className="text-xs text-muted-foreground text-center">
-              סריקה אוטומטית - מקם את הברקוד באמצע
-            </p>
-          </div>
-        )}
-
-        {scanError && (
-          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-center font-bold text-lg animate-in fade-in slide-in-from-top-2 border border-red-200 shadow-sm flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            <span>{scanError}</span>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          {!missingMode ? (
-            <button
-              onClick={() => setMissingMode(true)}
-              disabled={localOrderStatus !== "processing"}
-              className="px-4 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors disabled:opacity-50 text-sm h-full flex items-center justify-center"
-            >
-              סימון חסר
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={submitMissing}
-                className="px-2 py-3 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors text-sm h-full flex items-center justify-center"
-              >
-                אישור ({selectedForMissing.length})
-              </button>
-              <button
-                onClick={() => {
-                  setMissingMode(false);
-                  setSelectedForMissing([]);
-                }}
-                className="px-2 py-3 border border-border text-foreground rounded-lg font-medium hover:bg-secondary transition-colors text-sm h-full flex items-center justify-center"
-              >
-                ביטול חסר
-              </button>
-            </>
-          )}
-          
-          {localOrderStatus === "completed" && (
-            <button
-              onClick={() => {
-                setLocalOrderStatus("ready");
-                toast.info("ההזמנה חזרה למצב מוכן לסגירה");
-              }}
-              className="px-4 py-3 border border-border rounded-lg text-sm hover:bg-secondary transition-colors font-medium h-full flex items-center justify-center"
-            >
-              ביטול סגירה
-            </button>
-          )}
-
-          {localOrderStatus === "ready" && (
-            <button
-              onClick={async (e) => {
-                const btn = e.currentTarget;
-                btn.disabled = true;
-                btn.innerText = "סוגר...";
-                const success = await markOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
-                if (success) {
-                  setLocalOrderStatus("completed");
-                  toast.success("ההזמנה נסגרה בהצלחה ובאתר!");
-                  router.push(`/shipping-scanner?store=${store}`);
-                } else {
-                  toast.error("שגיאה בסגירת ההזמנה באתר");
-                  btn.disabled = false;
-                  btn.innerText = "סגירת הזמנה";
-                }
-              }}
-              className="px-4 py-3 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors font-medium h-full flex items-center justify-center disabled:opacity-50"
-            >
-              סגירת הזמנה
-            </button>
-          )}
-
-          <button
-            onClick={resetOrder}
-            className="px-4 py-3 border border-border rounded-lg text-sm hover:bg-secondary transition-colors font-medium h-full flex items-center justify-center"
-          >
-            איפוס סריקה
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((item) => {
-          const isDone = item.scanned >= item.expected;
-          const isMissingSelected = selectedForMissing.includes(item.id);
-          
-          return (
-            <div
-              key={item.id}
-              className={`p-4 rounded-xl border flex flex-col gap-3 transition-colors ${
-                isDone 
-                  ? 'bg-green-500/5 border-green-500/20' 
-                  : item.isMissing 
-                    ? 'bg-red-500/5 border-red-500/20 opacity-75' 
-                    : isMissingSelected
-                      ? 'bg-orange-500/10 border-orange-500/30'
-                      : 'bg-card border-border/50'
-              }`}
-              onClick={() => {
-                if (missingMode && !isDone && !item.isMissing) {
-                  toggleMissingSelection(item.id);
-                }
-              }}
-            >
-              <div className="flex items-start gap-3 w-full relative">
-                {/* Checkbox for Missing Mode */}
-                {missingMode && !isDone && !item.isMissing && (
-                  <div className="absolute -right-2 -top-2">
-                    <div className={`w-6 h-6 rounded-full border shadow-sm flex items-center justify-center shrink-0 ${isMissingSelected ? 'bg-orange-500 border-orange-500 text-white' : 'bg-white border-input'}`}>
-                      {isMissingSelected && <Check className="w-4 h-4" />}
+                    <div className="flex flex-wrap sm:flex-row gap-3 sm:gap-6">
+                      <div className="flex items-center gap-2 bg-pink-500/10 px-3 py-1.5 rounded-lg border border-pink-500/20">
+                        <span className="text-xl">🎁</span>
+                        <span className="font-bold text-pink-700">
+                          מתנה: {order.reward.gift}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </>
                 )}
-                
-                {/* Image */}
-                {item.imageUrl ? (
-                  <img 
-                    src={item.imageUrl} 
-                    alt={item.name} 
-                    className="w-16 h-16 rounded-md object-cover border border-border shrink-0 cursor-pointer" 
-                    onClick={() => setZoomedImage(item.imageUrl!)}
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-md bg-secondary flex items-center justify-center shrink-0">
-                    <Package className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                )}
-                
-                {/* Details */}
-                <div className="flex-1 min-w-0">
-                  <h4 className={`font-medium text-sm leading-tight mb-1 ${isDone ? 'text-green-500' : item.isMissing ? 'text-destructive line-through' : ''}`}>
-                    {item.name}
-                  </h4>
-                  <p className="text-sm text-muted-foreground font-mono">
-                    <span className="font-bold text-foreground">{item.sku || 'ללא מק"ט'}</span>
-                  </p>
-                  {item.isManual && (
-                    <span className="inline-block mt-1 text-xs bg-secondary px-2 py-0.5 rounded-full font-sans">
-                      אישור ידני
-                    </span>
-                  )}
-                </div>
               </div>
 
-              {/* Actions and Progress Bottom Bar */}
-              <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/50">
-                <div className="flex items-center gap-2">
-                  {!isDone && !item.isMissing && localOrderStatus === "processing" && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        markItemAsScanned(item.id);
-                      }}
-                      className="h-10 px-4 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white flex items-center gap-2 transition-colors font-medium text-sm"
-                    >
-                      סמן ידנית
-                    </button>
-                  )}
-                  {isDone && !item.isMissing && (
-                    <div className="h-10 px-3 rounded-lg bg-green-500/10 text-green-500 flex items-center gap-1 font-medium text-sm">
-                      <CheckCircle2 className="w-4 h-4" />
-                      נסרק
+              <div className="flex items-center gap-4 shrink-0">
+                {order.gender === "male" && (
+                  <div
+                    className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 shadow-sm"
+                    title="גבר"
+                  >
+                    <span className="text-3xl font-black leading-none mb-1">
+                      ♂
+                    </span>
+                  </div>
+                )}
+                {order.gender === "female" && (
+                  <div
+                    className="flex items-center justify-center w-12 h-12 rounded-full bg-pink-500/10 text-pink-500 border border-pink-500/20 shadow-sm"
+                    title="אישה"
+                  >
+                    <span className="text-3xl font-black leading-none mb-1">
+                      ♀
+                    </span>
+                  </div>
+                )}
+                {(!store || store === "libero") && (
+                  <div className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 shrink-0">
+                    <span className="text-4xl font-black">
+                      {order.reward.score}
+                    </span>
+                    <span className="text-xs font-medium opacity-80 uppercase tracking-widest">
+                      ציון לקוח
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+        <div className="flex flex-col gap-3">
+          {!isCameraOpen ? (
+            <button
+              onClick={() => {
+                setScanError(null);
+                setIsCameraOpen(true);
+              }}
+              disabled={
+                (localOrderStatus !== "processing" &&
+                  localOrderStatus !== "waiting_for_label") ||
+                missingMode
+              }
+              className="w-full px-4 py-6 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-3 shadow-md border border-blue-500/50"
+            >
+              <Camera className="w-8 h-8" />
+              <span>פתח מצלמה לסריקה</span>
+            </button>
+          ) : (
+            <div className="w-full flex flex-col gap-2 relative">
+              <button
+                onClick={() => setIsCameraOpen(false)}
+                className="absolute top-2 left-2 z-10 bg-red-500/80 text-white p-2 rounded-lg backdrop-blur-sm shadow hover:bg-red-600 transition-colors"
+                title="סגור מצלמה"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="w-full h-[150px] mx-auto overflow-hidden rounded-xl shadow-inner bg-black flex items-center justify-center">
+                <div id="reader" className="w-full shrink-0"></div>
+              </div>
+              <p className="text-xs text-muted-foreground text-center">
+                סריקה אוטומטית - מקם את הברקוד באמצע
+              </p>
+            </div>
+          )}
+
+          {scanError && (
+            <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-center font-bold text-lg animate-in fade-in slide-in-from-top-2 border border-red-200 shadow-sm flex items-center justify-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span>{scanError}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {!missingMode ? (
+              <button
+                onClick={() => setMissingMode(true)}
+                disabled={localOrderStatus !== "processing"}
+                className="px-4 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/80 transition-colors disabled:opacity-50 text-sm h-full flex items-center justify-center"
+              >
+                סימון חסר
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={submitMissing}
+                  className="px-2 py-3 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors text-sm h-full flex items-center justify-center"
+                >
+                  אישור ({selectedForMissing.length})
+                </button>
+                <button
+                  onClick={() => {
+                    setMissingMode(false);
+                    setSelectedForMissing([]);
+                  }}
+                  className="px-2 py-3 border border-border text-white rounded-lg font-medium hover:bg-secondary transition-colors text-sm h-full flex items-center justify-center"
+                >
+                  ביטול חסר
+                </button>
+              </>
+            )}
+
+            {localOrderStatus === "completed" && (
+              <button
+                onClick={() => {
+                  setLocalOrderStatus("ready");
+                  toast.info("ההזמנה חזרה למצב מוכן לסגירה");
+                }}
+                className="px-4 py-3 border border-border rounded-lg text-sm hover:bg-secondary transition-colors font-medium h-full flex items-center justify-center"
+              >
+                ביטול סגירה
+              </button>
+            )}
+
+            {localOrderStatus === "ready" && (
+              <button
+                onClick={async (e) => {
+                  const btn = e.currentTarget;
+                  btn.disabled = true;
+                  btn.innerText = "סוגר...";
+                  const success = await markOrderCompleted(
+                    order.id,
+                    (store || "libero") as "libero" | "velour" | "labura",
+                  );
+                  if (success) {
+                    setLocalOrderStatus("completed");
+                    toast.success("ההזמנה נסגרה בהצלחה ובאתר!");
+                    router.push(`/shipping-scanner?store=${store}`);
+                  } else {
+                    toast.error("שגיאה בסגירת ההזמנה באתר");
+                    btn.disabled = false;
+                    btn.innerText = "סגירת הזמנה";
+                  }
+                }}
+                className="px-4 py-3 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors font-medium h-full flex items-center justify-center disabled:opacity-50"
+              >
+                סגירת הזמנה
+              </button>
+            )}
+
+            <button
+              onClick={resetOrder}
+              className="px-4 py-3 border border-border rounded-lg text-sm hover:bg-secondary transition-colors font-medium h-full flex items-center justify-center"
+            >
+              איפוס סריקה
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="col-span-1 lg:col-span-12 glass-panel rounded-3xl p-6">
+        <h3 className="text-xl font-bold text-white mb-4">מוצרים בהזמנה</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((item) => {
+            const isDone = item.scanned >= item.expected;
+            const isMissingSelected = selectedForMissing.includes(item.id);
+
+            return (
+              <div
+                key={item.id}
+                className={`p-4 rounded-xl border flex flex-col gap-3 transition-colors ${
+                  isDone
+                    ? "bg-green-500/5 border-green-500/20"
+                    : item.isMissing
+                      ? "bg-red-500/5 border-red-500/20 opacity-75"
+                      : isMissingSelected
+                        ? "bg-orange-500/10 border-orange-500/30"
+                        : "bg-white/5 border-border/50"
+                }`}
+                onClick={() => {
+                  if (missingMode && !isDone && !item.isMissing) {
+                    toggleMissingSelection(item.id);
+                  }
+                }}
+              >
+                <div className="flex items-start gap-3 w-full relative">
+                  {/* Checkbox for Missing Mode */}
+                  {missingMode && !isDone && !item.isMissing && (
+                    <div className="absolute -right-2 -top-2">
+                      <div
+                        className={`w-6 h-6 rounded-full border shadow-sm flex items-center justify-center shrink-0 ${isMissingSelected ? "bg-orange-500 border-orange-500 text-white" : "bg-white border-input"}`}
+                      >
+                        {isMissingSelected && <Check className="w-4 h-4" />}
+                      </div>
                     </div>
                   )}
-                </div>
 
-                <div className="text-left">
-                  <div className="text-[10px] text-muted-foreground mb-0.5">נסרקו / סה״כ</div>
-                  <div className="font-semibold text-base whitespace-nowrap">
-                    {item.isMissing ? (
-                      <span className="text-destructive"><AlertTriangle className="w-4 h-4 inline mr-1" /> חסר</span>
-                    ) : (
-                      <span className={isDone ? 'text-green-500' : item.scanned > 0 ? 'text-orange-500' : 'text-red-500'}>
-                        {item.scanned} מתוך {item.expected}
+                  {/* Image */}
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="w-16 h-16 rounded-md object-cover border border-border shrink-0 cursor-pointer"
+                      onClick={() => setZoomedImage(item.imageUrl!)}
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-md bg-secondary flex items-center justify-center shrink-0">
+                      <Package className="w-8 h-8 text-muted-foreground" />
+                    </div>
+                  )}
+
+                  {/* Details */}
+                  <div className="flex-1 min-w-0">
+                    <h4
+                      className={`font-medium text-sm leading-tight mb-1 ${isDone ? "text-green-500" : item.isMissing ? "text-destructive line-through" : ""}`}
+                    >
+                      {item.name}
+                    </h4>
+                    <p className="text-sm text-muted-foreground font-mono">
+                      <span className="font-bold text-white">
+                        {item.sku || 'ללא מק"ט'}
+                      </span>
+                    </p>
+                    {item.isManual && (
+                      <span className="inline-block mt-1 text-xs bg-secondary px-2 py-0.5 rounded-full font-sans">
+                        אישור ידני
                       </span>
                     )}
                   </div>
                 </div>
+
+                {/* Actions and Progress Bottom Bar */}
+                <div className="flex items-center justify-between pt-3 mt-1 border-t border-border/50">
+                  <div className="flex items-center gap-2">
+                    {!isDone &&
+                      !item.isMissing &&
+                      localOrderStatus === "processing" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markItemAsScanned(item.id);
+                          }}
+                          className="h-10 px-4 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white flex items-center gap-2 transition-colors font-medium text-sm"
+                        >
+                          סמן ידנית
+                        </button>
+                      )}
+                    {isDone && !item.isMissing && (
+                      <div className="h-10 px-3 rounded-lg bg-green-500/10 text-green-500 flex items-center gap-1 font-medium text-sm">
+                        <CheckCircle2 className="w-4 h-4" />
+                        נסרק
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="text-left">
+                    <div className="text-[10px] text-muted-foreground mb-0.5">
+                      נסרקו / סה״כ
+                    </div>
+                    <div className="font-semibold text-base whitespace-nowrap">
+                      {item.isMissing ? (
+                        <span className="text-destructive">
+                          <AlertTriangle className="w-4 h-4 inline mr-1" /> חסר
+                        </span>
+                      ) : (
+                        <span
+                          className={
+                            isDone
+                              ? "text-green-500"
+                              : item.scanned > 0
+                                ? "text-orange-500"
+                                : "text-red-500"
+                          }
+                        >
+                          {item.scanned} מתוך {item.expected}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* Image Zoom Overlay */}
       {zoomedImage && (
-        <div 
+        <div
           className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 cursor-pointer"
           onClick={() => setZoomedImage(null)}
         >
-          <button 
+          <button
             className="absolute top-4 right-4 text-white hover:text-gray-300 p-2"
             onClick={(e) => {
               e.stopPropagation();
@@ -899,9 +1088,9 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
           >
             <X className="w-8 h-8" />
           </button>
-          <img 
-            src={zoomedImage} 
-            alt="Zoomed product" 
+          <img
+            src={zoomedImage}
+            alt="Zoomed product"
             className="max-w-full max-h-[90vh] object-contain rounded-lg"
           />
         </div>
@@ -909,15 +1098,19 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
 
       {/* Manual Close Modal */}
       {showManualCloseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
-          <div className="bg-card border-2 border-red-500 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6 animate-in zoom-in-95">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="glass-panel border-2 border-red-500 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6 animate-in zoom-in-95">
             <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertTriangle className="w-10 h-10" />
             </div>
-            <h2 className="text-3xl font-bold text-red-600">סגירת הזמנה ידנית</h2>
+            <h2 className="text-3xl font-bold text-red-600">
+              סגירת הזמנה ידנית
+            </h2>
             <p className="text-muted-foreground text-lg">
-              פעולה זו מיועדת למצבים של פיצול הזמנות (איחוד חבילות). ההזמנה תסומן כהושלמה במערכת ללא צורך בסריקת כל המוצרים. 
-              <br/><br/>
+              פעולה זו מיועדת למצבים של פיצול הזמנות (איחוד חבילות). ההזמנה
+              תסומן כהושלמה במערכת ללא צורך בסריקת כל המוצרים.
+              <br />
+              <br />
               <strong>האם אתה בטוח שברצונך לסגור הזמנה זו ידנית?</strong>
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
@@ -926,7 +1119,10 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
                   const btn = e.currentTarget;
                   btn.disabled = true;
                   btn.innerHTML = "סוגר הזמנה...";
-                  const success = await markOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
+                  const success = await markOrderCompleted(
+                    order.id,
+                    (store || "libero") as "libero" | "velour" | "labura",
+                  );
                   if (success) {
                     setLocalOrderStatus("completed");
                     setShowManualCloseModal(false);
@@ -957,15 +1153,19 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
 
       {/* Completion Modal */}
       {showCompletionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
-          <div className="bg-card border border-border p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="glass-panel border border-border p-8 rounded-2xl shadow-2xl max-w-md w-full text-center space-y-6">
             <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-10 h-10" />
             </div>
             {localOrderStatus === "completed" ? (
               <>
-                <h2 className="text-3xl font-bold text-foreground">ההזמנה סומנה כהושלמה!</h2>
-                <p className="text-muted-foreground text-lg">כל המוצרים נסרקו ומדבקת המשלוח אומתה. ההזמנה עודכנה בהצלחה.</p>
+                <h2 className="text-3xl font-bold text-white">
+                  ההזמנה סומנה כהושלמה!
+                </h2>
+                <p className="text-muted-foreground text-lg">
+                  כל המוצרים נסרקו ומדבקת המשלוח אומתה. ההזמנה עודכנה בהצלחה.
+                </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
                   <button
                     onClick={() => {
@@ -982,11 +1182,16 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
                       const btn = e.currentTarget;
                       btn.disabled = true;
                       btn.innerHTML = "מבטל...";
-                      const success = await unmarkOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
+                      const success = await unmarkOrderCompleted(
+                        order.id,
+                        (store || "libero") as "libero" | "velour" | "labura",
+                      );
                       if (success) {
                         setLocalOrderStatus("waiting_for_label");
                         setShowCompletionModal(false);
-                        toast.success("סימון הסיום בוטל. ההזמנה חזרה למצב טיפול.");
+                        toast.success(
+                          "סימון הסיום בוטל. ההזמנה חזרה למצב טיפול.",
+                        );
                       } else {
                         toast.error("שגיאה בביטול הסיום באתר");
                         btn.disabled = false;
@@ -1002,22 +1207,30 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
               </>
             ) : (
               <>
-                <h2 className="text-3xl font-bold text-foreground">כל הפריטים נסרקו!</h2>
-                <p className="text-muted-foreground text-lg">מה תרצה לעשות כעת?</p>
+                <h2 className="text-3xl font-bold text-white">
+                  כל הפריטים נסרקו!
+                </h2>
+                <p className="text-muted-foreground text-lg">
+                  מה תרצה לעשות כעת?
+                </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
                   <button
                     onClick={async (e) => {
                       const btn = e.currentTarget;
                       btn.disabled = true;
                       btn.innerHTML = "סוגר הזמנה...";
-                      const success = await markOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
+                      const success = await markOrderCompleted(
+                        order.id,
+                        (store || "libero") as "libero" | "velour" | "labura",
+                      );
                       if (success) {
                         setLocalOrderStatus("completed");
                         toast.success("ההזמנה נסגרה בהצלחה ובאתר!");
                       } else {
                         toast.error("שגיאה בסגירת ההזמנה באתר, נסה שוב");
                         btn.disabled = false;
-                        btn.innerHTML = "<svg class='w-5 h-5 mr-2 inline' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg> סגירת הזמנה";
+                        btn.innerHTML =
+                          "<svg class='w-5 h-5 mr-2 inline' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M22 11.08V12a10 10 0 1 1-5.93-9.14'/><polyline points='22 4 12 14.01 9 11.01'/></svg> סגירת הזמנה";
                       }
                     }}
                     className="px-6 py-4 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold text-lg transition-colors flex items-center justify-center gap-2"
@@ -1038,16 +1251,15 @@ export default function ScannerClient({ order, manualKeywords, store = "libero",
                 </div>
               </>
             )}
-            <button 
+            <button
               onClick={() => setShowCompletionModal(false)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+              className="absolute top-4 right-4 text-muted-foreground hover:text-white"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
         </div>
       )}
-
     </div>
   );
 }
