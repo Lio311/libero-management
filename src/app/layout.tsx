@@ -51,7 +51,7 @@ export default async function RootLayout({
     <ClerkProvider localization={heIL}>
       <html lang="he" dir="rtl">
         <body 
-          className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row bg-cover bg-center bg-no-repeat bg-fixed`}
+          className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row bg-[length:100vw_100vh] bg-center bg-no-repeat bg-fixed`}
           style={{ backgroundImage: "url('/bg-abstract.png')" }}
         >
           <ConfirmProvider>
