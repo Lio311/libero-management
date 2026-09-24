@@ -565,6 +565,7 @@ export default function TasksClient({ initialTasks }: { initialTasks: Task[] }) 
               )}
             </tbody>
           </table>
+        </div>
         )}
     </div>
   );

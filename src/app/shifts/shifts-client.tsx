@@ -17,16 +17,16 @@ const DEPARTMENTS = ["משרד", "הנהלה", "חנות", "מחסן", "חופש
 const EMPLOYEES = ["ליאור", "רותי", "אור דוד", "צדוק", "אבישי", "אריאל", "ישראל", "טל", "יוליה", "דניאל"];
 
 const EMPLOYEE_COLORS: Record<string, string> = {
-  "ליאור": "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800",
-  "רותי": "bg-pink-100 text-pink-800 border-pink-200 dark:bg-pink-900/30 dark:text-pink-300 dark:border-pink-800",
-  "אור דוד": "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800",
-  "צדוק": "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800",
-  "אבישי": "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800",
-  "אריאל": "bg-cyan-100 text-cyan-800 border-cyan-200 dark:bg-cyan-900/30 dark:text-cyan-300 dark:border-cyan-800",
-  "ישראל": "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-800",
-  "טל": "bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-800",
-  "יוליה": "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-800",
-  "דניאל": "bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-800",
+  "ליאור": "bg-emerald-500/20 text-emerald-100 border border-emerald-500/30",
+  "רותי": "bg-pink-500/20 text-pink-100 border border-pink-500/30",
+  "אור דוד": "bg-blue-500/20 text-blue-100 border border-blue-500/30",
+  "צדוק": "bg-amber-500/20 text-amber-100 border border-amber-500/30",
+  "אבישי": "bg-purple-500/20 text-purple-100 border border-purple-500/30",
+  "אריאל": "bg-cyan-500/20 text-cyan-100 border border-cyan-500/30",
+  "ישראל": "bg-indigo-500/20 text-indigo-100 border border-indigo-500/30",
+  "טל": "bg-rose-500/20 text-rose-100 border border-rose-500/30",
+  "יוליה": "bg-orange-500/20 text-orange-100 border border-orange-500/30",
+  "דניאל": "bg-teal-500/20 text-teal-100 border border-teal-500/30",
 };
 
 type Shift = {
@@ -349,25 +349,25 @@ export default function ShiftsClient() {
   return (
     <div className="space-y-4 print:space-y-2">
       {/* Controls */}
-      <div className="flex items-center justify-between glass-panel p-4 rounded-xl print:hidden">
+      <div className="flex flex-col md:flex-row items-center justify-between glass-panel p-6 rounded-3xl print:hidden text-white gap-4">
         <div className="text-lg font-semibold">
           {format(weekStart, "dd/MM/yyyy")} - {format(weekEnd, "dd/MM/yyyy")}
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleCopyPreviousWeek} disabled={isSubmitting} className="mr-2 gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-center">
+          <Button variant="outline" onClick={handleCopyPreviousWeek} disabled={isSubmitting} className="mr-2 gap-2 bg-white/10 text-white border-0 hover:bg-white/20 hover:text-white">
             <Copy className="h-4 w-4" />
             שכפל שבוע קודם
           </Button>
-          <Button variant="secondary" onClick={() => window.print()} className="mr-4 gap-2">
+          <Button variant="secondary" onClick={() => window.print()} className="mr-4 gap-2 bg-white/20 text-white border-0 hover:bg-white/30 hover:text-white">
             שמור כ-PDF / הדפס
           </Button>
-          <Button variant="outline" onClick={handleToday}>
+          <Button variant="outline" onClick={handleToday} className="bg-white/10 text-white border-0 hover:bg-white/20 hover:text-white">
             היום
           </Button>
-          <Button variant="outline" size="icon" onClick={handlePrevWeek}>
+          <Button variant="outline" size="icon" onClick={handlePrevWeek} className="bg-white/10 text-white border-0 hover:bg-white/20 hover:text-white">
             <ChevronRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={handleNextWeek}>
+          <Button variant="outline" size="icon" onClick={handleNextWeek} className="bg-white/10 text-white border-0 hover:bg-white/20 hover:text-white">
             <ChevronLeft className="h-4 w-4" />
           </Button>
         </div>
@@ -382,11 +382,11 @@ export default function ShiftsClient() {
       </div>
 
       {/* Grid */}
-      <div className="overflow-x-auto print:overflow-visible">
-        <div className="min-w-[800px] print:min-w-0 border rounded-xl overflow-hidden bg-card text-card-foreground">
+      <div className="overflow-x-auto print:overflow-visible glass-panel rounded-3xl p-6 text-white">
+        <div className="min-w-[800px] print:min-w-0 rounded-xl overflow-hidden border border-white/10">
           {/* Header Row (Days) */}
-          <div className="grid grid-cols-8 border-b bg-muted/50">
-            <div className="p-3 print:p-1 font-semibold flex items-center justify-center border-l print:text-sm">
+          <div className="grid grid-cols-8 border-b border-white/10 bg-white/5">
+            <div className="p-3 print:p-1 font-semibold flex items-center justify-center border-l border-white/10 print:text-sm text-slate-200">
               אגף
             </div>
             {days.map((day) => {
@@ -394,11 +394,11 @@ export default function ShiftsClient() {
               const isCurrentDay = isToday(day);
               
               return (
-              <div key={day.toISOString()} className={`p-3 print:p-1 text-center font-medium border-l last:border-0 flex flex-col items-center justify-center relative ${isNoWork ? 'bg-muted/80 dark:bg-muted/40' : ''} ${isCurrentDay ? 'bg-foreground/5' : ''}`}>
-                {isCurrentDay && <div className="absolute top-0 left-0 right-0 h-1 bg-foreground print:hidden"></div>}
-                <div className={isNoWork ? 'text-primary print:text-sm' : (isCurrentDay ? 'text-foreground font-bold print:text-sm' : 'print:text-sm')}>{format(day, "EEEE", { locale: he })}</div>
-                <div className={`text-sm print:text-xs ${isNoWork ? 'text-primary/80' : (isCurrentDay ? 'text-foreground font-bold' : 'text-muted-foreground')}`}>{format(day, "dd/MM")}</div>
-                {label && <div className="text-xs text-primary font-bold mt-1 bg-primary/10 px-2 py-0.5 rounded-full">{label}</div>}
+              <div key={day.toISOString()} className={`p-3 print:p-1 text-center font-medium border-l border-white/10 last:border-0 flex flex-col items-center justify-center relative ${isNoWork ? 'bg-white/10' : ''} ${isCurrentDay ? 'bg-white/10' : ''}`}>
+                {isCurrentDay && <div className="absolute top-0 left-0 right-0 h-1 bg-white print:hidden"></div>}
+                <div className={isNoWork ? 'text-primary print:text-sm text-blue-300' : (isCurrentDay ? 'text-white font-bold print:text-sm' : 'text-slate-200 print:text-sm')}>{format(day, "EEEE", { locale: he })}</div>
+                <div className={`text-sm print:text-xs ${isNoWork ? 'text-primary/80 text-blue-300' : (isCurrentDay ? 'text-white font-bold' : 'text-slate-300')}`}>{format(day, "dd/MM")}</div>
+                {label && <div className="text-xs text-blue-200 font-bold mt-1 bg-blue-500/20 px-2 py-0.5 rounded-full">{label}</div>}
               </div>
             )})}
           </div>
@@ -406,13 +406,13 @@ export default function ShiftsClient() {
           {/* Body Rows (Departments) */}
           {loading ? (
             <div className="p-8 flex justify-center items-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <Loader2 className="h-8 w-8 animate-spin text-white" />
             </div>
           ) : (
             DEPARTMENTS.map((dept) => (
-              <div key={dept} className="grid grid-cols-8 border-b last:border-0">
+              <div key={dept} className="grid grid-cols-8 border-b border-white/10 last:border-0">
                 {/* Department Name */}
-                <div className="p-3 print:p-1 font-semibold flex items-center justify-center border-l bg-muted/20 print:text-sm">
+                <div className="p-3 print:p-1 font-semibold flex items-center justify-center border-l border-white/10 bg-white/5 print:text-sm text-slate-200">
                   {dept}
                 </div>
                 
@@ -429,13 +429,13 @@ export default function ShiftsClient() {
                   return (
                     <div 
                       key={dateStr} 
-                      className={`p-2 print:p-1 border-l last:border-0 min-h-[100px] print:min-h-0 relative group ${isNoWork ? 'bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.03)_10px,rgba(0,0,0,0.03)_20px)] dark:bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)]' : ''} ${isCurrentDay ? 'bg-foreground/10' : ''}`}
+                      className={`p-2 print:p-1 border-l border-white/10 last:border-0 min-h-[100px] print:min-h-0 relative group ${isNoWork ? 'bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)]' : ''} ${isCurrentDay ? 'bg-white/5' : ''}`}
                       onDragOver={isCellBlocked ? undefined : handleDragOver}
                       onDrop={isCellBlocked ? undefined : ((e) => handleDrop(e, dateStr, dept))}
                     >
                       <div className="space-y-2 print:space-y-1 mb-6 print:mb-0">
                         {dayShifts.map(shift => {
-                          const employeeColor = EMPLOYEE_COLORS[shift.employeeName] || "bg-muted text-foreground";
+                          const employeeColor = EMPLOYEE_COLORS[shift.employeeName] || "bg-white/10 text-white border border-white/20";
                           return (
                           <div 
                             key={shift.id}
@@ -456,17 +456,17 @@ export default function ShiftsClient() {
                             {!isCellBlocked && (
                               <button
                                 onClick={(e) => { e.stopPropagation(); openDuplicateModal(shift); }}
-                                className="absolute top-1 left-7 p-1 bg-background/80 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-primary print:hidden"
+                                className="absolute top-1 left-7 p-1 bg-black/40 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-blue-300 print:hidden text-white"
                                 title="שכפל משמרת"
                               >
-                                <Copy className="h-3 w-3 text-foreground" />
+                                <Copy className="h-3 w-3" />
                               </button>
                             )}
 
                             {/* Delete Button */}
                             <button
                               onClick={(e) => handleDeleteShift(shift.id, e)}
-                              className="absolute top-1 left-1 p-1 bg-background/80 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-destructive print:hidden"
+                              className="absolute top-1 left-1 p-1 bg-black/40 rounded opacity-0 group-hover/shift:opacity-100 transition-opacity hover:text-red-400 print:hidden text-white"
                               title="מחק משמרת"
                             >
                               <Trash2 className="h-3 w-3" />
@@ -479,7 +479,7 @@ export default function ShiftsClient() {
                       {!isCellBlocked && (
                         <button
                           onClick={() => openAddModal(dateStr, dept)}
-                          className="absolute bottom-2 right-2 left-2 flex items-center justify-center py-1 rounded bg-secondary/50 text-secondary-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary print:hidden"
+                          className="absolute bottom-2 right-2 left-2 flex items-center justify-center py-1 rounded bg-white/20 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/30 print:hidden"
                         >
                           <Plus className="h-4 w-4" />
                         </button>
@@ -495,48 +495,48 @@ export default function ShiftsClient() {
 
       {/* Add/Edit Shift Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <Card className="w-full max-w-md shadow-lg border-0">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="font-semibold text-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md glass-panel rounded-3xl text-white border-0 shadow-2xl">
+            <div className="flex justify-between items-center p-6 border-b border-white/10">
+              <h3 className="font-semibold text-xl">
                 {editingShiftId ? "עריכת משמרת" : "הוספת משמרת"}
               </h3>
-              <button onClick={() => setIsModalOpen(false)} className="p-1 hover:bg-muted rounded-full">
+              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <CardContent className="p-4">
+            <div className="p-6">
               <form onSubmit={handleSaveShift} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">מתאריך</label>
+                    <label className="text-sm font-medium text-slate-200">מתאריך</label>
                     <input 
                       type="date"
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 text-white [color-scheme:dark]"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">עד תאריך (לרצף ימים)</label>
+                    <label className="text-sm font-medium text-slate-200">עד תאריך (לרצף ימים)</label>
                     <input 
                       type="date"
                       value={endDateRange}
                       onChange={(e) => setEndDateRange(e.target.value)}
                       min={selectedDate}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 text-white [color-scheme:dark]"
                     />
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">אגף</label>
+                    <label className="text-sm font-medium text-slate-200">אגף</label>
                     <select 
                       value={selectedDept}
                       onChange={(e) => setSelectedDept(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 text-white [&>option]:bg-slate-800"
                       required
                     >
                       {DEPARTMENTS.map(dept => (
@@ -545,11 +545,11 @@ export default function ShiftsClient() {
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">עובד/ת</label>
+                    <label className="text-sm font-medium text-slate-200">עובד/ת</label>
                     <select 
                       value={employeeName}
                       onChange={(e) => setEmployeeName(e.target.value)}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 text-white [&>option]:bg-slate-800"
                       required
                     >
                       {EMPLOYEES.map(emp => (
@@ -560,13 +560,13 @@ export default function ShiftsClient() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">החל גם על ימים נוספים (לשבוע הנוכחי)</label>
+                  <label className="text-sm font-medium text-slate-200">החל גם על ימים נוספים (לשבוע הנוכחי)</label>
                   <div className="flex flex-wrap gap-2">
                     {days.map(day => {
                        const dStr = format(day, "yyyy-MM-dd");
                        if (dStr === selectedDate) return null;
                        return (
-                         <label key={dStr} className="flex items-center gap-1.5 bg-muted/50 px-2 py-1.5 rounded cursor-pointer hover:bg-muted transition-colors border">
+                         <label key={dStr} className="flex items-center gap-1.5 bg-white/5 px-2 py-1.5 rounded cursor-pointer hover:bg-white/10 transition-colors border border-white/10">
                            <input 
                              type="checkbox" 
                              checked={additionalDates.includes(dStr)}
@@ -574,9 +574,9 @@ export default function ShiftsClient() {
                                if (e.target.checked) setAdditionalDates([...additionalDates, dStr]);
                                else setAdditionalDates(additionalDates.filter(d => d !== dStr));
                              }}
-                             className="rounded border-input text-primary focus:ring-primary"
+                             className="rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500/50"
                            />
-                           <span className="text-sm">{format(day, "EEEE", { locale: he })}</span>
+                           <span className="text-sm text-slate-200">{format(day, "EEEE", { locale: he })}</span>
                          </label>
                        )
                     })}
@@ -586,44 +586,47 @@ export default function ShiftsClient() {
                 {selectedDept !== "חופשות" && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">שעת התחלה</label>
-                      <Input 
+                      <label className="text-sm font-medium text-slate-200">שעת התחלה</label>
+                      <input 
                         type="time" 
                         value={startTime}
                         onChange={(e) => setStartTime(e.target.value)}
+                        className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 text-white [color-scheme:dark]"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">שעת סיום</label>
-                      <Input 
+                      <label className="text-sm font-medium text-slate-200">שעת סיום</label>
+                      <input 
                         type="time" 
                         value={endTime}
                         onChange={(e) => setEndTime(e.target.value)}
+                        className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 text-white [color-scheme:dark]"
                       />
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">הערות (אופציונלי)</label>
-                  <Input 
+                  <label className="text-sm font-medium text-slate-200">הערות (אופציונלי)</label>
+                  <input 
                     placeholder="טקסט חופשי..." 
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 text-white placeholder:text-slate-400"
                   />
                 </div>
 
-                <div className="pt-4 flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                <div className="pt-6 flex justify-end gap-3">
+                  <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} className="bg-white/5 text-white border-white/10 hover:bg-white/10 hover:text-white">
                     ביטול
                   </Button>
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white hover:bg-blue-700">
                     {isSubmitting ? "שומר..." : "שמור משמרת"}
                   </Button>
                 </div>
               </form>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
     </div>
