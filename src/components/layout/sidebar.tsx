@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ChevronRight, ClipboardCheck, UserCog, ShoppingBag, FileText, CalendarDays, UserCheck, ScanBarcode, Settings, Printer } from "lucide-react";
+import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ChevronRight, ChevronLeft, ClipboardCheck, UserCog, ShoppingBag, FileText, CalendarDays, UserCheck, ScanBarcode, Settings, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { influencersConfig } from "@/config/influencers";
@@ -120,7 +120,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
       )}
 
       <div className={cn(
-        "fixed top-4 right-4 z-50 flex h-fit max-h-[calc(100vh-2rem)] flex-col rounded-xl glass-panel text-white shadow-xl transition-all duration-300 print:hidden overflow-hidden",
+        "fixed top-4 right-4 z-50 flex h-fit max-h-[calc(100vh-2rem)] flex-col rounded-xl glass-panel text-white shadow-xl transition-all duration-300 print:hidden overflow-visible",
         isOpen ? "translate-x-0 w-64" : "translate-x-[calc(100%+1rem)] md:translate-x-0 w-64 md:w-[110px]"
       )}>
         <div className="flex h-16 items-center px-2 border-b border-border/50 relative justify-center overflow-hidden shrink-0">
@@ -155,9 +155,13 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
               if (activeSubMenu) {
                 return (
                   <>
-                    <div className="col-span-full border-b border-border/50 pb-2 mb-1 flex items-center justify-center">
+                    <div className="col-span-full border-b border-border/50 pb-2 mb-1 flex items-center justify-center relative group/navitem">
+                      <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 hidden md:group-hover/navitem:flex z-[60] pointer-events-none items-center">
+                        <div className="bg-slate-800/95 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap border border-white/10">
+                          חזור לתפריט הראשי
+                        </div>
+                      </div>
                       <button 
-                        title="חזור לתפריט הראשי"
                         onClick={() => setActiveSubMenu(null)}
                         className="flex items-center justify-center p-2 w-full text-sm font-medium rounded-lg hover-scale text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground"
                       >
@@ -169,21 +173,21 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                       const isSubActive = pathname === subItem.href;
                       const Icon = activeSubMenu.icon; 
                       return (
-                        <div key={subItem.name} className="relative group/navitem flex justify-center w-full">
+                        <div key={subItem.name} className="relative group/navitem flex justify-center w-full col-span-full">
                           <Link
                             href={subItem.href}
-                            title={subItem.name}
                             onClick={() => { closeSidebar(); }}
                             className={cn(
-                              "flex items-center justify-center p-3 w-11 h-11 text-sm font-medium rounded-lg hover-scale",
+                              "flex items-center justify-center p-2 w-full h-auto min-h-[3.5rem] text-sm font-medium rounded-lg hover-scale",
                               isSubActive
                                 ? "bg-primary text-primary-foreground shadow-sm"
                                 : "text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground",
-                              isOpen && "md:w-11 md:h-11 w-full justify-start px-4"
+                              !isOpen && "flex-col gap-1 text-[10.5px] leading-tight text-center",
+                              isOpen && "justify-start px-4"
                             )}
                           >
                             <Icon className={cn("flex-shrink-0 h-5 w-5 transition-colors", isSubActive ? "text-primary-foreground" : "text-slate-200 group-hover/navitem:text-secondary-foreground")} aria-hidden="true" />
-                            {isOpen && <span className="mr-3 font-medium md:hidden">{subItem.name}</span>}
+                            <span className={cn(isOpen ? "mr-3 font-medium md:hidden" : "")}>{subItem.name}</span>
                           </Link>
                         </div>
                       );
@@ -198,12 +202,17 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
 
                 return (
                   <div key={item.name} className="relative group/navitem flex justify-center w-full">
+                    <div className="absolute right-full top-1/2 -translate-y-1/2 mr-3 hidden md:group-hover/navitem:flex z-[60] pointer-events-none items-center">
+                      <div className="bg-slate-800/95 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-md shadow-xl whitespace-nowrap border border-white/10">
+                        {item.name}
+                      </div>
+                    </div>
+                    
                     {hasSubItems ? (
                     <button
-                      title={item.name}
                       onClick={() => setActiveSubMenu(item)}
                       className={cn(
-                        "flex items-center justify-center p-3 w-11 h-11 text-sm font-medium rounded-lg hover-scale",
+                        "relative flex items-center justify-center p-3 w-11 h-11 text-sm font-medium rounded-lg hover-scale",
                         isActive
                           ? "bg-primary/10 text-primary"
                           : "text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground",
@@ -211,12 +220,12 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                       )}
                     >
                       <item.icon className={cn("flex-shrink-0 h-5 w-5 transition-colors", isActive ? "text-primary" : "text-slate-200 group-hover/navitem:text-secondary-foreground")} aria-hidden="true" />
+                      <ChevronLeft className={cn("absolute bottom-0.5 left-0.5 w-3.5 h-3.5 opacity-60", isActive ? "text-primary" : "text-slate-300")} />
                       {isOpen && <span className="mr-3 font-medium md:hidden text-right line-clamp-1">{item.name}</span>}
                     </button>
                   ) : (
                     <Link
                       href={item.href!}
-                      title={item.name}
                       onClick={closeSidebar}
                       className={cn(
                         "flex items-center justify-center p-3 w-11 h-11 text-sm font-medium rounded-lg hover-scale",
