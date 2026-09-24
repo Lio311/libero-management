@@ -58,40 +58,40 @@ function EmployeeCard({
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col h-full group">
+    <div className="glass-panel rounded-3xl p-6 flex flex-col h-full group">
       <div className="flex flex-col h-full relative">
       {isEditing ? (
         <div className="mb-6 space-y-3 relative z-30">
           <input 
             value={formData.name} 
             onChange={e => setFormData({...formData, name: e.target.value})} 
-            className="w-full p-2 border rounded font-semibold bg-blue-50/50" 
+            className="w-full p-2 border border-white/20 rounded font-semibold bg-white/10 text-white placeholder-slate-300 outline-none focus:border-white/40" 
             placeholder="שם עובד"
             autoFocus
           />
 
           <div className="flex gap-2 justify-end">
-            <button onClick={handleSave} className="text-green-600 p-1.5 bg-green-50 rounded hover:bg-green-100"><Check className="w-4 h-4"/></button>
-            <button onClick={handleCancel} className="text-red-600 p-1.5 bg-red-50 rounded hover:bg-red-100"><X className="w-4 h-4"/></button>
+            <button onClick={handleSave} className="text-green-400 p-1.5 bg-green-500/10 border border-green-500/20 rounded hover:bg-green-500/20"><Check className="w-4 h-4"/></button>
+            <button onClick={handleCancel} className="text-red-400 p-1.5 bg-red-500/10 border border-red-500/20 rounded hover:bg-red-500/20"><X className="w-4 h-4"/></button>
           </div>
         </div>
       ) : (
         <div className="flex flex-col mb-6 relative z-30">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg flex-shrink-0">
+              <div className="h-10 w-10 rounded-full bg-white/20 text-white flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-inner border border-white/10">
                 {roleHolder.name ? roleHolder.name.charAt(0) : '?'}
               </div>
-              <h2 className="text-xl font-semibold text-gray-900">{roleHolder.name}</h2>
+              <h2 className="text-xl font-semibold text-white drop-shadow-sm">{roleHolder.name}</h2>
             </div>
             {!roleHolder.isTemp && (
               <div className="flex gap-2">
-                <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="ערוך"><Edit2 className="w-4 h-4" /></button>
+                <button onClick={() => setIsEditing(true)} className="p-1.5 text-blue-300 hover:bg-white/10 hover:text-blue-200 rounded transition-colors" title="ערוך"><Edit2 className="w-4 h-4" /></button>
                 <button onClick={async () => { 
                   if (await confirm({ title: 'מחיקת איש צוות', message: 'האם למחוק איש צוות?', confirmText: 'מחק', variant: 'destructive' })) { 
                     onDelete(roleHolder.id); 
                   } 
-                }} className="p-1.5 text-red-600 hover:bg-red-50 rounded" title="מחק"><Trash2 className="w-4 h-4" /></button>
+                }} className="p-1.5 text-red-400 hover:bg-white/10 hover:text-red-300 rounded transition-colors" title="מחק"><Trash2 className="w-4 h-4" /></button>
               </div>
             )}
           </div>
@@ -112,10 +112,10 @@ function EmployeeCard({
               }`}
             >
               {/* Background layer */}
-              <div className={`absolute inset-0 rounded-lg z-0 ${
-                connectMode ? 'group-hover/task:bg-blue-50 border border-transparent group-hover/task:border-blue-200' : ''
+              <div className={`absolute inset-0 rounded-lg z-0 transition-colors ${
+                connectMode ? 'group-hover/task:bg-white/10 border border-transparent group-hover/task:border-white/20' : ''
               } ${
-                isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : 'bg-gray-50'
+                isSelected ? 'ring-2 ring-blue-400 bg-white/20' : 'bg-white/5 border border-white/5'
               }`} />
 
               {isEditingTask ? (
@@ -123,34 +123,30 @@ function EmployeeCard({
                    <textarea 
                      value={taskEditValue} 
                      onChange={e => setTaskEditValue(e.target.value)} 
-                     className="w-full p-2 border rounded text-sm min-h-[40px]"
+                     className="w-full p-2 border border-white/20 rounded text-sm min-h-[40px] bg-white/10 text-white outline-none focus:border-white/40"
                      autoFocus
                    />
                    <div className="flex gap-2 justify-end">
-                     <button onClick={(e) => { e.stopPropagation(); onTaskUpdate(task.id, taskEditValue); setEditingTaskId(null); }} className="text-green-600 p-1 bg-green-50 rounded"><Check className="w-4 h-4"/></button>
-                     <button onClick={(e) => { e.stopPropagation(); setEditingTaskId(null); }} className="text-red-600 p-1 bg-red-50 rounded"><X className="w-4 h-4"/></button>
+                     <button onClick={(e) => { e.stopPropagation(); onTaskUpdate(task.id, taskEditValue); setEditingTaskId(null); }} className="text-green-400 p-1 bg-green-500/10 border border-green-500/20 rounded hover:bg-green-500/20"><Check className="w-4 h-4"/></button>
+                     <button onClick={(e) => { e.stopPropagation(); setEditingTaskId(null); }} className="text-red-400 p-1 bg-red-500/10 border border-red-500/20 rounded hover:bg-red-500/20"><X className="w-4 h-4"/></button>
                    </div>
                 </div>
               ) : (
                 <>
-                  <div id={`task-icon-${task.id}`} className="flex-shrink-0 mt-0.5 relative z-20 rounded-full bg-white">
-                    <CheckCircle2 className={`w-4 h-4 ${connectMode ? 'text-blue-400' : 'text-gray-400'}`} />
+                  <div id={`task-icon-${task.id}`} className="flex-shrink-0 mt-0.5 relative z-20 rounded-full bg-transparent">
+                    <CheckCircle2 className={`w-4 h-4 ${connectMode ? 'text-blue-300' : 'text-slate-300'}`} />
                   </div>
-                  <span className={`text-sm text-gray-700 leading-relaxed relative z-20 font-medium px-1 rounded ${
-                    connectMode ? 'group-hover/task:bg-blue-50' : ''
-                  } ${
-                    isSelected ? 'bg-blue-50' : 'bg-gray-50'
-                  }`}>{task.description}</span>
+                  <span className={`text-sm text-slate-100 leading-relaxed relative z-20 font-medium px-1`}>{task.description}</span>
                   
                   {!connectMode && (
                     <div className="absolute left-2 top-2 z-30 flex gap-1 opacity-0 group-hover/task:opacity-100 transition-opacity">
-                      <button onClick={(e) => { e.stopPropagation(); setTaskEditValue(task.description); setEditingTaskId(task.id); }} className="p-1 text-blue-600 hover:bg-blue-100 rounded bg-white/80" title="ערוך משימה"><Edit2 className="w-3 h-3" /></button>
+                      <button onClick={(e) => { e.stopPropagation(); setTaskEditValue(task.description); setEditingTaskId(task.id); }} className="p-1 text-blue-300 hover:bg-white/20 rounded bg-white/10 backdrop-blur-sm" title="ערוך משימה"><Edit2 className="w-3 h-3" /></button>
                       <button onClick={async (e) => { 
                         e.stopPropagation(); 
                         if (await confirm({ title: 'מחיקת משימה', message: 'האם למחוק משימה זו?', confirmText: 'מחק', variant: 'destructive' })) { 
                           onTaskDelete(task.id); 
                         } 
-                      }} className="p-1 text-red-600 hover:bg-red-100 rounded bg-white/80" title="מחק משימה"><Trash2 className="w-3 h-3" /></button>
+                      }} className="p-1 text-red-400 hover:bg-white/20 rounded bg-white/10 backdrop-blur-sm" title="מחק משימה"><Trash2 className="w-3 h-3" /></button>
                     </div>
                   )}
                 </>
@@ -163,21 +159,21 @@ function EmployeeCard({
       {!roleHolder.isTemp && (
         <div className="mt-4 relative z-30">
           {isAddingTask ? (
-             <div className="flex flex-col gap-2 p-3 bg-gray-50 rounded-lg">
+             <div className="flex flex-col gap-2 p-3 bg-white/5 border border-white/10 rounded-lg backdrop-blur-sm">
                <textarea 
                  value={newTaskValue} 
                  onChange={e => setNewTaskValue(e.target.value)} 
-                 className="w-full p-2 border rounded text-sm min-h-[40px] bg-white"
+                 className="w-full p-2 border border-white/20 rounded text-sm min-h-[40px] bg-white/10 text-white placeholder-slate-300 outline-none focus:border-white/40"
                  placeholder="תיאור משימה חדשה..."
                  autoFocus
                />
                <div className="flex gap-2 justify-end">
-                 <button onClick={() => { if(newTaskValue) { onTaskCreate(roleHolder.name, newTaskValue); setIsAddingTask(false); setNewTaskValue(''); } }} className="text-green-600 p-1 bg-green-50 rounded"><Check className="w-4 h-4"/></button>
-                 <button onClick={() => { setIsAddingTask(false); setNewTaskValue(''); }} className="text-red-600 p-1 bg-red-50 rounded"><X className="w-4 h-4"/></button>
+                 <button onClick={() => { if(newTaskValue) { onTaskCreate(roleHolder.name, newTaskValue); setIsAddingTask(false); setNewTaskValue(''); } }} className="text-green-400 p-1 bg-green-500/10 border border-green-500/20 rounded hover:bg-green-500/20"><Check className="w-4 h-4"/></button>
+                 <button onClick={() => { setIsAddingTask(false); setNewTaskValue(''); }} className="text-red-400 p-1 bg-red-500/10 border border-red-500/20 rounded hover:bg-red-500/20"><X className="w-4 h-4"/></button>
                </div>
              </div>
           ) : (
-             <button onClick={() => setIsAddingTask(true)} className="flex items-center justify-center gap-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 w-full py-2 rounded-lg font-medium transition-colors">
+             <button onClick={() => setIsAddingTask(true)} className="flex items-center justify-center gap-1 text-sm text-blue-200 hover:text-white hover:bg-white/10 w-full py-2 rounded-lg font-medium transition-colors">
                <Plus className="w-4 h-4" /> הוסף משימה
              </button>
           )}
@@ -370,15 +366,36 @@ export default function TeamClient({
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-8 bg-gray-50/50 min-h-screen" dir="rtl">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">בעלי תפקידים וצוות</h1>
-        <p className="text-muted-foreground mt-2">צפייה בתחומי האחריות ומשימות של חברי הצוות.</p>
-      </div>
+    <div className="p-4 md:p-8 min-h-screen" dir="rtl">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 max-w-7xl mx-auto">
+        <div className="lg:col-span-12 glass-panel rounded-3xl p-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-md">בעלי תפקידים וצוות</h1>
+              <p className="text-slate-200 mt-2">צפייה בתחומי האחריות ומשימות של חברי הצוות.</p>
+            </div>
+          </div>
+        </div>
 
-      <Xwrapper>
-        {allCards.length === 0 && !isAddingNew ? (
-          <div className="glass-panel rounded-2xl p-12 text-center text-muted-foreground shadow-sm">
+        <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="glass-panel rounded-3xl p-6 flex flex-col items-center justify-center">
+            <span className="text-4xl font-bold text-white drop-shadow-md">{allCards.length}</span>
+            <span className="text-slate-200 mt-2 text-sm font-medium">בעלי תפקידים</span>
+          </div>
+          <div className="glass-panel rounded-3xl p-6 flex flex-col items-center justify-center">
+            <span className="text-4xl font-bold text-white drop-shadow-md">{Object.values(normalizedGroupedTasks).flat().length}</span>
+            <span className="text-slate-200 mt-2 text-sm font-medium">משימות פעילות</span>
+          </div>
+          <div className="glass-panel rounded-3xl p-6 flex flex-col items-center justify-center">
+            <span className="text-4xl font-bold text-white drop-shadow-md">{connections.length}</span>
+            <span className="text-slate-200 mt-2 text-sm font-medium">קשרים בין משימות</span>
+          </div>
+        </div>
+
+      <div className="lg:col-span-12">
+        <Xwrapper>
+          {allCards.length === 0 && !isAddingNew ? (
+          <div className="glass-panel rounded-3xl p-12 text-center text-slate-200 shadow-sm">
             <p>אין נתונים על בעלי תפקידים.</p>
             <button
                 onClick={() => setIsAddingNew(true)}
@@ -394,17 +411,17 @@ export default function TeamClient({
               <div className="flex flex-wrap items-center gap-4">
                 <button
                   onClick={() => { setConnectMode(!connectMode); setSelectedTask(null); }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
                     connectMode 
-                      ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700' 
-                      : 'bg-white text-gray-700 border hover:bg-gray-50'
+                      ? 'bg-blue-500/80 text-white shadow-md hover:bg-blue-500' 
+                      : 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
                   }`}
                 >
                   <Cable className="w-5 h-5" />
                   {connectMode ? 'מצב חיבור פעיל (לחץ לביטול)' : 'מצב יצירת קשרים'}
                 </button>
                 {connectMode && (
-                  <p className="text-sm font-medium text-blue-600 bg-blue-50 px-4 py-2 rounded-lg animate-pulse">
+                  <p className="text-sm font-medium text-blue-100 bg-blue-900/40 border border-blue-500/30 px-4 py-2 rounded-xl animate-pulse">
                     {selectedTask ? 'בחר משימת יעד לחיבור' : 'בחר משימת מקור לחיבור'}
                   </p>
                 )}
@@ -413,7 +430,7 @@ export default function TeamClient({
               {!isAddingNew && (
                 <button
                   onClick={() => setIsAddingNew(true)}
-                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors w-full md:w-auto justify-center"
+                  className="flex items-center gap-2 bg-white/10 text-white border border-white/20 px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/20 transition-colors w-full md:w-auto justify-center"
                 >
                   <Plus className="w-4 h-4" />
                   הוסף תפקיד חדש
@@ -442,19 +459,19 @@ export default function TeamClient({
               })}
 
               {isAddingNew && (
-                <div className="bg-white rounded-xl border-2 border-dashed border-blue-300 shadow-sm p-6 flex flex-col h-full bg-blue-50/20">
+                <div className="glass-panel rounded-3xl border-2 border-dashed border-white/30 shadow-sm p-6 flex flex-col h-full bg-white/5">
                   <div className="mb-6 space-y-3 relative z-30">
                     <input 
                       value={newRole.name} 
                       onChange={e => setNewRole({...newRole, name: e.target.value})} 
-                      className="w-full p-2 border rounded font-semibold bg-white" 
+                      className="w-full p-2 border border-white/20 rounded font-semibold bg-white/10 text-white placeholder-slate-300 outline-none focus:border-white/40" 
                       placeholder="שם עובד"
                       autoFocus
                     />
 
                     <div className="flex gap-2 justify-end">
-                      <button onClick={handleCreateRole} className="text-green-600 p-2 bg-green-50 rounded hover:bg-green-100"><Check className="w-5 h-5"/></button>
-                      <button onClick={() => { setIsAddingNew(false); setNewRole({name:'', role:''}); }} className="text-red-600 p-2 bg-red-50 rounded hover:bg-red-100"><X className="w-5 h-5"/></button>
+                      <button onClick={handleCreateRole} className="text-green-400 p-2 bg-green-500/10 border border-green-500/20 rounded hover:bg-green-500/20"><Check className="w-5 h-5"/></button>
+                      <button onClick={() => { setIsAddingNew(false); setNewRole({name:'', role:''}); }} className="text-red-400 p-2 bg-red-500/10 border border-red-500/20 rounded hover:bg-red-500/20"><X className="w-5 h-5"/></button>
                     </div>
                   </div>
                 </div>
@@ -473,7 +490,7 @@ export default function TeamClient({
                       key={conn.id} 
                       start={`task-icon-${conn.sourceTaskId}`} 
                       end={`task-icon-${conn.targetTaskId}`} 
-                      color="#94a3b8"
+                      color="rgba(255,255,255,0.4)"
                       strokeWidth={2}
                       path="smooth"
                       dashness={connectMode ? { animation: true } : true}
@@ -484,7 +501,7 @@ export default function TeamClient({
                       connectMode ? (
                         <div 
                           onClick={(e) => handleRemoveConnection(e, conn.id)}
-                          className="bg-white p-1 rounded-full shadow-sm border cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors pointer-events-auto"
+                          className="bg-white/10 p-1 rounded-full shadow-sm border border-white/20 cursor-pointer hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/30 text-slate-300 backdrop-blur-sm transition-colors pointer-events-auto"
                         >
                           <Trash2 className="w-3 h-3" />
                         </div>
@@ -495,8 +512,10 @@ export default function TeamClient({
               </div>
             </div>
           </div>
-        )}
-      </Xwrapper>
+          )}
+        </Xwrapper>
+      </div>
     </div>
+  </div>
   );
 }
