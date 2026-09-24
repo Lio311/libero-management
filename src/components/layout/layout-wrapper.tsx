@@ -16,7 +16,7 @@ export function LayoutWrapper({ children, sidebar }: { children: React.ReactNode
   return (
     <>
       {sidebar}
-      <main className="flex-1 overflow-y-auto h-full w-full relative z-0 p-4 md:p-8">
+      <main className="flex-1 overflow-y-auto scrollbar-none h-full w-full relative z-0 p-4 md:p-8">
         {children}
       </main>
     </>

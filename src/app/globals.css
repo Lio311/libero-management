@@ -203,3 +203,17 @@
     overflow: visible !important;
   }
 }
+
+@layer utilities {
+  .glass-panel .text-muted-foreground,
+  .glass-panel .text-gray-500,
+  .glass-panel .text-gray-600 {
+    color: #e2e8f0 !important; /* slate-200 */
+  }
+  .glass-panel .text-gray-700,
+  .glass-panel .text-gray-800,
+  .glass-panel .text-gray-900,
+  .glass-panel .text-foreground {
+    color: #ffffff !important;
+  }
+}
