@@ -65,7 +65,7 @@ export default async function RootLayout({
     <ClerkProvider localization={heIL}>
       <html lang="he" dir="rtl">
         <body 
-          className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row bg-cover bg-center bg-no-repeat bg-fixed bg-white/40 bg-blend-lighten`}
+          className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row bg-cover bg-center bg-no-repeat bg-fixed bg-white/10 bg-blend-lighten`}
           style={{ backgroundImage: "url('/photo-1572635148687-307f8ca9b737.avif')" }}
         >
           <BrightnessProvider isAdmin={isAdmin} initialTheme={initialGlassTheme}>
