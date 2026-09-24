@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Search, ChevronDown, ChevronUp, Filter, Package, AlertTriangle, AlertCircle, CheckCircle2, X } from "lucide-react";
@@ -33,21 +32,21 @@ interface InventoryProduct {
 type SortMode = "name_asc" | "name_desc" | "inspection_asc" | "inspection_desc" | "price_asc" | "price_desc" | "color_asc" | "color_desc" | "last_sale_date_asc" | "last_sale_date_desc" | "rating_asc" | "rating_desc";
 
 function getAgeCategory(days: number) {
-  if (days > 90) return { category: "red", label: "מעל 90 יום", bg: "bg-red-50/70 hover:bg-red-100/70", text: "text-red-700", border: "border-red-400", badgeBg: "bg-red-100" };
-  if (days >= 45) return { category: "dark_orange", label: "45-90 ימים", bg: "bg-orange-50/70 hover:bg-orange-100/70", text: "text-orange-800", border: "border-orange-500", badgeBg: "bg-orange-200" };
-  if (days >= 30) return { category: "orange", label: "30-45 ימים", bg: "bg-orange-50/70 hover:bg-orange-100/70", text: "text-orange-600", border: "border-orange-400", badgeBg: "bg-orange-100" };
-  if (days >= 14) return { category: "yellow", label: "14-30 ימים", bg: "bg-yellow-50/70 hover:bg-yellow-100/70", text: "text-yellow-700", border: "border-yellow-400", badgeBg: "bg-yellow-100" };
-  return { category: "green", label: "פחות משבועיים", bg: "bg-emerald-50/70 hover:bg-emerald-100/70", text: "text-emerald-700", border: "border-emerald-400", badgeBg: "bg-emerald-100" };
+  if (days > 90) return { category: "red", label: "מעל 90 יום", bg: "bg-red-500/10 hover:bg-red-500/20", text: "text-red-300", border: "border-red-500/30", badgeBg: "bg-red-500/20" };
+  if (days >= 45) return { category: "dark_orange", label: "45-90 ימים", bg: "bg-orange-500/10 hover:bg-orange-500/20", text: "text-orange-300", border: "border-orange-500/30", badgeBg: "bg-orange-500/20" };
+  if (days >= 30) return { category: "orange", label: "30-45 ימים", bg: "bg-amber-500/10 hover:bg-amber-500/20", text: "text-amber-300", border: "border-amber-500/30", badgeBg: "bg-amber-500/20" };
+  if (days >= 14) return { category: "yellow", label: "14-30 ימים", bg: "bg-yellow-500/10 hover:bg-yellow-500/20", text: "text-yellow-200", border: "border-yellow-500/30", badgeBg: "bg-yellow-500/20" };
+  return { category: "green", label: "פחות משבועיים", bg: "bg-emerald-500/10 hover:bg-emerald-500/20", text: "text-emerald-300", border: "border-emerald-500/30", badgeBg: "bg-emerald-500/20" };
 }
 
 function getRatingStyle(rating: number | undefined) {
-  if (rating === undefined) return { text: "text-gray-400", bg: "bg-gray-50/70 hover:bg-gray-100/70", border: "border-r-gray-200" };
-  if (rating >= 8.5) return { text: "text-emerald-600 font-medium", bg: "bg-emerald-50/70 hover:bg-emerald-100/70", border: "border-r-emerald-400" };
-  if (rating >= 7) return { text: "text-green-500 font-medium", bg: "bg-green-50/70 hover:bg-green-100/70", border: "border-r-green-400" };
-  if (rating >= 5) return { text: "text-yellow-600 font-medium", bg: "bg-yellow-50/70 hover:bg-yellow-100/70", border: "border-r-yellow-400" };
-  if (rating >= 3.5) return { text: "text-orange-500 font-medium", bg: "bg-orange-50/70 hover:bg-orange-100/70", border: "border-r-orange-400" };
-  if (rating >= 2) return { text: "text-red-500 font-medium", bg: "bg-red-50/70 hover:bg-red-100/70", border: "border-r-red-400" };
-  return { text: "text-red-700 font-medium", bg: "bg-red-100/70 hover:bg-red-200/70", border: "border-r-red-500" };
+  if (rating === undefined) return { text: "text-slate-400", bg: "bg-white/5 hover:bg-white/10", border: "border-r-slate-500/30" };
+  if (rating >= 8.5) return { text: "text-emerald-300 font-medium", bg: "bg-emerald-500/10 hover:bg-emerald-500/20", border: "border-r-emerald-500/50" };
+  if (rating >= 7) return { text: "text-green-300 font-medium", bg: "bg-green-500/10 hover:bg-green-500/20", border: "border-r-green-500/50" };
+  if (rating >= 5) return { text: "text-yellow-300 font-medium", bg: "bg-yellow-500/10 hover:bg-yellow-500/20", border: "border-r-yellow-500/50" };
+  if (rating >= 3.5) return { text: "text-orange-300 font-medium", bg: "bg-orange-500/10 hover:bg-orange-500/20", border: "border-r-orange-500/50" };
+  if (rating >= 2) return { text: "text-red-300 font-medium", bg: "bg-red-500/10 hover:bg-red-500/20", border: "border-r-red-500/50" };
+  return { text: "text-red-400 font-medium", bg: "bg-red-500/20 hover:bg-red-500/30", border: "border-r-red-500/70" };
 }
 
 const stockFilterLabels: Record<string, string> = {
@@ -257,20 +256,20 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     <div className="w-full">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             placeholder="חיפוש מוצר..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pr-9 pl-3 py-2 border border-gray-200 rounded-lg text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50/50"
+            className="w-full pr-9 pl-3 py-2 border border-white/10 rounded-lg text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50/50"
             dir="rtl"
           />
         </div>
 
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className="md:hidden inline-flex items-center gap-1.5 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600"
+          className="md:hidden inline-flex items-center gap-1.5 px-3 py-2 border border-white/10 rounded-lg text-sm text-slate-200 hover:bg-white/5"
         >
           <Filter className="w-4 h-4" />
           מיון
@@ -279,7 +278,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
 
         <div className="hidden md:flex items-center gap-2">
           <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "in_stock")}>
-            <SelectTrigger className="w-[140px] h-10 border-gray-200 bg-white text-right" dir="rtl">
+            <SelectTrigger className="w-[140px] h-10 border-white/10 bg-white/5 text-white text-right" dir="rtl">
               <SelectValue placeholder="מצב מלאי">{stockFilterLabels[stockFilter] || "מצב מלאי"}</SelectValue>
             </SelectTrigger>
             <SelectContent align="end" dir="rtl">
@@ -290,7 +289,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           </Select>
 
           <Popover>
-            <PopoverTrigger className="flex w-[160px] h-10 items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
+            <PopoverTrigger className="flex w-[160px] h-10 items-center justify-between rounded-md border border-white/10 bg-white/5 text-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
                 <span className="truncate">
                   {categoryFilter.length === 0 ? 'כל הקטגוריות' : categoryFilter.length === 1 ? categoryFilter[0] : `${categoryFilter.length} קטגוריות`}
                 </span>
@@ -299,8 +298,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             <PopoverContent className="w-[200px] p-2" align="end" dir="rtl">
               <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto pr-1">
                 {uniqueCategories.map(c => (
-                  <label key={c} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
-                    <input type="checkbox" checked={categoryFilter.includes(c)} onChange={() => toggleFilter(setCategoryFilter, c)} className="w-4 h-4 accent-blue-600 rounded border-gray-300" />
+                  <label key={c} className="flex items-center gap-2 p-1.5 hover:bg-white/10 rounded cursor-pointer">
+                    <input type="checkbox" checked={categoryFilter.includes(c)} onChange={() => toggleFilter(setCategoryFilter, c)} className="w-4 h-4 accent-blue-500 rounded border-white/20" />
                     <span className="text-sm">{c}</span>
                   </label>
                 ))}
@@ -309,7 +308,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           </Popover>
 
           <Popover>
-            <PopoverTrigger className="flex w-[160px] h-10 items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
+            <PopoverTrigger className="flex w-[160px] h-10 items-center justify-between rounded-md border border-white/10 bg-white/5 text-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
                 <span className="truncate">
                   {colorFilter.length === 0 ? 'כל זמני המדף' : colorFilter.length === 1 ? ageOptions.find(o => o.value === colorFilter[0])?.label : `${colorFilter.length} זמני מדף`}
                 </span>
@@ -318,10 +317,10 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             <PopoverContent className="w-[200px] p-2" align="end" dir="rtl">
               <div className="flex flex-col gap-1">
                 {ageOptions.slice(1).map(c => (
-                  <label key={c.value} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
-                    <input type="checkbox" checked={colorFilter.includes(c.value)} onChange={() => toggleFilter(setColorFilter, c.value)} className="w-4 h-4 accent-blue-600 rounded border-gray-300" />
+                  <label key={c.value} className="flex items-center gap-2 p-1.5 hover:bg-white/10 rounded cursor-pointer">
+                    <input type="checkbox" checked={colorFilter.includes(c.value)} onChange={() => toggleFilter(setColorFilter, c.value)} className="w-4 h-4 accent-blue-500 rounded border-white/20" />
                     <span className="text-sm flex-1">{c.label}</span>
-                    <span className="text-xs text-gray-400">{ageCategoryCounts[c.value] || 0}</span>
+                    <span className="text-xs text-slate-400">{ageCategoryCounts[c.value] || 0}</span>
                   </label>
                 ))}
               </div>
@@ -329,7 +328,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           </Popover>
 
           <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-            <SelectTrigger className="w-[180px] h-10 border-gray-200 bg-white text-right" dir="rtl">
+            <SelectTrigger className="w-[180px] h-10 border-white/10 bg-white/5 text-white text-right" dir="rtl">
               <SelectValue placeholder="בחר מיון">
                 {sortLabels[sortMode]}
               </SelectValue>
@@ -345,7 +344,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
 
       <div className={`mt-3 space-y-3 ${showFilters ? "block" : "hidden md:hidden"}`}>
         <Select value={stockFilter} onValueChange={(v) => setStockFilter(v || "in_stock")}>
-          <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
+          <SelectTrigger className="w-full h-10 border-white/10 bg-white/5 text-white text-right" dir="rtl">
             <SelectValue placeholder="מצב מלאי">{stockFilterLabels[stockFilter] || "מצב מלאי"}</SelectValue>
           </SelectTrigger>
           <SelectContent align="center" className="w-[calc(100vw-3rem)]" dir="rtl">
@@ -356,7 +355,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         </Select>
 
         <Popover>
-          <PopoverTrigger className="flex w-full h-10 items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
+          <PopoverTrigger className="flex w-full h-10 items-center justify-between rounded-md border border-white/10 bg-white/5 text-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
               <span className="truncate">
                 {categoryFilter.length === 0 ? 'כל הקטגוריות' : categoryFilter.length === 1 ? categoryFilter[0] : `${categoryFilter.length} קטגוריות`}
               </span>
@@ -365,8 +364,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           <PopoverContent align="center" className="w-[calc(100vw-3rem)] p-2" dir="rtl">
             <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto pr-1">
               {uniqueCategories.map(c => (
-                <label key={c} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
-                  <input type="checkbox" checked={categoryFilter.includes(c)} onChange={() => toggleFilter(setCategoryFilter, c)} className="w-4 h-4 accent-blue-600 rounded border-gray-300" />
+                <label key={c} className="flex items-center gap-2 p-1.5 hover:bg-white/10 rounded cursor-pointer">
+                  <input type="checkbox" checked={categoryFilter.includes(c)} onChange={() => toggleFilter(setCategoryFilter, c)} className="w-4 h-4 accent-blue-500 rounded border-white/20" />
                   <span className="text-sm">{c}</span>
                 </label>
               ))}
@@ -375,7 +374,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         </Popover>
 
         <Popover>
-          <PopoverTrigger className="flex w-full h-10 items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
+          <PopoverTrigger className="flex w-full h-10 items-center justify-between rounded-md border border-white/10 bg-white/5 text-white px-3 py-2 text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500" dir="rtl">
               <span className="truncate">
                 {colorFilter.length === 0 ? 'כל זמני המדף' : colorFilter.length === 1 ? ageOptions.find(o => o.value === colorFilter[0])?.label : `${colorFilter.length} זמני מדף`}
               </span>
@@ -384,10 +383,10 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           <PopoverContent align="center" className="w-[calc(100vw-3rem)] p-2" dir="rtl">
             <div className="flex flex-col gap-1">
               {ageOptions.slice(1).map(c => (
-                <label key={c.value} className="flex items-center gap-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
-                  <input type="checkbox" checked={colorFilter.includes(c.value)} onChange={() => toggleFilter(setColorFilter, c.value)} className="w-4 h-4 accent-blue-600 rounded border-gray-300" />
+                <label key={c.value} className="flex items-center gap-2 p-1.5 hover:bg-white/10 rounded cursor-pointer">
+                  <input type="checkbox" checked={colorFilter.includes(c.value)} onChange={() => toggleFilter(setColorFilter, c.value)} className="w-4 h-4 accent-blue-500 rounded border-white/20" />
                   <span className="text-sm flex-1">{c.label}</span>
-                  <span className="text-xs text-gray-400">{ageCategoryCounts[c.value] || 0}</span>
+                  <span className="text-xs text-slate-400">{ageCategoryCounts[c.value] || 0}</span>
                 </label>
               ))}
             </div>
@@ -395,7 +394,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         </Popover>
 
         <Select value={sortMode} onValueChange={(v) => setSortMode(v as SortMode)}>
-          <SelectTrigger className="w-full h-10 border-gray-200 bg-white text-right" dir="rtl">
+          <SelectTrigger className="w-full h-10 border-white/10 bg-white/5 text-white text-right" dir="rtl">
             <SelectValue placeholder="בחר מיון">
               {sortLabels[sortMode]}
             </SelectValue>
@@ -409,8 +408,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
       </div>
       {/* Active Filters Display */}
       {(categoryFilter.length > 0 || colorFilter.length > 0 || stockFilter !== "in_stock") && (
-        <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-          <span className="text-xs font-medium text-gray-500">מסננים פעילים:</span>
+        <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-white/10">
+          <span className="text-xs font-medium text-slate-300">מסננים פעילים:</span>
           {categoryFilter.map(c => (
             <span key={c} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 border border-blue-100 text-blue-700 rounded-md text-xs transition-colors">
               {c}
@@ -424,13 +423,13 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
             </span>
           ))}
           {stockFilter !== "in_stock" && (
-            <span className={`inline-flex items-center gap-1 px-2 py-1 border rounded-md text-xs transition-colors ${stockFilter === "out_of_stock" ? "bg-red-50 border-red-100 text-red-700" : "bg-gray-50 border-gray-200 text-gray-700"}`}>
+            <span className={`inline-flex items-center gap-1 px-2 py-1 border rounded-md text-xs transition-colors ${stockFilter === "out_of_stock" ? "bg-red-500/20 border-red-500/30 text-red-200" : "bg-white/10 border-white/20 text-slate-200"}`}>
               {stockFilter === "out_of_stock" ? "אזל מהמלאי" : "כל מצבי המלאי"}
               <button onClick={() => setStockFilter("in_stock")} className="hover:opacity-70 focus:outline-none"><X className="w-3 h-3" /></button>
             </span>
           )}
           {(categoryFilter.length > 0 || colorFilter.length > 0 || stockFilter !== "in_stock") && (
-            <button onClick={() => { setCategoryFilter([]); setColorFilter([]); setStockFilter("in_stock"); }} className="text-xs text-gray-500 hover:text-gray-900 underline mr-auto px-2">
+            <button onClick={() => { setCategoryFilter([]); setColorFilter([]); setStockFilter("in_stock"); }} className="text-xs text-slate-300 hover:text-white underline mr-auto px-2">
               נקה הכל
             </button>
           )}
@@ -447,79 +446,70 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
   const thStyle = { top: `${Math.max(0, headerHeight)}px`, backgroundClip: "padding-box" };
 
   return (
-    <div className="bg-gray-50/50 min-h-screen relative" dir="rtl">
-      {/* Header and Stats - Not Sticky */}
-      <div className="pt-4 md:pt-8 px-4 md:px-8 space-y-6 mb-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">בקרת מלאי</h2>
-            <p className="text-muted-foreground mt-1 text-sm mb-3">מעקב גיל מלאי ותמחור למוצרי ליברו</p>
+    <div className="min-h-screen relative p-4 md:p-6 lg:p-8" dir="rtl">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 max-w-[1600px] mx-auto">
+        {/* Header Bento */}
+        <div className="lg:col-span-12 glass-panel rounded-3xl p-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white">בקרת מלאי</h2>
+              <p className="text-slate-300 mt-1 text-sm">מעקב גיל מלאי ותמחור למוצרי ליברו</p>
+            </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="bg-white border-none shadow-sm">
-            <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-              <div className="p-2 bg-emerald-100 text-emerald-600 rounded-full">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <p className="text-xs text-gray-500 font-medium">סה״כ מוצרים במלאי</p>
-              <h3 className="text-xl md:text-2xl font-bold text-gray-800">{totalInStock}</h3>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border-none shadow-sm">
-            <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-              <div className="p-2 bg-red-100 text-red-600 rounded-full">
-                <AlertCircle className="w-5 h-5" />
-              </div>
-              <p className="text-xs text-gray-500 font-medium">מוצרים שאזלו מהמלאי</p>
-              <h3 className="text-xl md:text-2xl font-bold text-gray-800">{outOfStock}</h3>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border-none shadow-sm">
-            <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-              <div className="p-2 bg-orange-100 text-orange-600 rounded-full">
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <p className="text-xs text-gray-500 font-medium">דורשים תשומת לב (דירוג &lt; 4)</p>
-              <h3 className="text-xl md:text-2xl font-bold text-gray-800">{needsAttention}</h3>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border-none shadow-sm">
-            <CardContent className="p-4 flex flex-col justify-center items-center text-center space-y-2">
-              <div className="p-2 bg-gray-100 text-gray-600 rounded-full">
-                <Package className="w-5 h-5" />
-              </div>
-              <p className="text-xs text-gray-500 font-medium">מוצרים ללא מכירות כלל</p>
-              <h3 className="text-xl md:text-2xl font-bold text-gray-800">{zeroSales}</h3>
-            </CardContent>
-          </Card>
+        {/* Stats Bento Cards */}
+        <div className="lg:col-span-3 glass-panel rounded-3xl p-6 flex flex-col justify-center items-center text-center space-y-2">
+          <div className="p-2 bg-emerald-500/20 text-emerald-300 rounded-full">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <p className="text-xs text-slate-300 font-medium">סה״כ מוצרים במלאי</p>
+          <h3 className="text-xl md:text-2xl font-bold text-white">{totalInStock}</h3>
         </div>
-      </div>
+        <div className="lg:col-span-3 glass-panel rounded-3xl p-6 flex flex-col justify-center items-center text-center space-y-2">
+          <div className="p-2 bg-red-500/20 text-red-300 rounded-full">
+            <AlertCircle className="w-5 h-5" />
+          </div>
+          <p className="text-xs text-slate-300 font-medium">מוצרים שאזלו מהמלאי</p>
+          <h3 className="text-xl md:text-2xl font-bold text-white">{outOfStock}</h3>
+        </div>
+        <div className="lg:col-span-3 glass-panel rounded-3xl p-6 flex flex-col justify-center items-center text-center space-y-2">
+          <div className="p-2 bg-orange-500/20 text-orange-300 rounded-full">
+            <AlertTriangle className="w-5 h-5" />
+          </div>
+          <p className="text-xs text-slate-300 font-medium">דורשים תשומת לב (דירוג &lt; 4)</p>
+          <h3 className="text-xl md:text-2xl font-bold text-white">{needsAttention}</h3>
+        </div>
+        <div className="lg:col-span-3 glass-panel rounded-3xl p-6 flex flex-col justify-center items-center text-center space-y-2">
+          <div className="p-2 bg-white/10 text-white rounded-full">
+            <Package className="w-5 h-5" />
+          </div>
+          <p className="text-xs text-slate-300 font-medium">מוצרים ללא מכירות כלל</p>
+          <h3 className="text-xl md:text-2xl font-bold text-white">{zeroSales}</h3>
+        </div>
 
-      {/* Main Content */}
-      <div className="px-4 md:px-8 pb-8">
-        {/* Sticky Header - ratings + filters - direct child of scroll flow */}
-        <div ref={topSectionRef} className="sticky top-0 z-30 bg-white p-4 md:p-6 border border-gray-100 border-b-0 rounded-t-xl shadow-sm flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-medium text-gray-500">דירוג:</span>
-            <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">מצוין (8.5-10)</span>
-            <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full">טוב (7-8.5)</span>
-            <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full">בינוני (5-7)</span>
-            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded-full">טעון שיפור (3.5-5)</span>
-            <span className="px-2 py-1 bg-red-100 text-red-600 rounded-full">חלש (2-3.5)</span>
-            <span className="px-2 py-1 bg-red-200 text-red-800 rounded-full">גרוע (1-2)</span>
+        {/* Filters and Search Bento */}
+        <div ref={topSectionRef} className="lg:col-span-12 glass-panel rounded-3xl p-6 flex flex-col gap-4 z-20 relative">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-200">
+            <span className="font-medium text-white">דירוג:</span>
+            <span className="px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded-full">מצוין (8.5-10)</span>
+            <span className="px-2 py-1 bg-green-500/20 text-green-300 rounded-full">טוב (7-8.5)</span>
+            <span className="px-2 py-1 bg-yellow-500/20 text-yellow-300 rounded-full">בינוני (5-7)</span>
+            <span className="px-2 py-1 bg-orange-500/20 text-orange-300 rounded-full">טעון שיפור (3.5-5)</span>
+            <span className="px-2 py-1 bg-red-500/20 text-red-300 rounded-full">חלש (2-3.5)</span>
+            <span className="px-2 py-1 bg-red-500/40 text-red-200 rounded-full">גרוע (1-2)</span>
           </div>
           {renderFiltersAndSearch()}
         </div>
 
-        <div className="bg-white border border-gray-100 border-t-0 rounded-b-xl shadow-sm">
-          <div className="mt-4 text-sm text-gray-500 font-medium md:hidden mb-2 px-4">
+        {/* Table Bento */}
+        <div className="lg:col-span-12 glass-panel rounded-3xl p-6 overflow-hidden flex flex-col">
+          <div className="text-sm text-slate-300 font-medium md:hidden mb-4">
             סה״כ מוצרים: {filteredAndSorted.length}
           </div>
 
           {/* Desktop Table View */}
-          <div className="hidden md:block pb-6">
+          <div className="hidden md:block pb-6 overflow-x-auto">
             <div className="relative">
               <table className="w-full text-sm border-separate border-spacing-0">
                 <thead>
@@ -545,77 +535,77 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                       const style = getAgeCategory(product.ageDays);
                       const ratingStyle = getRatingStyle(product.rating);
                       return (
-                        <tr key={product.id} className={`transition-all duration-300 [&>td]:border-b [&>td]:border-b-gray-100 ${ratingStyle.bg}`}>
+                        <tr key={product.id} className={`transition-all duration-300 [&>td]:border-b [&>td]:border-white/10 ${ratingStyle.bg}`}>
                           <td className={`py-3 px-4 text-right border-r-4 ${ratingStyle.border}`}>
                             <div className="flex items-center gap-3">
                               {product.productImage ? (
-                                <img src={product.productImage} alt={product.productName} className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0" />
+                                <img src={product.productImage} alt={product.productName} className="w-10 h-10 rounded-lg object-cover border border-white/10 flex-shrink-0" />
                               ) : (
-                                <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                                  <Package className="w-5 h-5 text-gray-400" />
+                                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                                  <Package className="w-5 h-5 text-slate-400" />
                                 </div>
                               )}
                               <div className="min-w-0">
-                                <a href={`https://libero-il.co.il/?p=${product.wooProductId}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline truncate max-w-[200px] block">
+                                <a href={`https://libero-il.co.il/?p=${product.wooProductId}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-blue-400 hover:text-blue-300 hover:underline truncate max-w-[200px] block">
                                   {product.productName}
                                 </a>
-                                {product.productSku && <p className="text-[11px] text-gray-400">מק״ט: {product.productSku}</p>}
+                                {product.productSku && <p className="text-[11px] text-slate-400">מק״ט: {product.productSku}</p>}
                               </div>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-right">
-                            <span className="text-gray-600 text-sm">{product.categories || "—"}</span>
+                            <span className="text-slate-200 text-sm">{product.categories || "—"}</span>
                           </td>
                           <td className="py-3 px-4 text-right">
-                            <span className="text-gray-600 text-sm">{product.commerceGroup || "—"}</span>
+                            <span className="text-slate-200 text-sm">{product.commerceGroup || "—"}</span>
                           </td>
                           <td className="py-3 px-4 text-center">
                             <span className={ratingStyle.text}>{product.rating?.toFixed(1) || "-"}</span>
                           </td>
-                          <td className="py-3 px-4 text-center text-gray-700">
+                          <td className="py-3 px-4 text-center text-slate-200">
                             {product.salesMonthBeforeLast}
                           </td>
-                          <td className="py-3 px-4 text-center text-gray-700">
+                          <td className="py-3 px-4 text-center text-slate-200">
                             {product.salesLastMonth}
                           </td>
-                          <td className="py-3 px-4 text-center text-gray-700">
+                          <td className="py-3 px-4 text-center text-slate-200">
                             {product.salesLastWeek}
                           </td>
-                          <td className="py-3 px-4 text-center font-medium text-gray-900">
+                          <td className="py-3 px-4 text-center font-medium text-white">
                             {product.currentStock}
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <div className="w-full max-w-[100px] mx-auto bg-gray-200 rounded-full h-2 mb-1 relative">
+                            <div className="w-full max-w-[100px] mx-auto bg-white/20 rounded-full h-2 mb-1 relative">
                               {(() => {
                                 const totalOrdered = product.currentStock + product.totalSales;
                                 const progress = totalOrdered > 0 ? (product.totalSales / totalOrdered) * 100 : 0;
                                 return (
                                   <div 
-                                    className="bg-blue-500 h-2 rounded-full transition-all duration-500" 
+                                    className="bg-blue-400 h-2 rounded-full transition-all duration-500" 
                                     style={{ width: `${Math.min(progress, 100)}%` }}
                                   ></div>
                                 );
                               })()}
                             </div>
-                            <span className="text-[10px] text-gray-500 whitespace-nowrap" dir="ltr">
+                            <span className="text-[10px] text-slate-400 whitespace-nowrap" dir="ltr">
                               {product.totalSales} / {product.currentStock + product.totalSales}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-center">
-                            {product.lastInspectionDate ? format(new Date(product.lastInspectionDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
+                          <td className="py-3 px-4 text-center text-slate-200">
+                            {product.lastInspectionDate ? format(new Date(product.lastInspectionDate), "dd/MM/yyyy", { locale: he }) : <span className="text-slate-400">—</span>}
                           </td>
-                          <td className="py-3 px-4 text-center">
-                            {product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
+                          <td className="py-3 px-4 text-center text-slate-200">
+                            {product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : <span className="text-slate-400">—</span>}
                           </td>
-                          <td className="py-3 px-4 text-center">
-                            {product.lastSaleDate ? format(new Date(product.lastSaleDate), "dd/MM/yyyy", { locale: he }) : <span className="text-gray-400">—</span>}
+                          <td className="py-3 px-4 text-center text-slate-200">
+                            {product.lastSaleDate ? format(new Date(product.lastSaleDate), "dd/MM/yyyy", { locale: he }) : <span className="text-slate-400">—</span>}
                           </td>
                           <td className="py-3 px-4 text-center">
                             <div className="flex flex-col items-center gap-1">
                               <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style.badgeBg} ${style.text}`}>
                                 {style.label}
                               </span>
-                              <span className="text-[11px] text-gray-500">
+                              <span className="text-[11px] text-slate-400">
                                 {format(new Date(product.dateAddedToSite), "dd/MM/yyyy", { locale: he })}
                               </span>
                             </div>
@@ -625,8 +615,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                     })
                   ) : (
                     <tr>
-                      <td colSpan={12} className="py-12 text-center text-gray-400">
-                        <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                      <td colSpan={13} className="py-12 text-center text-slate-400">
+                        <Package className="w-8 h-8 mx-auto mb-2 text-slate-500" />
                         <p>לא נמצאו מוצרים</p>
                       </td>
                     </tr>
@@ -637,86 +627,86 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
           </div>
 
           {/* Mobile Cards View */}
-          <div className="md:hidden flex flex-col gap-3 px-4 pb-6">
+          <div className="md:hidden flex flex-col gap-3 pb-6">
             {filteredAndSorted.length > 0 ? (
               filteredAndSorted.map((product) => {
                 const style = getAgeCategory(product.ageDays);
                 const ratingStyle = getRatingStyle(product.rating);
                 return (
-                  <div key={`mobile-${product.id}`} className={`rounded-xl shadow-sm border border-r-4 ${ratingStyle.border} ${ratingStyle.bg.split(' ')[0]}`}>
-                    <div className="p-3 flex items-start gap-3 border-b border-gray-100">
+                  <div key={`mobile-${product.id}`} className={`rounded-xl shadow-sm border border-r-4 border-white/10 ${ratingStyle.border} ${ratingStyle.bg.split(' ')[0]}`}>
+                    <div className="p-3 flex items-start gap-3 border-b border-white/10">
                       {product.productImage ? (
-                        <img src={product.productImage} alt={product.productName} className="w-14 h-14 rounded-lg object-cover border flex-shrink-0" />
+                        <img src={product.productImage} alt={product.productName} className="w-14 h-14 rounded-lg object-cover border border-white/10 flex-shrink-0" />
                       ) : (
-                        <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                          <Package className="w-6 h-6 text-gray-400" />
+                        <div className="w-14 h-14 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                          <Package className="w-6 h-6 text-slate-400" />
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <a href={`https://libero-il.co.il/?p=${product.wooProductId}`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline truncate block">
+                        <a href={`https://libero-il.co.il/?p=${product.wooProductId}`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-400 hover:text-blue-300 hover:underline truncate block">
                           {product.productName}
                         </a>
-                        {product.productSku && <p className="text-[11px] text-gray-400 mt-0.5">מק״ט: {product.productSku}</p>}
-                        {product.categories && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.categories}</p>}
-                        {product.commerceGroup && <p className="text-[11px] text-gray-500 mt-0.5 whitespace-nowrap truncate">{product.commerceGroup}</p>}
+                        {product.productSku && <p className="text-[11px] text-slate-400 mt-0.5">מק״ט: {product.productSku}</p>}
+                        {product.categories && <p className="text-[11px] text-slate-300 mt-0.5 whitespace-nowrap truncate">{product.categories}</p>}
+                        {product.commerceGroup && <p className="text-[11px] text-slate-300 mt-0.5 whitespace-nowrap truncate">{product.commerceGroup}</p>}
                       </div>
-                      <div className="flex flex-col items-center justify-center bg-gray-50/80 px-3 py-1.5 rounded-lg mr-2">
+                      <div className="flex flex-col items-center justify-center bg-white/5 px-3 py-1.5 rounded-lg mr-2">
                         <span className={`text-base leading-none ${ratingStyle.text}`}>{product.rating?.toFixed(1) || "-"}</span>
-                        <span className="text-gray-500 text-[10px] font-medium mt-0.5">דירוג</span>
+                        <span className="text-slate-400 text-[10px] font-medium mt-0.5">דירוג</span>
                       </div>
                     </div>
                     <div className="p-3 space-y-2 text-[12px]">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-500">בקרת מוצר:</span>
+                      <div className="flex justify-between items-center text-slate-200">
+                        <span className="text-slate-400">בקרת מוצר:</span>
                         <span>{product.lastInspectionDate ? format(new Date(product.lastInspectionDate), "dd/MM/yyyy", { locale: he }) : "—"}</span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-500">תמחור אחרון:</span>
+                      <div className="flex justify-between items-center text-slate-200">
+                        <span className="text-slate-400">תמחור אחרון:</span>
                         <span>{product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : "—"}</span>
                       </div>
-                      <div className="grid grid-cols-4 gap-2 mt-2 pt-2 border-t border-gray-50 text-center">
+                      <div className="grid grid-cols-4 gap-2 mt-2 pt-2 border-t border-white/10 text-center">
                         <div>
-                          <span className="block text-gray-500 text-[10px]">חודש שעבר</span>
-                          <span className="font-medium text-[13px]">{product.salesMonthBeforeLast}</span>
+                          <span className="block text-slate-400 text-[10px]">חודש שעבר</span>
+                          <span className="font-medium text-[13px] text-slate-200">{product.salesMonthBeforeLast}</span>
                         </div>
                         <div>
-                          <span className="block text-gray-500 text-[10px]">מכר 30 יום</span>
-                          <span className="font-medium text-[13px]">{product.salesLastMonth}</span>
+                          <span className="block text-slate-400 text-[10px]">מכר 30 יום</span>
+                          <span className="font-medium text-[13px] text-slate-200">{product.salesLastMonth}</span>
                         </div>
                         <div>
-                          <span className="block text-gray-500 text-[10px]">מכר 7 ימים</span>
-                          <span className="font-medium text-[13px]">{product.salesLastWeek}</span>
+                          <span className="block text-slate-400 text-[10px]">מכר 7 ימים</span>
+                          <span className="font-medium text-[13px] text-slate-200">{product.salesLastWeek}</span>
                         </div>
                         <div>
-                          <span className="block text-gray-500 text-[10px]">במלאי</span>
-                          <span className="font-medium text-[13px] text-gray-900">{product.currentStock}</span>
+                          <span className="block text-slate-400 text-[10px]">במלאי</span>
+                          <span className="font-medium text-[13px] text-white">{product.currentStock}</span>
                         </div>
                       </div>
-                      <div className="mt-2 pt-2 border-t border-gray-50">
-                        <div className="flex justify-between items-center text-[10px] text-gray-500 mb-1">
+                      <div className="mt-2 pt-2 border-t border-white/10">
+                        <div className="flex justify-between items-center text-[10px] text-slate-400 mb-1">
                           <span>התקדמות מכר/מלאי</span>
                           <span dir="ltr">{product.totalSales} / {product.currentStock + product.totalSales}</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div className="w-full bg-white/20 rounded-full h-1.5">
                           {(() => {
                             const totalOrdered = product.currentStock + product.totalSales;
                             const progress = totalOrdered > 0 ? (product.totalSales / totalOrdered) * 100 : 0;
                             return (
                               <div 
-                                className="bg-blue-500 h-1.5 rounded-full transition-all duration-500" 
+                                className="bg-blue-400 h-1.5 rounded-full transition-all duration-500" 
                                 style={{ width: `${Math.min(progress, 100)}%` }}
                               ></div>
                             );
                           })()}
                         </div>
                       </div>
-                      <div className="flex justify-between items-center pt-2 border-t border-gray-50">
-                        <span className="text-gray-500">חיי מדף:</span>
+                      <div className="flex justify-between items-center pt-2 border-t border-white/10">
+                        <span className="text-slate-400">חיי מדף:</span>
                         <div className="flex flex-col items-end">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${style.badgeBg} ${style.text}`}>
                             {style.label}
                           </span>
-                          <span className="text-[10px] text-gray-500 mt-1">
+                          <span className="text-[10px] text-slate-400 mt-1">
                             {format(new Date(product.dateAddedToSite), "dd/MM/yyyy", { locale: he })}
                           </span>
                         </div>
@@ -726,8 +716,8 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                 );
               })
             ) : (
-              <div className="py-12 text-center text-gray-400">
-                <Package className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+              <div className="py-12 text-center text-slate-400">
+                <Package className="w-8 h-8 mx-auto mb-2 text-slate-500" />
                 <p>לא נמצאו מוצרים</p>
               </div>
             )}
