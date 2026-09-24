@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ChevronRight, ChevronLeft, ClipboardCheck, UserCog, ShoppingBag, FileText, CalendarDays, UserCheck, ScanBarcode, Settings, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
+import * as Tooltip from "@radix-ui/react-tooltip";
 import Image from "next/image";
 import { influencersConfig } from "@/config/influencers";
 
@@ -82,6 +83,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
   };
 
   return (
+    <Tooltip.Provider delayDuration={100}>
     <>
       {/* Mobile Header */}
       {!isWarehouse && (
@@ -132,7 +134,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
           </button>
         </div>
         <div className={cn(
-          "flex-1 overflow-visible",
+          "flex-1 overflow-y-auto scrollbar-none",
           !isAuthenticated && "blur-sm pointer-events-none select-none opacity-50"
         )}>
           <div className={cn(
@@ -156,18 +158,24 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                 return (
                   <>
                     <div className="col-span-full border-b border-border/50 pb-2 mb-1 flex items-center justify-center relative group/navitem hover:z-50">
-                      <div className="absolute right-full top-1/2 -translate-y-1/2 mr-1.5 hidden md:group-hover/navitem:flex z-[100] pointer-events-none items-center">
-                        <div className="bg-slate-800/95 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-md shadow-xl whitespace-nowrap border border-white/10">
-                          חזור לתפריט הראשי
-                        </div>
-                      </div>
-                      <button 
-                        onClick={() => setActiveSubMenu(null)}
-                        className="flex items-center justify-center p-2 w-full text-sm font-medium rounded-lg hover-scale text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground"
-                      >
-                        <ChevronRight className="h-5 w-5" aria-hidden="true" />
-                        {isOpen && <span className="mr-2 md:hidden">חזור</span>}
-                      </button>
+                      <Tooltip.Root>
+                        <Tooltip.Trigger asChild>
+                          <button 
+                            onClick={() => setActiveSubMenu(null)}
+                            className="flex items-center justify-center p-2 w-full text-sm font-medium rounded-lg hover-scale text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground"
+                          >
+                            <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                            {isOpen && <span className="mr-2 md:hidden">חזור</span>}
+                          </button>
+                        </Tooltip.Trigger>
+                        {!isOpen && (
+                          <Tooltip.Portal>
+                            <Tooltip.Content side="left" sideOffset={10} className="hidden md:block z-[100] bg-secondary text-secondary-foreground text-xs px-2.5 py-1 rounded-md shadow-xl whitespace-nowrap border border-border">
+                              חזור לתפריט הראשי
+                            </Tooltip.Content>
+                          </Tooltip.Portal>
+                        )}
+                      </Tooltip.Root>
                     </div>
                     {activeSubMenu.subItems!.map((subItem) => {
                       const isSubActive = pathname === subItem.href;
@@ -202,13 +210,10 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
 
                 return (
                   <div key={item.name} className="relative group/navitem flex justify-center w-full hover:z-50">
-                    <div className="absolute right-full top-1/2 -translate-y-1/2 mr-1.5 hidden md:group-hover/navitem:flex z-[100] pointer-events-none items-center">
-                      <div className="bg-slate-800/95 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-md shadow-xl whitespace-nowrap border border-white/10">
-                        {item.name}
-                      </div>
-                    </div>
-                    
+                    <Tooltip.Root>
+                      
                     {hasSubItems ? (
+                    <Tooltip.Trigger asChild>
                     <button
                       onClick={() => setActiveSubMenu(item)}
                       className={cn(
@@ -223,7 +228,9 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                       <ChevronLeft className={cn("absolute bottom-0.5 left-0.5 w-3.5 h-3.5 opacity-60", isActive ? "text-primary" : "text-slate-300")} />
                       {isOpen && <span className="mr-3 font-medium md:hidden text-right line-clamp-1">{item.name}</span>}
                     </button>
+                    </Tooltip.Trigger>
                   ) : (
+                    <Tooltip.Trigger asChild>
                     <Link
                       href={item.href!}
                       onClick={closeSidebar}
@@ -238,7 +245,16 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                       <item.icon className={cn("flex-shrink-0 h-5 w-5 transition-colors", isActive ? "text-primary-foreground" : "text-slate-200 group-hover/navitem:text-secondary-foreground")} aria-hidden="true" />
                       {isOpen && <span className="mr-3 font-medium md:hidden text-right line-clamp-1">{item.name}</span>}
                     </Link>
+                    </Tooltip.Trigger>
                   )}
+                  {!isOpen && (
+                    <Tooltip.Portal>
+                      <Tooltip.Content side="left" sideOffset={10} className="hidden md:block z-[100] bg-secondary text-secondary-foreground text-xs px-2.5 py-1 rounded-md shadow-xl whitespace-nowrap border border-border">
+                        {item.name}
+                      </Tooltip.Content>
+                    </Tooltip.Portal>
+                  )}
+                  </Tooltip.Root>
                 </div>
                 );
               });
@@ -257,5 +273,6 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
         </div>
       </div>
     </>
+    </Tooltip.Provider>
   );
 }
