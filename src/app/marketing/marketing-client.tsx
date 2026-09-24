@@ -869,6 +869,15 @@ export default function MarketingClient({
             <p className="text-sm text-slate-200">פירוט התשלומים למשפיענים כפי שהוזנו במערכת</p>
           </div>
           <div className="flex items-center gap-4">
+            <button onClick={() => {
+              if (currentMonth) {
+                window.location.href = `/api/marketing/export-salaries?month=${currentMonth}`;
+              } else {
+                toast.error("אנא בחר חודש לייצוא");
+              }
+            }} className="flex items-center gap-1 text-sm bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700">
+              הורד אקסל
+            </button>
             <button onClick={() => setIsAddingPayment(true)} className="flex items-center gap-1 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90">
               <Plus className="w-4 h-4" /> הוסף חדש
             </button>
