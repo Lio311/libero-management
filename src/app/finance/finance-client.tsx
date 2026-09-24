@@ -5,7 +5,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { DollarSign, TrendingUp, CreditCard, ShoppingCart, ChevronDown, ChevronUp, Eye, EyeOff, Calendar, Building2, User } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { updateImportPayment, createImportPayment, deleteImportPayment, createChinaOrder, updateChinaOrder, deleteChinaOrder } from "@/app/actions/finance";
@@ -98,7 +98,7 @@ function BankLogo({ bank }: { bank: string | null }) {
     'מסד': 'bg-amber-600',
   };
   
-  let colorClass = 'bg-gray-500';
+  let colorClass = 'bg-transparent/50';
   for (const [key, value] of Object.entries(bankColors)) {
     if (name.includes(key)) {
       colorClass = value;
@@ -169,8 +169,8 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
       >
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-4 left-4 w-32 h-32 rounded-full bg-white/20 blur-2xl"></div>
-          <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full bg-white/10 blur-3xl"></div>
+          <div className="absolute top-4 left-4 w-32 h-32 rounded-full bg-transparent/20 blur-2xl"></div>
+          <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full bg-transparent/10 blur-3xl"></div>
         </div>
         
         <div className="relative z-10">
@@ -198,7 +198,7 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
             </div>
             <button 
               onClick={(e) => { e.stopPropagation(); setShowSensitive(!showSensitive); }}
-              className="p-1.5 rounded-full bg-white/30 hover:bg-white/50 transition-colors"
+              className="p-1.5 rounded-full bg-transparent/30 hover:bg-white/50 transition-colors"
             >
               {showSensitive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -211,7 +211,7 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
                 <span className="opacity-70">ניצול מסגרת</span>
                 <span className="font-medium">{usedPercent}%</span>
               </div>
-              <div className="w-full h-2 rounded-full bg-white/40 overflow-hidden">
+              <div className="w-full h-2 rounded-full bg-transparent/40 overflow-hidden">
                 <div 
                   className={`h-full rounded-full transition-all duration-1000 ease-out ${usedPercent < 50 ? 'bg-emerald-400' : usedPercent < 75 ? 'bg-amber-400' : 'bg-red-400'}`}
                   style={{ width: `${usedPercent}%` }}
@@ -253,54 +253,54 @@ function CreditCardItem({ card, index }: { card: CreditCardData; index: number }
       
       {/* Expanded Details */}
       <div className={`overflow-hidden transition-all duration-300 ease-in-out ${expanded ? 'max-h-[300px] opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
-        <div className="bg-white rounded-xl border border-gray-100 p-4 space-y-3 shadow-sm">
+        <div className="bg-transparent/5 rounded-xl border border-white/10 p-4 space-y-3 shadow-sm text-white">
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <span className="text-gray-500 text-xs">חברת כרטיס</span>
+              <span className="text-slate-400 text-xs">חברת כרטיס</span>
               <p className="font-medium">{card.cardCompany || '-'}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">בנק</span>
+              <span className="text-slate-400 text-xs">בנק</span>
               <p className="font-medium">{card.bank || '-'}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">מספר כרטיס</span>
+              <span className="text-slate-400 text-xs">מספר כרטיס</span>
               <div className="flex items-center gap-2">
                 <p className="font-mono text-xs">{showSensitive ? card.cardNumber : maskCardNumber(card.cardNumber)}</p>
                 <button 
                   onClick={(e) => { e.stopPropagation(); setShowSensitive(!showSensitive); }}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-slate-500 hover:text-slate-300 transition-colors"
                 >
                   {showSensitive ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>
               </div>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">סוג</span>
+              <span className="text-slate-400 text-xs">סוג</span>
               <p className="font-medium">{card.cardType || '-'}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">תוקף</span>
+              <span className="text-slate-400 text-xs">תוקף</span>
               <p className="font-medium">{formattedExpiration}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">CVV</span>
+              <span className="text-slate-400 text-xs">CVV</span>
               <div className="flex items-center gap-2">
                 <p className="font-mono">{showSensitive ? (card.cvv || '-') : '•••'}</p>
                 <button 
                   onClick={(e) => { e.stopPropagation(); setShowSensitive(!showSensitive); }}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-slate-500 hover:text-slate-300 transition-colors"
                 >
                   {showSensitive ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>
               </div>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">מסגרת אשראי</span>
+              <span className="text-slate-400 text-xs">מסגרת אשראי</span>
               <p className="font-medium">{limit > 0 ? `₪${limit.toLocaleString()}` : 'לא הוגדרה'}</p>
             </div>
             <div>
-              <span className="text-gray-500 text-xs">יום חיוב</span>
+              <span className="text-slate-400 text-xs">יום חיוב</span>
               <p className="font-medium">{card.billingDate ? `${card.billingDate} לכל חודש` : 'לא ידוע'}</p>
             </div>
           </div>
@@ -371,60 +371,60 @@ function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payme
 
   if (!isEditing) {
     return (
-      <tr onClick={() => setIsEditing(true)} className="flex flex-col md:table-row bg-white border border-gray-100 md:border-b md:border-gray-50 rounded-xl md:rounded-none p-4 md:p-0 hover:bg-gray-50/50 transition-colors cursor-pointer shadow-sm md:shadow-none">
+      <tr onClick={() => setIsEditing(true)} className="flex flex-col md:table-row bg-transparent border border-white/10 md:border-b md:border-white/10 rounded-xl md:rounded-none p-4 md:p-0 hover:bg-white/5 transition-colors cursor-pointer shadow-sm md:shadow-none">
         {/* Mobile View */}
         <td className="md:hidden">
           <div className="flex flex-col gap-3">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[11px] text-gray-500 font-medium mb-0.5">מותג</p>
-                <p className="text-base font-semibold text-gray-900">{formData.brand || '-'}</p>
+                <p className="text-[11px] text-slate-400 font-medium mb-0.5">מותג</p>
+                <p className="text-base font-semibold text-white">{formData.brand || '-'}</p>
               </div>
               <div className="flex gap-2">
-                <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-2 bg-blue-50/50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"><Edit2 className="h-4 w-4" /></button>
-                <button onClick={handleDelete} className="p-2 bg-red-50/50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"><Trash2 className="h-4 w-4" /></button>
+                <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"><Edit2 className="h-4 w-4" /></button>
+                <button onClick={handleDelete} className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 bg-gray-50/80 p-3 rounded-lg border border-gray-100">
+            <div className="grid grid-cols-2 gap-3 bg-transparent/5 p-3 rounded-lg border border-white/10">
               <div>
-                <p className="text-[11px] text-gray-500 mb-1 font-medium">סכום מט&quot;ח</p>
-                <p className="text-sm font-medium text-gray-900" dir="ltr">{Number(formData.orderAmountForeign || 0).toLocaleString()}</p>
+                <p className="text-[11px] text-slate-400 mb-1 font-medium">סכום מט&quot;ח</p>
+                <p className="text-sm font-medium text-white" dir="ltr">{Number(formData.orderAmountForeign || 0).toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-[11px] text-gray-500 mb-1 font-medium">סכום ש&quot;ח</p>
-                <p className="text-sm font-medium text-gray-900" dir="ltr">₪{Number(formData.orderAmountNis || 0).toLocaleString()}</p>
+                <p className="text-[11px] text-slate-400 mb-1 font-medium">סכום ש&quot;ח</p>
+                <p className="text-sm font-medium text-white" dir="ltr">₪{Number(formData.orderAmountNis || 0).toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-[11px] text-gray-500 mb-1 font-medium">מע&quot;מ</p>
-                <p className="text-sm font-medium text-gray-900" dir="ltr">₪{Number(formData.vat || 0).toLocaleString()}</p>
+                <p className="text-[11px] text-slate-400 mb-1 font-medium">מע&quot;מ</p>
+                <p className="text-sm font-medium text-white" dir="ltr">₪{Number(formData.vat || 0).toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-[11px] text-gray-500 mb-1 font-medium">עלות שילוח</p>
-                <p className="text-sm font-medium text-gray-900" dir="ltr">₪{Number(formData.shippingCost || 0).toLocaleString()}</p>
+                <p className="text-[11px] text-slate-400 mb-1 font-medium">עלות שילוח</p>
+                <p className="text-sm font-medium text-white" dir="ltr">₪{Number(formData.shippingCost || 0).toLocaleString()}</p>
               </div>
             </div>
           </div>
         </td>
         {/* Desktop View */}
-        <td className="hidden md:table-cell p-3 border-b border-gray-50">
-          <span className="text-gray-900 font-medium">{formData.brand || '-'}</span>
+        <td className="hidden md:table-cell p-3 border-b border-white/10">
+          <span className="text-white font-medium">{formData.brand || '-'}</span>
         </td>
-        <td className="hidden md:table-cell p-3 border-b border-gray-50">
-          <span className="text-gray-700" dir="ltr">{Number(formData.orderAmountForeign || 0).toLocaleString()}</span>
+        <td className="hidden md:table-cell p-3 border-b border-white/10">
+          <span className="text-slate-300" dir="ltr">{Number(formData.orderAmountForeign || 0).toLocaleString()}</span>
         </td>
-        <td className="hidden md:table-cell p-3 border-b border-gray-50">
-          <span className="text-gray-700" dir="ltr">₪{Number(formData.orderAmountNis || 0).toLocaleString()}</span>
+        <td className="hidden md:table-cell p-3 border-b border-white/10">
+          <span className="text-slate-300" dir="ltr">₪{Number(formData.orderAmountNis || 0).toLocaleString()}</span>
         </td>
-        <td className="hidden md:table-cell p-3 border-b border-gray-50">
-          <span className="text-gray-700" dir="ltr">₪{Number(formData.vat || 0).toLocaleString()}</span>
+        <td className="hidden md:table-cell p-3 border-b border-white/10">
+          <span className="text-slate-300" dir="ltr">₪{Number(formData.vat || 0).toLocaleString()}</span>
         </td>
-        <td className="hidden md:table-cell p-3 border-b border-gray-50">
-          <span className="text-gray-700" dir="ltr">₪{Number(formData.shippingCost || 0).toLocaleString()}</span>
+        <td className="hidden md:table-cell p-3 border-b border-white/10">
+          <span className="text-slate-300" dir="ltr">₪{Number(formData.shippingCost || 0).toLocaleString()}</span>
         </td>
-        <td className="hidden md:table-cell p-3 border-b border-gray-50 pt-3">
+        <td className="hidden md:table-cell p-3 border-b border-white/10 pt-3">
           <div className="flex items-center justify-end">
-            <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded mx-1 transition-colors"><Edit2 className="h-4 w-4" /></button>
-            <button onClick={handleDelete} className="p-1.5 text-red-600 hover:bg-red-50 rounded mx-1 transition-colors"><Trash2 className="h-4 w-4" /></button>
+            <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 text-blue-400 hover:bg-blue-50 rounded mx-1 transition-colors"><Edit2 className="h-4 w-4" /></button>
+            <button onClick={handleDelete} className="p-1.5 text-red-400 hover:bg-red-50 rounded mx-1 transition-colors"><Trash2 className="h-4 w-4" /></button>
           </div>
         </td>
       </tr>
@@ -437,7 +437,7 @@ function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payme
       <td className="md:hidden">
         <div className="flex flex-col gap-3">
           <div>
-            <span className="text-[11px] text-gray-500 font-medium mb-1 block">מותג</span>
+            <span className="text-[11px] text-slate-400 font-medium mb-1 block">מותג</span>
             <Select value={formData.brand} onValueChange={(value) => handleChange({ target: { name: 'brand', value } } as any)}>
               <SelectTrigger className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-right outline-none transition-all" dir="rtl">
                 <SelectValue placeholder="בחר מותג" />
@@ -451,19 +451,19 @@ function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payme
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <span className="text-[11px] text-gray-500 font-medium mb-1 block">סכום מט&quot;ח</span>
+              <span className="text-[11px] text-slate-400 font-medium mb-1 block">סכום מט&quot;ח</span>
               <input type="number" name="orderAmountForeign" value={formData.orderAmountForeign} onChange={handleChange} className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-left outline-none transition-all" dir="ltr" />
             </div>
             <div>
-              <span className="text-[11px] text-gray-500 font-medium mb-1 block">סכום ש&quot;ח</span>
+              <span className="text-[11px] text-slate-400 font-medium mb-1 block">סכום ש&quot;ח</span>
               <input type="number" name="orderAmountNis" value={formData.orderAmountNis} onChange={handleChange} className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-left outline-none transition-all" dir="ltr" />
             </div>
             <div>
-              <span className="text-[11px] text-gray-500 font-medium mb-1 block">מע&quot;מ</span>
+              <span className="text-[11px] text-slate-400 font-medium mb-1 block">מע&quot;מ</span>
               <input type="number" name="vat" value={formData.vat} onChange={handleChange} className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-left outline-none transition-all" dir="ltr" />
             </div>
             <div>
-              <span className="text-[11px] text-gray-500 font-medium mb-1 block">עלות שילוח</span>
+              <span className="text-[11px] text-slate-400 font-medium mb-1 block">עלות שילוח</span>
               <input type="number" name="shippingCost" value={formData.shippingCost} onChange={handleChange} className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-left outline-none transition-all" dir="ltr" />
             </div>
           </div>
@@ -471,7 +471,7 @@ function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payme
             <button onClick={handleSave} className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium">
               <Check className="h-4 w-4" /> שמור
             </button>
-            <button onClick={handleCancel} className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium border border-gray-200">
+            <button onClick={handleCancel} className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-gray-100 hover:bg-transparent/10 text-slate-300 rounded-lg transition-colors text-sm font-medium border border-gray-200">
               <X className="h-4 w-4" /> ביטול
             </button>
           </div>
@@ -506,7 +506,7 @@ function EditablePaymentRow({ payment, onCancelNew, uniqueBrands = [] }: { payme
       <td className="hidden md:table-cell p-2 align-middle text-left">
         <div className="flex items-center justify-end">
           <button onClick={handleSave} className="p-1.5 text-green-600 hover:bg-green-100 rounded mx-1 transition-colors"><Check className="h-4 w-4" /></button>
-          <button onClick={handleCancel} className="p-1.5 text-red-600 hover:bg-red-100 rounded mx-1 transition-colors"><X className="h-4 w-4" /></button>
+          <button onClick={handleCancel} className="p-1.5 text-red-400 hover:bg-red-500/20 rounded mx-1 transition-colors"><X className="h-4 w-4" /></button>
         </div>
       </td>
     </tr>
@@ -563,40 +563,40 @@ function EditableChinaOrderRow({ order, onCancelNew }: { order: any, onCancelNew
 
   if (!isEditing) {
     return (
-      <tr onClick={() => setIsEditing(true)} className="flex flex-col md:table-row bg-white border border-gray-100 md:border-b md:border-gray-50 rounded-xl md:rounded-none p-4 md:p-0 mb-3 md:mb-0 hover:bg-gray-50/50 transition-colors cursor-pointer shadow-sm md:shadow-none">
+      <tr onClick={() => setIsEditing(true)} className="flex flex-col md:table-row bg-transparent border border-white/10 md:border-b md:border-white/10 rounded-xl md:rounded-none p-4 md:p-0 mb-3 md:mb-0 hover:bg-white/5 transition-colors cursor-pointer shadow-sm md:shadow-none">
         {/* Mobile View */}
         <td className="md:hidden">
           <div className="flex flex-col gap-3">
             <div className="flex justify-between items-start">
               <div className="flex-1">
-                <p className="text-[11px] text-gray-500 font-medium mb-0.5">מוצרים</p>
-                <p className="text-base font-semibold text-gray-900">{formData.products || '-'}</p>
+                <p className="text-[11px] text-slate-400 font-medium mb-0.5">מוצרים</p>
+                <p className="text-base font-semibold text-white">{formData.products || '-'}</p>
               </div>
               <div className="flex gap-2 mr-4">
-                <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-2 bg-blue-50/50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"><Edit2 className="h-4 w-4" /></button>
-                <button onClick={handleDelete} className="p-2 bg-red-50/50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"><Trash2 className="h-4 w-4" /></button>
+                <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg transition-colors"><Edit2 className="h-4 w-4" /></button>
+                <button onClick={handleDelete} className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors"><Trash2 className="h-4 w-4" /></button>
               </div>
             </div>
-            <div className="bg-gray-50/80 p-3 rounded-lg border border-gray-100 mt-1">
-              <p className="text-[11px] text-gray-500 mb-1 font-medium">תאריך הגעה משוער</p>
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
-                <Calendar className="w-4 h-4 text-gray-500" />
+            <div className="bg-transparent/5 p-3 rounded-lg border border-white/10 mt-1">
+              <p className="text-[11px] text-slate-400 mb-1 font-medium">תאריך הגעה משוער</p>
+              <div className="flex items-center gap-2 text-sm font-medium text-white">
+                <Calendar className="w-4 h-4 text-slate-400" />
                 {formData.arrivalDate || '-'}
               </div>
             </div>
           </div>
         </td>
         {/* Desktop View */}
-        <td className="hidden md:table-cell p-3 border-b border-gray-50">
-          <span className="text-gray-900 font-medium">{formData.products || '-'}</span>
+        <td className="hidden md:table-cell p-3 border-b border-white/10">
+          <span className="text-white font-medium">{formData.products || '-'}</span>
         </td>
-        <td className="hidden md:table-cell p-3 border-b border-gray-50">
-          <span className="text-gray-700">{formData.arrivalDate || '-'}</span>
+        <td className="hidden md:table-cell p-3 border-b border-white/10">
+          <span className="text-slate-300">{formData.arrivalDate || '-'}</span>
         </td>
-        <td className="hidden md:table-cell p-3 border-b border-gray-50 pt-3">
+        <td className="hidden md:table-cell p-3 border-b border-white/10 pt-3">
           <div className="flex items-center justify-end">
-            <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded mx-1 transition-colors"><Edit2 className="h-4 w-4" /></button>
-            <button onClick={handleDelete} className="p-1.5 text-red-600 hover:bg-red-50 rounded mx-1 transition-colors"><Trash2 className="h-4 w-4" /></button>
+            <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1.5 text-blue-400 hover:bg-blue-50 rounded mx-1 transition-colors"><Edit2 className="h-4 w-4" /></button>
+            <button onClick={handleDelete} className="p-1.5 text-red-400 hover:bg-red-50 rounded mx-1 transition-colors"><Trash2 className="h-4 w-4" /></button>
           </div>
         </td>
       </tr>
@@ -609,18 +609,18 @@ function EditableChinaOrderRow({ order, onCancelNew }: { order: any, onCancelNew
       <td className="md:hidden">
         <div className="flex flex-col gap-3">
           <div>
-            <span className="text-[11px] text-gray-500 font-medium mb-1 block">מוצרים</span>
+            <span className="text-[11px] text-slate-400 font-medium mb-1 block">מוצרים</span>
             <input name="products" value={formData.products} onChange={handleChange} autoFocus className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-right outline-none transition-all" dir="rtl" />
           </div>
           <div>
-            <span className="text-[11px] text-gray-500 font-medium mb-1 block">תאריך הגעה</span>
+            <span className="text-[11px] text-slate-400 font-medium mb-1 block">תאריך הגעה</span>
             <input name="arrivalDate" value={formData.arrivalDate} onChange={handleChange} className="w-full p-2 border border-blue-200 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg text-sm text-right outline-none transition-all" dir="rtl" placeholder="DD/MM/YYYY" />
           </div>
           <div className="flex gap-2 mt-2 pt-3 border-t border-blue-100">
             <button onClick={handleSave} className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium">
               <Check className="h-4 w-4" /> שמור
             </button>
-            <button onClick={handleCancel} className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium border border-gray-200">
+            <button onClick={handleCancel} className="flex-1 flex items-center justify-center gap-2 p-2.5 bg-gray-100 hover:bg-transparent/10 text-slate-300 rounded-lg transition-colors text-sm font-medium border border-gray-200">
               <X className="h-4 w-4" /> ביטול
             </button>
           </div>
@@ -636,7 +636,7 @@ function EditableChinaOrderRow({ order, onCancelNew }: { order: any, onCancelNew
       <td className="hidden md:table-cell p-2 align-middle">
         <div className="flex items-center justify-end">
           <button onClick={handleSave} className="p-1.5 text-green-600 hover:bg-green-100 rounded mx-1 transition-colors"><Check className="h-4 w-4" /></button>
-          <button onClick={handleCancel} className="p-1.5 text-red-600 hover:bg-red-100 rounded mx-1 transition-colors"><X className="h-4 w-4" /></button>
+          <button onClick={handleCancel} className="p-1.5 text-red-400 hover:bg-red-500/20 rounded mx-1 transition-colors"><X className="h-4 w-4" /></button>
         </div>
       </td>
     </tr>
@@ -675,59 +675,59 @@ export default function FinanceClient({
   const totalPersonalLimit = personalCards.reduce((sum, c) => sum + Number(c.creditLimit || 0), 0);
 
   return (
-    <div className="p-8 space-y-8 bg-gray-50/50 min-h-screen" dir="rtl">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900">כספים</h2>
-        <p className="text-muted-foreground mt-2">סקירה פיננסית, כרטיסי אשראי והוצאות רכש.</p>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 md:p-8 min-h-screen" dir="rtl">
+      <div className="lg:col-span-12 mb-4">
+        <h2 className="text-3xl font-bold tracking-tight text-white">כספים</h2>
+        <p className="text-slate-300 mt-2">סקירה פיננסית, כרטיסי אשראי והוצאות רכש.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">סך הכל הוצאות (יבוא)</CardTitle>
-            <DollarSign className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₪{totalExpenses.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">ע&quot;פ נתוני ייבוא</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">מסגרת אשראי כוללת</CardTitle>
-            <CreditCard className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₪{totalCreditLimit.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">{allCards.length} כרטיסים פעילים</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">מסגרת עסקית</CardTitle>
-            <Building2 className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₪{totalBusinessLimit.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">{businessCards.length} כרטיסים עסקיים</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-white border-none shadow-sm hover:shadow-md transition-shadow">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">הזמנות פתוחות (סין)</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{openChinaOrders}</div>
-            <p className="text-xs text-muted-foreground">רשומות במעקב</p>
-          </CardContent>
-        </Card>
+      <div className="lg:col-span-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="glass-panel rounded-3xl p-6 flex flex-col justify-between">
+          <div className="flex flex-row items-center justify-between pb-2">
+            <div className="text-sm font-medium text-slate-200">סך הכל הוצאות (יבוא)</div>
+            <DollarSign className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">₪{totalExpenses.toLocaleString()}</div>
+            <p className="text-xs text-slate-400">ע&quot;פ נתוני ייבוא</p>
+          </div>
+        </div>
+        <div className="glass-panel rounded-3xl p-6 flex flex-col justify-between">
+          <div className="flex flex-row items-center justify-between pb-2">
+            <div className="text-sm font-medium text-slate-200">מסגרת אשראי כוללת</div>
+            <CreditCard className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">₪{totalCreditLimit.toLocaleString()}</div>
+            <p className="text-xs text-slate-400">{allCards.length} כרטיסים פעילים</p>
+          </div>
+        </div>
+        <div className="glass-panel rounded-3xl p-6 flex flex-col justify-between">
+          <div className="flex flex-row items-center justify-between pb-2">
+            <div className="text-sm font-medium text-slate-200">מסגרת עסקית</div>
+            <Building2 className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">₪{totalBusinessLimit.toLocaleString()}</div>
+            <p className="text-xs text-slate-400">{businessCards.length} כרטיסים עסקיים</p>
+          </div>
+        </div>
+        <div className="glass-panel rounded-3xl p-6 flex flex-col justify-between">
+          <div className="flex flex-row items-center justify-between pb-2">
+            <div className="text-sm font-medium text-slate-200">הזמנות פתוחות (סין)</div>
+            <ShoppingCart className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">{openChinaOrders}</div>
+            <p className="text-xs text-slate-400">רשומות במעקב</p>
+          </div>
+        </div>
       </div>
 
       {/* Credit Cards Section */}
-      <div className="space-y-6">
-        <h3 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
-          <CreditCard className="h-6 w-6 text-primary" />
+      <div className="lg:col-span-8 glass-panel rounded-3xl p-6 flex flex-col gap-6">
+        <h3 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <CreditCard className="h-6 w-6 text-white" />
           כרטיסי אשראי
         </h3>
 
@@ -736,10 +736,10 @@ export default function FinanceClient({
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Building2 className="h-5 w-5 text-amber-600" />
-              <h4 className="text-lg font-semibold text-gray-800">כרטיסים עסקיים</h4>
-              <span className="text-sm text-gray-500">({businessCards.length})</span>
-              <div className="flex-1 h-px bg-gray-200 mr-3"></div>
-              <span className="text-sm text-gray-500">מסגרת: ₪{totalBusinessLimit.toLocaleString()}</span>
+              <h4 className="text-lg font-semibold text-white">כרטיסים עסקיים</h4>
+              <span className="text-sm text-slate-400">({businessCards.length})</span>
+              <div className="flex-1 h-px bg-transparent/10 mr-3"></div>
+              <span className="text-sm text-slate-400">מסגרת: ₪{totalBusinessLimit.toLocaleString()}</span>
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {businessCards.map((card, i) => (
@@ -753,11 +753,11 @@ export default function FinanceClient({
         {personalCards.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-4 mt-6">
-              <User className="h-5 w-5 text-blue-600" />
-              <h4 className="text-lg font-semibold text-gray-800">כרטיסים פרטיים</h4>
-              <span className="text-sm text-gray-500">({personalCards.length})</span>
-              <div className="flex-1 h-px bg-gray-200 mr-3"></div>
-              <span className="text-sm text-gray-500">מסגרת: ₪{totalPersonalLimit.toLocaleString()}</span>
+              <User className="h-5 w-5 text-blue-400" />
+              <h4 className="text-lg font-semibold text-white">כרטיסים פרטיים</h4>
+              <span className="text-sm text-slate-400">({personalCards.length})</span>
+              <div className="flex-1 h-px bg-transparent/10 mr-3"></div>
+              <span className="text-sm text-slate-400">מסגרת: ₪{totalPersonalLimit.toLocaleString()}</span>
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {personalCards.map((card, i) => (
@@ -771,9 +771,9 @@ export default function FinanceClient({
         {otherCards.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-4 mt-6">
-              <CreditCard className="h-5 w-5 text-gray-600" />
-              <h4 className="text-lg font-semibold text-gray-800">כרטיסים נוספים</h4>
-              <span className="text-sm text-gray-500">({otherCards.length})</span>
+              <CreditCard className="h-5 w-5 text-slate-300" />
+              <h4 className="text-lg font-semibold text-white">כרטיסים נוספים</h4>
+              <span className="text-sm text-slate-400">({otherCards.length})</span>
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {otherCards.map((card, i) => (
@@ -785,12 +785,12 @@ export default function FinanceClient({
       </div>
 
       {/* Expenses Pie Chart */}
-      <Card className="bg-white border-none shadow-sm">
-        <CardHeader>
-          <CardTitle>פילוג תשלומים</CardTitle>
-          <CardDescription>סך תשלומים לפי מותג/סוג</CardDescription>
-        </CardHeader>
-        <CardContent className="h-[500px] flex flex-col items-center justify-center pb-8">
+      <div className="lg:col-span-4 glass-panel rounded-3xl p-6 flex flex-col">
+        <div className="mb-4">
+          <h3 className="text-xl font-semibold text-white">פילוג תשלומים</h3>
+          <p className="text-sm text-slate-300">סך תשלומים לפי מותג/סוג</p>
+        </div>
+        <div className="flex-1 min-h-[300px] flex flex-col items-center justify-center pb-8">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart margin={{ top: 40, right: 0, bottom: 20, left: 0 }}>
               <Pie
@@ -806,7 +806,7 @@ export default function FinanceClient({
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <RechartsTooltip formatter={(value: any) => `₪${value?.toLocaleString()}`} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+              <RechartsTooltip formatter={(value: any) => `₪${value?.toLocaleString()}`} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', background: 'rgba(15,23,42,0.9)', color: '#fff' }} itemStyle={{ color: '#fff' }} />
               <Legend 
                 content={(props: any) => {
                   const { payload } = props;
@@ -816,7 +816,7 @@ export default function FinanceClient({
                         {payload.map((entry: any, index: number) => (
                           <li key={`item-${index}`} className="flex items-center gap-3">
                             <div className="w-4 h-4 rounded-full shrink-0" style={{ backgroundColor: entry.color }} />
-                            <span className="text-gray-800 font-medium truncate">{entry.value}</span>
+                            <span className="text-white font-medium truncate">{entry.value}</span>
                           </li>
                         ))}
                       </ul>
@@ -828,30 +828,30 @@ export default function FinanceClient({
               />
             </PieChart>
           </ResponsiveContainer>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Raw Data Tables */}
-      <div className="space-y-8">
-        <h3 className="text-2xl font-bold tracking-tight text-gray-900">טבלאות נתונים</h3>
+      <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-2 gap-4">
         
-        <Card className="bg-white border-none shadow-sm p-4">
+        
+        <div className="glass-panel rounded-3xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-primary">תשלומי יבוא</h4>
-            <button onClick={() => setIsAddingPayment(true)} className="flex items-center gap-1 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90">
+            <h4 className="text-lg font-semibold text-white">תשלומי יבוא</h4>
+            <button onClick={() => setIsAddingPayment(true)} className="flex items-center gap-1 text-sm bg-transparent/10 text-white hover:bg-transparent/20 border border-white/20 px-3 py-1.5 rounded-md hover:bg-primary/90">
               <Plus className="w-4 h-4" /> הוסף חדש
             </button>
           </div>
           <div className="md:overflow-x-auto">
             <table className="w-full text-sm text-center whitespace-normal md:whitespace-nowrap">
-              <thead className="hidden md:table-header-group bg-gray-50 border-b">
+              <thead className="hidden md:table-header-group bg-transparent/5 border-b">
                 <tr>
-                  <th className="p-3 font-medium text-gray-600">מותג</th>
-                  <th className="p-3 font-medium text-gray-600">סכום מט&quot;ח</th>
-                  <th className="p-3 font-medium text-gray-600">סכום ש&quot;ח</th>
-                  <th className="p-3 font-medium text-center text-gray-500">מע&quot;מ</th>
-                  <th className="p-3 font-medium text-center text-gray-500 rounded-tl-md">עלות שילוח</th>
-                  <th className="p-3 font-medium text-center text-gray-500 rounded-tl-md w-16">פעולות</th>
+                  <th className="p-3 font-medium text-slate-300">מותג</th>
+                  <th className="p-3 font-medium text-slate-300">סכום מט&quot;ח</th>
+                  <th className="p-3 font-medium text-slate-300">סכום ש&quot;ח</th>
+                  <th className="p-3 font-medium text-center text-slate-400">מע&quot;מ</th>
+                  <th className="p-3 font-medium text-center text-slate-400 rounded-tl-md">עלות שילוח</th>
+                  <th className="p-3 font-medium text-center text-slate-400 rounded-tl-md w-16">פעולות</th>
                 </tr>
               </thead>
               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
@@ -862,22 +862,22 @@ export default function FinanceClient({
               </tbody>
             </table>
           </div>
-        </Card>
+        </div>
 
-        <Card className="bg-white border-none shadow-sm p-4">
+        <div className="glass-panel rounded-3xl p-6">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-lg font-semibold text-primary">הזמנות מסין</h4>
-            <button onClick={() => setIsAddingChinaOrder(true)} className="flex items-center gap-1 text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-md hover:bg-primary/90">
+            <h4 className="text-lg font-semibold text-white">הזמנות מסין</h4>
+            <button onClick={() => setIsAddingChinaOrder(true)} className="flex items-center gap-1 text-sm bg-transparent/10 text-white hover:bg-transparent/20 border border-white/20 px-3 py-1.5 rounded-md hover:bg-primary/90">
               <Plus className="w-4 h-4" /> הוסף חדש
             </button>
           </div>
           <div className="md:overflow-x-auto">
             <table className="w-full text-sm text-center whitespace-normal md:whitespace-nowrap">
-              <thead className="hidden md:table-header-group bg-gray-50 border-b">
+              <thead className="hidden md:table-header-group bg-transparent/5 border-b">
                 <tr>
-                  <th className="p-3 font-medium text-gray-600">מוצרים</th>
-                  <th className="p-3 font-medium text-gray-600">תאריך הגעה</th>
-                  <th className="p-3 font-medium text-center text-gray-500 rounded-tl-md w-16">פעולות</th>
+                  <th className="p-3 font-medium text-slate-300">מוצרים</th>
+                  <th className="p-3 font-medium text-slate-300">תאריך הגעה</th>
+                  <th className="p-3 font-medium text-center text-slate-400 rounded-tl-md w-16">פעולות</th>
                 </tr>
               </thead>
               <tbody className="flex flex-col md:table-row-group gap-4 md:gap-0 divide-y-0 md:divide-y divide-gray-100">
@@ -888,7 +888,7 @@ export default function FinanceClient({
               </tbody>
             </table>
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );
