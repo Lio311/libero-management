@@ -13,7 +13,7 @@ export default async function QcInventoryPage() {
   const products = await getQcInventoryProducts();
 
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-500" /></div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-white" /></div>}>
       <QcInventoryClient products={products} />
     </Suspense>
   );
