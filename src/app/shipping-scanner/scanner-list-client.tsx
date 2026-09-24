@@ -635,9 +635,9 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
   let ageBgClass = "";
   if (order.status !== 'completed') {
     if (daysOld >= 5) {
-      ageBgClass = "!bg-red-950/80 hover:!bg-red-950/90 !border-red-500/40";
+      ageBgClass = "!bg-red-500 hover:!bg-red-600 !border-red-600";
     } else if (daysOld >= 3) {
-      ageBgClass = "!bg-orange-950/80 hover:!bg-orange-950/90 !border-orange-500/40";
+      ageBgClass = "!bg-orange-500 hover:!bg-orange-600 !border-orange-600";
     }
   }
 
