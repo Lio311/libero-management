@@ -691,7 +691,7 @@ export async function fixShippingLabelsDb() {
 export async function searchScannerOrders(store: "libero" | "velour" | "labura", term: string): Promise<ScannerOrder[]> {
   const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
   try {
-    const termClean = term.replace(/[\[\]*]/g, '').trim().toLowerCase();
+    const termClean = term.replace(/[\[\]*\u200B-\u200D\uFEFF\u200E\u200F]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
     if (!termClean) return [];
 
     const hebToEng: Record<string, string> = {
@@ -768,7 +768,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
         
        const matched = recent.filter(o => {
          const bill = o.billing as any;
-         const name = ((bill?.first_name || '') + ' ' + (bill?.last_name || '')).toLowerCase();
+         const name = ((bill?.first_name || '') + ' ' + (bill?.last_name || '')).toLowerCase().replace(/\s+/g, ' ').trim();
          const phone = (bill?.phone || '').toLowerCase();
          const lineItemsStr = JSON.stringify(o.lineItems || {}).toLowerCase();
          return name.includes(translatedTerm) || phone.includes(translatedTerm) || lineItemsStr.includes(translatedTerm) || name.includes(termClean) || phone.includes(termClean) || name.includes(translatedToHeb) || lineItemsStr.includes(translatedToHeb);

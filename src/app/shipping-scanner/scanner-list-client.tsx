@@ -52,8 +52,13 @@ export default function ScannerListClient({
     }
   }, [mounted, orders.length, store]); // Restore when mounted and when orders change/load
 
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    sessionStorage.setItem(`scannerListScrollPos_${store}`, e.currentTarget.scrollTop.toString());
+    const top = e.currentTarget.scrollTop;
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      sessionStorage.setItem(`scannerListScrollPos_${store}`, top.toString());
+    }, 150);
   };
 
 
@@ -206,7 +211,7 @@ export default function ScannerListClient({
 
     const lineItemsStr = JSON.stringify(o.lineItems || {}).toLowerCase();
     
-    const cleanString = (s: string) => s.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '');
+    const cleanString = (s: string) => s.replace(/[\u200B-\u200D\uFEFF\u200E\u200F]/g, '').replace(/\s+/g, ' ').trim();
 
     const matches = (t: string) => (
       o.id.toString().includes(t) ||
