@@ -545,16 +545,16 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
   // But we can add them to localTasks if needed. For now we just use the monthly schedule.
 
   return (
-    <div dir="rtl" className="h-full overflow-hidden flex flex-col bg-[#F5F5F7] text-[#1D1D1F] selection:bg-[#0071E3]/30 font-sans pb-20 md:pb-0 page-animate">
+    <div dir="rtl" className="h-full overflow-hidden flex flex-col text-white selection:bg-[#0071E3]/30 font-sans page-animate">
       {/* Premium Header */}
-      <header className="sticky top-0 z-40 glass-panel border-b border-white/20 px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-40 border-b border-white/20 pb-4 mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white/50 rounded-xl flex items-center justify-center border border-white/40 shadow-sm">
-            <CalendarIcon className="w-5 h-5 text-gray-700" />
+          <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/20 shadow-sm">
+            <CalendarIcon className="w-5 h-5 text-white" />
           </div>
           <div>
             <h1 className="text-xl font-medium tracking-wide">לוח שנה</h1>
-            <p className="text-xs text-gray-500 uppercase tracking-widest">ניהול שוטף</p>
+            <p className="text-xs text-slate-300 uppercase tracking-widest">ניהול שוטף</p>
           </div>
         </div>
         
@@ -567,28 +567,28 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         </div>
       </header>
 
-      <main className="max-w-7xl w-full mx-auto p-2 md:p-6 flex-1 flex flex-col min-h-0">
+      <main className="w-full flex-1 flex flex-col min-h-0">
         {/* Month Navigation */}
         <div className="flex items-center justify-between mb-4 shrink-0">
-          <h2 className="text-2xl md:text-4xl font-light flex gap-3 items-baseline text-gray-900">
-            {format(currentDate, 'MMMM', { locale: he })} <span className="text-gray-400 font-serif italic text-2xl md:text-4xl">{format(currentDate, 'yyyy')}</span>
+          <h2 className="text-2xl md:text-4xl font-light flex gap-3 items-baseline text-white">
+            {format(currentDate, 'MMMM', { locale: he })} <span className="text-slate-300 font-serif italic text-2xl md:text-4xl">{format(currentDate, 'yyyy')}</span>
           </h2>
           <div className="flex gap-2">
-            <button onClick={prevMonth} className="p-2 md:p-3 rounded-full hover:bg-white/50 transition-colors border border-white/40 bg-white/50 shadow-sm hover-scale" title="החודש הקודם">
-              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+            <button onClick={prevMonth} className="p-2 md:p-3 rounded-full hover:bg-white/20 transition-colors border border-white/20 bg-white/10 shadow-sm hover-scale" title="החודש הקודם">
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </button>
-            <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-white/50 transition-colors border border-white/40 bg-white/50 shadow-sm hover-scale" title="החודש הבא">
-              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+            <button onClick={nextMonth} className="p-2 md:p-3 rounded-full hover:bg-white/20 transition-colors border border-white/20 bg-white/10 shadow-sm hover-scale" title="החודש הבא">
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </button>
           </div>
         </div>
 
         {/* Calendar Grid */}
-        <div className="glass-panel rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-white/40 flex-1 flex flex-col min-h-0">
+        <div className="rounded-2xl md:rounded-3xl overflow-hidden border border-white/20 flex-1 flex flex-col min-h-0 bg-white/5">
           {/* Days of week */}
-          <div className="grid grid-cols-7 border-b border-gray-200/50 bg-white/30 shrink-0">
+          <div className="grid grid-cols-7 border-b border-white/20 bg-white/10 shrink-0">
             {weekDays.map(day => (
-              <div key={day} className="py-4 text-center text-xs md:text-sm font-medium text-gray-500 uppercase tracking-wider">
+              <div key={day} className="py-4 text-center text-xs md:text-sm font-medium text-slate-300 uppercase tracking-wider">
                 {day}
               </div>
             ))}
@@ -643,14 +643,14 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                       await updateBankOfTaskAction(taskToMove.dbId, { dueDate: format(targetDay, 'dd.MM.yyyy') });
                     }
                   }}
-                  className={`p-1.5 md:p-2 border-l border-b border-gray-200/30 relative group transition-colors hover:bg-white/40 cursor-pointer overflow-hidden flex flex-col min-h-0
-                    ${!isCurrentMonth ? 'bg-transparent opacity-60' : 'bg-transparent'}
+                  className={`p-1.5 md:p-2 border-l border-b border-white/10 relative group transition-colors hover:bg-white/10 cursor-pointer overflow-hidden flex flex-col min-h-0
+                    ${!isCurrentMonth ? 'bg-transparent opacity-50' : 'bg-transparent'}
                     ${dayIdx % 7 === 6 ? 'border-l-0' : ''}
                   `}
                 >
                   <div className="flex justify-between items-start mb-1 flex-shrink-0">
                     <span className={`text-sm md:text-base font-medium flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full
-                      ${isTodayDate ? 'bg-[#0071E3] text-white shadow-md' : (isCurrentMonth ? 'text-gray-900' : 'text-gray-400')}
+                      ${isTodayDate ? 'bg-[#0071E3] text-white shadow-md' : (isCurrentMonth ? 'text-white' : 'text-slate-400')}
                     `}>
                       {format(day, dateFormat)}
                     </span>
@@ -661,7 +661,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                         setNewTaskDate(day);
                         setNewTaskTitle('');
                       }}
-                      className="p-1 text-gray-400 hover:text-[#0071E3] transition-all bg-white/50 rounded-full hover-scale"
+                      className="p-1 text-slate-300 hover:text-white transition-all bg-white/10 hover:bg-white/20 rounded-full hover-scale"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -671,21 +671,21 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                     <AnimatePresence>
                       {dayTasks.map(task => {
                         const isPastDate = isBefore(day, startOfDay(new Date()));
-                        let titleStyle = 'text-gray-700 font-medium';
-                        let dotColor = 'bg-gray-400';
-                        let bgStyle = 'hover:bg-black/5';
+                        let titleStyle = 'text-white font-medium';
+                        let dotColor = 'bg-slate-400';
+                        let bgStyle = 'hover:bg-white/10';
                         
                         if (task.isCompleted) {
-                          titleStyle = 'text-gray-400 line-through';
+                          titleStyle = 'text-slate-400 line-through';
                           dotColor = 'bg-green-400';
                         } else if (task.isDelayed) {
-                            titleStyle = 'text-orange-800';
+                            titleStyle = 'text-orange-200';
                             dotColor = 'bg-orange-500';
-                            bgStyle = 'bg-orange-50 hover:bg-orange-100';
+                            bgStyle = 'bg-orange-500/20 hover:bg-orange-500/30';
                         } else if (isPastDate) {
-                          titleStyle = 'text-red-800';
+                          titleStyle = 'text-red-200';
                           dotColor = 'bg-red-500';
-                          bgStyle = 'bg-red-50 hover:bg-red-100';
+                          bgStyle = 'bg-red-500/20 hover:bg-red-500/30';
                         }
 
                         return (
@@ -742,18 +742,18 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               <h2 className="text-xl font-medium mb-4">משימה חדשה לתאריך {format(newTaskDate, 'd בMMM yyyy', { locale: he })}</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">כותרת המשימה</label>
+                  <label className="block text-sm font-medium text-slate-200 mb-1">כותרת המשימה</label>
                   <input
                     type="text"
                     value={newTaskTitle}
                     onChange={e => setNewTaskTitle(e.target.value)}
-                    className="w-full bg-white/50 border border-white/40 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#0071E3] focus:border-transparent outline-none backdrop-blur-md"
+                    className="w-full bg-white/10 border border-white/40 rounded-xl px-4 py-2 focus:ring-2 focus:ring-[#0071E3] focus:border-transparent outline-none backdrop-blur-md"
                     placeholder="הכנס כותרת..."
                     autoFocus
                   />
                 </div>
                 <div className="flex justify-end gap-3 mt-6">
-                  <button onClick={() => setNewTaskDate(null)} className="px-4 py-2 text-gray-600 hover:bg-white/50 rounded-xl transition-colors hover-scale">ביטול</button>
+                  <button onClick={() => setNewTaskDate(null)} className="px-4 py-2 text-slate-300 hover:bg-white/10 rounded-xl transition-colors hover-scale">ביטול</button>
                   <button onClick={saveNewTask} className="px-4 py-2 bg-[#0071E3] text-white rounded-xl hover:bg-blue-600 transition-colors shadow-sm hover-scale">שמור משימה</button>
                 </div>
               </div>
@@ -798,13 +798,13 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                   const dateKey = format(selectedDayDetails, 'yyyy-MM-dd');
                   const dayTasks = localTasks[dateKey] || [];
                   if (dayTasks.length === 0) {
-                    return <p className="text-gray-500 text-center py-8">אין משימות ליום זה</p>;
+                    return <p className="text-slate-400 text-center py-8">אין משימות ליום זה</p>;
                   }
                   return dayTasks.map(task => {
                         const isPastDate = isBefore(selectedDayDetails, startOfDay(new Date()));
-                        let taskStyle = 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50';
-                        let titleStyle = 'text-gray-800';
-                        let iconStyle = 'text-gray-400 hover:text-gray-900';
+                        let taskStyle = 'bg-white/10 border-white/20 hover:border-white/40 hover:bg-white/20';
+                        let titleStyle = 'text-white';
+                        let iconStyle = 'text-slate-400 hover:text-white';
                         
                         if (task.isCompleted) {
                           taskStyle = 'bg-green-100 border-green-300 opacity-90';
@@ -812,11 +812,11 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                           iconStyle = 'text-green-600 hover:text-green-800';
                         } else if (task.isDelayed) {
                             taskStyle = 'bg-orange-100 border-orange-300 hover:bg-orange-200';
-                            titleStyle = 'text-orange-800';
+                            titleStyle = 'text-orange-200';
                             iconStyle = 'text-orange-600 hover:text-orange-800';
                         } else if (isPastDate) {
                           taskStyle = 'bg-red-100 border-red-300 hover:bg-red-200';
-                          titleStyle = 'text-red-800';
+                          titleStyle = 'text-red-200';
                           iconStyle = 'text-red-500 hover:text-red-700';
                         }
 
@@ -841,7 +841,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                               </button>
                               <div className="flex flex-col overflow-hidden">
                                 <span className={`font-medium ${titleStyle} truncate`}>{task.title}</span>
-                                <span className="text-xs text-gray-500 flex items-center gap-1.5">
+                                <span className="text-xs text-slate-400 flex items-center gap-1.5">
                                   <span className={`w-2 h-2 rounded-full ${task.category.color}`}></span>
                                   {task.category.name}
                                 </span>
@@ -854,7 +854,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               </div>
               
               <div className="mt-6 flex justify-end">
-                <button onClick={() => setSelectedDayDetails(null)} className="px-5 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors font-medium">סגור</button>
+                <button onClick={() => setSelectedDayDetails(null)} className="px-5 py-2 text-slate-300 bg-white/10 hover:bg-white/20 rounded-xl transition-colors font-medium">סגור</button>
               </div>
             </motion.div>
           </motion.div>
@@ -877,7 +877,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               className="glass-panel rounded-2xl p-6 w-full max-w-md shadow-xl border border-white/40"
             >
               <h2 className="text-xl font-medium mb-2">{selectedTask.task.title}</h2>
-              <p className="text-sm text-gray-500 mb-6">מתוכנן לתאריך {selectedTask.dateKey}</p>
+              <p className="text-sm text-slate-400 mb-6">מתוכנן לתאריך {selectedTask.dateKey}</p>
               
               <div className="flex justify-between items-center mt-6">
                 <button 
@@ -887,7 +887,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                   מחק משימה
                 </button>
                 <div className="flex gap-2">
-                  <button onClick={() => setSelectedTask(null)} className="px-4 py-2 text-gray-600 hover:bg-white/50 rounded-xl transition-colors hover-scale">סגור</button>
+                  <button onClick={() => setSelectedTask(null)} className="px-4 py-2 text-slate-300 hover:bg-white/10 rounded-xl transition-colors hover-scale">סגור</button>
                   <button 
                     onClick={() => {
                       toggleTask(selectedTask.dateKey, selectedTask.task.id);
