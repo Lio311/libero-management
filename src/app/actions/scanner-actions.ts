@@ -61,20 +61,40 @@ export async function saveScannerSettings(keywords: string[]) {
   }
 }
 
-function computeMultipleOrdersToday(orders: any[]): ScannerOrder[] {
+async function computeMultipleOrdersToday(orders: ScannerOrder[], store: "libero" | "velour" | "labura" = "libero"): Promise<ScannerOrder[]> {
+  if (orders.length === 0) return orders;
+  const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
+  
+  const minDateStr = orders.reduce((min, o) => {
+    if (!o.dateCreated) return min;
+    const d = o.dateCreated.split('T')[0];
+    return !min || d < min ? d : min;
+  }, "" as string);
+  
+  if (!minDateStr) return orders;
+
+  const minDate = new Date(minDateStr);
+  minDate.setHours(0, 0, 0, 0);
+
+  const recentOrders = await db.select({
+    dateCreated: targetOrders.dateCreated,
+    phone: sql<string>`billing->>'phone'`
+  }).from(targetOrders).where(gte(targetOrders.dateCreated, minDate));
+
   const counts = new Map<string, number>();
-  for (const order of orders) {
-    const phone = order.phone || (order.billing?.phone);
-    const dateStr = order.dateCreated ? new Date(order.dateCreated).toISOString().split('T')[0] : null;
-    if (phone && dateStr) {
-      const key = `${phone}_${dateStr}`;
+  for (const row of recentOrders) {
+    // Normalizing phone to match better if needed, but basic key is fine
+    const p = row.phone;
+    const dStr = row.dateCreated ? new Date(row.dateCreated).toISOString().split('T')[0] : null;
+    if (p && dStr) {
+      const key = `${p}_${dStr}`;
       counts.set(key, (counts.get(key) || 0) + 1);
     }
   }
 
   return orders.map(order => {
-    const phone = order.phone || (order.billing?.phone);
-    const dateStr = order.dateCreated ? new Date(order.dateCreated).toISOString().split('T')[0] : null;
+    const phone = order.phone;
+    const dateStr = order.dateCreated ? order.dateCreated.split('T')[0] : null;
     let hasMultiple = false;
     if (phone && dateStr) {
       const key = `${phone}_${dateStr}`;
@@ -130,7 +150,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
     const progressRecords = orderIdsNum.length > 0
       ? await db.select({ orderId: orderScanProgress.orderId, items: orderScanProgress.items, status: orderScanProgress.status }).from(orderScanProgress).where(and(eq(orderScanProgress.store, store), inArray(orderScanProgress.orderId, orderIdsNum)))
       : [];
-    const progressMap = new Map(progressRecords.map(p => [p.orderId, { items: p.items, status: p.status }]));
+    const progressMap = new Map(progressRecords.map(p => [p.orderId, { items: (p.items as any[]) || [], status: p.status }]));
 
     const mappedOrders = orders.map(order => {
       const billing = order.billing as any;
@@ -158,7 +178,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
       };
     });
     
-    return computeMultipleOrdersToday(mappedOrders);
+    return await computeMultipleOrdersToday(mappedOrders, store);
   } catch (error: any) {
     console.error('getProcessingOrders error:', error);
     throw new Error(`שגיאה בשליפת הזמנות: ${error?.message || 'שגיאה לא ידועה'}`);
@@ -228,7 +248,7 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
     if (dateStr && history?.pastOrders) {
       const todayOrders = history.pastOrders.filter(o => {
         const d = o.dateCreated ? new Date(o.dateCreated).toISOString().split('T')[0] : null;
-        return d === dateStr;
+        return d === dateStr && o.store === store;
       });
       if (todayOrders.length > 1) {
         hasMultipleOrdersToday = true;
@@ -803,7 +823,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
     const progressRecords = finalIdsNum.length > 0
       ? await db.select({ orderId: orderScanProgress.orderId, items: orderScanProgress.items, status: orderScanProgress.status }).from(orderScanProgress).where(and(eq(orderScanProgress.store, store), inArray(orderScanProgress.orderId, finalIdsNum)))
       : [];
-    const progressMap = new Map(progressRecords.map(p => [p.orderId, { items: p.items, status: p.status }]));
+    const progressMap = new Map(progressRecords.map(p => [p.orderId, { items: (p.items as any[]) || [], status: p.status }]));
 
     const labelMap = new Map();
     // Add the ones found in the fallback search (or initial search)
@@ -830,7 +850,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
       };
     });
     
-    return computeMultipleOrdersToday(mappedOrders);
+    return await computeMultipleOrdersToday(mappedOrders, store);
   } catch(e) {
     console.error("searchScannerOrders error:", e);
     return [];

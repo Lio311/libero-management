@@ -52,7 +52,11 @@ export async function getCustomerHistory(
       db.select().from(laburaOrders).where(and(whereClause, inArray(laburaOrders.status, validStatuses)))
     ]);
 
-    const allOrders = [...libero, ...velour, ...labura];
+    const allOrders = [
+      ...libero.map(o => ({ ...o, store: 'libero' })),
+      ...velour.map(o => ({ ...o, store: 'velour' })),
+      ...labura.map(o => ({ ...o, store: 'labura' }))
+    ];
     
     stats.pastOrders = allOrders;
     stats.totalOrders = allOrders.length;
