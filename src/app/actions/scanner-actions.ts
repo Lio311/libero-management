@@ -79,7 +79,12 @@ async function computeMultipleOrdersToday(orders: ScannerOrder[], store: "libero
   const recentOrders = await db.select({
     dateCreated: targetOrders.dateCreated,
     phone: sql<string>`billing->>'phone'`
-  }).from(targetOrders).where(gte(targetOrders.dateCreated, minDate));
+  }).from(targetOrders).where(
+    and(
+      gte(targetOrders.dateCreated, minDate),
+      inArray(targetOrders.status, ['completed', 'processing', 'shipped'])
+    )
+  );
 
   const counts = new Map<string, number>();
   for (const row of recentOrders) {
