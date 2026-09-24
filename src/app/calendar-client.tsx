@@ -545,7 +545,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
   // But we can add them to localTasks if needed. For now we just use the monthly schedule.
 
   return (
-    <div dir="rtl" className="h-full overflow-hidden flex flex-col text-white selection:bg-[#0071E3]/30 font-sans page-animate">
+    <div dir="rtl" className="flex flex-col text-white selection:bg-[#0071E3]/30 font-sans page-animate">
       {/* Premium Header */}
       <header className="sticky top-0 z-40 border-b border-white/20 pb-4 mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -567,7 +567,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         </div>
       </header>
 
-      <main className="w-full flex-1 flex flex-col min-h-0">
+      <main className="w-full flex flex-col">
         {/* Month Navigation */}
         <div className="flex items-center justify-between mb-4 shrink-0">
           <h2 className="text-2xl md:text-4xl font-light flex gap-3 items-baseline text-white">
@@ -584,7 +584,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         </div>
 
         {/* Calendar Grid */}
-        <div className="rounded-2xl md:rounded-3xl overflow-hidden border border-white/20 flex-1 flex flex-col min-h-0 bg-white/5">
+        <div className="rounded-2xl md:rounded-3xl border border-white/20 flex flex-col bg-white/5">
           {/* Days of week */}
           <div className="grid grid-cols-7 border-b border-white/20 bg-white/10 shrink-0">
             {weekDays.map(day => (
@@ -595,7 +595,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
           </div>
 
           {/* Days grid */}
-          <div className="grid grid-cols-7 auto-rows-[minmax(100px,auto)] md:auto-rows-fr flex-1 min-h-0">
+          <div className="grid grid-cols-7 auto-rows-[minmax(80px,auto)]">
             {days.map((day, dayIdx) => {
               const dateKey = format(day, 'yyyy-MM-dd');
               const dayTasks = localTasks[dateKey] || [];

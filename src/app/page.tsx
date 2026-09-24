@@ -34,7 +34,7 @@ export default async function Page() {
         </div>
 
         {/* Main Calendar Card */}
-        <div className="col-span-1 lg:col-span-12 glass-panel rounded-3xl p-4 md:p-6 overflow-hidden flex flex-col min-h-[600px] shadow-2xl">
+        <div className="col-span-1 lg:col-span-12 glass-panel rounded-3xl p-4 md:p-6 flex flex-col shadow-2xl">
           <CalendarClient 
             scheduleData={scheduleData}
             bankTasksData={bankTasksData}
