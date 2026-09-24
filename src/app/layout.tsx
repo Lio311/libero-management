@@ -48,7 +48,10 @@ export default async function RootLayout({
   return (
     <ClerkProvider localization={heIL}>
       <html lang="he" dir="rtl">
-        <body className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row`}>
+        <body 
+          className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row bg-cover bg-center bg-no-repeat bg-fixed`}
+          style={{ backgroundImage: "url('/beach-bg.png')" }}
+        >
           <ConfirmProvider>
             <PwaRegistration />
             <LayoutWrapper sidebar={
