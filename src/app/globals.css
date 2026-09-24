@@ -247,10 +247,10 @@
 /* ===== LIGHT GLASS MODE ===== */
 
 body.light-glass .glass-panel {
-  background-color: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
-  color: #1a1a1a;
+  background-color: rgba(255, 255, 255, 0.65) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06) !important;
+  color: #1a1a1a !important;
 }
 
 body.light-glass .glass-panel,
@@ -258,18 +258,14 @@ body.light-glass .glass-panel * {
   --tw-text-opacity: 1;
 }
 
-body.light-glass .glass-panel .text-white {
+/* 1. Turn generic light text to dark, BUT exclude elements with solid colored backgrounds (bg-blue, bg-red, etc) */
+body.light-glass .glass-panel :where(.text-white, .text-white\/70, .text-white\/80, .text-white\/90, .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400, .text-zinc-100, .text-zinc-200, .text-zinc-300, .text-zinc-400, .text-gray-100, .text-gray-200, .text-gray-300, .text-gray-400):not([class*="bg-blue-"]):not([class*="bg-red-"]):not([class*="bg-green-"]):not([class*="bg-emerald-"]):not([class*="bg-purple-"]):not([class*="bg-primary"]):not([class*="bg-amber-"]) {
   color: #1a1a1a !important;
 }
 
-body.light-glass .glass-panel .text-slate-200,
-body.light-glass .glass-panel .text-slate-300 {
-  color: #475569 !important;
-}
-
-body.light-glass .glass-panel .text-slate-400,
-body.light-glass .glass-panel .text-slate-500 {
-  color: #64748b !important;
+/* Also handle when the glass-panel itself has these text classes */
+body.light-glass .glass-panel:where(.text-white, .text-white\/70, .text-slate-200, .text-slate-300) {
+  color: #1a1a1a !important;
 }
 
 body.light-glass .glass-panel .text-muted-foreground,
@@ -285,6 +281,7 @@ body.light-glass .glass-panel .text-foreground {
   color: #1e293b !important;
 }
 
+/* 2. Inputs inside glass panel */
 body.light-glass .glass-panel input,
 body.light-glass .glass-panel select,
 body.light-glass .glass-panel textarea {
@@ -298,31 +295,32 @@ body.light-glass .glass-panel input::placeholder {
   color: rgba(0, 0, 0, 0.4) !important;
 }
 
+/* 3. Handle transparent white backgrounds (buttons like "יצירת מדבקה" or inactive tabs) */
+body.light-glass .glass-panel :where(.bg-white\/10, .bg-white\/5, .bg-white\/20, .bg-white\/30) {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+body.light-glass .glass-panel :where(.hover\:bg-white\/10, .hover\:bg-white\/20, .hover\:bg-white\/30):hover {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
 body.light-glass .glass-panel .bg-black\/20 {
   background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
-body.light-glass .glass-panel .bg-white\/10,
-body.light-glass .glass-panel .bg-white\/5 {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-}
-
-body.light-glass .glass-panel .border-white\/20,
-body.light-glass .glass-panel .border-white\/10 {
+/* 4. Borders */
+body.light-glass .glass-panel :where(.border-white\/20, .border-white\/10) {
   border-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-body.light-glass .glass-panel .hover\:bg-white\/10:hover {
-  background-color: rgba(0, 0, 0, 0.08) !important;
-}
-
+/* 5. Modals / Overlays */
 body.light-glass .solid-overlay-dark {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(0, 0, 0, 0.1);
   color: #1a1a1a;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
+/* 6. Logo and colored text overrides */
 body.light-glass .glass-panel img[alt="Libero Logo"] {
   filter: none !important;
 }
@@ -330,6 +328,7 @@ body.light-glass .glass-panel img[alt="Libero Logo"] {
 body.light-glass .glass-panel .text-emerald-400 { color: #059669 !important; }
 body.light-glass .glass-panel .text-rose-400 { color: #e11d48 !important; }
 
+/* 7. Background image blend mode */
 body.light-glass {
   background-blend-mode: normal !important;
 }
