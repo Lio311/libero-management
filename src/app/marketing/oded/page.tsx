@@ -51,7 +51,7 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
     'pending': { label: 'ממתין', className: 'bg-yellow-100 text-yellow-700' },
     'on-hold': { label: 'בהמתנה', className: 'bg-amber-100 text-amber-700' },
     'cancelled': { label: 'בוטלה', className: 'bg-red-100 text-red-700' },
-    'refunded': { label: 'הוחזרה', className: 'bg-gray-100 text-gray-700' },
+    'refunded': { label: 'הוחזרה', className: 'bg-gray-100 text-slate-200' },
     'failed': { label: 'נכשלה', className: 'bg-red-100 text-red-700' },
 };
 
@@ -200,7 +200,7 @@ export default function OdedCouponPage() {
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     className="z-10 w-full max-w-md p-8"
                 >
-                    <div className="backdrop-blur-2xl bg-zinc-950/40 border border-white/10 rounded-3xl p-10 shadow-2xl overflow-hidden relative">
+                    <div className="backdrop-blur-2xl bg-zinc-950/40 border border-white/10 text-slate-300 rounded-3xl p-10 shadow-2xl overflow-hidden relative">
                         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50"></div>
                         
                         <div className="relative z-10 flex flex-col items-center">
@@ -208,7 +208,7 @@ export default function OdedCouponPage() {
                                 initial={{ scale: 0.8 }}
                                 animate={{ scale: 1 }}
                                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                                className="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center mb-6 border border-white/20 shadow-inner overflow-hidden"
+                                className="w-20 h-20 glass-panel/10 rounded-2xl flex items-center justify-center mb-6 border border-white/20 shadow-inner overflow-hidden"
                             >
                                 <Image src="/oded.png" alt="Oded" width={80} height={80} className="w-full h-full object-cover" />
                             </motion.div>
@@ -226,7 +226,7 @@ export default function OdedCouponPage() {
                                             setAuthError(false);
                                             animate(x, 0, { type: 'spring', bounce: 0.2 });
                                         }}
-                                        className={`w-full bg-zinc-900/50 border text-center text-xl tracking-wider font-mono ${authError ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 focus:border-white/30'} rounded-xl py-4 text-white placeholder-zinc-500 focus:outline-none focus:ring-4 ${authError ? 'focus:ring-red-500/10' : 'focus:ring-white/5'} transition-all duration-300 backdrop-blur-md`}
+                                        className={`w-full bg-zinc-900/50 border text-center text-xl tracking-wider font-mono ${authError ? 'border-red-500/50 focus:border-red-500' : 'border-white/10 text-slate-300 focus:border-white/30'} rounded-xl py-4 text-white placeholder-zinc-500 focus:outline-none focus:ring-4 ${authError ? 'focus:ring-red-500/10' : 'focus:ring-white/5'} transition-all duration-300 backdrop-blur-md`}
                                         placeholder="סיסמה"
                                         disabled={isAuthLoading}
                                         autoFocus
@@ -234,7 +234,7 @@ export default function OdedCouponPage() {
                                     {authError && <p className="text-red-400 text-sm mt-2 text-center">{authError}</p>}
                                 </div>
 
-                                <div dir="ltr" ref={containerRef} className="relative w-full h-14 bg-zinc-900/50 rounded-full overflow-hidden flex items-center justify-center border border-white/10 mt-4 backdrop-blur-md">
+                                <div dir="ltr" ref={containerRef} className="relative w-full h-14 bg-zinc-900/50 rounded-full overflow-hidden flex items-center justify-center border border-white/10 text-slate-300 mt-4 backdrop-blur-md">
                                     <motion.div style={{ background }} className="absolute inset-0 z-0" />
                                     <span className="text-zinc-500 font-medium z-0 select-none text-sm tracking-wider uppercase">
                                         {isAuthLoading ? 'Unlocking...' : 'Slide to unlock'}
@@ -247,13 +247,13 @@ export default function OdedCouponPage() {
                                             dragElastic={0.05}
                                             onDragEnd={handleDragEnd}
                                             style={{ x }}
-                                            className={`absolute left-1 w-12 h-12 bg-white rounded-full z-10 flex items-center justify-center shadow-lg ${disabled ? 'opacity-30 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}`}
+                                            className={`absolute left-1 w-12 h-12 glass-panel rounded-full z-10 flex items-center justify-center shadow-lg ${disabled ? 'opacity-30 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'}`}
                                         >
                                             <ChevronRight className="w-5 h-5 text-black" />
                                         </motion.div>
                                     )}
                                     {isAuthLoading && (
-                                        <div className="absolute right-1 w-12 h-12 bg-white rounded-full z-10 flex items-center justify-center shadow-lg">
+                                        <div className="absolute right-1 w-12 h-12 glass-panel rounded-full z-10 flex items-center justify-center shadow-lg">
                                             <motion.div
                                                 animate={{ rotate: 360 }}
                                                 transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
@@ -280,10 +280,10 @@ export default function OdedCouponPage() {
                             <Image src="/oded.png" alt="עודד" width={56} height={56} className="w-full h-full object-cover" />
                         </div>
                         <div>
-                            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">עודד — קופון OSVR / OSVR10</h1>
+                            <h1 className="text-2xl md:text-3xl font-bold text-white">עודד — קופון OSVR / OSVR10</h1>
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                <p className="text-sm font-medium text-[#6d6d6d]">פירוט רכישות מלא מ-WooCommerce</p>
+                                <p className="text-sm font-medium text-slate-300">פירוט רכישות מלא מ-WooCommerce</p>
                             </div>
                         </div>
                     </div>
@@ -292,7 +292,7 @@ export default function OdedCouponPage() {
                     <button
                         onClick={() => fetchData(true)}
                         disabled={loading || isRefreshing}
-                        className="p-2.5 text-[#6d6d6d] hover:bg-black/[0.04] active:bg-black/[0.08] rounded-xl transition-all border border-black/[0.06] bg-white shadow-sm disabled:opacity-50"
+                        className="p-2.5 text-slate-300 hover:bg-white/10 active:bg-white/20 rounded-xl transition-all border border-white/10 text-slate-300 glass-panel shadow-sm disabled:opacity-50"
                         title="רענן נתונים"
                     >
                         <RefreshCw size={18} className={loading || isRefreshing ? 'animate-spin' : ''} />
@@ -302,60 +302,60 @@ export default function OdedCouponPage() {
             </div>
 
             {error ? (
-                <div className="bg-white rounded-3xl border border-red-100 p-12 flex flex-col items-center justify-center text-center shadow-xl shadow-red-500/5">
-                    <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-6">
+                <div className="glass-panel rounded-3xl border border-red-100 p-12 flex flex-col items-center justify-center text-center shadow-xl shadow-red-500/5">
+                    <div className="w-16 h-16 rounded-2xl bg-red-500/20 flex items-center justify-center mb-6">
                         <AlertCircle className="text-red-500" size={32} />
                     </div>
-                    <h3 className="text-xl font-bold text-red-900">אופס! משהו השתבש</h3>
+                    <h3 className="text-xl font-bold text-red-200">אופס! משהו השתבש</h3>
                     <p className="text-red-600/70 max-w-md mt-2 font-medium">{error}</p>
                     <button
                         onClick={() => fetchData()}
-                        className="mt-8 px-6 py-2.5 bg-red-500 text-white rounded-xl text-sm font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95"
+                        className="mt-8 px-6 py-2.5 bg-red-500/200 text-white rounded-xl text-sm font-bold hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95"
                     >
                         נסה שוב
                     </button>
                 </div>
             ) : loading ? (
-                <div className="bg-white rounded-3xl border border-black/[0.07] p-32 flex flex-col items-center justify-center shadow-sm">
+                <div className="glass-panel rounded-3xl border border-white/10 text-slate-300 p-32 flex flex-col items-center justify-center shadow-sm">
                     <div className="relative">
                         <Loader2 className="animate-spin text-purple-500" size={48} />
                         <div className="absolute inset-0 blur-xl opacity-20 bg-purple-500 animate-pulse" />
                     </div>
-                    <p className="text-[#1d1d1f] font-bold mt-8 text-lg text-center">מושך נתונים...</p>
-                    <p className="text-[#6d6d6d] text-sm mt-1 text-center">מחפש הזמנות עם קופון OSVR / OSVR10</p>
+                    <p className="text-white font-bold mt-8 text-lg text-center">מושך נתונים...</p>
+                    <p className="text-slate-300 text-sm mt-1 text-center">מחפש הזמנות עם קופון OSVR / OSVR10</p>
                 </div>
             ) : (
                 <>
                     {/* Summary Cards */}
                     {summary && (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">הזמנות</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_orders}</p>
+                            <div className="glass-panel rounded-3xl p-6 border border-white/10 text-slate-300 shadow-sm">
+                                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">הזמנות</p>
+                                <p className="text-2xl font-black text-white">{summary.total_orders}</p>
                             </div>
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מוצרים</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]">{summary.total_items}</p>
+                            <div className="glass-panel rounded-3xl p-6 border border-white/10 text-slate-300 shadow-sm">
+                                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">מוצרים</p>
+                                <p className="text-2xl font-black text-white">{summary.total_items}</p>
                             </div>
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות מותגי הבית</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.house_brand_revenue)}</p>
+                            <div className="glass-panel rounded-3xl p-6 border border-white/10 text-slate-300 shadow-sm">
+                                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">מכירות מותגי הבית</p>
+                                <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.house_brand_revenue)}</p>
                             </div>
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">מכירות שאר המוצרים</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.other_brand_revenue)}</p>
+                            <div className="glass-panel rounded-3xl p-6 border border-white/10 text-slate-300 shadow-sm">
+                                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">מכירות שאר המוצרים</p>
+                                <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.other_brand_revenue)}</p>
                             </div>
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ מכירות</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.total_revenue)}</p>
+                            <div className="glass-panel rounded-3xl p-6 border border-white/10 text-slate-300 shadow-sm">
+                                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">סה"כ מכירות</p>
+                                <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.total_revenue)}</p>
                             </div>
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">סה"כ הנחות</p>
+                            <div className="glass-panel rounded-3xl p-6 border border-white/10 text-slate-300 shadow-sm">
+                                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">סה"כ הנחות</p>
                                 <p className="text-2xl font-black text-red-500" dir="ltr">{formatILSNeg(summary.total_discount)}</p>
                             </div>
-                            <div className="bg-white p-4 md:p-5 rounded-2xl border border-black/[0.06] shadow-sm">
-                                <p className="text-xs font-bold text-[#6d6d6d] uppercase tracking-wider mb-1">ממוצע להזמנה</p>
-                                <p className="text-2xl font-black text-[#1d1d1f]" dir="ltr">{formatILS(summary.avg_order_value)}</p>
+                            <div className="glass-panel rounded-3xl p-6 border border-white/10 text-slate-300 shadow-sm">
+                                <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">ממוצע להזמנה</p>
+                                <p className="text-2xl font-black text-white" dir="ltr">{formatILS(summary.avg_order_value)}</p>
                             </div>
                             <div className="bg-gradient-to-br from-purple-500 to-pink-500 p-4 md:p-5 rounded-2xl shadow-lg shadow-purple-500/20">
                                 <p className="text-xs font-bold text-white/80 uppercase tracking-wider mb-1">עמלה (כולל מע"מ)</p>
@@ -367,26 +367,26 @@ export default function OdedCouponPage() {
 
                     {/* Orders List */}
                     {orders.length === 0 ? (
-                        <div className="bg-white rounded-3xl border border-black/[0.07] p-24 flex flex-col items-center justify-center text-center shadow-sm">
-                            <div className="w-20 h-20 rounded-3xl bg-slate-50 flex items-center justify-center mb-6 border border-slate-100">
+                        <div className="glass-panel rounded-3xl border border-white/10 text-slate-300 p-24 flex flex-col items-center justify-center text-center shadow-sm">
+                            <div className="w-20 h-20 rounded-3xl glass-panel flex items-center justify-center mb-6 border border-white/10 text-slate-300">
                                 <Tag className="text-slate-300" size={36} />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-800">לא נמצאו הזמנות</h3>
-                            <p className="text-slate-500 max-w-xs mt-2 font-medium">לא נמצאו הזמנות עם קופון OSVR / OSVR10 בחודש הנבחר.</p>
+                            <h3 className="text-xl font-bold text-white">לא נמצאו הזמנות</h3>
+                            <p className="text-slate-400 max-w-xs mt-2 font-medium">לא נמצאו הזמנות עם קופון OSVR / OSVR10 בחודש הנבחר.</p>
                         </div>
                     ) : (
-                        <div className="bg-white rounded-3xl border border-black/[0.07] shadow-sm overflow-hidden">
-                            <div className="px-6 py-5 border-b border-slate-100">
-                                <h2 className="text-lg font-bold text-slate-900">
+                        <div className="glass-panel rounded-3xl border border-white/10 text-slate-300 shadow-sm overflow-hidden">
+                            <div className="px-6 py-5 border-b border-white/10 text-slate-300">
+                                <h2 className="text-lg font-bold text-white">
                                     פירוט הזמנות — {format(currentDate, 'MMMM yyyy', { locale: he })}
                                 </h2>
-                                <p className="text-sm text-slate-500 mt-0.5">{orders.length} הזמנות עם קופון OSVR / OSVR10</p>
+                                <p className="text-sm text-slate-400 mt-0.5">{orders.length} הזמנות עם קופון OSVR / OSVR10</p>
                             </div>
 
-                            <div className="divide-y divide-slate-100">
+                            <div className="divide-y divide-white/10">
                                 {orders.map((order) => {
                                     const isExpanded = expandedOrder === order.order_id;
-                                    const statusInfo = STATUS_MAP[order.status] || { label: order.status, className: 'bg-gray-100 text-gray-700' };
+                                    const statusInfo = STATUS_MAP[order.status] || { label: order.status, className: 'bg-gray-100 text-slate-200' };
                                     const orderDate = new Date(order.date);
 
                                     return (
@@ -394,15 +394,15 @@ export default function OdedCouponPage() {
                                             {/* Order Row */}
                                             <button
                                                 onClick={() => toggleOrder(order.order_id)}
-                                                className="w-full px-4 md:px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors text-right gap-2"
+                                                className="w-full px-4 md:px-6 py-4 flex items-center justify-between hover:bg-transparent transition-colors text-right gap-2"
                                             >
                                                 <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
                                                     <div className="hidden sm:flex w-10 h-10 rounded-xl bg-slate-100 items-center justify-center flex-shrink-0">
-                                                        <ShoppingBag size={18} className="text-slate-500" />
+                                                        <ShoppingBag size={18} className="text-slate-400" />
                                                     </div>
                                                     <div className="min-w-0 flex-1">
                                                         <div className="flex items-center gap-2 flex-wrap">
-                                                            <span className="font-bold text-slate-900 text-sm md:text-base">#{order.order_number}</span>
+                                                            <span className="font-bold text-white text-sm md:text-base">#{order.order_number}</span>
                                                             <span className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-bold ${statusInfo.className}`}>
                                                                 {statusInfo.label}
                                                             </span>
@@ -412,7 +412,7 @@ export default function OdedCouponPage() {
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] md:text-sm text-slate-500 mt-1">
+                                                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] md:text-sm text-slate-400 mt-1">
                                                             <span className="truncate max-w-[80px] sm:max-w-[120px] md:max-w-none">{order.customer_name || 'אורח'}</span>
                                                             <span className="text-slate-300">•</span>
                                                             <span className="whitespace-nowrap">{format(orderDate, 'dd/MM/yy HH:mm')}</span>
@@ -427,7 +427,7 @@ export default function OdedCouponPage() {
                                                 </div>
                                                 <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
                                                     <div className="text-left">
-                                                        <div className="font-bold text-slate-900 text-sm md:text-base" dir="ltr">
+                                                        <div className="font-bold text-white text-sm md:text-base" dir="ltr">
                                                             {formatILS(order.subtotal)}
                                                         </div>
                                                         <div className="text-[10px] md:text-xs text-red-500 font-medium" dir="ltr">
@@ -444,23 +444,23 @@ export default function OdedCouponPage() {
 
                                             {/* Expanded Details */}
                                             {isExpanded && (
-                                                <div className="px-3 md:px-6 pb-5 bg-slate-50/50">
-                                                    <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                                                <div className="px-3 md:px-6 pb-5 bg-transparent">
+                                                    <div className="glass-panel rounded-2xl border border-white/10 text-slate-300 overflow-hidden shadow-sm">
                                                         {/* Customer Info */}
-                                                        <div className="px-4 md:px-5 py-3 bg-slate-50 border-b border-slate-100 flex flex-wrap gap-x-4 md:gap-x-6 gap-y-1.5 text-xs md:text-sm">
+                                                        <div className="px-4 md:px-5 py-3 glass-panel border-b border-white/10 text-slate-300 flex flex-wrap gap-x-4 md:gap-x-6 gap-y-1.5 text-xs md:text-sm">
                                                             {order.customer_email && (
-                                                                <span className="text-slate-600 break-all">
-                                                                    <span className="font-semibold text-slate-800">אימייל:</span> {order.customer_email}
+                                                                <span className="text-slate-300 break-all">
+                                                                    <span className="font-semibold text-white">אימייל:</span> {order.customer_email}
                                                                 </span>
                                                             )}
                                                             {order.customer_phone && (
-                                                                <span className="text-slate-600">
-                                                                    <span className="font-semibold text-slate-800">טלפון:</span> {order.customer_phone}
+                                                                <span className="text-slate-300">
+                                                                    <span className="font-semibold text-white">טלפון:</span> {order.customer_phone}
                                                                 </span>
                                                             )}
                                                             {order.payment_method && (
-                                                                <span className="text-slate-600">
-                                                                    <span className="font-semibold text-slate-800">תשלום:</span> {order.payment_method}
+                                                                <span className="text-slate-300">
+                                                                    <span className="font-semibold text-white">תשלום:</span> {order.payment_method}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -469,26 +469,26 @@ export default function OdedCouponPage() {
                                                         <div className="hidden md:block overflow-x-auto">
                                                             <table className="w-full text-sm">
                                                                 <thead>
-                                                                    <tr className="border-b border-slate-100 text-slate-500">
+                                                                    <tr className="border-b border-white/10 text-slate-300 text-slate-400">
                                                                         <th className="text-right px-5 py-2.5 font-semibold">מוצר</th>
                                                                         <th className="text-center px-3 py-2.5 font-semibold">כמות</th>
                                                                         <th className="text-center px-3 py-2.5 font-semibold">מחיר</th>
                                                                         <th className="text-center px-5 py-2.5 font-semibold">סה"כ</th>
                                                                     </tr>
                                                                 </thead>
-                                                                <tbody className="divide-y divide-slate-50">
+                                                                <tbody className="divide-y divide-white/10">
                                                                     {order.items.map((item, idx) => (
-                                                                        <tr key={idx} className="hover:bg-slate-50/50">
+                                                                        <tr key={idx} className="hover:bg-transparent">
                                                                             <td className="px-5 py-3">
                                                                                 <div className="flex items-center gap-2">
                                                                                     <Package size={14} className="text-slate-400 flex-shrink-0" />
-                                                                                    <span className="font-medium text-slate-800 line-clamp-2 leading-snug">{item.name}</span>
+                                                                                    <span className="font-medium text-white line-clamp-2 leading-snug">{item.name}</span>
                                                                                 </div>
                                                                                 {item.sku && <span className="text-xs text-slate-400 mr-6 mt-0.5 block">SKU: {item.sku}</span>}
                                                                             </td>
-                                                                            <td className="text-center px-3 py-3 text-slate-600">{item.quantity}</td>
-                                                                            <td className="text-center px-3 py-3 text-slate-600" dir="ltr">{formatILS(item.price)}</td>
-                                                                            <td className="text-center px-5 py-3 font-semibold text-slate-800" dir="ltr">{formatILS(item.total)}</td>
+                                                                            <td className="text-center px-3 py-3 text-slate-300">{item.quantity}</td>
+                                                                            <td className="text-center px-3 py-3 text-slate-300" dir="ltr">{formatILS(item.price)}</td>
+                                                                            <td className="text-center px-5 py-3 font-semibold text-white" dir="ltr">{formatILS(item.total)}</td>
                                                                         </tr>
                                                                     ))}
                                                                 </tbody>
@@ -496,16 +496,16 @@ export default function OdedCouponPage() {
                                                         </div>
 
                                                         {/* Mobile Items List */}
-                                                        <div className="md:hidden divide-y divide-slate-50 border-b border-slate-100">
+                                                        <div className="md:hidden divide-y divide-white/10 border-b border-white/10 text-slate-300">
                                                             {order.items.map((item, idx) => (
-                                                                <div key={idx} className="px-4 py-3 hover:bg-slate-50/50 flex gap-3">
+                                                                <div key={idx} className="px-4 py-3 hover:bg-transparent flex gap-3">
                                                                     <div className="flex-1 min-w-0">
-                                                                        <span className="font-medium text-slate-800 text-[11px] leading-snug line-clamp-2">{item.name}</span>
+                                                                        <span className="font-medium text-white text-[11px] leading-snug line-clamp-2">{item.name}</span>
                                                                         {item.sku && <span className="text-[10px] text-slate-400 mt-0.5 block">SKU: {item.sku}</span>}
                                                                     </div>
                                                                     <div className="flex flex-col items-end gap-1 flex-shrink-0 pt-0.5">
-                                                                        <span className="font-semibold text-slate-800 text-xs" dir="ltr">{formatILS(item.total)}</span>
-                                                                        <span className="text-[10px] text-slate-500">
+                                                                        <span className="font-semibold text-white text-xs" dir="ltr">{formatILS(item.total)}</span>
+                                                                        <span className="text-[10px] text-slate-400">
                                                                             {item.quantity} × <span dir="ltr">{formatILS(item.price)}</span>
                                                                         </span>
                                                                     </div>
@@ -514,18 +514,18 @@ export default function OdedCouponPage() {
                                                         </div>
 
                                                         {/* Order Totals */}
-                                                        <div className="px-4 md:px-5 py-3 md:py-4 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                                                        <div className="px-4 md:px-5 py-3 md:py-4 glass-panel border-t border-white/10 text-slate-300 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                                                             <div className="flex flex-col sm:flex-row gap-1 sm:gap-6 text-xs md:text-sm w-full sm:w-auto">
-                                                                <span className="text-slate-600 flex justify-between sm:justify-start">
+                                                                <span className="text-slate-300 flex justify-between sm:justify-start">
                                                                     <span>סה"כ מוצרים:</span>
-                                                                    <span className="font-bold text-slate-800 sm:mr-2" dir="ltr">{formatILS(order.subtotal, 2)}</span>
+                                                                    <span className="font-bold text-white sm:mr-2" dir="ltr">{formatILS(order.subtotal, 2)}</span>
                                                                 </span>
                                                                 <span className="text-red-500 flex justify-between sm:justify-start">
                                                                     <span>הנחת קופון:</span>
                                                                     <span className="font-bold sm:mr-2" dir="ltr">{formatILSNeg(order.discount_amount, 2)}</span>
                                                                 </span>
                                                             </div>
-                                                            <div className="font-bold text-base md:text-lg text-purple-600 w-full sm:w-auto flex justify-between sm:justify-start border-t border-slate-200 sm:border-0 pt-2 sm:pt-0 mt-1 sm:mt-0" dir="rtl">
+                                                            <div className="font-bold text-base md:text-lg text-purple-600 w-full sm:w-auto flex justify-between sm:justify-start border-t border-white/20 sm:border-0 pt-2 sm:pt-0 mt-1 sm:mt-0" dir="rtl">
                                                                 <span>סה"כ:</span>
                                                                 <span className="mr-2" dir="ltr">{formatILS(order.total, 2)}</span>
                                                             </div>
