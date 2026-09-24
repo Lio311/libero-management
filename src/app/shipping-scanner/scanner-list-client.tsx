@@ -633,14 +633,18 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
   const daysOld = diffTime / (1000 * 60 * 60 * 24);
   
   let ageBgClass = "";
+  let isLightCard = false;
   if (order.status !== 'completed') {
     if (daysOld >= 5) {
-      ageBgClass = "!bg-red-400 hover:!bg-red-500 !border-red-500";
+      ageBgClass = "!bg-red-50 hover:!bg-red-100 !border-red-200";
+      isLightCard = true;
     } else if (daysOld >= 3) {
-      ageBgClass = "!bg-orange-400 hover:!bg-orange-500 !border-orange-500";
+      ageBgClass = "!bg-orange-50 hover:!bg-orange-100 !border-orange-200";
+      isLightCard = true;
     }
   } else {
-    ageBgClass = "!bg-emerald-500 hover:!bg-emerald-600 !border-emerald-500";
+    ageBgClass = "!bg-emerald-50 hover:!bg-emerald-100 !border-emerald-200";
+    isLightCard = true;
   }
 
   return (
@@ -653,7 +657,7 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
         </div>
       )}
       <Link href={`/shipping-scanner/${order.id}?store=${store}`} className="block h-full">
-        <div className={`glass-panel p-4 rounded-xl hover-scale cursor-pointer group transition-colors h-full flex flex-col relative ${isSelected ? 'border-purple-500 border-2' : 'hover:border-primary/50'} ${ageBgClass}`}>
+        <div className={`glass-panel p-4 rounded-xl hover-scale cursor-pointer group transition-colors h-full flex flex-col relative ${isSelected ? 'border-purple-500 border-2' : 'hover:border-primary/50'} ${ageBgClass} ${isLightCard ? '[&_h3]:!text-slate-900 [&_svg.text-primary]:!text-blue-600' : ''}`}>
           <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-semibold flex items-center gap-2">
             <Package className="w-5 h-5 text-primary group-hover:text-primary/80" />
@@ -678,7 +682,7 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
           </div>
         )}
 
-        <div className="flex items-center justify-between text-sm text-white/70 flex-1 mb-1">
+        <div className={`flex items-center justify-between text-sm flex-1 mb-1 ${isLightCard ? 'text-slate-600' : 'text-white/70'}`}>
           <div className="flex items-center gap-1.5 truncate mr-2">
             <User className="w-4 h-4 shrink-0" />
             <span className="truncate">{order.customerName}</span>
@@ -689,7 +693,14 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
           </div>
         </div>
         
-        <div className="mt-2 pt-2 border-t border-white/10 text-white font-medium flex justify-between items-center">
+        {isAdmin && order.status === 'completed' && order.scannedBy && (
+          <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-purple-600 bg-purple-100/50 p-1.5 rounded-lg border border-purple-200">
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">נסרק על ידי {order.scannedBy}</span>
+          </div>
+        )}
+        
+        <div className={`mt-2 pt-2 border-t font-medium flex justify-between items-center ${isLightCard ? 'text-slate-900 border-slate-200' : 'text-white border-white/10'}`}>
           <span>סה"כ לתשלום:</span>
           <span>₪{parseFloat(order.total).toFixed(2)}</span>
         </div>
