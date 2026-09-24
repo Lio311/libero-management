@@ -843,7 +843,7 @@ export default function ScannerClient({
                 <X className="w-5 h-5" />
               </button>
               <div className="w-full h-[150px] mx-auto overflow-hidden rounded-xl shadow-inner bg-black flex items-center justify-center">
-                <div id="reader" className="w-full shrink-0"></div>
+                <div id="reader" className="w-full shrink-0 [&>video]:object-cover"></div>
               </div>
               <p className="text-xs text-muted-foreground text-center">
                 סריקה אוטומטית - מקם את הברקוד באמצע
