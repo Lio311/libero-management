@@ -1012,9 +1012,9 @@ export default function ScannerClient({
                         {item.sku || 'ללא מק"ט'}
                       </span>
                     </p>
-                    {item.isManual && (
-                      <span className="inline-block mt-1 text-xs bg-secondary px-2 py-0.5 rounded-full font-sans">
-                        אישור ידני
+                    {item.isManual && item.scanned > 0 && (
+                      <span className="inline-block mt-1 text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-sans">
+                        סומן ידנית
                       </span>
                     )}
                   </div>
