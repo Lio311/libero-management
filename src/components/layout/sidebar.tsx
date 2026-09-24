@@ -94,7 +94,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
               <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4 z-10">
                 <Menu className="h-6 w-6" />
               </button>
-              <div className="relative h-20 w-52 mx-auto pointer-events-none">
+              <div className="relative h-20 w-52 md:w-12 md:group-hover/sidebar:w-52 mx-auto transition-all duration-300 pointer-events-none">
                 <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7] brightness-0 invert" priority />
               </div>
               <div className="absolute left-4 z-10">{children}</div>
@@ -104,13 +104,16 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
               <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4 z-10">
                 <Menu className="h-6 w-6" />
               </button>
-              <div className="relative h-20 w-52 mx-auto pointer-events-none">
+              <div className="relative h-20 w-52 md:w-10 md:group-hover/sidebar:w-52 mx-auto transition-all duration-300 pointer-events-none">
                 <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7] brightness-0 invert" priority />
               </div>
             </>
           )}
         </div>
       )}
+
+      {/* Desktop Layout Spacer */}
+      <div className="hidden md:block w-[88px] shrink-0 pointer-events-none transition-all duration-300" />
 
       {/* Backdrop */}
       {isOpen && (
@@ -122,16 +125,17 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
 
       {/* Sidebar Content */}
       <div className={cn(
-        "fixed inset-y-4 right-4 z-50 flex h-[calc(100vh-2rem)] w-64 flex-col rounded-3xl glass-panel text-white shadow-xl transition-transform duration-300 md:relative md:translate-x-0 print:hidden",
-        isOpen ? "translate-x-0" : "translate-x-[calc(100%+1rem)]"
+        "fixed inset-y-4 right-4 z-50 flex h-[calc(100vh-2rem)] flex-col rounded-3xl glass-panel text-white shadow-xl transition-all duration-300 print:hidden overflow-hidden group/sidebar",
+        isOpen ? "translate-x-0 w-64" : "translate-x-[calc(100%+1rem)] md:translate-x-0 w-64 md:w-[72px] md:hover:w-64"
+        
       )}>
         <div className="flex h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center px-6 border-b border-border/50 relative justify-center">
-          <div className="relative h-20 w-52 mx-auto pointer-events-none">
+          <div className="relative h-20 w-52 md:w-10 md:group-hover/sidebar:w-52 mx-auto transition-all duration-300 pointer-events-none">
             <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7] brightness-0 invert" priority />
           </div>
           
           {isAuthenticated ? (
-            <div className="absolute left-6 flex items-center gap-2">
+            <div className="absolute left-6 flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover/sidebar:opacity-100 transition-opacity duration-300">
               <div className="hidden md:block">{children}</div>
               <button onClick={closeSidebar} className="md:hidden p-2 -ml-2 text-foreground">
                 <X className="h-6 w-6" />
@@ -185,12 +189,12 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                         )}
                         aria-hidden="true"
                       />
-                      <span className="truncate">{item.name}</span>
+                      <span className="truncate opacity-100 md:opacity-0 md:group-hover/sidebar:opacity-100 transition-opacity duration-300 whitespace-nowrap">{item.name}</span>
                     </div>
                     {isDropdownOpen ? (
-                      <ChevronUp className="h-4 w-4" />
+                      <ChevronUp className="h-4 w-4 opacity-100 md:opacity-0 md:group-hover/sidebar:opacity-100 transition-opacity duration-300" />
                     ) : (
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronDown className="h-4 w-4 opacity-100 md:opacity-0 md:group-hover/sidebar:opacity-100 transition-opacity duration-300" />
                     )}
                   </button>
                 ) : (
@@ -211,7 +215,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                       )}
                       aria-hidden="true"
                     />
-                    <span className="truncate">{item.name}</span>
+                    <span className="truncate opacity-100 md:opacity-0 md:group-hover/sidebar:opacity-100 transition-opacity duration-300 whitespace-nowrap">{item.name}</span>
                   </Link>
                 )}
 
@@ -231,7 +235,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                               : "text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground"
                           )}
                         >
-                          <span className="truncate">{subItem.name}</span>
+                          <span className="truncate opacity-100 md:opacity-0 md:group-hover/sidebar:opacity-100 transition-opacity duration-300 whitespace-nowrap">{subItem.name}</span>
                         </Link>
                       );
                     })}
@@ -246,7 +250,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
           !isAuthenticated && "blur-sm opacity-50"
         )}>
           <div className="flex items-center px-3 py-2 text-xs text-slate-200">
-            <span>ניהול עסקי - B2B/B2C</span>
+            <span className="opacity-100 md:opacity-0 md:group-hover/sidebar:opacity-100 transition-opacity duration-300 whitespace-nowrap">ניהול עסקי - B2B/B2C</span>
           </div>
         </div>
       </div>
