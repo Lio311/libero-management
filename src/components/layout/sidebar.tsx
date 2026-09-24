@@ -123,11 +123,9 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
         />
       )}
 
-      {/* Sidebar Content */}
       <div className={cn(
-        "fixed inset-y-4 right-4 z-50 flex h-[calc(100vh-2rem)] flex-col rounded-xl glass-panel text-white shadow-xl transition-all duration-300 print:hidden overflow-hidden group/sidebar",
+        "fixed top-4 right-4 z-50 flex h-fit max-h-[calc(100vh-2rem)] flex-col rounded-xl glass-panel text-white shadow-xl transition-all duration-300 print:hidden overflow-hidden group/sidebar",
         isOpen ? "translate-x-0 w-64" : "translate-x-[calc(100%+1rem)] md:translate-x-0 w-64 md:w-[72px] md:hover:w-64"
-        
       )}>
         <div className="flex h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center px-6 border-b border-border/50 relative justify-center">
           <div className="relative h-20 w-52 md:w-10 md:group-hover/sidebar:w-52 mx-auto transition-all duration-300 pointer-events-none">
@@ -175,7 +173,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                   <button
                     onClick={() => toggleDropdown(item.name)}
                     className={cn(
-                      "w-full group flex justify-between items-center px-3 py-1 text-sm font-medium rounded-lg hover-scale",
+                      "w-full group flex justify-between items-center p-3 text-sm font-medium rounded-lg hover-scale",
                       isActive
                         ? "bg-primary/10 text-primary"
                         : "text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground"
@@ -202,7 +200,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                     href={item.href!}
                     onClick={closeSidebar}
                     className={cn(
-                      "group flex items-center px-3 py-1 text-sm font-medium rounded-lg hover-scale",
+                      "group flex items-center p-3 text-sm font-medium rounded-lg hover-scale",
                       isActive
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "text-slate-200 hover:bg-secondary/80 hover:text-secondary-foreground"

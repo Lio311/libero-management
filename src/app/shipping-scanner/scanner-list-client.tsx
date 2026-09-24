@@ -328,7 +328,7 @@ export default function ScannerListClient({
                   btn.disabled = false;
                 }
               }}
-              className="px-4 py-3 sm:py-2.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 h-14 sm:h-12 min-w-[140px]"
+              className="px-4 py-3 sm:py-2.5 bg-blue-600 text-white hover:bg-blue-700 shadow-sm rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 h-14 sm:h-12 min-w-[140px]"
             >
               סנכרן נתונים עכשיו
             </button>
@@ -356,7 +356,7 @@ export default function ScannerListClient({
                   btn.disabled = false;
                 }
               }}
-              className="px-4 py-3 sm:py-2.5 bg-red-500/10 text-red-600 hover:bg-red-500/20 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 h-14 sm:h-12 min-w-[140px]"
+              className="px-4 py-3 sm:py-2.5 bg-red-600 text-white hover:bg-red-700 shadow-sm rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 h-14 sm:h-12 min-w-[140px]"
             >
               נקה תור הדפסות
             </button>
@@ -365,7 +365,7 @@ export default function ScannerListClient({
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
             <button
               onClick={() => setIsLabelModalOpen(true)}
-              className="order-2 sm:order-1 px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 bg-gray-500/10 text-gray-600 hover:bg-gray-500/20 border border-gray-200"
+              className="order-2 sm:order-1 px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 bg-white/10 text-white hover:bg-white/20 border border-white/20"
               title="יצירת מדבקה"
             >
               יצירת מדבקה
