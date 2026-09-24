@@ -21,6 +21,8 @@ export const viewport: Viewport = {
 
 import { cookies } from 'next/headers';
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
+import { WakeLock } from "@/components/wake-lock";
+
 import { Sidebar } from "@/components/layout/sidebar";
 import { GlobalNotifications } from "@/components/layout/global-notifications";
 import { ClerkProvider, UserButton } from '@clerk/nextjs';
@@ -53,6 +55,7 @@ export default async function RootLayout({
           style={{ backgroundImage: "url('/beach-bg.png')" }}
         >
           <ConfirmProvider>
+            <WakeLock />
             <PwaRegistration />
             <LayoutWrapper sidebar={
               <Sidebar isAuthenticated={!!user} isAdmin={isAdmin} isWarehouse={isWarehouse}>

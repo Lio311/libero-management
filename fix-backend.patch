@@ -1,0 +1,50 @@
+--- src/app/actions/scanner-actions.ts
++++ src/app/actions/scanner-actions.ts
+@@ -75,20 +75,19 @@
+ }
+ 
+ async function computeMultipleOrdersToday(orders: ScannerOrder[], store: "libero" | "velour" | "labura") {
+   const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
+   
+-  const today = new Date();
+-  today.setHours(0, 0, 0, 0);
+-  // Go back 3 days to catch edge cases
+-  const minDate = new Date(today);
+-  minDate.setDate(minDate.getDate() - 3);
+-
+   const recentOrders = await db.select({
+-    dateCreated: targetOrders.dateCreated,
+-    phone: sql<string>`billing->>'phone'`
++    id: targetOrders.id,
++    phone: sql<string>\`billing->>'phone'\`
+   }).from(targetOrders).where(
+-    and(
+-      gte(targetOrders.dateCreated, minDate),
+-      inArray(targetOrders.status, ['completed', 'processing', 'shipped'])
+-    )
++    eq(targetOrders.status, 'processing')
+   );
+ 
+   const counts = new Map<string, number>();
+   for (const row of recentOrders) {
+     if (!row.phone) continue;
+-    const phone = row.phone.replace(/\D/g, '');
+-    const dateStr = new Date(row.dateCreated).toLocaleDateString('he-IL');
+-    const key = `${phone}_${dateStr}`;
++    const phone = row.phone.replace(/\\D/g, '');
++    const key = phone;
+     counts.set(key, (counts.get(key) || 0) + 1);
+   }
+ 
+   for (const order of orders) {
+     if (!order.billing?.phone) continue;
+-    const phone = order.billing.phone.replace(/\D/g, '');
+-    const dateStr = new Date(order.dateCreated).toLocaleDateString('he-IL');
+-    const key = `${phone}_${dateStr}`;
+-    if ((counts.get(key) || 0) > 1) {
++    const phone = order.billing.phone.replace(/\\D/g, '');
++    const key = phone;
++    if ((counts.get(key) || 0) > 1 && order.status === 'processing') {
+       order.hasMultipleOrdersToday = true;
+     }
+   }

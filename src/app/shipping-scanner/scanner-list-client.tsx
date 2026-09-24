@@ -226,7 +226,7 @@ export default function ScannerListClient({
   }).sort((a, b) => new Date(a.dateCreated).getTime() - new Date(b.dateCreated).getTime());
 
   const processingOrders = filteredOrders.filter(o => o.status === 'processing');
-  const completedOrders = filteredOrders.filter(o => o.status === 'completed');
+  const completedOrders = filteredOrders.filter(o => o.status === 'completed').sort((a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime());
 
   // Logic for duplicates category
   const phoneCounts = new Map<string, number>();
@@ -443,7 +443,7 @@ export default function ScannerListClient({
         </div>
       </div>
       </div>
-<div className="col-span-1 lg:col-span-12 glass-panel rounded-3xl p-6">
+<div className="col-span-1 lg:col-span-12">
       {processingOrders.length === 0 ? (
         <div className="text-center py-10 text-muted-foreground bg-white/5 rounded-xl border border-border">
           אין הזמנות פתוחות להכנה

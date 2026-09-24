@@ -95,7 +95,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                 <Menu className="h-6 w-6" />
               </button>
               <div className="relative h-20 w-52 mx-auto pointer-events-none">
-                <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7]" priority />
+                <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7] brightness-0 invert" priority />
               </div>
               <div className="absolute left-4 z-10">{children}</div>
             </>
@@ -105,7 +105,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
                 <Menu className="h-6 w-6" />
               </button>
               <div className="relative h-20 w-52 mx-auto pointer-events-none">
-                <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7]" priority />
+                <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7] brightness-0 invert" priority />
               </div>
             </>
           )}
@@ -127,7 +127,7 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
       )}>
         <div className="flex h-[calc(5rem+env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center px-6 border-b border-border/50 relative justify-center">
           <div className="relative h-20 w-52 mx-auto pointer-events-none">
-            <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7]" priority />
+            <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7] brightness-0 invert" priority />
           </div>
           
           {isAuthenticated ? (

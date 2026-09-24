@@ -1,0 +1,341 @@
+  return (
+    <div 
+      ref={scrollContainerRef}
+      onScroll={handleScroll}
+      className="flex-1 space-y-12 p-4 md:p-8 pt-6 h-[100dvh] overflow-y-auto w-full pb-32"
+    >
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
+            סריקת משלוחים
+          </h2>
+          <div className="flex bg-secondary/50 p-1.5 rounded-xl w-full sm:w-fit justify-between sm:justify-start border border-border/50 mx-auto sm:mx-0">
+            <Link 
+              href="?store=libero" prefetch={true} scroll={false}
+              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              ליברו
+            </Link>
+            <Link 
+              href="?store=velour" prefetch={true} scroll={false}
+              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              וולור
+            </Link>
+            <Link 
+              href="?store=labura" prefetch={true} scroll={false}
+              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-blue-600 shadow-sm text-white" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              לה בורה
+            </Link>
+          </div>
+        </div>
+        
+        <div className="flex gap-2 items-center justify-end flex-wrap w-full">
+          {isAdmin && (
+            <button 
+              onClick={async (e) => {
+                const btn = e.currentTarget;
+                btn.innerText = "מסנכרן...";
+                btn.disabled = true;
+                try {
+                  const res = await fetch(`/api/sync/wc-data?store=${store}`);
+                  if (res.ok) {
+                    router.refresh();
+                  } else {
+                    toast.error("שגיאה בסנכרון");
+                  }
+                } catch (err) {
+                  toast.error("שגיאה בסנכרון");
+                } finally {
+                  btn.innerText = "סנכרן נתונים עכשיו";
+                  btn.disabled = false;
+                }
+              }}
+              className="px-4 py-3 sm:py-2.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 h-14 sm:h-12 min-w-[140px]"
+            >
+              סנכרן נתונים עכשיו
+            </button>
+          )}
+          
+          {isAdmin && (
+            <button 
+              onClick={async (e) => {
+                const btn = e.currentTarget;
+                const originalText = btn.innerText;
+                btn.innerText = "מנקה...";
+                btn.disabled = true;
+                try {
+                  const { clearPrintQueueAction } = await import('@/app/actions/scanner-actions');
+                  const res = await clearPrintQueueAction();
+                  if (res.success) {
+                    toast.success("תור ההדפסות נוקה בהצלחה");
+                  } else {
+                    toast.error("שגיאה בניקוי התור");
+                  }
+                } catch (err) {
+                  toast.error("שגיאה בניקוי התור");
+                } finally {
+                  btn.innerText = "נקה תור הדפסות";
+                  btn.disabled = false;
+                }
+              }}
+              className="px-4 py-3 sm:py-2.5 bg-red-500/10 text-red-600 hover:bg-red-500/20 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 h-14 sm:h-12 min-w-[140px]"
+            >
+              נקה תור הדפסות
+            </button>
+          )}
+          
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+            <button
+              onClick={() => setIsLabelModalOpen(true)}
+              className="order-2 sm:order-1 px-4 py-3 sm:py-2.5 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 min-w-[140px] sm:h-12 h-14 bg-gray-500/10 text-gray-600 hover:bg-gray-500/20 border border-gray-200"
+              title="יצירת מדבקה"
+            >
+              יצירת מדבקה
+            </button>
+            <div className="order-1 sm:order-2 flex items-center gap-2 w-full sm:w-auto">
+              {store === "libero" && (
+                <button
+                  disabled={selectedOrderIds.length === 0}
+                  onClick={handleRemotePrint}
+                  className={`flex-1 sm:flex-none px-2 sm:px-4 py-3 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 sm:min-w-[140px] sm:h-12 h-14 whitespace-nowrap text-xs sm:text-sm ${
+                    selectedOrderIds.length > 0 
+                      ? "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 border border-purple-200" 
+                      : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                  }`}
+                  title="הדפס מדבקות מיני בושם"
+                >
+                  <Printer className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                  {selectedOrderIds.length > 0 
+                    ? `מדבקות (${selectedOrderIds.length})` 
+                    : "הדפס מדבקות"}
+                </button>
+              )}
+              <button
+                disabled={selectedOrderIds.length === 0}
+                onClick={handleRemotePrintShipping}
+                className={`flex-1 sm:flex-none px-2 sm:px-4 py-3 sm:py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-1.5 sm:gap-2 sm:min-w-[140px] sm:h-12 h-14 whitespace-nowrap text-xs sm:text-sm ${
+                  selectedOrderIds.length > 0 
+                    ? "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border border-blue-200" 
+                    : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+                }`}
+                title="הדפס לייבל משלוח"
+              >
+                <Printer className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                 {selectedOrderIds.length > 0 
+                  ? `לייבלים (${selectedOrderIds.length})` 
+                  : "הדפס לייבל"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative max-w-2xl">
+        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-muted-foreground" />
+        </div>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="חיפוש לפי מספר הזמנה, מספר משלוח, שם, טלפון..."
+          className="block w-full pl-3 pr-10 py-3 md:py-4 border border-border rounded-xl leading-5 bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
+          dir="rtl"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 max-w-2xl">
+        <div className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center shadow-sm">
+          <div className="flex items-center gap-2 text-muted-foreground mb-2">
+            <CheckCircle2 className="w-5 h-5 text-green-500" />
+            <span className="font-medium text-sm">הושלמו היום</span>
+          </div>
+          <span className="text-3xl font-bold text-foreground">{stats.completedToday}</span>
+        </div>
+        
+        <div className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center shadow-sm">
+          <div className="flex items-center gap-2 text-muted-foreground mb-2">
+            <ListTodo className="w-5 h-5 text-orange-500" />
+            <span className="font-medium text-sm">נשארו לביצוע</span>
+          </div>
+          <span className="text-3xl font-bold text-foreground">{stats.remainingToProcess}</span>
+        </div>
+      </div>
+
+      {processingOrders.length === 0 ? (
+        <div className="text-center py-10 text-muted-foreground bg-card rounded-xl border border-border">
+          אין הזמנות פתוחות להכנה
+        </div>
+      ) : (
+        <div className="space-y-8">
+          {mounted && readyOrders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-green-500">
+                <PlayCircle className="w-6 h-6" />
+                כל המוצרים נסרקו - ממתין לסגירה ({readyOrders.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {readyOrders.map(order => (
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="ממתין לסגירה" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {mounted && partialOrders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-purple-500">
+                <PlayCircle className="w-6 h-6" />
+                בהכנה ({partialOrders.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {partialOrders.map(order => (
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בתהליך סריקה" statusColor="purple" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {mounted && duplicateOrders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-red-500">
+                <AlertTriangle className="w-6 h-6" />
+                הזמנות כפולות ({duplicateOrders.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {duplicateOrders.map((order, i) => {
+                  const prevOrder = duplicateOrders[i-1];
+                  const pPhone = prevOrder?.phone?.replace(/\D/g, '');
+                  const cPhone = order.phone?.replace(/\D/g, '');
+                  const isNewGroup = i === 0 || pPhone !== cPhone;
+                  
+                  return (
+                    <React.Fragment key={order.id}>
+                      {isNewGroup && i > 0 && <div className="col-span-full h-2"></div>}
+                      <OrderCard 
+                        store={store} 
+                        order={order} 
+                        statusLabel={readyIds.includes(order.id) ? "ממתין לסגירה" : partiallyScannedIds.includes(order.id) ? "בתהליך סריקה" : "בטיפול"} 
+                        statusColor={readyIds.includes(order.id) ? "green" : partiallyScannedIds.includes(order.id) ? "purple" : "blue"} 
+                        isSelected={selectedOrderIds.includes(order.id)} 
+                        onToggle={(e) => toggleSelection(e, order.id)} 
+                        showCheckbox={true} 
+                      />
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {pickupOrders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-orange-500">
+                <Store className="w-6 h-6" />
+                איסוף עצמי ממתין לסריקה ({pickupOrders.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {pickupOrders.map(order => (
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {liberoShippingOnlyMini.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-purple-500">
+                <Truck className="w-6 h-6" />
+                משלוחים - רק מיני בושם ({liberoShippingOnlyMini.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {liberoShippingOnlyMini.map(order => (
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {liberoShippingMixed.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-pink-500">
+                <Truck className="w-6 h-6" />
+                משלוחים - הזמנות מעורבות (עם מיני בושם) ({liberoShippingMixed.length})
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {liberoShippingMixed.map(order => (
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {shippingOrders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold flex items-center gap-2 text-blue-500">
+                <Truck className="w-6 h-6" />
+                {isLibero ? `משלוחים - רגיל (ללא מיני בושם) (${shippingOrders.length})` : `משלוחים ממתינים לסריקה (${shippingOrders.length})`}
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {shippingOrders.map(order => (
+                  <OrderCard store={store} key={order.id} order={order} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {completedOrders.length > 0 && (
+        <div className="space-y-4 pt-8 border-t border-border">
+          <h3 className="text-xl font-semibold flex items-center gap-2 text-green-500">
+            <Package className="w-6 h-6" />
+            הזמנות שהושלמו לאחרונה ({completedOrders.length})
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 opacity-75">
+            {completedOrders.map(order => (
+              <OrderCard store={store} key={order.id} order={order} statusLabel="הושלם" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+            ))}
+          </div>
+          
+          {!archivedLoaded ? (
+            <button
+              onClick={async () => {
+                setIsLoadingArchived(true);
+                try {
+                  const archived = await getArchivedCompletedOrders(store as any, 20);
+                  setOrders(prev => [...prev, ...archived]);
+                  setArchivedLoaded(true);
+                } catch(err) {
+                  console.error(err);
+                } finally {
+                  setIsLoadingArchived(false);
+                }
+              }}
+              className="mt-6 w-full py-4 bg-secondary/50 hover:bg-secondary rounded-xl border border-border/50 text-muted-foreground flex items-center justify-center gap-2 transition-all font-medium"
+            >
+              {isLoadingArchived ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  טוען היסטוריית הזמנות...
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-5 h-5" />
+                  הצג את כל היסטוריית ההזמנות
+                </>
+              )}
+            </button>
+          ) : (
+            <div className="mt-6 text-center text-sm text-muted-foreground pb-8">
+              כל היסטוריית ההזמנות נטענה בהצלחה.
+            </div>
+          )}
+        </div>
+      )}
+      <CreateLabelModal isOpen={isLabelModalOpen} onClose={() => setIsLabelModalOpen(false)} />
+    </div>
+  );
+}

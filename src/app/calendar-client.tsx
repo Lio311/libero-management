@@ -595,7 +595,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
           </div>
 
           {/* Days grid */}
-          <div className="grid grid-cols-7 auto-rows-fr flex-1 min-h-0">
+          <div className="grid grid-cols-7 auto-rows-[minmax(100px,auto)] md:auto-rows-fr flex-1 min-h-0">
             {days.map((day, dayIdx) => {
               const dateKey = format(day, 'yyyy-MM-dd');
               const dayTasks = localTasks[dateKey] || [];
