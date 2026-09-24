@@ -32,6 +32,7 @@ import { currentUser } from '@clerk/nextjs/server';
 import { Toaster } from 'sonner';
 import { ConfirmProvider } from '@/hooks/useConfirm';
 import { PwaRegistration } from '@/components/PwaRegistration';
+import { BrightnessProvider } from "@/context/brightness-context";
 
 export default async function RootLayout({
   children,
@@ -54,21 +55,23 @@ export default async function RootLayout({
           className={`${assistant.className} antialiased h-screen overflow-hidden flex flex-col md:flex-row bg-cover bg-center bg-no-repeat bg-fixed bg-white/70 bg-blend-lighten`}
           style={{ backgroundImage: "url('/photo-1572635148687-307f8ca9b737.avif')" }}
         >
-          <ConfirmProvider>
-            <WakeLock />
-            <PwaRegistration />
-            <LayoutWrapper sidebar={
-              <Sidebar isAuthenticated={!!user} isAdmin={isAdmin} isWarehouse={isWarehouse}>
-                <div className="flex items-center gap-3">
-                  <UserButton />
-                  <GlobalNotifications />
-                </div>
-              </Sidebar>
-            }>
-              {children}
-            </LayoutWrapper>
-            <Toaster richColors position="top-center" />
-          </ConfirmProvider>
+          <BrightnessProvider isAdmin={isAdmin}>
+            <ConfirmProvider>
+              <WakeLock />
+              <PwaRegistration />
+              <LayoutWrapper sidebar={
+                <Sidebar isAuthenticated={!!user} isAdmin={isAdmin} isWarehouse={isWarehouse}>
+                  <div className="flex items-center gap-3">
+                    <UserButton />
+                    <GlobalNotifications />
+                  </div>
+                </Sidebar>
+              }>
+                {children}
+              </LayoutWrapper>
+              <Toaster richColors position="top-center" />
+            </ConfirmProvider>
+          </BrightnessProvider>
         </body>
       </html>
     </ClerkProvider>
