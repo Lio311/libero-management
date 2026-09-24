@@ -290,7 +290,7 @@ const processQueue = async () => {
   isProcessingQueue = false;
 };
 
-function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfluencers: any[] }) {
+function EditablePaymentRow({ payment, rawInfluencers, onTotalChange }: { payment: any, rawInfluencers: any[], onTotalChange?: (id: string, amount: number) => void }) {
   const confirm = useConfirm();
   const [isEditing, setIsEditing] = useState(false);
   const [commission, setCommission] = useState<number | null>(null);
@@ -493,6 +493,13 @@ function EditablePaymentRow({ payment, rawInfluencers }: { payment: any, rawInfl
   const totalPayment = (commission || 0) + actualBaseSalary + monthlyBonus;
   const isMoran = currentInfluencerId === 'moran';
 
+  useEffect(() => {
+    if (onTotalChange && payment.id && !payment.isNew && !isMoran) {
+      onTotalChange(payment.id, totalPayment);
+    }
+  }, [totalPayment, payment.id, payment.isNew, isMoran, onTotalChange]);
+
+
   return (
     <tr className="hover:bg-transparent transition-colors group flex flex-col md:table-row border-b md:border-none p-4 md:p-0 gap-2 md:gap-0 bg-slate-50 md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none mb-4 md:mb-0">
       <td className="py-1 md:py-3 px-2 font-medium flex justify-between items-center md:table-cell text-right">
@@ -632,6 +639,21 @@ export default function MarketingClient({
   const [isAddingInfluencer, setIsAddingInfluencer] = useState(false);
   const [isAddingPayment, setIsAddingPayment] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  
+  const [rowTotals, setRowTotals] = useState<Record<string, number>>({});
+  
+  const handleRowTotalChange = React.useCallback((id: string, amount: number) => {
+    setRowTotals(prev => {
+      if (prev[id] === amount) return prev;
+      return { ...prev, [id]: amount };
+    });
+  }, []);
+  
+  const currentMonth = currentMonthIndex >= 0 && currentMonthIndex < allMonths.length ? allMonths[currentMonthIndex] : '';
+
+  useEffect(() => {
+    setRowTotals({});
+  }, [currentMonth]);
 
   const handleExportExcel = async () => {
     if (!currentMonth) {
@@ -674,7 +696,6 @@ export default function MarketingClient({
     );
   }
 
-  const currentMonth = currentMonthIndex >= 0 ? allMonths[currentMonthIndex] : '';
   const filteredPayments = currentMonth ? rawPayments.filter(p => p.paymentMonth === currentMonth) : rawPayments;
 
   const combinedPayments = currentMonth ? (() => {
@@ -811,6 +832,8 @@ export default function MarketingClient({
     if (currentMonthIndex < allMonths.length - 1) setCurrentMonthIndex(currentMonthIndex + 1);
   };
 
+  const displayedTotal = Object.values(rowTotals).reduce((sum, amount) => sum + amount, 0);
+
   return (
     <div className="min-h-screen p-4 md:p-8" dir="rtl">
       {isExporting && (
@@ -842,7 +865,7 @@ export default function MarketingClient({
           <div className="text-sm font-medium text-slate-600">תשלומים למשפיענים</div>
           <HandCoins className="h-4 w-4 text-slate-600" />
         </div>
-        <div className="text-2xl font-bold text-slate-900">₪{formatCurrency(totalInfluencerPayments)}</div>
+        <div className="text-2xl font-bold text-slate-900">₪{formatCurrency(displayedTotal)}</div>
         <p className="text-xs text-slate-600">סך תשלומים מתועדים</p>
       </div>
 
@@ -955,7 +978,7 @@ export default function MarketingClient({
                   [...combinedPayments]
                     .sort((a, b) => (a.influencerName || '') > (b.influencerName || '') ? 1 : -1)
                     .map((payment) => (
-                    <EditablePaymentRow key={payment.id} payment={payment} rawInfluencers={rawInfluencers} />
+                    <EditablePaymentRow key={payment.id} payment={payment} rawInfluencers={rawInfluencers} onTotalChange={handleRowTotalChange} />
                   ))
                 ) : (
                   <tr>
