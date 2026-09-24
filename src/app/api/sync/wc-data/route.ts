@@ -101,10 +101,11 @@ export async function GET(request: Request) {
   let queryParams = '';
 
   if (mode === 'incremental') {
-    // 7 days ago
-    const afterDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    // Last 24 hours – data is persisted in DB so no need to re-fetch a wide window
+    const afterDate = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     queryParams = `modified_after=${afterDate}`;
   } else if (mode === 'modified') {
+    // 30 days – broader re-sync when needed
     const afterDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     queryParams = `modified_after=${afterDate}`;
   } else if (mode === 'full') {
