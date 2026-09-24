@@ -489,6 +489,7 @@ export const orderScanProgress = pgTable("order_scan_progress", {
   orderId: integer("order_id").notNull(),
   items: jsonb("items").default('[]').notNull(),
   status: varchar("status", { length: 50 }).default('processing').notNull(),
+  scannedBy: varchar("scanned_by", { length: 255 }),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => ({
   storeOrderIdIdx: uniqueIndex("store_order_id_idx").on(table.store, table.orderId)

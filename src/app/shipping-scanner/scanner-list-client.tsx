@@ -621,7 +621,7 @@ export default function ScannerListClient({
   );
 }
 
-function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggle, showCheckbox }: { order: any, statusLabel: string, statusColor: 'blue' | 'purple' | 'green', store: string, isSelected?: boolean, onToggle?: (e: React.MouseEvent) => void, showCheckbox?: boolean }) {
+function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggle, showCheckbox, isAdmin }: { order: any, statusLabel: string, statusColor: 'blue' | 'purple' | 'green', store: string, isSelected?: boolean, onToggle?: (e: React.MouseEvent) => void, showCheckbox?: boolean, isAdmin?: boolean }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const colorClasses = {

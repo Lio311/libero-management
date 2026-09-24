@@ -32,6 +32,7 @@ interface ScannerClientProps {
   manualKeywords: string[];
   store?: string;
   isAdmin?: boolean;
+  currentUserEmail?: string;
 }
 
 type ItemStatus = {
@@ -50,6 +51,7 @@ export default function ScannerClient({
   manualKeywords,
   store = "libero",
   isAdmin = false,
+  currentUserEmail,
 }: ScannerClientProps) {
   const router = useRouter();
   const [isCameraOpen, setIsCameraOpen] = useState(store !== "labura");
@@ -199,7 +201,7 @@ export default function ScannerClient({
       );
 
       // Fire and forget server save
-      saveScanProgress(store, order.id, items, localOrderStatus).catch((e) => {
+      saveScanProgress(store, order.id, items, localOrderStatus, currentUserEmail).catch((e) => {
         console.error("Failed to sync scan progress to DB", e);
       });
     }
@@ -210,7 +212,7 @@ export default function ScannerClient({
     toast.info("מעדכן סטטוס סיום...");
     const success = await markOrderCompleted(
       order.id,
-      (store || "libero") as "libero" | "velour" | "labura",
+      (store || "libero") as "libero" | "velour" | "labura", currentUserEmail,
     );
     if (success) {
       setLocalOrderStatus("completed");
@@ -512,6 +514,7 @@ export default function ScannerClient({
       const res = await createOrderLabel(
         order.id,
         (store || "libero") as "libero" | "velour" | "labura",
+
       );
       if (res.success && res.labelUrl) {
         if (res.barcode) {
@@ -547,6 +550,7 @@ export default function ScannerClient({
       const res = await createOrderLabel(
         order.id,
         (store || "libero") as "libero" | "velour" | "labura",
+
       );
       if (res.success && res.labelUrl) {
         if (res.barcode) {
@@ -922,7 +926,7 @@ export default function ScannerClient({
                   btn.innerText = "סוגר...";
                   const success = await markOrderCompleted(
                     order.id,
-                    (store || "libero") as "libero" | "velour" | "labura",
+                    (store || "libero") as "libero" | "velour" | "labura", currentUserEmail,
                   );
                   if (success) {
                     setLocalOrderStatus("completed");
@@ -1123,7 +1127,7 @@ export default function ScannerClient({
                   btn.innerHTML = "סוגר הזמנה...";
                   const success = await markOrderCompleted(
                     order.id,
-                    (store || "libero") as "libero" | "velour" | "labura",
+                    (store || "libero") as "libero" | "velour" | "labura", currentUserEmail,
                   );
                   if (success) {
                     setLocalOrderStatus("completed");
@@ -1184,10 +1188,7 @@ export default function ScannerClient({
                       const btn = e.currentTarget;
                       btn.disabled = true;
                       btn.innerHTML = "מבטל...";
-                      const success = await unmarkOrderCompleted(
-                        order.id,
-                        (store || "libero") as "libero" | "velour" | "labura",
-                      );
+                      const success = await unmarkOrderCompleted(order.id, (store || "libero") as "libero" | "velour" | "labura");
                       if (success) {
                         setLocalOrderStatus("waiting_for_label");
                         setShowCompletionModal(false);
@@ -1223,7 +1224,7 @@ export default function ScannerClient({
                       btn.innerHTML = "סוגר הזמנה...";
                       const success = await markOrderCompleted(
                         order.id,
-                        (store || "libero") as "libero" | "velour" | "labura",
+                        (store || "libero") as "libero" | "velour" | "labura", currentUserEmail,
                       );
                       if (success) {
                         setLocalOrderStatus("completed");

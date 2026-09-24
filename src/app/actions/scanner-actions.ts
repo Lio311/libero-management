@@ -28,6 +28,7 @@ export type ScannerOrder = {
   shippingNumber?: string;
   hasMultipleOrdersToday?: boolean;
   scanProgress?: { items: any[], status: string } | null;
+  scannedBy?: string | null;
 };
 
 export async function getScannerSettings(): Promise<string[]> {
@@ -136,9 +137,9 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
     const labelMap = new Map(labels.map(l => [l.orderId, l.barcode]));
 
     const progressRecords = orderIdsNum.length > 0
-      ? await db.select({ orderId: orderScanProgress.orderId, items: orderScanProgress.items, status: orderScanProgress.status }).from(orderScanProgress).where(and(eq(orderScanProgress.store, store), inArray(orderScanProgress.orderId, orderIdsNum)))
+      ? await db.select({ orderId: orderScanProgress.orderId, items: orderScanProgress.items, status: orderScanProgress.status, scannedBy: orderScanProgress.scannedBy }).from(orderScanProgress).where(and(eq(orderScanProgress.store, store), inArray(orderScanProgress.orderId, orderIdsNum)))
       : [];
-    const progressMap = new Map(progressRecords.map(p => [p.orderId, { items: (p.items as any[]) || [], status: p.status }]));
+    const progressMap = new Map(progressRecords.map(p => [p.orderId, { items: (p.items as any[]) || [], status: p.status, scannedBy: p.scannedBy }]));
 
     const mappedOrders = orders.map(order => {
       const billing = order.billing as any;
@@ -163,6 +164,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
         shippingNumber: labelMap.get(order.id.toString()) || '',
         hasMultipleOrdersToday: false,
         scanProgress: progressMap.get(order.id) || null,
+        scannedBy: progressMap.get(order.id)?.scannedBy || null,
       };
     });
     
@@ -318,7 +320,7 @@ export async function getScannerStats(store: "libero" | "velour" | "labura" = "l
 }
 
 
-export async function markOrderCompleted(orderId: number, store: "libero" | "velour" | "labura" = "libero"): Promise<boolean> {
+export async function markOrderCompleted(orderId: number, store: "libero" | "velour" | "labura" = "libero", scannedBy?: string): Promise<boolean> {
   const targetOrders = store === "velour" ? velourOrders : store === "labura" ? laburaOrders : wcOrders;
   const config = BRAND_CONFIG[store];
   const auth = Buffer.from(`${config.ck}:${config.cs}`).toString('base64');
@@ -344,9 +346,32 @@ export async function markOrderCompleted(orderId: number, store: "libero" | "vel
       .set({ status: 'completed', updatedAt: new Date() })
       .where(eq(targetOrders.id, orderId));
 
-    // 3. Clean up scan progress from DB
-    await db.delete(orderScanProgress)
-      .where(and(eq(orderScanProgress.store, store), eq(orderScanProgress.orderId, orderId)));
+    // 3. Update scan progress with scannedBy instead of deleting it
+    if (scannedBy) {
+      const existing = await db.select().from(orderScanProgress).where(and(eq(orderScanProgress.store, store), eq(orderScanProgress.orderId, orderId)));
+      if (existing.length > 0) {
+        await db.update(orderScanProgress)
+          .set({ status: 'completed', scannedBy, updatedAt: new Date() })
+          .where(eq(orderScanProgress.id, existing[0].id));
+      } else {
+        await db.insert(orderScanProgress).values({
+          store,
+          orderId,
+          items: [],
+          status: 'completed',
+          scannedBy,
+          updatedAt: new Date()
+        });
+      }
+    } else {
+      // Legacy: if no scannedBy, just update status
+      const existing = await db.select().from(orderScanProgress).where(and(eq(orderScanProgress.store, store), eq(orderScanProgress.orderId, orderId)));
+      if (existing.length > 0) {
+        await db.update(orderScanProgress)
+          .set({ status: 'completed', updatedAt: new Date() })
+          .where(eq(orderScanProgress.id, existing[0].id));
+      }
+    }
 
     revalidatePath('/shipping-scanner');
     revalidatePath(`/shipping-scanner/${orderId}`);
@@ -611,10 +636,16 @@ export async function getArchivedCompletedOrders(store: "libero" | "velour" | "l
     .offset(skip);
 
     const orderIdsStr = completedOrders.map(o => o.id.toString());
+    const orderIdsNum = completedOrders.map(o => o.id);
     const labels = orderIdsStr.length > 0 
       ? await db.select({ orderId: generatedShippingLabels.orderId, barcode: generatedShippingLabels.barcode }).from(generatedShippingLabels).where(inArray(generatedShippingLabels.orderId, orderIdsStr))
       : [];
     const labelMap = new Map(labels.map(l => [l.orderId, l.barcode]));
+
+    const progressRecords = orderIdsNum.length > 0
+      ? await db.select({ orderId: orderScanProgress.orderId, scannedBy: orderScanProgress.scannedBy }).from(orderScanProgress).where(and(eq(orderScanProgress.store, store), inArray(orderScanProgress.orderId, orderIdsNum)))
+      : [];
+    const scannedByMap = new Map(progressRecords.map(p => [p.orderId, p.scannedBy]));
 
     return completedOrders.map(order => {
       const billing = order.billing as any;
@@ -639,6 +670,7 @@ export async function getArchivedCompletedOrders(store: "libero" | "velour" | "l
         shippingNumber: labelMap.get(order.id.toString()) || '',
         hasMultipleOrdersToday: false,
         scanProgress: null,
+        scannedBy: scannedByMap.get(order.id) || null,
       };
     });
   } catch (error: any) {
@@ -809,9 +841,9 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
       : [];
       
     const progressRecords = finalIdsNum.length > 0
-      ? await db.select({ orderId: orderScanProgress.orderId, items: orderScanProgress.items, status: orderScanProgress.status }).from(orderScanProgress).where(and(eq(orderScanProgress.store, store), inArray(orderScanProgress.orderId, finalIdsNum)))
+      ? await db.select({ orderId: orderScanProgress.orderId, items: orderScanProgress.items, status: orderScanProgress.status, scannedBy: orderScanProgress.scannedBy }).from(orderScanProgress).where(and(eq(orderScanProgress.store, store), inArray(orderScanProgress.orderId, finalIdsNum)))
       : [];
-    const progressMap = new Map(progressRecords.map(p => [p.orderId, { items: (p.items as any[]) || [], status: p.status }]));
+    const progressMap = new Map(progressRecords.map(p => [p.orderId, { items: (p.items as any[]) || [], status: p.status, scannedBy: p.scannedBy }]));
 
     const labelMap = new Map();
     // Add the ones found in the fallback search (or initial search)
@@ -835,6 +867,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
         isPickup: (order.shippingLines as any[])?.some((line: any) => line.method_id === "local_pickup") || false,
         hasMultipleOrdersToday: false,
         scanProgress: progressMap.get(order.id) || null,
+        scannedBy: progressMap.get(order.id)?.scannedBy || null,
       };
     });
     
@@ -858,13 +891,15 @@ export async function getScanProgress(store: string, orderId: number) {
   }
 }
 
-export async function saveScanProgress(store: string, orderId: number, items: any[], status: string) {
+export async function saveScanProgress(store: string, orderId: number, items: any[], status: string, scannedBy?: string) {
   try {
     const existing = await db.select().from(orderScanProgress).where(and(eq(orderScanProgress.store, store), eq(orderScanProgress.orderId, orderId)));
     
     if (existing.length > 0) {
+      const updateData: any = { items, status, updatedAt: new Date() };
+      if (scannedBy) updateData.scannedBy = scannedBy;
       await db.update(orderScanProgress)
-        .set({ items, status, updatedAt: new Date() })
+        .set(updateData)
         .where(eq(orderScanProgress.id, existing[0].id));
     } else {
       await db.insert(orderScanProgress).values({
@@ -872,6 +907,7 @@ export async function saveScanProgress(store: string, orderId: number, items: an
         orderId,
         items,
         status,
+        scannedBy: scannedBy || null,
         updatedAt: new Date()
       });
     }
