@@ -673,21 +673,21 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                     <AnimatePresence>
                       {dayTasks.map(task => {
                         const isPastDate = isBefore(day, startOfDay(new Date()));
-                        let titleStyle = 'text-[#fff] font-medium';
+                        let titleStyle = isLight ? 'text-slate-800 font-medium' : 'text-[#fff] font-medium';
                         let dotColor = 'bg-slate-400';
-                        let bgStyle = 'hover:bg-white/10';
+                        let bgStyle = isLight ? 'hover:bg-black/5' : 'hover:bg-white/10';
                         
                         if (task.isCompleted) {
-                          titleStyle = 'text-muted-foreground line-through';
+                          titleStyle = (isLight ? 'text-slate-400' : 'text-slate-400') + ' line-through';
                           dotColor = 'bg-green-400';
                         } else if (task.isDelayed) {
-                            titleStyle = 'text-orange-200';
+                            titleStyle = isLight ? 'text-orange-800' : 'text-orange-200';
                             dotColor = 'bg-orange-500';
-                            bgStyle = 'bg-orange-500/20 hover:bg-orange-500/30';
+                            bgStyle = isLight ? 'bg-orange-500/20 hover:bg-orange-500/30' : 'bg-orange-500/20 hover:bg-orange-500/30';
                         } else if (isPastDate) {
-                          titleStyle = 'text-red-200';
+                          titleStyle = isLight ? 'text-red-800' : 'text-red-200';
                           dotColor = 'bg-red-500';
-                          bgStyle = 'bg-red-500/20 hover:bg-red-500/30';
+                          bgStyle = isLight ? 'bg-red-500/20 hover:bg-red-500/30' : 'bg-red-500/20 hover:bg-red-500/30';
                         }
 
                         return (
@@ -804,21 +804,21 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                   }
                   return dayTasks.map(task => {
                         const isPastDate = isBefore(selectedDayDetails, startOfDay(new Date()));
-                        let taskStyle = 'bg-white/10 border-white/20 hover:border-white/40 hover:bg-white/20';
-                        let titleStyle = 'text-foreground';
-                        let iconStyle = 'text-muted-foreground hover:text-foreground';
+                        let taskStyle = isLight ? 'bg-black/5 border-black/5 hover:border-black/10 hover:bg-black/10' : 'bg-white/10 border-white/20 hover:border-white/40 hover:bg-white/20';
+                        let titleStyle = isLight ? 'text-[#1d1d1f]' : 'text-[#fff]';
+                        let iconStyle = isLight ? 'text-[#86868b] hover:text-[#1d1d1f]' : 'text-slate-400 hover:text-[#fff]';
                         
                         if (task.isCompleted) {
                           taskStyle = 'bg-green-100 border-green-300 opacity-90';
-                          titleStyle = 'line-through text-green-800';
+                          titleStyle = 'text-green-800 line-through';
                           iconStyle = 'text-green-600 hover:text-green-800';
                         } else if (task.isDelayed) {
-                            taskStyle = 'bg-orange-100 border-orange-300 hover:bg-orange-200';
-                            titleStyle = 'text-orange-200';
-                            iconStyle = 'text-orange-600 hover:text-orange-800';
+                          taskStyle = 'bg-orange-100 border-orange-300 hover:bg-orange-200';
+                          titleStyle = 'text-orange-900';
+                          iconStyle = 'text-orange-500 hover:text-orange-700';
                         } else if (isPastDate) {
                           taskStyle = 'bg-red-100 border-red-300 hover:bg-red-200';
-                          titleStyle = 'text-red-200';
+                          titleStyle = 'text-red-900';
                           iconStyle = 'text-red-500 hover:text-red-700';
                         }
 
