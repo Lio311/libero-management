@@ -284,12 +284,13 @@ export default function ScannerListClient({
       className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 md:p-8 pt-6 h-[100dvh] overflow-y-auto w-full pb-32"
     >
       <div className="col-span-1 lg:col-span-12 glass-panel rounded-3xl p-6 flex flex-col gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4 w-full">
+          <div className="hidden sm:block"></div> {/* Spacer for symmetry */}
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-center">
             סריקת משלוחים
           </h2>
-          <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-            <div className="flex bg-white/10 p-1.5 rounded-xl flex-1 sm:flex-none justify-between sm:justify-start border border-white/10 mx-auto sm:mx-0">
+          <div className="flex items-center gap-4 w-full sm:w-auto justify-center sm:justify-end">
+            <div className="flex bg-white/10 p-1.5 rounded-xl flex-1 sm:flex-none justify-between border border-white/10 mx-auto sm:mx-0">
               <Link 
                 href="?store=libero" prefetch={true} scroll={false}
                 className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
