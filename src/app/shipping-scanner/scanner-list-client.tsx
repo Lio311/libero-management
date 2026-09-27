@@ -287,33 +287,35 @@ export default function ScannerListClient({
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
             סריקת משלוחים
+          </h2>
+          <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
+            <div className="flex bg-white/10 p-1.5 rounded-xl flex-1 sm:flex-none justify-between sm:justify-start border border-white/10 mx-auto sm:mx-0">
+              <Link 
+                href="?store=libero" prefetch={true} scroll={false}
+                className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
+              >
+                ליברו
+              </Link>
+              <Link 
+                href="?store=velour" prefetch={true} scroll={false}
+                className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
+              >
+                וולור
+              </Link>
+              <Link 
+                href="?store=labura" prefetch={true} scroll={false}
+                className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
+              >
+                לה בורה
+              </Link>
+            </div>
             {(isWarehouse || isAdmin) && (
               <SignOutButton>
-                <button className="text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-secondary transition-colors ml-2" title="התנתק">
+                <button className="text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-secondary transition-colors" title="התנתק">
                   <LogOut className="h-5 w-5" />
                 </button>
               </SignOutButton>
             )}
-          </h2>
-          <div className="flex bg-white/10 p-1.5 rounded-xl w-full sm:w-fit justify-between sm:justify-start border border-white/10 mx-auto sm:mx-0">
-            <Link 
-              href="?store=libero" prefetch={true} scroll={false}
-              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "libero" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
-            >
-              ליברו
-            </Link>
-            <Link 
-              href="?store=velour" prefetch={true} scroll={false}
-              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "velour" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
-            >
-              וולור
-            </Link>
-            <Link 
-              href="?store=labura" prefetch={true} scroll={false}
-              className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
-            >
-              לה בורה
-            </Link>
           </div>
         </div>
         
