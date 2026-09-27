@@ -584,7 +584,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
         </div>
 
         {/* Calendar Grid */}
-        <div className="rounded-2xl md:rounded-3xl border border-white/20 flex flex-col bg-white/5">
+        <div className="rounded-3xl md:rounded-3xl border border-white/20 flex flex-col bg-white/5">
           {/* Days of week */}
           <div className="grid grid-cols-7 border-b border-white/20 bg-white/10 shrink-0">
             {weekDays.map(day => (
@@ -737,9 +737,9 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               onClick={e => e.stopPropagation()}
-              className="glass-panel rounded-2xl p-6 w-full max-w-md shadow-xl border border-white/40"
+              className="glass-panel rounded-3xl p-6 w-full max-w-md shadow-xl border border-white/40"
             >
-              <h2 className="text-xl font-medium mb-4">משימה חדשה לתאריך {format(newTaskDate, 'd בMMM yyyy', { locale: he })}</h2>
+              <h2 className="text-xl md:text-2xl font-black tracking-tight mb-4">משימה חדשה לתאריך {format(newTaskDate, 'd בMMM yyyy', { locale: he })}</h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">כותרת המשימה</label>
@@ -775,10 +775,10 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               onClick={e => e.stopPropagation()}
-              className="glass-panel rounded-2xl p-6 w-full max-w-lg shadow-xl border border-white/40 max-h-[80vh] flex flex-col"
+              className="glass-panel rounded-3xl p-6 w-full max-w-lg shadow-xl border border-white/40 max-h-[80vh] flex flex-col"
             >
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-medium">
+                <h2 className="text-2xl md:text-3xl font-black tracking-tight">
                   משימות ל-{format(selectedDayDetails, 'd בMMM yyyy', { locale: he })}
                 </h2>
                 <button 
@@ -798,7 +798,7 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
                   const dateKey = format(selectedDayDetails, 'yyyy-MM-dd');
                   const dayTasks = localTasks[dateKey] || [];
                   if (dayTasks.length === 0) {
-                    return <p className="text-muted-foreground text-center py-8">אין משימות ליום זה</p>;
+                    return <p className="text-muted-foreground font-medium text-center py-8">אין משימות ליום זה</p>;
                   }
                   return dayTasks.map(task => {
                         const isPastDate = isBefore(selectedDayDetails, startOfDay(new Date()));
@@ -874,9 +874,9 @@ export default function CalendarPage({ scheduleData, bankTasksData = [] }: Calen
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               onClick={e => e.stopPropagation()}
-              className="glass-panel rounded-2xl p-6 w-full max-w-md shadow-xl border border-white/40"
+              className="glass-panel rounded-3xl p-6 w-full max-w-md shadow-xl border border-white/40"
             >
-              <h2 className="text-xl font-medium mb-2">{selectedTask.task.title}</h2>
+              <h2 className="text-xl md:text-2xl font-black tracking-tight mb-2">{selectedTask.task.title}</h2>
               <p className="text-sm text-muted-foreground mb-6">מתוכנן לתאריך {selectedTask.dateKey}</p>
               
               <div className="flex justify-between items-center mt-6">
