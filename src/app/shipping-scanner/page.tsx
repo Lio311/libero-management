@@ -10,10 +10,12 @@ export default async function ShippingScannerPage({ searchParams }: { searchPara
   const adminEmail = process.env.admin_mail || process.env.admin_email || 'lior31197@gmail.com';
   const isAdmin = user?.emailAddresses[0]?.emailAddress === adminEmail;
 
+  const isWarehouse = user?.publicMetadata?.role === 'warehouse';
+
   const [orders, stats] = await Promise.all([
     getProcessingOrders(store),
     getScannerStats(store)
   ]);
   
-  return <ScannerListClient initialOrders={orders} initialStats={stats} initialStore={store} isAdmin={isAdmin} />;
+  return <ScannerListClient initialOrders={orders} initialStats={stats} initialStore={store} isAdmin={isAdmin} isWarehouse={isWarehouse} />;
 }

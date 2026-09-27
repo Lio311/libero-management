@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer, Search, ChevronDown, Loader2, MessageSquare, AlertTriangle } from "lucide-react";
+import { Package, CalendarIcon, User, Truck, Store, PlayCircle, CheckCircle2, ListTodo, Printer, Search, ChevronDown, Loader2, MessageSquare, AlertTriangle, LogOut } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import React, { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { ScannerOrder, createOrderLabel, getArchivedCompletedOrders, fixShippingLabelsDb, searchScannerOrders } from "@/app/actions/scanner-actions";
+import { SignOutButton } from "@clerk/nextjs";
 
 import { useRouter } from "next/navigation";
 import { CreateLabelModal } from "@/components/modals/create-label-modal";
@@ -15,12 +16,14 @@ export default function ScannerListClient({
   initialOrders,
   initialStats,
   initialStore,
-  isAdmin
+  isAdmin,
+  isWarehouse
 }: { 
   initialOrders: ScannerOrder[];
   initialStats: { completedToday: number; remainingToProcess: number };
   initialStore: "libero" | "velour" | "labura";
   isAdmin?: boolean;
+  isWarehouse?: boolean;
 }) {
   const [orders, setOrders] = useState<ScannerOrder[]>(initialOrders);
   useEffect(() => {
@@ -284,6 +287,13 @@ export default function ScannerListClient({
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight flex flex-wrap items-center gap-3">
             סריקת משלוחים
+            {(isWarehouse || isAdmin) && (
+              <SignOutButton>
+                <button className="text-muted-foreground hover:text-foreground p-2 rounded-full hover:bg-secondary transition-colors ml-2" title="התנתק">
+                  <LogOut className="h-5 w-5" />
+                </button>
+              </SignOutButton>
+            )}
           </h2>
           <div className="flex bg-white/10 p-1.5 rounded-xl w-full sm:w-fit justify-between sm:justify-start border border-white/10 mx-auto sm:mx-0">
             <Link 
