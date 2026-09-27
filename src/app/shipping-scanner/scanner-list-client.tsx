@@ -468,7 +468,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {readyOrders.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} statusLabel="ממתין לסגירה" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} isWarehouse={isWarehouse} statusLabel="ממתין לסגירה" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -482,7 +482,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {partialOrders.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} statusLabel="בתהליך סריקה" statusColor="purple" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} isWarehouse={isWarehouse} statusLabel="בתהליך סריקה" statusColor="purple" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -507,7 +507,7 @@ export default function ScannerListClient({
                       <OrderCard 
                         store={store} 
                         order={order} 
-                        isAdmin={isAdmin}
+                        isAdmin={isAdmin} isWarehouse={isWarehouse}
                         statusLabel={readyIds.includes(order.id) ? "ממתין לסגירה" : partiallyScannedIds.includes(order.id) ? "בתהליך סריקה" : "בטיפול"} 
                         statusColor={readyIds.includes(order.id) ? "green" : partiallyScannedIds.includes(order.id) ? "purple" : "blue"} 
                         isSelected={selectedOrderIds.includes(order.id)} 
@@ -529,7 +529,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {pickupOrders.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} isWarehouse={isWarehouse} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -543,7 +543,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {liberoShippingOnlyMini.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} isWarehouse={isWarehouse} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -557,7 +557,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {liberoShippingMixed.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} isWarehouse={isWarehouse} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -571,7 +571,7 @@ export default function ScannerListClient({
               </h3>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {shippingOrders.map(order => (
-                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+                  <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} isWarehouse={isWarehouse} statusLabel="בטיפול" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
                 ))}
               </div>
             </div>
@@ -587,7 +587,7 @@ export default function ScannerListClient({
           </h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 opacity-75">
             {completedOrders.map(order => (
-              <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} statusLabel="הושלם" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+              <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} isWarehouse={isWarehouse} statusLabel="הושלם" statusColor="green" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
             ))}
           </div>
           
@@ -632,7 +632,7 @@ export default function ScannerListClient({
   );
 }
 
-function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggle, showCheckbox, isAdmin }: { order: any, statusLabel: string, statusColor: 'blue' | 'purple' | 'green', store: string, isSelected?: boolean, onToggle?: (e: React.MouseEvent) => void, showCheckbox?: boolean, isAdmin?: boolean }) {
+function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggle, showCheckbox, isAdmin, isWarehouse }: { order: any, statusLabel: string, statusColor: 'blue' | 'purple' | 'green', store: string, isSelected?: boolean, onToggle?: (e: React.MouseEvent) => void, showCheckbox?: boolean, isAdmin?: boolean, isWarehouse?: boolean }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const colorClasses = {
@@ -703,8 +703,7 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
             <span>{mounted ? format(new Date(order.dateCreated), 'dd/MM/yyyy HH:mm', { locale: he }) : ''}</span>
           </div>
         </div>
-        
-        {isAdmin && order.status === 'completed' && order.scannedBy && (
+        {(isAdmin || isWarehouse) && order.status === 'completed' && order.scannedBy && (
           <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-purple-600 bg-purple-100/50 p-1.5 rounded-lg border border-purple-200">
             <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">נסרק על ידי {order.scannedBy}</span>
