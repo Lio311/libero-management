@@ -712,6 +712,13 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
           </div>
         )}
         
+        {(isAdmin || isWarehouse) && order.status === 'completed' && !order.scannedBy && (
+          <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-amber-600 bg-amber-100/50 p-1.5 rounded-lg border border-amber-200">
+            <Store className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">משלוח זה נארז דרך האתר</span>
+          </div>
+        )}
+        
         <div className={`mt-2 pt-2 border-t font-medium flex justify-between items-center ${isLightCard ? 'text-slate-900 border-slate-200' : 'text-white border-white/10'}`}>
           <span>סה"כ לתשלום:</span>
           <span>₪{parseFloat(order.total).toFixed(2)}</span>
