@@ -426,7 +426,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     return null;
   }
 
-  const thClasses = "py-3 px-4 font-medium text-right text-white/70 bg-black/40 border-b border-white/10 whitespace-nowrap";
+  const thClasses = "py-3 px-4 font-medium text-right text-white/70 bg-black/40 border-b border-white/10";
 
   return (
     <div className="min-h-screen relative p-4 md:p-6 lg:p-8" dir="rtl">
@@ -497,19 +497,19 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
               <table className="w-full text-sm border-separate border-spacing-0">
                 <thead>
                   <tr>
-                    <th className={`${thClasses} border-r-4 border-transparent w-[14%]`}>שם המוצר</th>
-                    <th className={`${thClasses} w-[8%]`}>קטגוריה</th>
-                    <th className={`${thClasses} w-[8%]`}>קבוצת קומרס</th>
-                    <th className={`${thClasses} text-center w-[5%]`}>דירוג</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`}>מכר חודש לפני אחרון</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`}>מכר חודש אחרון</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`}>מכר שבוע אחרון</th>
-                    <th className={`${thClasses} text-center w-[7%]`}>כמות במלאי</th>
-                    <th className={`${thClasses} text-center w-[7%]`}>התקדמות</th>
-                    <th className={`${thClasses} text-center w-[8%] leading-tight`}>תאריך בקרת מוצר אחרון</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`}>תאריך שינוי מחיר</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`}>תאריך מכירה אחרון</th>
-                    <th className={`${thClasses} text-center w-[8%] leading-tight`}>זמן חיי מדף</th>
+                    <th className={`${thClasses} border-r-4 border-transparent`}>שם המוצר</th>
+                    <th className={`${thClasses}`}>קטגוריה</th>
+                    <th className={`${thClasses}`}>קבוצת קומרס</th>
+                    <th className={`${thClasses} text-center`}>דירוג</th>
+                    <th className={`${thClasses} text-center leading-tight`}>מכר חודש לפני אחרון</th>
+                    <th className={`${thClasses} text-center leading-tight`}>מכר חודש אחרון</th>
+                    <th className={`${thClasses} text-center leading-tight`}>מכר שבוע אחרון</th>
+                    <th className={`${thClasses} text-center`}>כמות במלאי</th>
+                    <th className={`${thClasses} text-center`}>התקדמות</th>
+                    <th className={`${thClasses} text-center leading-tight`}>תאריך בקרת מוצר אחרון</th>
+                    <th className={`${thClasses} text-center leading-tight`}>תאריך שינוי מחיר</th>
+                    <th className={`${thClasses} text-center leading-tight`}>תאריך מכירה אחרון</th>
+                    <th className={`${thClasses} text-center leading-tight`}>זמן חיי מדף</th>
                   </tr>
                 </thead>
                 <tbody>

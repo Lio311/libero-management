@@ -330,3 +330,11 @@ body.light-glass .glass-panel .text-rose-400 { color: #e11d48 !important; }
 
 /* 7. Background image blend mode */
 /* Removed so the global background remains light as in dark glass mode */
+
+body.light-glass .glass-panel .text-emerald-300 { color: #047857 !important; }
+body.light-glass .glass-panel .text-green-300 { color: #15803d !important; }
+body.light-glass .glass-panel .text-yellow-200 { color: #854d0e !important; }
+body.light-glass .glass-panel .text-yellow-300 { color: #a16207 !important; }
+body.light-glass .glass-panel .text-orange-300 { color: #c2410c !important; }
+body.light-glass .glass-panel .text-red-300 { color: #b91c1c !important; }
+body.light-glass .glass-panel .text-red-400 { color: #dc2626 !important; }
