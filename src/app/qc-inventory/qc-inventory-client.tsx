@@ -72,22 +72,6 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     setState(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
   };
 
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const observerRef = React.useRef<ResizeObserver | null>(null);
-
-  const topSectionRef = React.useCallback((node: HTMLDivElement | null) => {
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-      observerRef.current = null;
-    }
-    if (node) {
-      observerRef.current = new ResizeObserver(() => {
-        setHeaderHeight(node.getBoundingClientRect().height);
-      });
-      observerRef.current.observe(node);
-      setHeaderHeight(node.getBoundingClientRect().height);
-    }
-  }, []);
 
   const uniqueCategories = useMemo(() => {
     const cats = new Set<string>();
@@ -442,8 +426,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     return null;
   }
 
-  const thClasses = "py-3 px-4 font-medium text-right bg-white border-b border-gray-200 sticky z-20";
-  const thStyle = { top: `${Math.max(0, headerHeight)}px`, backgroundClip: "padding-box" };
+  const thClasses = "py-3 px-4 font-medium text-right text-white/70 bg-black/40 border-b border-white/10 whitespace-nowrap";
 
   return (
     <div className="min-h-screen relative p-4 md:p-6 lg:p-8" dir="rtl">
@@ -489,7 +472,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
         </div>
 
         {/* Filters and Search Bento */}
-        <div ref={topSectionRef} className="lg:col-span-12 glass-panel rounded-3xl p-6 flex flex-col gap-4 z-20 relative">
+        <div className="lg:col-span-12 glass-panel rounded-3xl p-6 flex flex-col gap-4 z-20 relative">
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-200">
             <span className="font-medium text-white">דירוג:</span>
             <span className="px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded-full">מצוין (8.5-10)</span>
@@ -514,19 +497,19 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
               <table className="w-full text-sm border-separate border-spacing-0">
                 <thead>
                   <tr>
-                    <th className={`${thClasses} border-r-4 border-transparent w-[14%]`} style={thStyle}>שם המוצר</th>
-                    <th className={`${thClasses} w-[8%]`} style={thStyle}>קטגוריה</th>
-                    <th className={`${thClasses} w-[8%]`} style={thStyle}>קבוצת קומרס</th>
-                    <th className={`${thClasses} text-center w-[5%]`} style={thStyle}>דירוג</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>מכר חודש לפני אחרון</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>מכר חודש אחרון</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>מכר שבוע אחרון</th>
-                    <th className={`${thClasses} text-center w-[7%]`} style={thStyle}>כמות במלאי</th>
-                    <th className={`${thClasses} text-center w-[7%]`} style={thStyle}>התקדמות</th>
-                    <th className={`${thClasses} text-center w-[8%] leading-tight`} style={thStyle}>תאריך בקרת מוצר אחרון</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>תאריך שינוי מחיר</th>
-                    <th className={`${thClasses} text-center w-[7%] leading-tight`} style={thStyle}>תאריך מכירה אחרון</th>
-                    <th className={`${thClasses} text-center w-[8%] leading-tight`} style={thStyle}>זמן חיי מדף</th>
+                    <th className={`${thClasses} border-r-4 border-transparent w-[14%]`}>שם המוצר</th>
+                    <th className={`${thClasses} w-[8%]`}>קטגוריה</th>
+                    <th className={`${thClasses} w-[8%]`}>קבוצת קומרס</th>
+                    <th className={`${thClasses} text-center w-[5%]`}>דירוג</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`}>מכר חודש לפני אחרון</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`}>מכר חודש אחרון</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`}>מכר שבוע אחרון</th>
+                    <th className={`${thClasses} text-center w-[7%]`}>כמות במלאי</th>
+                    <th className={`${thClasses} text-center w-[7%]`}>התקדמות</th>
+                    <th className={`${thClasses} text-center w-[8%] leading-tight`}>תאריך בקרת מוצר אחרון</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`}>תאריך שינוי מחיר</th>
+                    <th className={`${thClasses} text-center w-[7%] leading-tight`}>תאריך מכירה אחרון</th>
+                    <th className={`${thClasses} text-center w-[8%] leading-tight`}>זמן חיי מדף</th>
                   </tr>
                 </thead>
                 <tbody>
