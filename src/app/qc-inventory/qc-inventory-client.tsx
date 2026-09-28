@@ -426,11 +426,11 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
     return null;
   }
 
-  const thClasses = "py-3 px-4 font-medium text-right text-white/70 bg-black/40 border-b border-white/10";
+  const thClasses = "py-3 px-2 font-medium text-right text-white/70 bg-black/40 border-b border-white/10";
 
   return (
-    <div className="min-h-screen relative p-4 md:p-6 lg:p-8" dir="rtl">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 max-w-[1600px] mx-auto">
+    <div className="min-h-screen relative pr-4 pl-1 py-4 md:pr-6 md:pl-2 md:py-6 lg:pr-6 lg:pl-2 lg:py-6" dir="rtl">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Header Bento */}
         <div className="lg:col-span-12 glass-panel rounded-3xl p-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -519,7 +519,7 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                       const ratingStyle = getRatingStyle(product.rating);
                       return (
                         <tr key={product.id} className={`transition-all duration-300 [&>td]:border-b [&>td]:border-white/10 ${ratingStyle.bg}`}>
-                          <td className={`py-3 px-4 text-right border-r-4 ${ratingStyle.border}`}>
+                          <td className={`py-3 px-2 text-right border-r-4 ${ratingStyle.border}`}>
                             <div className="flex items-center gap-3">
                               {product.productImage ? (
                                 <img src={product.productImage} alt={product.productName} className="w-10 h-10 rounded-lg object-cover border border-white/10 flex-shrink-0" />
@@ -536,28 +536,28 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-4 text-right">
+                          <td className="py-3 px-2 text-right">
                             <span className="text-slate-200 text-sm">{product.categories || "—"}</span>
                           </td>
-                          <td className="py-3 px-4 text-right">
+                          <td className="py-3 px-2 text-right">
                             <span className="text-slate-200 text-sm">{product.commerceGroup || "—"}</span>
                           </td>
-                          <td className="py-3 px-4 text-center">
+                          <td className="py-3 px-2 text-center">
                             <span className={ratingStyle.text}>{product.rating?.toFixed(1) || "-"}</span>
                           </td>
-                          <td className="py-3 px-4 text-center text-slate-200">
+                          <td className="py-3 px-2 text-center text-slate-200">
                             {product.salesMonthBeforeLast}
                           </td>
-                          <td className="py-3 px-4 text-center text-slate-200">
+                          <td className="py-3 px-2 text-center text-slate-200">
                             {product.salesLastMonth}
                           </td>
-                          <td className="py-3 px-4 text-center text-slate-200">
+                          <td className="py-3 px-2 text-center text-slate-200">
                             {product.salesLastWeek}
                           </td>
-                          <td className="py-3 px-4 text-center font-medium text-white">
+                          <td className="py-3 px-2 text-center font-medium text-white">
                             {product.currentStock}
                           </td>
-                          <td className="py-3 px-4 text-center">
+                          <td className="py-3 px-2 text-center">
                             <div className="w-full max-w-[100px] mx-auto bg-white/20 rounded-full h-2 mb-1 relative">
                               {(() => {
                                 const totalOrdered = product.currentStock + product.totalSales;
@@ -574,16 +574,16 @@ export default function QcInventoryClient({ products }: { products: InventoryPro
                               {product.totalSales} / {product.currentStock + product.totalSales}
                             </span>
                           </td>
-                          <td className="py-3 px-4 text-center text-slate-200">
+                          <td className="py-3 px-2 text-center text-slate-200">
                             {product.lastInspectionDate ? format(new Date(product.lastInspectionDate), "dd/MM/yyyy", { locale: he }) : <span className="text-slate-400">—</span>}
                           </td>
-                          <td className="py-3 px-4 text-center text-slate-200">
+                          <td className="py-3 px-2 text-center text-slate-200">
                             {product.lastPriceStatusDate ? format(new Date(product.lastPriceStatusDate), "dd/MM/yyyy", { locale: he }) : <span className="text-slate-400">—</span>}
                           </td>
-                          <td className="py-3 px-4 text-center text-slate-200">
+                          <td className="py-3 px-2 text-center text-slate-200">
                             {product.lastSaleDate ? format(new Date(product.lastSaleDate), "dd/MM/yyyy", { locale: he }) : <span className="text-slate-400">—</span>}
                           </td>
-                          <td className="py-3 px-4 text-center">
+                          <td className="py-3 px-2 text-center">
                             <div className="flex flex-col items-center gap-1">
                               <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${style.badgeBg} ${style.text}`}>
                                 {style.label}
