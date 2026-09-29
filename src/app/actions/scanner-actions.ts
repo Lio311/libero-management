@@ -545,6 +545,16 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
       labura: { name: "לה בורה", external_id: "labura" },
     };
 
+    let finalNote = (order.customerNote as string) || (order as any).customer_note || "";
+    if (finalNote) {
+      finalNote = finalNote.replace(/\r?\n|\r/g, " | ").replace(/\s+/g, " ").trim();
+      if (finalNote.length > 80) {
+        finalNote = finalNote.substring(0, 77) + "...";
+      }
+    } else {
+      finalNote = "תודה שקנית אצלנו!";
+    }
+
     // Prepare Lionwheel payload
     const payload = {
       pickup_at: formattedDate,
@@ -557,7 +567,7 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
       destination_recipient_name: customerName,
       destination_phone: billing.phone || "לא ידוע",
       destination_email: billing.email || "",
-      notes: (order.customerNote as string) || (order as any).customer_note || "תודה שקנית אצלנו!",
+      notes: finalNote,
     };
 
     const response = await fetch(`${LIONWHEEL_ENDPOINT}?key=${LIONWHEEL_API_KEY}`, {
