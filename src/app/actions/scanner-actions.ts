@@ -552,7 +552,7 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
         finalNote = finalNote.substring(0, 77) + "...";
       }
     } else {
-      finalNote = "תודה שקנית אצלנו!";
+      finalNote = "!תודה שקנית אצלנו";
     }
 
     // Prepare Lionwheel payload
