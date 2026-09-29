@@ -27,6 +27,7 @@ export type ScannerOrder = {
   gender?: 'male' | 'female' | 'unknown';
   shippingNumber?: string;
   hasMultipleOrdersToday?: boolean;
+  updatedAt?: Date | string;
   scanProgress?: { items: any[], status: string } | null;
   scannedBy?: string | null;
 };
@@ -108,6 +109,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
       billing: targetOrders.billing,
       customerNote: targetOrders.customerNote,
       customerId: targetOrders.customerId,
+      updatedAt: targetOrders.updatedAt,
     }).from(targetOrders)
     .where(eq(targetOrders.status, 'processing'))
     .orderBy(desc(targetOrders.dateCreated));
@@ -122,6 +124,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
       billing: targetOrders.billing,
       customerNote: targetOrders.customerNote,
       customerId: targetOrders.customerId,
+      updatedAt: targetOrders.updatedAt,
     }).from(targetOrders)
     .where(eq(targetOrders.status, 'completed'))
     .orderBy(desc(targetOrders.updatedAt))
@@ -163,6 +166,7 @@ export async function getProcessingOrders(store: "libero" | "velour" | "labura" 
         gender: guessGender(billing?.first_name || ''),
         shippingNumber: labelMap.get(order.id.toString()) || '',
         hasMultipleOrdersToday: false,
+        updatedAt: order.updatedAt,
         scanProgress: progressMap.get(order.id) || null,
         scannedBy: progressMap.get(order.id)?.scannedBy || null,
       };
@@ -188,6 +192,7 @@ export async function getOrderById(orderId: number, store: "libero" | "velour" |
       billing: targetOrders.billing,
       customerNote: targetOrders.customerNote,
       customerId: targetOrders.customerId,
+      updatedAt: targetOrders.updatedAt,
     }).from(targetOrders)
     .where(eq(targetOrders.id, orderId))
     .limit(1);
@@ -630,6 +635,7 @@ export async function getArchivedCompletedOrders(store: "libero" | "velour" | "l
       billing: targetOrders.billing,
       customerNote: targetOrders.customerNote,
       customerId: targetOrders.customerId,
+      updatedAt: targetOrders.updatedAt,
     }).from(targetOrders)
     .where(eq(targetOrders.status, 'completed'))
     .orderBy(desc(targetOrders.updatedAt))
@@ -669,6 +675,7 @@ export async function getArchivedCompletedOrders(store: "libero" | "velour" | "l
         gender: guessGender(billing?.first_name || ''),
         shippingNumber: labelMap.get(order.id.toString()) || '',
         hasMultipleOrdersToday: false,
+        updatedAt: order.updatedAt,
         scanProgress: null,
         scannedBy: scannedByMap.get(order.id) || null,
       };
@@ -762,7 +769,8 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
         billing: targetOrders.billing,
       customerNote: targetOrders.customerNote,
         customerId: targetOrders.customerId,
-      }).from(targetOrders)
+      updatedAt: targetOrders.updatedAt,
+    }).from(targetOrders)
       .where(inArray(targetOrders.id, idsToSearch));
     }
     
@@ -777,7 +785,8 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
           billing: targetOrders.billing,
       customerNote: targetOrders.customerNote,
           customerId: targetOrders.customerId,
-        }).from(targetOrders)
+      updatedAt: targetOrders.updatedAt,
+    }).from(targetOrders)
         .orderBy(desc(targetOrders.dateCreated))
         .limit(1000);
         
@@ -820,6 +829,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
                    shippingLines: wcOrder.shipping_lines,
                    billing: wcOrder.billing,
                    customerId: wcOrder.customer_id?.toString(),
+                   updatedAt: wcOrder.date_modified_gmt ? new Date(wcOrder.date_modified_gmt + 'Z') : new Date(wcOrder.date_modified || new Date()),
                  });
                  // we can optionally save the label info if it was a barcode search
                  if (!hasHebrew && translatedTerm.length > 5) {
@@ -866,6 +876,7 @@ export async function searchScannerOrders(store: "libero" | "velour" | "labura",
         phone: billing ? billing.phone : null,
         isPickup: (order.shippingLines as any[])?.some((line: any) => line.method_id === "local_pickup") || false,
         hasMultipleOrdersToday: false,
+        updatedAt: order.updatedAt,
         scanProgress: progressMap.get(order.id) || null,
         scannedBy: progressMap.get(order.id)?.scannedBy || null,
       };

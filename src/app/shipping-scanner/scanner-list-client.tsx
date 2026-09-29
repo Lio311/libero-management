@@ -229,7 +229,7 @@ export default function ScannerListClient({
   }).sort((a, b) => new Date(a.dateCreated).getTime() - new Date(b.dateCreated).getTime());
 
   const processingOrders = filteredOrders.filter(o => o.status === 'processing');
-  const completedOrders = filteredOrders.filter(o => o.status === 'completed').sort((a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime());
+  const completedOrders = filteredOrders.filter(o => o.status === 'completed').sort((a, b) => new Date(b.updatedAt || b.dateCreated).getTime() - new Date(a.updatedAt || a.dateCreated).getTime());
 
   // Logic for duplicates category
   const phoneCounts = new Map<string, number>();
