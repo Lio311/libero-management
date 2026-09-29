@@ -552,7 +552,7 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
       destination_recipient_name: customerName,
       destination_phone: billing.phone || "לא ידוע",
       destination_email: billing.email || "",
-      notes: `הופק ממערכת סורק - חנות ${store}`,
+      notes: (order.customerNote as string) || (order as any).customer_note || "תודה שקנית אצלנו!",
     };
 
     const response = await fetch(`${LIONWHEEL_ENDPOINT}?key=${LIONWHEEL_API_KEY}`, {
