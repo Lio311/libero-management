@@ -624,13 +624,24 @@ export default function ScannerClient({
           >
             <ArrowRight className="w-6 h-6" />
           </Link>
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
               הזמנה #{order.id}
             </h2>
-            <p className="text-muted-foreground">{order.customerName}</p>
+            <div className="flex items-center gap-3">
+              <p className="text-gray-900 dark:text-gray-200 font-semibold text-lg">{order.customerName}</p>
+              {(!store || store === "libero") && (
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm shrink-0">
+                  <span className="text-[11px] font-semibold opacity-90 tracking-wide">
+                    ציון:
+                  </span>
+                  <span className="text-base font-black leading-none">
+                    {order.reward.score}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
         {/* Multiple Orders Warning */}
         {order.hasMultipleOrdersToday && (
@@ -805,17 +816,6 @@ export default function ScannerClient({
                       ♀
                     </span>
                   </div>
-                )}
-                {(!store || store === "libero") && (
-                  <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md shadow-purple-500/30 shrink-0 border border-purple-400/30">
-                    <span className="text-xs font-semibold opacity-90 tracking-wide">
-                      ציון לקוח:
-                    </span>
-                    <span className="text-lg font-black leading-none">
-                      {order.reward.score}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -838,17 +838,22 @@ export default function ScannerClient({
               <span>פתח מצלמה לסריקה</span>
             </button>
           ) : (
-            <div className="w-full flex flex-col gap-2">
+            <div className="w-full flex flex-col gap-1">
               <div className="w-full flex justify-end">
                 <button
                   onClick={() => setIsCameraOpen(false)}
-                  className="bg-red-500 text-white p-1.5 rounded-lg shadow-sm hover:bg-red-600 transition-colors"
+                  className="bg-red-500 text-white p-1.5 rounded-full shadow-sm hover:bg-red-600 transition-colors"
                   title="סגור מצלמה"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <style dangerouslySetInnerHTML={{__html: `
+                #reader video, #reader canvas {
+                  object-fit: cover !important;
+                  width: 100% !important;
+                  height: 100% !important;
+                }
                 @keyframes scan-line {
                   0% { transform: translateY(0px); opacity: 0; }
                   10% { opacity: 1; }
@@ -859,8 +864,8 @@ export default function ScannerClient({
                   100% { transform: translateY(0px); opacity: 0; }
                 }
               `}} />
-              <div className="w-full h-[150px] mx-auto overflow-hidden rounded-xl shadow-inner bg-black relative">
-                <div id="reader" className="w-full absolute top-1/2 left-0 -translate-y-1/2 [&>video]:object-cover z-0"></div>
+              <div className="w-full h-[150px] mx-auto overflow-hidden rounded-2xl shadow-inner bg-black relative">
+                <div id="reader" className="absolute inset-0 w-full h-full z-0 flex items-center justify-center"></div>
                 {/* Custom Scanner Overlay */}
                 <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
                   <div className="w-[280px] h-[80px] border border-white/20 rounded-xl relative overflow-hidden box-content" style={{ boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.4)" }}>
