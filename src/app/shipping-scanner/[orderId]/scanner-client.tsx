@@ -777,7 +777,7 @@ export default function ScannerClient({
         {((order.reward && order.reward.gift) || order.gender === "male" || order.gender === "female") && (
             <div className="p-2 mb-6 flex flex-col sm:flex-row items-center gap-6 justify-between w-full">
               <div className="flex flex-col gap-3 flex-1">
-                {order.reward.gift && (
+                {order.reward?.gift && (
                   <>
                     <div className="flex items-center gap-2">
                       <h3 className="text-2xl font-bold text-white">
@@ -788,7 +788,7 @@ export default function ScannerClient({
                       <div className="flex items-center gap-2 bg-pink-500/10 px-3 py-1.5 rounded-lg border border-pink-500/20">
                         <span className="text-xl">🎁</span>
                         <span className="font-bold text-pink-700">
-                          מתנה: {order.reward.gift}
+                          מתנה: {order.reward?.gift}
                         </span>
                       </div>
                     </div>
