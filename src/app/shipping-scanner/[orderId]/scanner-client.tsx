@@ -351,7 +351,6 @@ export default function ScannerClient({
           { facingMode: "environment" },
           {
             fps: 10,
-            aspectRatio: 1,
           },
           (decodedText) => {
             if (!isProcessingRef.current) {
@@ -808,12 +807,12 @@ export default function ScannerClient({
                   </div>
                 )}
                 {(!store || store === "libero") && (
-                  <div className="flex flex-col items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-purple-500/30 shrink-0">
-                    <span className="text-4xl font-black">
-                      {order.reward.score}
+                  <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md shadow-purple-500/30 shrink-0 border border-purple-400/30">
+                    <span className="text-xs font-semibold opacity-90 tracking-wide">
+                      ציון לקוח:
                     </span>
-                    <span className="text-xs font-medium opacity-80 uppercase tracking-widest">
-                      ציון לקוח
+                    <span className="text-lg font-black leading-none">
+                      {order.reward.score}
                     </span>
                   </div>
                 )}
