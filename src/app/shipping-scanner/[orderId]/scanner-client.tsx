@@ -432,6 +432,38 @@ export default function ScannerClient({
     checkCompletion(newItems);
   };
 
+  const handleCompleteMissingItem = (id: number) => {
+    const pwd = window.prompt("נא להזין סיסמת הרשאה (1234):");
+    if (pwd !== "1234") {
+      toast.error("סיסמה שגויה");
+      return;
+    }
+
+    const newItems = items.map((item) => {
+      if (item.id === id) {
+        return { ...item, isMissing: false, scanned: item.expected, isManual: true };
+      }
+      return item;
+    });
+
+    setItems(newItems);
+    
+    // Check if we need to remove on_hold status if there are no more missing items
+    const hasStillMissing = newItems.some((item) => item.isMissing);
+    if (!hasStillMissing && localOrderStatus === "on_hold") {
+      // If no missing items left, and we were on hold, we can change back to processing or waiting_for_label
+      const allScanned = newItems.every(i => i.scanned >= i.expected);
+      if (allScanned) {
+        setLocalOrderStatus("waiting_for_label");
+      } else {
+        setLocalOrderStatus("processing");
+      }
+    }
+
+    toast.success("הפריט הושלם בהצלחה");
+    checkCompletion(newItems);
+  };
+
   function checkCompletion(currentItems: ItemStatus[]) {
     const allDone = currentItems.every(
       (item) => item.scanned >= item.expected || item.isMissing,
@@ -1061,6 +1093,18 @@ export default function ScannerClient({
                         <CheckCircle2 className="w-4 h-4" />
                         נסרק
                       </div>
+                    )}
+                    {item.isMissing && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCompleteMissingItem(item.id);
+                        }}
+                        className="h-10 px-4 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500 hover:text-white flex items-center gap-2 transition-colors font-medium text-sm"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        השלם פריט
+                      </button>
                     )}
                   </div>
 
