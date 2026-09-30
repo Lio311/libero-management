@@ -636,12 +636,13 @@ export default function ScannerClient({
                     ציון:
                   </span>
                   <span className="text-base font-black leading-none">
-                    {order.reward.score}
+                    {order.reward?.score}
                   </span>
                 </div>
               )}
             </div>
           </div>
+        </div>
 
         {/* Multiple Orders Warning */}
         {order.hasMultipleOrdersToday && (
@@ -816,6 +817,7 @@ export default function ScannerClient({
                       ♀
                     </span>
                   </div>
+                )}
               </div>
             </div>
           )}
