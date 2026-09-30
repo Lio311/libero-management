@@ -44,25 +44,33 @@ export default function ScannerListClient({
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop" | null>(null);
   const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (mounted && scrollContainerRef.current) {
+    if (mounted) {
+      const mainEl = document.querySelector('main');
       const savedScroll = sessionStorage.getItem(`scannerListScrollPos_${store}`);
-      if (savedScroll) {
-        scrollContainerRef.current.scrollTop = parseInt(savedScroll, 10);
+      if (mainEl && savedScroll) {
+        mainEl.scrollTop = parseInt(savedScroll, 10);
       }
     }
   }, [mounted, orders.length, store]); // Restore when mounted and when orders change/load
 
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const top = e.currentTarget.scrollTop;
-    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-    scrollTimeoutRef.current = setTimeout(() => {
-      sessionStorage.setItem(`scannerListScrollPos_${store}`, top.toString());
-    }, 150);
-  };
+  useEffect(() => {
+    const mainEl = document.querySelector('main');
+    if (!mainEl) return;
+
+    const handleMainScroll = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+      scrollTimeoutRef.current = setTimeout(() => {
+        sessionStorage.setItem(`scannerListScrollPos_${store}`, target.scrollTop.toString());
+      }, 150);
+    };
+
+    mainEl.addEventListener('scroll', handleMainScroll);
+    return () => mainEl.removeEventListener('scroll', handleMainScroll);
+  }, [store]);
 
 
   useEffect(() => {
@@ -278,11 +286,7 @@ export default function ScannerListClient({
   const shippingOrders = isLibero ? allShippingOrders.filter(o => !hasMiniPerfumes(o) || o.lineItems.length === 0) : allShippingOrders;
 
   return (
-    <div 
-      ref={scrollContainerRef}
-      onScroll={handleScroll}
-      className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 md:p-8 pt-6 h-[100dvh] overflow-y-auto w-full pb-32"
-    >
+    <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 md:p-8 pt-6 w-full pb-32">
       <div className="col-span-1 lg:col-span-12 glass-panel rounded-3xl p-6 flex flex-col gap-4">
         <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4 w-full">
           <div className="hidden sm:block"></div> {/* Spacer for symmetry */}
