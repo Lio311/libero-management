@@ -457,11 +457,7 @@ export default function ScannerListClient({
       </div>
       </div>
 <div className="col-span-1 lg:col-span-12">
-      {processingOrders.length === 0 ? (
-        <div className="text-center py-10 text-white/70 bg-white/5 rounded-xl border border-white/20">
-          אין הזמנות פתוחות להכנה
-        </div>
-      ) : (
+      {processingOrders.length === 0 ? null : (
         <div className="space-y-8">
           {mounted && readyOrders.length > 0 && (
             <div className="space-y-4">
@@ -583,7 +579,7 @@ export default function ScannerListClient({
       )}
 
       {completedOrders.length > 0 && (
-        <div className="space-y-4 pt-8 border-t border-white/20">
+        <div className={`space-y-4 ${processingOrders.length > 0 ? "pt-8 mt-8 border-t border-white/20" : ""}`}>
           <h3 className="text-xl font-semibold flex items-center gap-2 text-green-500">
             <Package className="w-6 h-6" />
             הזמנות שהושלמו לאחרונה ({completedOrders.length})
