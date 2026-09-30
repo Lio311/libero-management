@@ -34,7 +34,7 @@ const navigation: NavItem[] = [
     subItems: [
       { name: "ליברו", href: "/coupons/libero" },
       { name: "וולור", href: "/coupons/velour" },
-      { name: "להבורה", href: "/coupons/labura" },
+      { name: "לה בורה", href: "/coupons/labura" },
     ]
   },
   { name: "סריקת משלוחים", href: "/shipping-scanner", icon: ScanBarcode },
@@ -54,7 +54,7 @@ const navigation: NavItem[] = [
     icon: ClipboardCheck,
     subItems: [
       { name: "בקרת מלאי כללי", href: "/qc-inventory" },
-      { name: "ספירת מלאי להבורה", href: "/inventory/labura-count" },
+      { name: "ספירת מלאי לה בורה", href: "/inventory/labura-count" },
     ]
   },
   { name: "מוצרי לינדו", href: "/lindo-products", icon: ShoppingBag },

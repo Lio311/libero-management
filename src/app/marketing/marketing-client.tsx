@@ -163,7 +163,7 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
           <div className="flex flex-col gap-1 min-w-[120px]">
             <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">ליברו:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLibero} onChange={e => setData({...data, baseLibero: e.target.value})} /></div>
             <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">וולור:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseVelour} onChange={e => setData({...data, baseVelour: e.target.value})} /></div>
-            <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">להבורה:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLabura} onChange={e => setData({...data, baseLabura: e.target.value})} /></div>
+            <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">לה בורה:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLabura} onChange={e => setData({...data, baseLabura: e.target.value})} /></div>
           </div>
         </td>
         <td className="p-2 flex flex-col md:table-cell gap-1"><span className="md:hidden font-medium text-sm text-slate-700">מספר סרטונים</span><input className="w-full p-1 border rounded text-sm text-right" value={data.videoCount} onChange={e => setData({...data, videoCount: e.target.value})} /></td>
@@ -223,7 +223,7 @@ function EditableInfluencerRow({ inf, uniqueBrands = [] }: { inf: any, uniqueBra
               <div className="text-[10px] text-slate-700 font-normal leading-tight mt-1 flex flex-col gap-0.5">
                 {actualBaseLibero > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(actualBaseLibero)}</div>}
                 {actualBaseVelour > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(actualBaseVelour)}</div>}
-                {actualBaseLabura > 0 && <div className="whitespace-nowrap">להבורה: ₪{formatCurrency(actualBaseLabura)}</div>}
+                {actualBaseLabura > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(actualBaseLabura)}</div>}
               </div>
             )}
           </div>
@@ -435,7 +435,7 @@ function EditablePaymentRow({ payment, rawInfluencers, onTotalChange }: { paymen
           <div className="flex flex-col gap-1 min-w-[120px]">
             <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">ליברו:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLibero} onChange={e => setData({...data, baseLibero: e.target.value})} /></div>
             <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">וולור:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseVelour} onChange={e => setData({...data, baseVelour: e.target.value})} /></div>
-            <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">להבורה:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLabura} onChange={e => setData({...data, baseLabura: e.target.value})} /></div>
+            <div className="flex items-center gap-1"><span className="text-[10px] w-12 text-right">לה בורה:</span><input type="number" className="w-full p-1 border rounded text-xs text-center" value={data.baseLabura} onChange={e => setData({...data, baseLabura: e.target.value})} /></div>
           </div>
         </td>
         <td className="p-2 flex flex-col md:table-cell gap-1">
@@ -533,7 +533,7 @@ function EditablePaymentRow({ payment, rawInfluencers, onTotalChange }: { paymen
               <div className="text-[10px] text-slate-700 font-normal leading-tight mt-1 flex flex-col gap-0.5">
                 {actualBaseLibero > 0 && <div className="whitespace-nowrap">ליברו: ₪{formatCurrency(actualBaseLibero)}</div>}
                 {actualBaseVelour > 0 && <div className="whitespace-nowrap">וולור: ₪{formatCurrency(actualBaseVelour)}</div>}
-                {actualBaseLabura > 0 && <div className="whitespace-nowrap">להבורה: ₪{formatCurrency(actualBaseLabura)}</div>}
+                {actualBaseLabura > 0 && <div className="whitespace-nowrap">לה בורה: ₪{formatCurrency(actualBaseLabura)}</div>}
               </div>
             )}
           </div>

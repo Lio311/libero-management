@@ -18,7 +18,7 @@ const STORE_CONFIG = {
         apiEndpoint: '/api/velour-coupons',
     },
     'labura': {
-        title: 'סיכום קופונים להבורה',
+        title: 'סיכום קופונים לה בורה',
         apiEndpoint: '/api/labura-coupons',
     }
 } as const;
