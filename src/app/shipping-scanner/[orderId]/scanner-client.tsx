@@ -840,7 +840,7 @@ export default function ScannerClient({
               <span>פתח מצלמה לסריקה</span>
             </button>
           ) : (
-            <div className="w-full flex flex-col gap-3 -mt-2 mb-2">
+            <div className="w-full flex flex-col gap-2 -mt-6 mb-2">
               <div className="w-full flex justify-end">
                 <button
                   onClick={() => setIsCameraOpen(false)}
@@ -872,11 +872,11 @@ export default function ScannerClient({
                     <div className="absolute inset-0 overflow-hidden rounded-2xl">
                       <div className="absolute left-0 w-full h-[3px] bg-red-500 shadow-[0_0_12px_3px_rgba(239,68,68,0.9)]" style={{ animation: "scan-line 2.5s linear infinite alternate" }} />
                     </div>
-                    {/* Corner brackets - outside overflow hidden so they don't clip */}
-                    <div className="absolute -top-[2px] -left-[2px] w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-2xl"></div>
-                    <div className="absolute -top-[2px] -right-[2px] w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-2xl"></div>
-                    <div className="absolute -bottom-[2px] -left-[2px] w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-2xl"></div>
-                    <div className="absolute -bottom-[2px] -right-[2px] w-8 h-8 border-b-4 border-r-4 border-white rounded-br-2xl"></div>
+                    {/* Corner brackets - high z-index to stay above everything */}
+                    <div className="absolute -top-[2px] -left-[2px] w-8 h-8 border-t-[4px] border-l-[4px] border-white rounded-tl-2xl z-50 shadow-sm"></div>
+                    <div className="absolute -top-[2px] -right-[2px] w-8 h-8 border-t-[4px] border-r-[4px] border-white rounded-tr-2xl z-50 shadow-sm"></div>
+                    <div className="absolute -bottom-[2px] -left-[2px] w-8 h-8 border-b-[4px] border-l-[4px] border-white rounded-bl-2xl z-50 shadow-sm"></div>
+                    <div className="absolute -bottom-[2px] -right-[2px] w-8 h-8 border-b-[4px] border-r-[4px] border-white rounded-br-2xl z-50 shadow-sm"></div>
                   </div>
                 </div>
               </div>
