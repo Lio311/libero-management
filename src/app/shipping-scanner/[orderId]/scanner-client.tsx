@@ -630,6 +630,18 @@ export default function ScannerClient({
             </h2>
             <div className="flex items-center gap-3 w-full">
               <p className="text-black dark:text-white font-bold text-xl">{order.customerName}</p>
+              
+              {order.gender === "male" && (
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-sm shrink-0" title="גבר">
+                  <span className="text-lg font-black leading-none mb-0.5">♂</span>
+                </div>
+              )}
+              {order.gender === "female" && (
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20 shadow-sm shrink-0" title="אישה">
+                  <span className="text-lg font-black leading-none mb-0.5">♀</span>
+                </div>
+              )}
+
               {(!store || store === "libero") && (
                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-sm shrink-0 mr-auto">
                   <span className="text-[11px] font-semibold opacity-90 tracking-wide">
@@ -774,7 +786,7 @@ export default function ScannerClient({
       </div>
 
       <div className="col-span-1 lg:col-span-7 glass-panel rounded-3xl p-6 flex flex-col gap-4">
-        {((order.reward && order.reward.gift) || order.gender === "male" || order.gender === "female") && (
+        {order.reward?.gift && (
             <div className="p-2 mb-6 flex flex-col sm:flex-row items-center gap-6 justify-between w-full">
               <div className="flex flex-col gap-3 flex-1">
                 {order.reward?.gift && (
@@ -793,29 +805,6 @@ export default function ScannerClient({
                       </div>
                     </div>
                   </>
-                )}
-              </div>
-
-              <div className="flex items-center gap-4 shrink-0">
-                {order.gender === "male" && (
-                  <div
-                    className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 shadow-sm"
-                    title="גבר"
-                  >
-                    <span className="text-3xl font-black leading-none mb-1">
-                      ♂
-                    </span>
-                  </div>
-                )}
-                {order.gender === "female" && (
-                  <div
-                    className="flex items-center justify-center w-12 h-12 rounded-full bg-pink-500/10 text-pink-500 border border-pink-500/20 shadow-sm"
-                    title="אישה"
-                  >
-                    <span className="text-3xl font-black leading-none mb-1">
-                      ♀
-                    </span>
-                  </div>
                 )}
               </div>
             </div>
