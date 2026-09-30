@@ -50,7 +50,14 @@ export default function ScannerListClient({
       const mainEl = document.querySelector('main');
       const savedScroll = sessionStorage.getItem(`scannerListScrollPos_${store}`);
       if (mainEl && savedScroll) {
-        mainEl.scrollTop = parseInt(savedScroll, 10);
+        const pos = parseInt(savedScroll, 10);
+        mainEl.scrollTop = pos;
+        requestAnimationFrame(() => {
+          if (mainEl) mainEl.scrollTop = pos;
+          setTimeout(() => {
+            if (mainEl) mainEl.scrollTop = pos;
+          }, 50);
+        });
       }
     }
   }, [mounted, orders.length, store]); // Restore when mounted and when orders change/load
@@ -69,7 +76,10 @@ export default function ScannerListClient({
     };
 
     mainEl.addEventListener('scroll', handleMainScroll);
-    return () => mainEl.removeEventListener('scroll', handleMainScroll);
+    return () => {
+      mainEl.removeEventListener('scroll', handleMainScroll);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
   }, [store]);
 
 
