@@ -774,8 +774,7 @@ export default function ScannerClient({
       </div>
 
       <div className="col-span-1 lg:col-span-7 glass-panel rounded-3xl p-6 flex flex-col gap-4">
-        {order.reward &&
-          (order.reward.gift || !store || store === "libero") && (
+        {((order.reward && order.reward.gift) || order.gender === "male" || order.gender === "female") && (
             <div className="p-2 mb-6 flex flex-col sm:flex-row items-center gap-6 justify-between w-full">
               <div className="flex flex-col gap-3 flex-1">
                 {order.reward.gift && (
