@@ -307,7 +307,7 @@ export default function ScannerListClient({
                 href="?store=labura" prefetch={true} scroll={false}
                 className={`flex-1 sm:flex-none text-center px-2 sm:px-6 py-2.5 rounded-lg font-medium transition-all ${store === "labura" ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"}`}
               >
-                לה בורה
+                להבורה
               </Link>
             </div>
             {(isWarehouse || isAdmin) && (

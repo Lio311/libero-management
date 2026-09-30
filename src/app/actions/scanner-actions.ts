@@ -447,7 +447,7 @@ export async function reportMissingItemsAction(data: {
   const storeNames: Record<string, string> = {
     libero: "ליברו",
     velour: "וולור",
-    labura: "לה בורה",
+    labura: "להבורה",
   };
   const storeNameHe = storeNames[data.store] || data.store;
 
@@ -542,7 +542,7 @@ export async function createOrderLabel(orderId: number, store: "libero" | "velou
     const storeCompanyMap: Record<string, { name: string; external_id: string }> = {
       libero: { name: "ליברו", external_id: "libero" },
       velour: { name: "וולור", external_id: "velour" },
-      labura: { name: "לה בורה", external_id: "labura" },
+      labura: { name: "להבורה", external_id: "labura" },
     };
 
     let finalNote = (order.customerNote as string) || (order as any).customer_note || "";

@@ -352,7 +352,7 @@ export default function ScannerClient({
           {
             fps: 10,
             qrbox: { width: 250, height: 75 },
-            
+            aspectRatio: 2.5,
           },
           (decodedText) => {
             if (!isProcessingRef.current) {

@@ -72,7 +72,7 @@ const STATUS_MAP: Record<string, { label: string; className: string }> = {
 
 const BRAND_LABELS: Record<string, string> = {
     'velour': 'וולור',
-    'labura': 'לה בורה',
+    'labura': 'להבורה',
     'libero': 'ליברו'
 };
 
@@ -547,7 +547,7 @@ export default function InfluencerCouponPage({ params }: { params: Promise<{ id:
                                             {influencerConfig?.coupons?.map(coupon => (
                                                 <div key={coupon.code} className="flex items-center gap-3">
                                                     <span className="w-32 font-medium text-slate-200 text-sm whitespace-nowrap overflow-hidden text-ellipsis">
-                                                        {coupon.code} ({coupon.brand === 'labura' ? 'לה בורה' : coupon.brand === 'libero' ? 'ליברו' : coupon.brand === 'velour' ? 'וולור' : coupon.brand})
+                                                        {coupon.code} ({coupon.brand === 'labura' ? 'להבורה' : coupon.brand === 'libero' ? 'ליברו' : coupon.brand === 'velour' ? 'וולור' : coupon.brand})
                                                     </span>
                                                     <input type="number" 
                                                         value={couponRates[coupon.code] !== undefined ? couponRates[coupon.code] : ''} 

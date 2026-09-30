@@ -181,9 +181,9 @@ export default function LaburaCountClient({ initialData }: { initialData: Labura
       >
         <div className="mb-4 text-center">
           <h2 className="text-xl font-bold">
-            {printMode === 'cartons-order' ? 'הזמנת קרטונים לה בורה' 
-             : printMode === 'body-butters-order' ? 'הזמנת חמאות גוף לה בורה' 
-             : 'ספירת מלאי לה בורה'}
+            {printMode === 'cartons-order' ? 'הזמנת קרטונים להבורה' 
+             : printMode === 'body-butters-order' ? 'הזמנת חמאות גוף להבורה' 
+             : 'ספירת מלאי להבורה'}
           </h2>
           <p className="text-sm text-muted-foreground">{new Date().toLocaleDateString('he-IL')}</p>
         </div>
