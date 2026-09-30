@@ -87,29 +87,26 @@ export function Sidebar({ children, isAuthenticated = true, isAdmin = false, isW
     <Tooltip.Provider delayDuration={100}>
     <>
       {/* Mobile Header */}
-      {!isWarehouse && (
-        <div className="md:hidden print:hidden flex h-[calc(5rem_+_env(safe-area-inset-top))] pt-[calc(1.5rem_+_env(safe-area-inset-top))] pb-2 items-center px-4 border-b border-border/20 glass-panel text-white shrink-0 relative z-50 justify-center">
-          {isAuthenticated ? (
-            <>
-              <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4 z-10">
-                <Menu className="h-6 w-6" />
-              </button>
-              <div className="relative h-20 w-52 md:w-12 mx-auto transition-all duration-300 pointer-events-none">
-                <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7] brightness-0 invert" priority />
-              </div>
-            </>
-          ) : (
-            <>
-              <button onClick={toggleSidebar} className="p-1 text-foreground absolute right-4 z-10">
-                <Menu className="h-6 w-6" />
-              </button>
-              <div className="relative h-20 w-52 md:w-10 mx-auto transition-all duration-300 pointer-events-none">
-                <Image src="/libero-d.png" alt="Libero Logo" fill className="object-contain object-center scale-[1.7] brightness-0 invert" priority />
-              </div>
-            </>
-          )}
+      <div className="md:hidden print:hidden flex h-[calc(4.5rem_+_env(safe-area-inset-top))] pt-[env(safe-area-inset-top)] items-center justify-between px-4 border-b border-border/20 glass-panel text-white shrink-0 relative z-[100] w-full shadow-sm">
+        <button 
+          onClick={toggleSidebar} 
+          className="p-2 -mr-2 text-current z-10 hover:bg-white/10 rounded-lg transition-colors flex items-center justify-center"
+        >
+          <Menu className="h-7 w-7" />
+        </button>
+        
+        <div className="absolute left-1/2 -translate-x-1/2 top-[env(safe-area-inset-top)] bottom-0 w-40 pointer-events-none flex items-center justify-center">
+          <Image 
+            src="/libero-d.png" 
+            alt="Libero Logo" 
+            fill 
+            className="object-contain scale-[1.5] brightness-0 invert" 
+            priority 
+          />
         </div>
-      )}
+        
+        <div className="w-11" /> {/* Spacer to balance flex-between */}
+      </div>
 
       {/* Desktop Layout Spacer */}
       <div className="hidden md:block w-[130px] shrink-0 pointer-events-none transition-all duration-300" />
