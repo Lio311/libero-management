@@ -840,11 +840,11 @@ export default function ScannerClient({
               <span>פתח מצלמה לסריקה</span>
             </button>
           ) : (
-            <div className="w-full flex flex-col gap-2 -mt-6 mb-2">
+            <div className="w-full flex flex-col gap-1 -mt-5 mb-2">
               <div className="w-full flex justify-end">
                 <button
                   onClick={() => setIsCameraOpen(false)}
-                  className="bg-red-500 text-white p-2 rounded-full shadow-sm border border-red-400 hover:bg-red-600 transition-colors z-10"
+                  className="bg-red-500 text-white p-1.5 rounded-full shadow-sm border border-red-400 hover:bg-red-600 transition-colors z-10"
                   title="סגור מצלמה"
                 >
                   <X className="w-5 h-5" />
@@ -857,31 +857,32 @@ export default function ScannerClient({
                   height: 100% !important;
                 }
                 @keyframes scan-line {
-                  0% { top: 0%; opacity: 0; }
+                  0% { transform: translateY(0px); opacity: 0; }
                   10% { opacity: 1; }
-                  90% { top: calc(100% - 3px); opacity: 1; }
-                  100% { top: calc(100% - 3px); opacity: 0; }
+                  40% { transform: translateY(74px); }
+                  50% { transform: translateY(76px); opacity: 0; }
+                  60% { opacity: 1; }
+                  90% { transform: translateY(2px); }
+                  100% { transform: translateY(0px); opacity: 0; }
                 }
               `}} />
-              <div className="w-full h-[220px] mx-auto overflow-hidden rounded-3xl shadow-inner bg-black relative">
+              <div className="w-full h-[150px] mx-auto overflow-hidden rounded-2xl shadow-inner bg-black relative">
                 <div id="reader" className="absolute inset-0 w-full h-full z-0 flex items-center justify-center"></div>
                 {/* Custom Scanner Overlay */}
                 <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-                  <div className="w-[85%] h-[120px] max-w-[280px] border-2 border-white/30 rounded-2xl relative box-content" style={{ boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.55)" }}>
-                    {/* The clipping container for the red line */}
-                    <div className="absolute inset-0 overflow-hidden rounded-2xl">
-                      <div className="absolute left-0 w-full h-[3px] bg-red-500 shadow-[0_0_12px_3px_rgba(239,68,68,0.9)]" style={{ animation: "scan-line 2.5s linear infinite alternate" }} />
-                    </div>
-                    {/* Corner brackets - high z-index to stay above everything */}
-                    <div className="absolute -top-[2px] -left-[2px] w-8 h-8 border-t-[4px] border-l-[4px] border-white rounded-tl-2xl z-50 shadow-sm"></div>
-                    <div className="absolute -top-[2px] -right-[2px] w-8 h-8 border-t-[4px] border-r-[4px] border-white rounded-tr-2xl z-50 shadow-sm"></div>
-                    <div className="absolute -bottom-[2px] -left-[2px] w-8 h-8 border-b-[4px] border-l-[4px] border-white rounded-bl-2xl z-50 shadow-sm"></div>
-                    <div className="absolute -bottom-[2px] -right-[2px] w-8 h-8 border-b-[4px] border-r-[4px] border-white rounded-br-2xl z-50 shadow-sm"></div>
+                  <div className="w-[280px] h-[80px] border border-white/20 rounded-xl relative overflow-hidden box-content" style={{ boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.4)" }}>
+                    {/* Animated Scanning Line */}
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-red-500 shadow-[0_0_8px_2px_rgba(239,68,68,0.8)]" style={{ animation: "scan-line 2.5s ease-in-out infinite" }} />
+                    {/* Corner brackets */}
+                    <div className="absolute -top-px -left-px w-6 h-6 border-t-[4px] border-l-[4px] border-white rounded-tl-xl z-50"></div>
+                    <div className="absolute -top-px -right-px w-6 h-6 border-t-[4px] border-r-[4px] border-white rounded-tr-xl z-50"></div>
+                    <div className="absolute -bottom-px -left-px w-6 h-6 border-b-[4px] border-l-[4px] border-white rounded-bl-xl z-50"></div>
+                    <div className="absolute -bottom-px -right-px w-6 h-6 border-b-[4px] border-r-[4px] border-white rounded-br-xl z-50"></div>
                   </div>
                 </div>
               </div>
-              <p className="text-sm font-medium text-black dark:text-white text-center mt-3">
-                סריקה אוטומטית - מקם את הברקוד בתוך המסגרת
+              <p className="text-xs font-medium text-black dark:text-white text-center mt-1">
+                סריקה אוטומטית - מקם את הברקוד באמצע המסגרת
               </p>
             </div>
           )}
