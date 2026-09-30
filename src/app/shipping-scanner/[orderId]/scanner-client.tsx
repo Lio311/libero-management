@@ -352,7 +352,7 @@ export default function ScannerClient({
           {
             fps: 10,
             qrbox: { width: 250, height: 75 },
-            aspectRatio: 2.5,
+            aspectRatio: 1,
           },
           (decodedText) => {
             if (!isProcessingRef.current) {
@@ -848,8 +848,8 @@ export default function ScannerClient({
               >
                 <X className="w-5 h-5" />
               </button>
-              <div className="w-full h-[150px] mx-auto overflow-hidden rounded-xl shadow-inner bg-black flex items-center justify-center">
-                <div id="reader" className="w-full shrink-0 [&>video]:object-cover"></div>
+              <div className="w-full h-[150px] mx-auto overflow-hidden rounded-xl shadow-inner bg-black relative">
+                <div id="reader" className="w-full absolute top-1/2 left-0 -translate-y-1/2 [&>video]:object-cover"></div>
               </div>
               <p className="text-xs text-muted-foreground text-center">
                 סריקה אוטומטית - מקם את הברקוד באמצע
