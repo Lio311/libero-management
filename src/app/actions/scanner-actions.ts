@@ -431,11 +431,11 @@ export async function reportMissingItemsAction(data: {
   customerName: string;
   missingItems: Array<{ sku: string; name: string; expected: number; scanned: number }>;
 }) {
-  const gmailAddress = process.env.GMAIL_ADDRESS;
-  const gmailPassword = process.env.GMAIL_PASSWORD;
+  const gmailAddress = process.env.GMAIL_APP_USER || process.env.GMAIL_ADDRESS;
+  const gmailPassword = process.env.GMAIL_APP_PASSWORD;
 
   if (!gmailAddress || !gmailPassword) {
-    console.error("Missing GMAIL_ADDRESS or GMAIL_PASSWORD in env");
+    console.error("Missing GMAIL_ADDRESS or GMAIL_APP_PASSWORD in env");
     return { success: false, error: "Missing email configuration" };
   }
 
