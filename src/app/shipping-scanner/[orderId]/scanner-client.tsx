@@ -839,16 +839,14 @@ export default function ScannerClient({
               <span>פתח מצלמה לסריקה</span>
             </button>
           ) : (
-            <div className="w-full flex flex-col gap-1 -mt-5 mb-2">
-              <div className="w-full flex justify-end">
-                <button
-                  onClick={() => setIsCameraOpen(false)}
-                  className="bg-red-500 text-white p-1.5 rounded-full shadow-sm border border-red-400 hover:bg-red-600 transition-colors z-10"
-                  title="סגור מצלמה"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+            <div className="w-full relative mt-6 mb-2">
+              <button
+                onClick={() => setIsCameraOpen(false)}
+                className="absolute bottom-[calc(100%+8px)] left-0 bg-red-500 text-white p-1.5 rounded-full shadow-sm border border-red-400 hover:bg-red-600 transition-colors z-10"
+                title="סגור מצלמה"
+              >
+                <X className="w-5 h-5" />
+              </button>
               <style dangerouslySetInnerHTML={{__html: `
                 #reader video, #reader canvas {
                   object-fit: cover !important;
