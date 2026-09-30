@@ -840,7 +840,7 @@ export default function ScannerClient({
               <span>פתח מצלמה לסריקה</span>
             </button>
           ) : (
-            <div className="w-full relative mt-0 mb-2">
+            <div className="w-full relative -mt-3 mb-2">
               <button
                 onClick={() => setIsCameraOpen(false)}
                 className="absolute -top-4 -left-2 z-30 bg-red-500 text-white p-2 rounded-full shadow-lg border-2 border-white hover:bg-red-600 transition-colors"
@@ -861,18 +861,20 @@ export default function ScannerClient({
                   100% { top: calc(100% - 3px); opacity: 0; }
                 }
               `}} />
-              <div className="w-full aspect-square max-h-[280px] mx-auto overflow-hidden rounded-3xl shadow-inner bg-black relative">
+              <div className="w-full h-[220px] mx-auto overflow-hidden rounded-3xl shadow-inner bg-black relative">
                 <div id="reader" className="absolute inset-0 w-full h-full z-0 flex items-center justify-center"></div>
                 {/* Custom Scanner Overlay */}
                 <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
-                  <div className="w-[75%] h-[75%] max-w-[220px] max-h-[220px] border-2 border-white/30 rounded-2xl relative overflow-hidden box-content" style={{ boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.55)" }}>
-                    {/* Animated Scanning Line */}
-                    <div className="absolute left-0 w-full h-[3px] bg-red-500 shadow-[0_0_12px_3px_rgba(239,68,68,0.9)]" style={{ animation: "scan-line 2s linear infinite alternate" }} />
-                    {/* Corner brackets */}
-                    <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-2xl"></div>
-                    <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-2xl"></div>
-                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-2xl"></div>
-                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-2xl"></div>
+                  <div className="w-[85%] h-[120px] max-w-[280px] border-2 border-white/30 rounded-2xl relative box-content" style={{ boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.55)" }}>
+                    {/* The clipping container for the red line */}
+                    <div className="absolute inset-0 overflow-hidden rounded-2xl">
+                      <div className="absolute left-0 w-full h-[3px] bg-red-500 shadow-[0_0_12px_3px_rgba(239,68,68,0.9)]" style={{ animation: "scan-line 2.5s linear infinite alternate" }} />
+                    </div>
+                    {/* Corner brackets - outside overflow hidden so they don't clip */}
+                    <div className="absolute -top-[2px] -left-[2px] w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-2xl"></div>
+                    <div className="absolute -top-[2px] -right-[2px] w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-2xl"></div>
+                    <div className="absolute -bottom-[2px] -left-[2px] w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-2xl"></div>
+                    <div className="absolute -bottom-[2px] -right-[2px] w-8 h-8 border-b-4 border-r-4 border-white rounded-br-2xl"></div>
                   </div>
                 </div>
               </div>
