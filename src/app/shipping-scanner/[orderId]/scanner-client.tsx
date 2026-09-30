@@ -433,7 +433,7 @@ export default function ScannerClient({
   };
 
   const handleCompleteMissingItem = (id: number) => {
-    const pwd = window.prompt("נא להזין סיסמת הרשאה (1234):");
+    const pwd = window.prompt("נא להזין סיסמת הרשאה:");
     if (pwd !== "1234") {
       toast.error("סיסמה שגויה");
       return;
