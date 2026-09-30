@@ -351,7 +351,6 @@ export default function ScannerClient({
           { facingMode: "environment" },
           {
             fps: 10,
-            qrbox: { width: 250, height: 75 },
             aspectRatio: 1,
           },
           (decodedText) => {
@@ -848,8 +847,31 @@ export default function ScannerClient({
               >
                 <X className="w-5 h-5" />
               </button>
+              <style dangerouslySetInnerHTML={{__html: `
+                @keyframes scan-line {
+                  0% { transform: translateY(0px); opacity: 0; }
+                  10% { opacity: 1; }
+                  40% { transform: translateY(74px); }
+                  50% { transform: translateY(76px); opacity: 0; }
+                  60% { opacity: 1; }
+                  90% { transform: translateY(2px); }
+                  100% { transform: translateY(0px); opacity: 0; }
+                }
+              `}} />
               <div className="w-full h-[150px] mx-auto overflow-hidden rounded-xl shadow-inner bg-black relative">
-                <div id="reader" className="w-full absolute top-1/2 left-0 -translate-y-1/2 [&>video]:object-cover"></div>
+                <div id="reader" className="w-full absolute top-1/2 left-0 -translate-y-1/2 [&>video]:object-cover z-0"></div>
+                {/* Custom Scanner Overlay */}
+                <div className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center">
+                  <div className="w-[280px] h-[80px] border border-white/20 rounded-xl relative overflow-hidden box-content" style={{ boxShadow: "0 0 0 9999px rgba(0, 0, 0, 0.4)" }}>
+                    {/* Animated Scanning Line */}
+                    <div className="absolute top-0 left-0 w-full h-[2px] bg-red-500 shadow-[0_0_8px_2px_rgba(239,68,68,0.8)]" style={{ animation: "scan-line 2.5s ease-in-out infinite" }} />
+                    {/* Corner brackets */}
+                    <div className="absolute -top-px -left-px w-6 h-6 border-t-4 border-l-4 border-white rounded-tl-xl"></div>
+                    <div className="absolute -top-px -right-px w-6 h-6 border-t-4 border-r-4 border-white rounded-tr-xl"></div>
+                    <div className="absolute -bottom-px -left-px w-6 h-6 border-b-4 border-l-4 border-white rounded-bl-xl"></div>
+                    <div className="absolute -bottom-px -right-px w-6 h-6 border-b-4 border-r-4 border-white rounded-br-xl"></div>
+                  </div>
+                </div>
               </div>
               <p className="text-xs text-muted-foreground text-center">
                 סריקה אוטומטית - מקם את הברקוד באמצע
