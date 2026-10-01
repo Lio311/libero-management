@@ -27,6 +27,7 @@ interface ShortageRecord {
 export default function ShortagesClient({ shortages }: { shortages: ShortageRecord[] }) {
   const [storeFilter, setStoreFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     let result = [...shortages];
@@ -151,9 +152,9 @@ export default function ShortagesClient({ shortages }: { shortages: ShortageReco
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-white/10 bg-white/5">
-                        <th className="w-12 sm:w-16 p-2.5 sm:p-3"></th>
+                        <th className="w-16 sm:w-20 p-2.5 sm:p-3"></th>
                         <th className="text-right p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">מוצר</th>
-                        <th className="text-right p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">מק&quot;ט</th>
+                        <th className="w-20 sm:w-28 text-right p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">מק&quot;ט</th>
                         <th className="text-center p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">הוזמן</th>
                         <th className="text-center p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">נסרק</th>
                         <th className="text-center p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">חסר</th>
@@ -164,15 +165,20 @@ export default function ShortagesClient({ shortages }: { shortages: ShortageReco
                         <tr key={idx} className="border-b border-white/5 last:border-0">
                           <td className="p-2 sm:p-3">
                             {item.imageUrl ? (
-                              <img src={item.imageUrl} alt={item.name} className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg bg-white/10" />
+                              <img 
+                                src={item.imageUrl} 
+                                alt={item.name} 
+                                className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-lg bg-white/10 cursor-pointer hover:opacity-80 transition-opacity" 
+                                onClick={() => setZoomedImage(item.imageUrl!)}
+                              />
                             ) : (
-                              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/5 rounded-lg flex items-center justify-center">
-                                <Package className="w-5 h-5 text-white/30" />
+                              <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white/5 rounded-lg flex items-center justify-center">
+                                <Package className="w-6 h-6 text-white/30" />
                               </div>
                             )}
                           </td>
                           <td className="p-2.5 sm:p-3 text-white font-medium text-xs sm:text-sm">{item.name}</td>
-                          <td className="p-2.5 sm:p-3 text-white/70 font-mono text-[10px] sm:text-xs">{item.sku || '-'}</td>
+                          <td className="w-20 sm:w-28 p-2.5 sm:p-3 text-white/70 font-mono text-[10px] sm:text-xs break-all">{item.sku || '-'}</td>
                           <td className="p-2.5 sm:p-3 text-center text-white/70 text-xs sm:text-sm">{item.expected}</td>
                           <td className="p-2.5 sm:p-3 text-center text-white/70 text-xs sm:text-sm">{item.scanned}</td>
                           <td className="p-2.5 sm:p-3 text-center">
@@ -188,6 +194,28 @@ export default function ShortagesClient({ shortages }: { shortages: ShortageReco
           )}
         </div>
       </div>
+
+      {/* Image Zoom Modal */}
+      {zoomedImage && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={() => setZoomedImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center">
+            <button 
+              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 p-2 rounded-full text-white transition-colors"
+              onClick={(e) => { e.stopPropagation(); setZoomedImage(null); }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <img 
+              src={zoomedImage} 
+              alt="מוצר בהגדלה" 
+              className="max-w-full max-h-full object-contain rounded-2xl" 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
