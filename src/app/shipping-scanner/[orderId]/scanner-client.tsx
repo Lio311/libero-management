@@ -520,7 +520,7 @@ export default function ScannerClient({
     checkCompletion(newItems);
 
     try {
-      await reportMissingItemsAction({
+      const emailResult = await reportMissingItemsAction({
         orderId: order.id,
         store: store || "libero",
         customerName: order.customerName,
@@ -531,9 +531,15 @@ export default function ScannerClient({
           scanned: item.scanned,
         })),
       });
-      toast.success("נשלח דיווח אוטומטי למנהל המערכת על החוסרים");
+      if (emailResult.success) {
+        toast.success("נשלח דיווח אוטומטי למנהל המערכת על החוסרים");
+      } else {
+        console.error("Email failed:", emailResult.error);
+        toast.error(`שגיאה בשליחת דיווח חוסרים: ${emailResult.error || "שגיאה לא ידועה"}`);
+      }
     } catch (e) {
-      console.error(e);
+      console.error("reportMissingItemsAction threw:", e);
+      toast.error("שגיאה בשליחת דיווח חוסרים");
     }
   };
 

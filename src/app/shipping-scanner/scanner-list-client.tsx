@@ -247,6 +247,7 @@ export default function ScannerListClient({
   }).sort((a, b) => new Date(a.dateCreated).getTime() - new Date(b.dateCreated).getTime());
 
   const processingOrders = filteredOrders.filter(o => o.status === 'processing');
+  const onHoldOrders = filteredOrders.filter(o => o.status === 'on-hold' || o.status === 'on_hold');
   const completedOrders = filteredOrders.filter(o => o.status === 'completed').sort((a, b) => new Date(b.updatedAt || b.dateCreated).getTime() - new Date(a.updatedAt || a.dateCreated).getTime());
 
   // Logic for duplicates category
@@ -592,8 +593,22 @@ export default function ScannerListClient({
         </div>
       )}
 
+      {onHoldOrders.length > 0 && (
+        <div className="space-y-4">
+          <h3 className="text-xl font-semibold flex items-center gap-2 text-red-500">
+            <AlertTriangle className="w-6 h-6" />
+            הזמנות מושהות - חוסרים ({onHoldOrders.length})
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {onHoldOrders.map(order => (
+              <OrderCard store={store} key={order.id} order={order} isAdmin={isAdmin} isWarehouse={isWarehouse} statusLabel="מושהה - חוסרים" statusColor="blue" isSelected={selectedOrderIds.includes(order.id)} onToggle={(e) => toggleSelection(e, order.id)} showCheckbox={true} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {completedOrders.length > 0 && (
-        <div className={`space-y-4 ${processingOrders.length > 0 ? "pt-8 mt-8 border-t border-white/20" : ""}`}>
+        <div className={`space-y-4 ${(processingOrders.length > 0 || onHoldOrders.length > 0) ? "pt-8 mt-8 border-t border-white/20" : ""}`}>
           <h3 className="text-xl font-semibold flex items-center gap-2 text-green-500">
             <Package className="w-6 h-6" />
             הזמנות שהושלמו לאחרונה ({completedOrders.length})
@@ -688,6 +703,11 @@ function OrderCard({ order, statusLabel, statusColor, store, isSelected, onToggl
             הזמנה #{order.id}
           </h3>
           <div className="flex items-center gap-2">
+            {(order.status === 'on_hold' || order.status === 'on-hold' || order.scanProgress?.items?.some((i: any) => i.isMissing)) && (
+              <span className="text-red-600 bg-red-100 p-1 rounded-full" title="יש חוסרים בהזמנה">
+                <AlertTriangle className="w-4 h-4" />
+              </span>
+            )}
             {order.notes && (
               <span className="text-yellow-600 bg-yellow-100 p-1 rounded-full" title="יש הערת לקוח">
                 <MessageSquare className="w-4 h-4" />

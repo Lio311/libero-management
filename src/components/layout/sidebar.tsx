@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ChevronRight, ChevronLeft, ClipboardCheck, UserCog, ShoppingBag, FileText, CalendarDays, UserCheck, ScanBarcode, Settings, Printer } from "lucide-react";
+import { Calendar, Package, Users, DollarSign, Megaphone, Briefcase, CheckSquare, Menu, X, BarChart, Award, Ticket, ChevronDown, ChevronUp, ChevronRight, ChevronLeft, ClipboardCheck, UserCog, ShoppingBag, FileText, CalendarDays, UserCheck, ScanBarcode, Settings, Printer, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import Image from "next/image";
@@ -38,6 +38,7 @@ const navigation: NavItem[] = [
     ]
   },
   { name: "סריקת משלוחים", href: "/shipping-scanner", icon: ScanBarcode },
+  { name: "חוסרים", href: "/shortages", icon: AlertTriangle },
   { name: "הזמנות וספקים", href: "/inventory", icon: Package },
   { name: "תפעול וסיטונאות", href: "/operations", icon: Briefcase },
   { name: "ניתוח מלאי חכם", href: "/inventory-analysis", icon: BarChart },
