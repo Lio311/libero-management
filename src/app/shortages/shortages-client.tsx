@@ -11,6 +11,7 @@ interface ShortageItem {
   sku: string;
   expected: number;
   scanned: number;
+  imageUrl?: string | null;
 }
 
 interface ShortageRecord {
@@ -150,6 +151,7 @@ export default function ShortagesClient({ shortages }: { shortages: ShortageReco
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-white/10 bg-white/5">
+                        <th className="w-12 sm:w-16 p-2.5 sm:p-3"></th>
                         <th className="text-right p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">מוצר</th>
                         <th className="text-right p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">מק&quot;ט</th>
                         <th className="text-center p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">הוזמן</th>
@@ -160,6 +162,15 @@ export default function ShortagesClient({ shortages }: { shortages: ShortageReco
                     <tbody>
                       {shortage.missingItems.map((item, idx) => (
                         <tr key={idx} className="border-b border-white/5 last:border-0">
+                          <td className="p-2 sm:p-3">
+                            {item.imageUrl ? (
+                              <img src={item.imageUrl} alt={item.name} className="w-10 h-10 sm:w-12 sm:h-12 object-cover rounded-lg bg-white/10" />
+                            ) : (
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/5 rounded-lg flex items-center justify-center">
+                                <Package className="w-5 h-5 text-white/30" />
+                              </div>
+                            )}
+                          </td>
                           <td className="p-2.5 sm:p-3 text-white font-medium text-xs sm:text-sm">{item.name}</td>
                           <td className="p-2.5 sm:p-3 text-white/70 font-mono text-[10px] sm:text-xs">{item.sku || '-'}</td>
                           <td className="p-2.5 sm:p-3 text-center text-white/70 text-xs sm:text-sm">{item.expected}</td>

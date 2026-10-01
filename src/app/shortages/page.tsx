@@ -38,6 +38,7 @@ export default async function ShortagesPage() {
         sku: item.sku || item.barcode || '',
         expected: item.expected || item.quantity || 0,
         scanned: item.scanned || 0,
+        imageUrl: item.imageUrl || item.image?.src || null,
       })),
       customerName: orderDetails?.billing ? (orderDetails.billing as any).first_name + ' ' + (orderDetails.billing as any).last_name : 'לא ידוע',
       total: orderDetails?.total || '0',
