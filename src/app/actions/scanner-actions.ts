@@ -451,6 +451,51 @@ export async function reportMissingItemsAction(data: {
   };
   const storeNameHe = storeNames[data.store] || data.store;
 
+  // Fetch ALL existing shortages from DB
+  let existingShortagesHtml = "";
+  try {
+    const allProgress = await db.select().from(orderScanProgress);
+    const otherShortages = allProgress.filter(record => {
+      if (record.orderId === data.orderId && record.store === data.store) return false; // skip current order
+      const items = record.items as any[];
+      return items && items.some((item: any) => item.isMissing === true);
+    });
+
+    if (otherShortages.length > 0) {
+      const rows = otherShortages.map(record => {
+        const items = record.items as any[];
+        const missing = items.filter((i: any) => i.isMissing === true);
+        const storeName = storeNames[record.store] || record.store;
+        const itemsList = missing.map((i: any) => `${i.name || 'לא ידוע'} (מק"ט: ${i.sku || '-'})`).join(', ');
+        return `
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px; text-align: right;">#${record.orderId}</td>
+            <td style="padding: 10px; text-align: right;">${storeName}</td>
+            <td style="padding: 10px; text-align: right; font-size: 13px;">${itemsList}</td>
+          </tr>`;
+      }).join("");
+
+      existingShortagesHtml = `
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd;">
+          <h3 style="color: #555;">📋 כל החוסרים הקיימים במערכת (${otherShortages.length} הזמנות נוספות)</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+            <thead>
+              <tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
+                <th style="padding: 10px; text-align: right;">הזמנה</th>
+                <th style="padding: 10px; text-align: right;">חנות</th>
+                <th style="padding: 10px; text-align: right;">מוצרים חסרים</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+        </div>`;
+    }
+  } catch (err) {
+    console.error("Failed to fetch existing shortages for email:", err);
+  }
+
   let itemsHtml = data.missingItems.map(item => 
     `<li>
       <strong>מק"ט:</strong> ${item.sku} <br/>
@@ -462,20 +507,22 @@ export async function reportMissingItemsAction(data: {
 
   const htmlBody = `
     <div dir="rtl" style="font-family: Arial, sans-serif; font-size: 16px;">
-      <h2 style="color: #e63946;">התראה: מוצרים חסרים בהזמנה</h2>
+      <h2 style="color: #e63946;">🚨 התראה: חוסר חדש בהזמנה!</h2>
       <p>שלום,</p>
       <p>מחסנאי סימן את המוצרים הבאים כחסרים במערכת הסורק.</p>
       
-      <div style="background: #f1faee; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+      <div style="background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 4px solid #e63946;">
         <strong>חנות:</strong> ${storeNameHe} <br/>
         <strong>מספר הזמנה:</strong> #${data.orderId} <br/>
         <strong>שם לקוח:</strong> ${data.customerName}
       </div>
 
-      <h3>פירוט החוסרים:</h3>
+      <h3 style="color: #e63946;">⚠️ חוסרים חדשים:</h3>
       <ul>
         ${itemsHtml}
       </ul>
+      
+      ${existingShortagesHtml}
       
       <p>נא לבדוק את ההזמנה ולטפל בהתאם.</p>
       <p><small>הודעה זו נשלחה אוטומטית ממערכת הסורק</small></p>
@@ -485,8 +532,8 @@ export async function reportMissingItemsAction(data: {
   try {
     await transporter.sendMail({
       from: gmailAddress,
-      to: "lior31197@gmail.com", // You can use gmailAddress to send to the admin, or another specific email. Let's use gmailAddress for now as the admin, or let's use the provided email or process.env.ADMIN_EMAIL. Let's send to gmailAddress.
-      subject: `התראת חוסר - חנות ${storeNameHe} הזמנה #${data.orderId}`,
+      to: "lior31197@gmail.com",
+      subject: `🚨 חוסר חדש - ${storeNameHe} הזמנה #${data.orderId} | סה"כ ${data.missingItems.length} מוצרים`,
       html: htmlBody,
     });
     return { success: true };

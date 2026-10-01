@@ -52,8 +52,8 @@ export default function ShortagesClient({ shortages }: { shortages: ShortageReco
         {/* Header */}
         <div className="glass-panel rounded-3xl p-6">
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-center flex items-center justify-center gap-3">
-            <AlertTriangle className="w-8 h-8 text-red-500" />
             ריכוז חוסרים
+            <AlertTriangle className="w-8 h-8 text-red-500" />
           </h2>
         </div>
 
@@ -81,7 +81,7 @@ export default function ShortagesClient({ shortages }: { shortages: ShortageReco
               <button
                 key={s}
                 onClick={() => setStoreFilter(s)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
+                className={`flex-1 px-3 py-2 rounded-lg font-medium transition-all text-sm whitespace-nowrap ${
                   storeFilter === s ? "bg-blue-600 shadow-sm text-white" : "text-white/70 hover:text-white"
                 }`}
               >
@@ -113,60 +113,59 @@ export default function ShortagesClient({ shortages }: { shortages: ShortageReco
             </div>
           ) : (
             filtered.map((shortage) => (
-              <div key={`${shortage.store}-${shortage.orderId}`} className="glass-panel rounded-2xl p-5 hover:bg-white/5 transition-colors">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-red-500/20 p-2 rounded-lg">
-                      <AlertTriangle className="w-5 h-5 text-red-400" />
+              <div key={`${shortage.store}-${shortage.orderId}`} className="glass-panel rounded-2xl p-4 sm:p-5 hover:bg-white/5 transition-colors">
+                <div className="flex items-center justify-between mb-3 gap-2">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div className="bg-red-500/20 p-1.5 sm:p-2 rounded-lg shrink-0">
+                      <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold flex items-center gap-2">
-                        הזמנה #{shortage.orderId}
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/70">
-                          {storeNames[shortage.store] || shortage.store}
-                        </span>
-                      </h3>
-                      <div className="flex items-center gap-3 text-sm text-white/60 mt-0.5">
-                        <span className="flex items-center gap-1">
-                          <User className="w-3.5 h-3.5" />
-                          {shortage.customerName}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <CalendarIcon className="w-3.5 h-3.5" />
-                          {shortage.dateCreated ? format(new Date(shortage.dateCreated), 'dd/MM/yyyy HH:mm', { locale: he }) : ''}
-                        </span>
-                      </div>
-                    </div>
+                    <h3 className="text-sm sm:text-lg font-semibold flex items-center gap-1.5 sm:gap-2 whitespace-nowrap">
+                      הזמנה #{shortage.orderId}
+                      <span className="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full bg-white/10 text-white/70">
+                        {storeNames[shortage.store] || shortage.store}
+                      </span>
+                    </h3>
                   </div>
                   <Link
                     href={`/shipping-scanner/${shortage.orderId}?store=${shortage.store}`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors text-sm font-medium"
+                    className="flex items-center gap-1 px-2 sm:px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors text-xs sm:text-sm font-medium whitespace-nowrap shrink-0"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-3.5 h-3.5" />
                     פתח הזמנה
                   </Link>
+                </div>
+                
+                <div className="flex items-center gap-3 text-xs sm:text-sm text-white/60 mb-3 mr-9 sm:mr-12">
+                  <span className="flex items-center gap-1">
+                    <User className="w-3.5 h-3.5" />
+                    {shortage.customerName}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <CalendarIcon className="w-3.5 h-3.5" />
+                    {shortage.dateCreated ? format(new Date(shortage.dateCreated), 'dd/MM/yyyy HH:mm', { locale: he }) : ''}
+                  </span>
                 </div>
                 
                 <div className="bg-white/5 rounded-xl overflow-hidden border border-white/10">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-white/10 text-white/50">
-                        <th className="text-right p-3 font-medium">מוצר</th>
-                        <th className="text-right p-3 font-medium">מק"ט</th>
-                        <th className="text-center p-3 font-medium">הוזמן</th>
-                        <th className="text-center p-3 font-medium">נסרק</th>
-                        <th className="text-center p-3 font-medium">חסר</th>
+                      <tr className="border-b border-white/10 bg-white/5">
+                        <th className="text-right p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">מוצר</th>
+                        <th className="text-right p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">מק&quot;ט</th>
+                        <th className="text-center p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">הוזמן</th>
+                        <th className="text-center p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">נסרק</th>
+                        <th className="text-center p-2.5 sm:p-3 font-semibold text-xs sm:text-sm text-white/80">חסר</th>
                       </tr>
                     </thead>
                     <tbody>
                       {shortage.missingItems.map((item, idx) => (
                         <tr key={idx} className="border-b border-white/5 last:border-0">
-                          <td className="p-3 text-white font-medium">{item.name}</td>
-                          <td className="p-3 text-white/70 font-mono text-xs">{item.sku || '-'}</td>
-                          <td className="p-3 text-center text-white/70">{item.expected}</td>
-                          <td className="p-3 text-center text-white/70">{item.scanned}</td>
-                          <td className="p-3 text-center">
-                            <span className="text-red-400 font-bold">{item.expected - item.scanned}</span>
+                          <td className="p-2.5 sm:p-3 text-white font-medium text-xs sm:text-sm">{item.name}</td>
+                          <td className="p-2.5 sm:p-3 text-white/70 font-mono text-[10px] sm:text-xs">{item.sku || '-'}</td>
+                          <td className="p-2.5 sm:p-3 text-center text-white/70 text-xs sm:text-sm">{item.expected}</td>
+                          <td className="p-2.5 sm:p-3 text-center text-white/70 text-xs sm:text-sm">{item.scanned}</td>
+                          <td className="p-2.5 sm:p-3 text-center">
+                            <span className="text-red-400 font-bold text-xs sm:text-sm">{item.expected - item.scanned}</span>
                           </td>
                         </tr>
                       ))}
