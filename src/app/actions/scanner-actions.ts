@@ -532,7 +532,7 @@ export async function reportMissingItemsAction(data: {
   try {
     await transporter.sendMail({
       from: gmailAddress,
-      to: "lior31197@gmail.com",
+      to: "lior31197@gmail.com, danielrobinovv@gmail.com, ordzohar@gmail.com, i0543022584@gmail.com",
       subject: `🚨 חוסר חדש - ${storeNameHe} הזמנה #${data.orderId} | סה"כ ${data.missingItems.length} מוצרים`,
       html: htmlBody,
     });
